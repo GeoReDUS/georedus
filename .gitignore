@@ -18,3 +18,4 @@ node_modules
 tmp*
 .DS_Store
 coverage**
+.next
