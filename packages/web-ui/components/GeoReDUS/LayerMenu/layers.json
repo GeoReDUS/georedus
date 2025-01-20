@@ -2,6 +2,14 @@
   {
     "path": "populacao-e-domicilios/populacao-por-faixa-etaria",
     "id": "pop_bas_mor_tot_60_mais",
+    "sources": [
+      {
+        "id": "censo_2022",
+        "tiles": [
+          "https://georedus-martin.redus.org.br/function_zxy_query"
+        ]
+      }
+    ],
     "label": "Pessoas de 60 ou mais anos de idade",
     "mapLayerId": "censo",
     "variants": [
