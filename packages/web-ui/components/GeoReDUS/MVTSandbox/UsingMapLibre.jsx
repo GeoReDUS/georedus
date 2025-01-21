@@ -15,8 +15,8 @@ export function UsingMapLibre() {
     console.log(features) // Access the data from MVT
   }
 
-  // const LAYER_ID = 'ibge_br_regiao'
-  const LAYER_ID = 'ibge_br_municipio'
+  const LAYER_ID = 'cem_censo_2010'
+  // const LAYER_ID = 'ibge_br_uf'
 
   return (
     <MapCore
@@ -38,9 +38,10 @@ export function UsingMapLibre() {
         id={id}
         type="vector"
         tiles={[
-          `http://localhost:3000/${LAYER_ID}/{z}/{x}/{y}`
+          `http://localhost:6002/${LAYER_ID}/{z}/{x}/{y}`
         ]}
-        maxzoom={8}
+        minzoom={10}
+        maxzoom={20}
         // url="http://localhost:3000/function_zxy_query"
         // url="http://localhost:3000/function_zxy_query?properties_idx_string_4=3550308"
         // url="http://localhost:3000/datasus_ibge_br_regiao_de_saude"

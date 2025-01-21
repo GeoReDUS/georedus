@@ -1,0 +1,36 @@
+{
+  "name": "@orioro/react-maplibre-util",
+  "version": "0.0.0",
+  "packageManager": "yarn@4.0.2",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./*": "./dist/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "private"
+  },
+  "license": "ISC",
+  "scripts": {
+    "build": "rm -rf dist && rollup --config ./rollup.config.mjs",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "devDependencies": {
+    "@orioro/dev": "workspace:*",
+    "rollup": "^4.13.0",
+    "storybook": "^8.0.0"
+  },
+  "dependencies": {
+    "@vis.gl/react-maplibre": "1.0.0-alpha.4",
+    "maplibre-gl": "^5.0.1",
+    "react": "^18.2.0",
+    "simple-statistics": "^7.8.7",
+    "styled-components": "^6.1.8"
+  }
+}
