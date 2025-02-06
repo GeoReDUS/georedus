@@ -1,5 +1,5 @@
 {
-  "name": "@orioro/react-maplibre-util",
+  "name": "@orioro/react-chart-util",
   "version": "0.0.0",
   "packageManager": "yarn@4.0.2",
   "type": "module",
@@ -27,24 +27,11 @@
     "storybook": "^8.0.0"
   },
   "dependencies": {
-    "@maplibre/maplibre-gl-geocoder": "^1.7.1",
-    "@orioro/react-chart-util": "workspace:*",
-    "@orioro/react-select": "workspace:*",
+    "@orioro/cast": "workspace:*",
     "@orioro/react-ui-core": "workspace:*",
-    "@orioro/resolve": "workspace:*",
-    "@turf/turf": "^7.2.0",
-    "@types/d3": "^7.4.3",
-    "@types/d3-scale-chromatic": "^3.1.0",
-    "@types/geojson": "^7946.0.16",
-    "d3": "^7.9.0",
-    "d3-scale-chromatic": "^3.1.0",
+    "@orioro/util": "workspace:*",
     "lodash-es": "^4.17.21",
-    "maplibre-gl": "^5.1.0",
-    "query-string": "^9.1.1",
     "react": "^18.2.0",
-    "react-map-gl": "^8.0.0",
-    "react-merge-refs": "^2.1.1",
-    "simple-statistics": "^7.8.7",
     "styled-components": "^6.1.8"
   }
 }
