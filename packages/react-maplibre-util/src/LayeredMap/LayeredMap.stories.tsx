@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Map, {
   NavigationControl,
   FullscreenControl,
@@ -20,14 +20,19 @@ import {
   ALL_EXPR,
   fetchExpr,
 } from '@orioro/resolve'
+import { useQueries } from '@tanstack/react-query'
 
 import { LayeredMap } from '../LayeredMap'
-import { $scaleNaturalBreaks } from '../scales'
+import { $naturalBreaks } from '../scales'
+
 import { fitGeometry } from '../util'
 import { LayeredMapProps, MapView, MapViewLayer, MapViewSource } from '../types'
 import { schemePuBuGn } from 'd3-scale-chromatic'
-import { ColorLegend } from '@orioro/react-chart-util'
 import { Flex } from '@orioro/react-ui-core'
+import { Legend } from '@orioro/react-chart-util'
+import { useHover } from '../useHover'
+import { HoverTooltip } from '../HoverTooltip'
+import { useDebounce } from 'react-use'
 
 export default {
   title: 'LayeredMap',
@@ -57,7 +62,7 @@ const { resolveAsync, resolve } = makeResolve({
             [METADATA_API_ENDPOINT]: ['GET'],
           }),
         }),
-        $scaleNaturalBreaks,
+        $naturalBreaks,
       },
     }).resolver,
   ),
@@ -129,92 +134,108 @@ function cem_censo_2010({
 
   const globalRes = globalResources()
 
+  const viewId = `${TABLE_ID}.${VARIABLE_ID}`
+
+  const NUMBER_FMT = ['pt-BR', { style: 'percent' }]
+
   return [
-    '$let',
-    'variableValues',
+    viewId,
     [
-      '$get',
-      `[].${VARIABLE_ID}`,
+      '$let',
+      'variableValues',
       [
-        '$fetch',
+        '$get',
+        `[].${VARIABLE_ID}`,
         [
-          '$template',
-          `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=${VARIABLE_ID}&cod_municipio=eq.\$\{0\}`,
-          ['$context', 'municipioId'],
+          '$fetch',
+          [
+            '$template',
+            `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=${VARIABLE_ID}&cod_municipio=eq.\$\{0\}`,
+            ['$context', 'municipioId'],
+          ],
         ],
       ],
-    ],
-    {
-      id: `${TABLE_ID}.${VARIABLE_ID}`,
-      label: variableId,
-      sources: {
-        ...globalRes.sources,
-        [VECTOR_SOURCE_ID]: tableVectorSource(TABLE_ID, {
-          minzoom: 9,
-          maxzoom: 20,
-        }),
-      },
-      layers: {
-        ...globalRes.layers,
-        [`${VECTOR_SOURCE_ID}_fill`]: {
-          source: VECTOR_SOURCE_ID,
-          'source-layer': VECTOR_SOURCE_ID,
-          type: 'fill',
-          filter: ['==', ['get', 'cod_municipio'], ['$get', 'municipioId']],
-          paint: {
-            'fill-color': [
-              '$scaleNaturalBreaks',
-              VARIABLE_ID,
-              ['$get', 'variableValues'],
+      {
+        id: viewId,
+        label: variableId,
+        legends: [
+          {
+            type: 'SequentialColorLegend',
+            title: 'Taxa de alfabetização',
+            unit: '% relativa à unidade territorial',
+            format: {
+              number: NUMBER_FMT,
+            },
+            steps: ['$naturalBreaks', ['$get', 'variableValues']],
+          },
+        ],
+        sources: {
+          ...globalRes.sources,
+          [VECTOR_SOURCE_ID]: tableVectorSource(TABLE_ID, {
+            minzoom: 9,
+            maxzoom: 20,
+          }),
+        },
+        layers: {
+          ...globalRes.layers,
+          [`${VECTOR_SOURCE_ID}_fill`]: {
+            interactive: true,
+
+            tooltip: [
+              '$literal',
+              {
+                title: [
+                  '$literal',
+                  [
+                    '$template',
+                    'Setor ${0}',
+                    ['$get', 'feature.properties.cd_geocodi'],
+                  ],
+                ],
+                entries: [
+                  [
+                    'Taxa de alfabetização',
+                    [
+                      '$literal',
+                      [
+                        '$get',
+                        `feature.properties.${VARIABLE_ID}::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
+                      ],
+                    ],
+                  ],
+                  [
+                    'Pessoas Residentes',
+                    [
+                      '$literal',
+                      [
+                        '$get',
+                        `feature.properties.pop_bas_mor_tot_pes::string`,
+                      ],
+                    ],
+                  ],
+                ],
+              },
             ],
-            'fill-opacity': 0.5,
-            'fill-outline-color': 'transparent',
+            source: VECTOR_SOURCE_ID,
+            'source-layer': VECTOR_SOURCE_ID,
+            type: 'fill',
+            filter: ['==', ['get', 'cod_municipio'], ['$get', 'municipioId']],
+            paint: {
+              'fill-color': [
+                '$flat',
+                [
+                  ['step', ['get', VARIABLE_ID]],
+                  ['$naturalBreaks', ['$get', 'variableValues']],
+                ],
+              ],
+              'fill-opacity': 0.5,
+              'fill-outline-color': 'transparent',
+            },
           },
         },
       },
-    },
+    ],
   ]
-
-  // return {
-  //   id: `${TABLE_ID}.${VARIABLE_ID}`,
-  //   label: variableId,
-  //   sources: {
-  //     ...globalRes.sources,
-  //     [VECTOR_SOURCE_ID]: tableVectorSource(TABLE_ID, {
-  //       minzoom: 9,
-  //       maxzoom: 20,
-  //     }),
-  //   },
-  //   layers: {
-  //     ...globalRes.layers,
-  //     [`${VECTOR_SOURCE_ID}_fill`]: {
-  //       source: VECTOR_SOURCE_ID,
-  //       'source-layer': VECTOR_SOURCE_ID,
-  //       type: 'fill',
-  //       filter: ['==', ['get', 'cod_municipio'], ['$get', 'municipioId']],
-  //       paint: {
-  //         'fill-color': [
-  //           '$scaleNaturalBreaks',
-  //           VARIABLE_ID,
-  //           [
-  //             '$get',
-  //             `[].${VARIABLE_ID}`,
-  //             [
-  //               '$fetch',
-  //               [
-  //                 '$template',
-  //                 `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=${VARIABLE_ID}&cod_municipio=eq.\$\{0\}`,
-  //                 ['$context', 'municipioId'],
-  //               ],
-  //             ],
-  //           ],
-  //         ],
-  //         'fill-opacity': 0.5,
-  //         'fill-outline-color': 'transparent',
-  //       },
-  //     },
-  //   },
-  // }
 }
 
 function cem_educacao_escolas_2022({
@@ -226,50 +247,143 @@ function cem_educacao_escolas_2022({
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
   const VARIABLE_ID = variableId
 
+  const SIZING_VARIABLE_ID = 'qt_mat_fund_ai'
+
   const globalRes = globalResources()
 
-  return {
-    id: `${TABLE_ID}.${VARIABLE_ID}`,
-    sources: {
-      ...globalRes.sources,
-      [VECTOR_SOURCE_ID]: tableVectorSource(TABLE_ID, {
-        minzoom: 9,
-        maxzoom: 20,
-      }),
-    },
-    layers: {
-      ...globalRes.layers,
-      [`${VECTOR_SOURCE_ID}_circle` as string]: vectorLayer(VECTOR_SOURCE_ID, {
-        type: 'circle',
-        filter: ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
-        paint: {
-          'circle-opacity': 1,
-          'circle-radius': 6,
-          // 'circle-color': '#00D0F0',
+  const viewId = `${TABLE_ID}.${VARIABLE_ID}`
 
-          'circle-color': [
-            '$scaleNaturalBreaks',
-            VARIABLE_ID,
+  return [
+    viewId,
+    [
+      '$let',
+      {
+        variableValues: [
+          '$filter',
+          [
+            '$get',
+            `[].${VARIABLE_ID}`,
             [
-              '$get',
-              `[].${VARIABLE_ID}`,
+              '$fetch',
               [
-                '$fetch',
-                [
-                  '$template',
-                  `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=${VARIABLE_ID}&co_municipio=eq.\$\{0\}`,
-                  ['$context', 'municipioId'],
-                ],
+                '$template',
+                `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=${VARIABLE_ID}&co_municipio=eq.\$\{0\}`,
+                ['$context', 'municipioId'],
               ],
             ],
-            {
-              colorScale: schemePuBuGn,
-            },
           ],
+          [
+            '$and',
+            ['$not', ['$empty', ['$iterator', 'item']]],
+            ['$lte', ['$iterator', 'item'], 100],
+          ],
+        ],
+        sizingValues: [
+          '$filter',
+          [
+            '$get',
+            `[].${SIZING_VARIABLE_ID}`,
+            [
+              '$fetch',
+              [
+                '$template',
+                `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=${SIZING_VARIABLE_ID}&co_municipio=eq.\$\{0\}`,
+                ['$context', 'municipioId'],
+              ],
+            ],
+          ],
+          ['$and', ['$not', ['$empty', ['$iterator', 'item']]]],
+        ],
+      },
+      {
+        id: viewId,
+        legends: [
+          {
+            type: 'SequentialColorLegend',
+            title: variableId,
+            unit: `${variableId}_unit`,
+            steps: [
+              '$naturalBreaks',
+              ['$get', 'variableValues'],
+              {
+                scalesByK: schemePuBuGn,
+              },
+            ],
+          },
+        ],
+        sources: {
+          ...globalRes.sources,
+          [VECTOR_SOURCE_ID]: tableVectorSource(TABLE_ID, {
+            minzoom: 9,
+            maxzoom: 20,
+          }),
         },
-      }),
-    },
-  }
+        layers: {
+          ...globalRes.layers,
+          [`${VECTOR_SOURCE_ID}_circle` as string]: vectorLayer(
+            VECTOR_SOURCE_ID,
+            {
+              type: 'circle',
+              interactive: true,
+              tooltip: [
+                '$literal',
+                {
+                  title: [
+                    '$literal',
+                    ['$get', 'feature.properties.no_entidade'],
+                  ],
+                  entries: [
+                    [
+                      VARIABLE_ID,
+                      [
+                        '$literal',
+                        [
+                          '$get',
+                          `feature.properties.${VARIABLE_ID}::string({ "number": ["pt-BR"] })`,
+                        ],
+                      ],
+                    ],
+                  ],
+                },
+              ],
+              filter: [
+                'all',
+                ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
+                ['==', ['typeof', ['get', VARIABLE_ID]], 'number'],
+                // ['<=', ['get', VARIABLE_ID], 100],
+              ],
+              paint: {
+                'circle-opacity': 1,
+                'circle-radius': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', SIZING_VARIABLE_ID], // Replace "density" with your property name
+                  ['$min', ['$get', 'sizingValues']],
+                  6, // When qt_mat_fund_ai is 0, radius is 6
+                  ['$max', ['$get', 'sizingValues']],
+                  20, // When qt_mat_fund_ai is 100, radius is 20
+                ],
+                // 'circle-radius': ['get', 'qt_mat_fund_ai'],
+                'circle-color': [
+                  '$flat',
+                  [
+                    ['step', ['get', VARIABLE_ID]],
+                    [
+                      '$naturalBreaks',
+                      ['$get', 'variableValues'],
+                      {
+                        scalesByK: schemePuBuGn,
+                      },
+                    ],
+                  ],
+                ],
+              },
+            },
+          ),
+        },
+      },
+    ],
+  ]
 }
 
 const presets = {
@@ -287,10 +401,16 @@ const VIEW_SPECS = [
 ]
 
 const VIEW_SPECS_BY_ID = VIEW_SPECS.reduce(
-  (acc, view) => ({
-    ...acc,
-    [view.id]: view,
-  }),
+  (acc, view) =>
+    Array.isArray(view)
+      ? {
+          ...acc,
+          [view[0]]: view[1],
+        }
+      : {
+          ...acc,
+          [view.id]: view,
+        },
   {},
 )
 
@@ -308,31 +428,28 @@ const municipioOptions = async () => {
 export const Basic = () => {
   const [municipioId, setMunicipioId] = useState<string | undefined>(undefined)
   const [activeViewIds, setActiveViewIds] = useState(
-    VIEW_SPECS.map((v) => v.id),
+    Object.keys(VIEW_SPECS_BY_ID),
   )
-  const [resolvedViews, setResolvedViews] = useState([])
 
-  console.log(resolvedViews)
-
-  useEffect(() => {
-    async function resolveViews() {
-      if (!municipioId) {
-        setResolvedViews([])
-        return
-      }
-
-      const nextActiveViews = await resolveAsync(
-        activeViewIds.map((viewId) => VIEW_SPECS_BY_ID[viewId]),
-        {
+  const viewsQueries = useQueries({
+    queries: activeViewIds.map((viewId) => ({
+      queryKey: ['ResolveView', viewId, municipioId],
+      queryFn: async () => {
+        return resolveAsync(VIEW_SPECS_BY_ID[viewId], {
           municipioId,
-        },
-      )
+        })
+      },
+      throwOnError: true,
+    })),
+  })
 
-      setResolvedViews(nextActiveViews)
-    }
-
-    resolveViews()
-  }, [municipioId, activeViewIds])
+  const resolvedViews = useMemo(
+    () =>
+      viewsQueries
+        .filter((query) => query.status === 'success')
+        .map((query) => query.data),
+    [viewsQueries],
+  )
 
   const mainMapRef = useRef<MapInstance | null>(null)
   const [viewState, setViewState] = useState<
@@ -343,6 +460,53 @@ export const Basic = () => {
     zoom: 10,
   })
   const onMove = useCallback((evt) => setViewState(evt.viewState), [])
+
+  // useDebounce(
+  //   async () => {
+  //     if (!mainMapRef.current) {
+  //       return
+  //     }
+
+  //     const bounds = mainMapRef.current.getBounds() // Get map view bounds
+
+  //     const [intersecting] = await fetch(
+  //       `${METADATA_API_ENDPOINT}/rpc/get_intersecting_ibge_malha_br_municipio`,
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Accept: 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           input_geojson: {
+  //             type: 'Point',
+  //             coordinates: [viewState.longitude, viewState.latitude], // GeoJSON uses [longitude, latitude]
+  //           },
+  //         }),
+  //         // body: JSON.stringify({
+  //         //   input_geojson: {
+  //         //     type: 'Polygon',
+  //         //     coordinates: [
+  //         //       [
+  //         //         [bounds.getWest(), bounds.getSouth()], // Bottom-left
+  //         //         [bounds.getEast(), bounds.getSouth()], // Bottom-right
+  //         //         [bounds.getEast(), bounds.getNorth()], // Top-right
+  //         //         [bounds.getWest(), bounds.getNorth()], // Top-left
+  //         //         [bounds.getWest(), bounds.getSouth()], // Closing the polygon
+  //         //       ],
+  //         //     ],
+  //         //   },
+  //         // }),
+  //       },
+  //     ).then((res) => res.json())
+
+  //     if (intersecting) {
+  //       setMunicipioId(intersecting.id)
+  //     }
+  //   },
+  //   1000,
+  //   [viewState],
+  // )
 
   useEffect(() => {
     async function flyToMunicipio() {
@@ -364,7 +528,38 @@ export const Basic = () => {
 
   useEffect(() => setMunicipioId('1501402'), [])
 
-  console.log(resolvedViews)
+  //
+  // Hover stuff
+  //
+  const [{ children: hoverChildren, ...hoverProps }, hoverInfo, isDragging] =
+    useHover(
+      {
+        tooltip: ({ point, features }) => {
+          const tooltipDataSections = features
+            .flatMap((feature) => {
+              const tooltipSpec = feature.layer?.tooltip
+
+              return tooltipSpec
+                ? resolve(tooltipSpec, {
+                    mapView: feature.mapView,
+                    feature,
+                  })
+                : null
+            })
+            .filter(Boolean)
+
+          return (
+            tooltipDataSections.length > 0 && (
+              <HoverTooltip
+                position={point}
+                dataSections={tooltipDataSections}
+              />
+            )
+          )
+        },
+      },
+      [],
+    )
 
   return (
     <>
@@ -394,10 +589,19 @@ export const Basic = () => {
           views={resolvedViews}
           ref={mainMapRef}
           {...viewState}
+          {...hoverProps}
+          cursor={
+            isDragging
+              ? 'grabbing'
+              : hoverInfo?.features?.length > 0
+                ? 'default'
+                : 'grab'
+          }
           onMove={onMove}
           style={{ width: '100vw', height: '100vh' }}
           mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`}
         >
+          {hoverChildren}
           <GeolocateControl position="top-right" />
           <FullscreenControl position="top-right" />
           <NavigationControl position="top-right" />
@@ -411,42 +615,18 @@ export const Basic = () => {
             }}
           >
             <Flex direction="row" gap="10px">
-              {resolvedViews.map((view) => (
-                <ColorLegend
-                  items={[
-                    {
-                      id: '1',
-                      color: 'rgb(84, 39, 143)',
-                      label: 'More than 0.08',
-                    },
-                    {
-                      id: '2',
-                      color: 'rgb(117, 107, 177)',
-                      label: '0.06 to 0.08',
-                    },
-                    {
-                      id: '3',
-                      color: 'rgb(158, 154, 200)',
-                      label: '0.04 to 0.06',
-                    },
-                    {
-                      id: '4',
-                      color: '#bcbddc',
-                      label: '0.02 to 0.04',
-                    },
-                    {
-                      id: '5',
-                      color: '#dadaeb',
-                      label: '0.01 to 0.02',
-                    },
-                    {
-                      id: '6',
-                      color: '#f2f0f7',
-                      label: 'Less than 0.01',
-                    },
-                  ]}
-                />
-              ))}
+              {resolvedViews
+                .flatMap((view) =>
+                  view.legends
+                    ? view.legends.map((legend, index) => ({
+                        ...legend,
+                        id: `${view.id}_${index}`,
+                      }))
+                    : [],
+                )
+                .map((legend) => (
+                  <Legend key={legend.id} {...legend} />
+                ))}
             </Flex>
           </div>
         </LayeredMap>

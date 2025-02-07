@@ -1,16 +1,19 @@
 import { AnyLayer } from 'react-map-gl/dist/esm/exports-maplibre'
 import { MapView, MapViewLayer, MapViewSource } from '../types'
-import { uniq, uniqBy } from 'lodash-es'
+import { isPlainObject, uniq, uniqBy } from 'lodash-es'
 
 type ParsedSource = MapViewSource & {
   id: string
+  viewId: string
 }
 
 type ParsedLayer = MapViewLayer & {
   id: string
+  viewId: string
 }
 
-type ParseMapViewsReturn = {
+export type MapViewsParseResult = {
+  srcMapViews: MapView[]
   sources: ParsedSource[]
   layers: ParsedLayer[]
   interactiveLayerIds: string[]
@@ -78,53 +81,90 @@ export function sortLayers(
   )
 }
 
+export function getSrcLayer(
+  parsed: MapViewsParseResult,
+  layerId: string,
+): ParsedLayer | null {
+  return parsed.layers.find((layer) => layer.id === layerId) || null
+}
+
+/**
+ * Given a layerId, attempts to retrieve the source mapView
+ *
+ * @param  {MapViewsParseResult} parsed  [description]
+ * @param  {string}              layerId [description]
+ * @param  {[type]}                      [description]
+ * @return {MapView}                     [description]
+ */
+export function getSrcViewByLayerId(
+  parsed: MapViewsParseResult,
+  layerId: string,
+): MapView | null {
+  const layer = getSrcLayer(parsed, layerId)
+
+  return layer
+    ? parsed.srcMapViews.find((view) => view.id === layer.viewId) || null
+    : null
+}
+
 export function parseMapViews(
   orderedViews: MapView[],
   { existingLayers }: ParseMapViewsOptions = {},
-): ParseMapViewsReturn {
+): MapViewsParseResult {
   const parsed = orderedViews.reduce(
     (acc, { id: viewId, sources, layers }) => {
-      const _sources = Object.entries(sources).reduce(
-        (acc, [sourceRelativeId, source]) => [
-          ...acc,
-          {
-            ...source,
-            id: source.absoluteId
-              ? source.absoluteId
-              : `${viewId}__${sourceRelativeId}`,
-          },
-        ],
-        [] as ParsedSource[],
-      )
-
-      const { _layers, interactiveLayerIds } = Object.entries(layers).reduce(
-        (acc, [layerRelativeId, layer]) => {
-          const layerId = layer.absoluteId ? layer.absoluteId : `${viewId}__${layerRelativeId}`
-
-          return {
-            interactiveLayerIds: layer.interactive
-              ? [...acc.interactiveLayerIds, layerId]
-              : acc.interactiveLayerIds,
-            _layers: [
-              ...acc._layers,
+      const _sources = isPlainObject(sources)
+        ? Object.entries(sources).reduce(
+            (acc, [sourceRelativeId, source]) => [
+              ...acc,
               {
-                ...layer,
-                id: layerId,
-                source: layer.absoluteSourceId
-                  ? layer.absoluteSourceId
-                  : `${viewId}__${layer.source}`,
+                ...source,
+                viewId,
+                id: source.absoluteId
+                  ? source.absoluteId
+                  : `${viewId}__${sourceRelativeId}`,
               },
             ],
+            [] as ParsedSource[],
+          )
+        : []
+
+      const { _layers, interactiveLayerIds } = isPlainObject(layers)
+        ? Object.entries(layers).reduce(
+            (acc, [layerRelativeId, layer]) => {
+              const layerId = layer.absoluteId
+                ? layer.absoluteId
+                : `${viewId}__${layerRelativeId}`
+
+              return {
+                interactiveLayerIds: layer.interactive
+                  ? [...acc.interactiveLayerIds, layerId]
+                  : acc.interactiveLayerIds,
+                _layers: [
+                  ...acc._layers,
+                  {
+                    ...layer,
+                    viewId,
+                    id: layerId,
+                    source: layer.absoluteSourceId
+                      ? layer.absoluteSourceId
+                      : `${viewId}__${layer.source}`,
+                  },
+                ],
+              }
+            },
+            {
+              interactiveLayerIds: [],
+              _layers: [],
+            } as {
+              interactiveLayerIds: string[]
+              _layers: ParsedLayer[]
+            },
+          )
+        : {
+            _layers: [],
+            interactiveLayerIds: [],
           }
-        },
-        {
-          interactiveLayerIds: [],
-          _layers: [],
-        } as {
-          interactiveLayerIds: string[]
-          _layers: ParsedLayer[]
-        },
-      )
 
       return {
         sources: [...acc.sources, ..._sources],
@@ -139,10 +179,11 @@ export function parseMapViews(
       sources: [],
       layers: [],
       interactiveLayerIds: [],
-    } as ParseMapViewsReturn,
+    } as Omit<MapViewsParseResult, 'srcMapViews'>,
   )
 
   return {
+    srcMapViews: orderedViews,
     sources: uniqBy(parsed.sources, 'id'),
     layers: sortLayers(uniqBy(parsed.layers, 'id'), { existingLayers }),
     interactiveLayerIds: uniq(parsed.interactiveLayerIds),

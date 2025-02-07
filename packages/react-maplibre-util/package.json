@@ -23,11 +23,11 @@
   },
   "devDependencies": {
     "@orioro/dev": "workspace:*",
+    "@tanstack/react-query": "^5.66.0",
     "rollup": "^4.13.0",
     "storybook": "^8.0.0"
   },
   "dependencies": {
-    "@maplibre/maplibre-gl-geocoder": "^1.7.1",
     "@orioro/react-chart-util": "workspace:*",
     "@orioro/react-select": "workspace:*",
     "@orioro/react-ui-core": "workspace:*",
@@ -44,7 +44,9 @@
     "react": "^18.2.0",
     "react-map-gl": "^8.0.0",
     "react-merge-refs": "^2.1.1",
+    "react-use": "^17.5.0",
     "simple-statistics": "^7.8.7",
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.8",
+    "tslib": "^2.8.1"
   }
 }

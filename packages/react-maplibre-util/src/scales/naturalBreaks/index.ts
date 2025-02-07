@@ -7,10 +7,11 @@ import { isPlainObject, pick } from 'lodash-es'
 const DEFAULT_COLOR_SCALE = schemeYlOrRd
 
 type ScaleNaturalBreaksProps = {
-  propertyId: string
   values: number[]
   k?: number
-  colorScale?: typeof DEFAULT_COLOR_SCALE
+  minK?: number
+  maxK?: number
+  scalesByK?: typeof DEFAULT_COLOR_SCALE
 }
 
 export function naturalBreakBounds(
@@ -25,44 +26,54 @@ export function naturalBreakBounds(
 }
 
 export function scaleNaturalBreaks({
-  propertyId,
   values,
   k,
-  colorScale = DEFAULT_COLOR_SCALE,
+  minK = MIN_K,
+  maxK = MAX_K,
+  scalesByK = DEFAULT_COLOR_SCALE,
 }: ScaleNaturalBreaksProps) {
   try {
     values = values.filter((v) => typeof v === 'number' && !Number.isNaN(v))
 
-    k = typeof k === 'number' ? within(k, [MIN_K, MAX_K]) : autoK(values)
+    k =
+      typeof k === 'number'
+        ? within(k, [minK, maxK])
+        : autoK(values, [minK, maxK])
     const bounds = naturalBreakBounds(values, k)
 
-    const colors = colorScale[k]
+    const scale = scalesByK[k]
 
-    const expr = [
-      'step',
-      ['get', propertyId],
+    //
+    // Will produce an array such as:
+    // [
+    //   "below_10",
+    //   10,
+    //   "between_10_20",
+    //   20,
+    //   "between_20_30",
+    //   30,
+    //   "above_30"
+    // ]
+    //
+    const steps = bounds
+      .map(([min, max], index) => {
+        const scaleValue = scale[index]
 
-      ...bounds
-        .map(([min, max], index) => {
-          const color = colors[index]
+        return index === 0 ? [scaleValue] : [min, scaleValue]
+      })
+      .flat(1)
 
-          return index === 0 ? [color] : [min, color]
-        })
-        .flat(1),
-    ]
-
-    return expr
+    return steps
   } catch (err) {
     return '#cccccc'
   }
 }
 
-export const $scaleNaturalBreaks: ExpressionFn<
-  [string, number[], opt?: Pick<ScaleNaturalBreaksProps, 'k' | 'colorScale'>]
-> = ([propertyId, values, opt]) => {
+export const $naturalBreaks: ExpressionFn<
+  [number[], opt?: Pick<ScaleNaturalBreaksProps, 'k' | 'scalesByK'>]
+> = ([values, opt]) => {
   return scaleNaturalBreaks({
-    propertyId,
     values,
-    ...(isPlainObject(opt) ? pick(opt, ['colorScale', 'k']) : {}),
+    ...(isPlainObject(opt) ? pick(opt, ['scalesByK', 'k']) : {}),
   })
 }

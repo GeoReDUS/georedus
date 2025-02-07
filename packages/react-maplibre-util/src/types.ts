@@ -36,10 +36,18 @@ export type MapViewLayer = Omit<AnyLayer, 'id'> & {
   zIndex?: number
 }
 
+type MapViewLegend = {
+  type: string
+  [key: string]: any
+}
+
 export type MapView = {
   id: string
   sources: Record<string, MapViewSource>
   layers: Record<string, MapViewLayer>
+  legends: MapViewLegend[]
+
+  [key: string]: any
 }
 
 export type LayeredMapProps = Parameters<typeof Map>[0] & {

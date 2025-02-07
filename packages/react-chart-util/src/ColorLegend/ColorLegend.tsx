@@ -23,6 +23,8 @@ const ColorDisplay = styled.div`
 
 const ItemLabel = styled.div`
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
 `
 
 const LegendTitle = styled.h3`
@@ -45,7 +47,7 @@ export function ColorLegendItems({
         <Flex
           key={item.id || index}
           direction="row"
-          alignItems="center"
+          alignItems="strecth"
           gap="10px"
         >
           <ColorDisplay
@@ -63,7 +65,7 @@ export function ColorLegendItems({
 
 export function ColorLegend({ title, unit, ...props }: ColorLegendProps) {
   return (
-    <Flex direction="column" gap="6px">
+    <Flex direction="column" gap="10px">
       {(title || unit) && (
         <div>
           {title && <LegendTitle>{title}</LegendTitle>}
