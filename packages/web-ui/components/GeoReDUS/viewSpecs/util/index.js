@@ -1,3 +1,4 @@
+import { set } from 'lodash'
 import { VECTOR_TILE_SERVER_ENDPOINT } from '../constants'
 
 export function tableVectorSource(tableId, override = {}) {
@@ -45,4 +46,23 @@ export function globalResources() {
       },
     },
   }
+}
+
+//
+// https://stackoverflow.com/questions/33713084/download-link-for-google-spreadsheets-csv-export-with-multiple-sheets/33727897#33727897
+//
+export function googleSheetsUrl({ sheetId, sheetName }) {
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`
+}
+
+//
+// Converts any key with dot notation
+// to actual objects
+//
+export function unflat(obj) {
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    set(acc, key, value)
+
+    return acc
+  }, {})
 }

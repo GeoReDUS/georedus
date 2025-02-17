@@ -54,6 +54,11 @@ export function useHover<InfoT = any>(
       onMouseMove,
       onDragStart,
       onDragEnd,
+      cursor: isDragging
+        ? 'grabbing'
+        : hoverInfo?.features?.length > 0
+          ? 'default'
+          : 'grab',
       children: isDragging ? null : <>{tooltip}</>,
     },
     hoverInfo,

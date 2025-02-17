@@ -72,8 +72,12 @@ export function scaleNaturalBreaks({
 export const $naturalBreaks: ExpressionFn<
   [number[], opt?: Pick<ScaleNaturalBreaksProps, 'k' | 'scalesByK'>]
 > = ([values, opt]) => {
-  return scaleNaturalBreaks({
+  const breaks = scaleNaturalBreaks({
     values,
-    ...(isPlainObject(opt) ? pick(opt, ['scalesByK', 'k']) : {}),
+    ...(isPlainObject(opt)
+      ? pick(opt, ['scalesByK', 'k', 'minK', 'maxK'])
+      : {}),
   })
+
+  return breaks
 }

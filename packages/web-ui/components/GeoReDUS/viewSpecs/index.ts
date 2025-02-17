@@ -1,2 +1,3 @@
 export * from './presets'
-export * from './specs'
+export * from './resolveViewSpecs'
+export * from './resolveView'
