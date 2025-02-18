@@ -28,10 +28,38 @@ import {
   ScaleControl,
   GeolocateControl,
 } from 'react-map-gl/maplibre'
-import { resolveViewSpecs } from '../viewSpecs'
+import { DevControls } from '../DevControls'
 
-const GOOGLE_SHEETS_VIEW_SPECS =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2016686120&single=true&output=csv'
+import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
+import { IconButton } from '@radix-ui/themes'
+import Icon from '@mdi/react'
+import { mdiUpload, mdiUploadNetworkOutline } from '@mdi/js'
+
+const CEM_CENSO_2010 =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
+  '/pub?gid=' +
+  '2016686120' +
+  '&single=true&output=csv'
+
+const CEM_CENSO_2022 =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
+  '/pub?gid=' +
+  '1523585495' +
+  '&single=true&output=csv'
+
+const CEM_ESCOLAS_2022 =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
+
+const GOOGLE_SHEETS_VIEW_SPECS = [
+  CEM_CENSO_2010,
+  CEM_CENSO_2022,
+  CEM_ESCOLAS_2022,
+]
+
+// const GOOGLE_SHEETS_VIEW_SPECS =
+//   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2016686120&single=true&output=csv'
 
 const LayeredMapWithHover = withHover(LayeredMap, {
   tooltip: ({ point, features }) => {
@@ -73,10 +101,13 @@ export function GeoReDUS() {
   })
   // const onMove = useCallback((evt) => setViewState(evt.viewState), [])
 
-  const [viewSpecsInput] = useState(GOOGLE_SHEETS_VIEW_SPECS)
+  const [viewSpecSources, setViewSpecSources] = useState(
+    GOOGLE_SHEETS_VIEW_SPECS,
+  )
   const viewSpecsQuery = useQuery({
-    queryKey: ['ViewSpecs', viewSpecsInput],
-    queryFn: async () => resolveViewSpecs(viewSpecsInput),
+    queryKey: ['ViewSpecs', viewSpecSources],
+    queryFn: async () =>
+      resolveViewSpecs(await fetchViewSpecs(viewSpecSources)),
     throwOnError: process.env.NODE_ENV !== 'production',
   })
 
@@ -131,9 +162,6 @@ export function GeoReDUS() {
     [viewsQueries],
   )
 
-  console.log(resolvedViews)
-  console.log(viewsQueries)
-
   const flyToMunicipio = useCallback(async () => {
     if (!mainMapRef.current || !municipioId) {
       return
@@ -159,44 +187,100 @@ export function GeoReDUS() {
 
   return (
     <Flex>
-      {viewSpecsQuery.status === 'success' && (
-        <ViewMenu
-          viewSpecs={viewSpecsQuery.data}
-          viewConfById={viewConfState.byId}
-          onActivateView={(viewId, initialConf) =>
-            viewConfDispatch({
-              type: 'ADD_ENTRY',
-              payload: {
-                ...initialConf,
-                id: viewId,
-              },
-            })
-          }
-          onDeactivateView={(viewId) => {
-            viewConfDispatch({
-              type: 'DELETE_ENTRY',
-              payload: viewId,
-            })
-          }}
-          onUpdateViewConf={(viewId, nextViewConf) =>
-            viewConfDispatch({
-              type: 'UPDATE_ENTRY',
-              payload: {
-                ...nextViewConf,
-                id: viewId,
-              },
-            })
-          }
+      <Flex
+        direction="column"
+        gap="0"
+        height="100vh"
+        width="350px"
+        style={{
+          width: 400,
+          position: 'fixed',
+          zIndex: 2,
+          top: 0,
+          left: 0,
+          bottom: 0,
+        }}
+        onClick={(e) => {
+          console.log('did click')
+        }}
+      >
+        <Flex
+          p="10px"
           style={{
-            width: 400,
-            position: 'fixed',
-            zIndex: 2,
-            top: 0,
-            left: 0,
-            bottom: 0,
+            backgroundColor: 'var(--accent-3)',
           }}
-        />
-      )}
+        >
+          GeoReDUS
+        </Flex>
+        {viewSpecsQuery.status === 'success' && (
+          <ViewMenu
+            style={{
+              flexGrow: 1,
+              height: '1px',
+            }}
+            viewSpecs={viewSpecsQuery.data}
+            viewConfById={viewConfState.byId}
+            onActivateView={(viewId, initialConf) =>
+              viewConfDispatch({
+                type: 'ADD_ENTRY',
+                payload: {
+                  ...initialConf,
+                  id: viewId,
+                },
+              })
+            }
+            onDeactivateView={(viewId) => {
+              viewConfDispatch({
+                type: 'DELETE_ENTRY',
+                payload: viewId,
+              })
+            }}
+            onUpdateViewConf={(viewId, nextViewConf) =>
+              viewConfDispatch({
+                type: 'UPDATE_ENTRY',
+                payload: {
+                  ...nextViewConf,
+                  id: viewId,
+                },
+              })
+            }
+            sideBarBottom={
+              <Flex
+                direction="column"
+                justifyContent="flex-end"
+                alignItems="center"
+                style={{
+                  flexGrow: 1,
+                  height: '100%',
+                }}
+                p="2"
+              >
+                {process.env.NODE_ENV !== 'production' && (
+                  <DevControls
+                    viewSpecSources={viewSpecSources}
+                    onSetViewSpecSources={setViewSpecSources}
+                  />
+                )}
+              </Flex>
+            }
+          />
+        )}
+        {viewSpecsQuery.status === 'pending' && (
+          <div
+            style={{
+              flexGrow: 1,
+            }}
+          ></div>
+        )}
+        <Flex
+          p="0"
+          style={{
+            backgroundColor: 'white',
+          }}
+        >
+          <img src="/georedus/assets/parcerias.png" />
+        </Flex>
+      </Flex>
 
       <Flex
         style={{
@@ -242,12 +326,13 @@ export function GeoReDUS() {
         <GeolocateControl position="top-right" />
         <FullscreenControl position="top-right" />
         <NavigationControl position="top-right" />
-        <ScaleControl />
+        <ScaleControl position="top-right" />
         <div
           style={{
             position: 'absolute',
             bottom: 40,
             right: 10,
+            zIndex: 20,
           }}
         >
           <Flex direction="row" gap="10px">

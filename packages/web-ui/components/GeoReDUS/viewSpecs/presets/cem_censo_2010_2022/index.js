@@ -1,10 +1,9 @@
 import { uniqBy } from 'lodash'
-import { METADATA_API_ENDPOINT } from '../constants'
-import { globalResources, tableVectorSource } from '../util'
-import { schemeRdYlBu, schemePuOr, schemeRdPu } from 'd3-scale-chromatic'
+import { METADATA_API_ENDPOINT } from '../../constants'
+import { globalResources, tableVectorSource } from '../../util'
+import { schemeRdPu } from 'd3-scale-chromatic'
 
-const TABLE_ID = 'cem_censo_2010'
-const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
+import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
 
 function safeScheme(scheme) {
   //
@@ -19,14 +18,14 @@ function safeScheme(scheme) {
   return Array.from(scheme, (d) => d || null)
 }
 
-export function cem_censo_2010(viewSpec, allViewSpecs) {
+export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
   const {
+    collection_id,
     indicator_path,
     indicator_id,
     indicator_label,
     variable_id,
-    number_format,
-    is_default_variant,
+    number_format = 'percent',
     variant_label,
     measure_unit,
     variable_id_pct,
@@ -35,15 +34,26 @@ export function cem_censo_2010(viewSpec, allViewSpecs) {
     preset,
   } = viewSpec
 
+  const COLLECTION = COLLECTION_SCHEMAS[collection_id]
+
+  const VECTOR_SOURCE_ID = `${collection_id}.geom`
+
   const globalRes = globalResources()
 
-  const viewId = `${TABLE_ID}.${variable_id}`
+  const viewId = `${collection_id}.${variable_id}`
 
-  const NUMBER_FMT = ['pt-BR', { style: 'percent' }]
-
-  const pathParts = (indicator_path || '').split(/\s*\/\s*/g)
+  const NUMBER_FMT =
+    typeof number_format === 'string'
+      ? ['pt-BR', { style: number_format }]
+      : number_format
 
   if (variable_id !== indicator_id) {
+    return null
+  }
+
+  if (!COLLECTION || !COLLECTION.variable_ids.includes(variable_id)) {
+    console.warn(`found invalid variable ${variable_id}, will ignore`)
+
     return null
   }
 
@@ -63,7 +73,7 @@ export function cem_censo_2010(viewSpec, allViewSpecs) {
 
   return {
     id: viewId,
-    path: [pathParts[0], '2010', ...pathParts.slice(1)].join(' / '),
+    path: indicator_path,
     label: indicator_label,
     conf: {
       data: {
@@ -71,7 +81,7 @@ export function cem_censo_2010(viewSpec, allViewSpecs) {
           type: 'treeSelect',
           options: variants.map((variant) => ({
             path: variant.variant_path,
-            label: variant.variant_label,
+            label: variant.variant_label || variant.variable_id,
             value: variant.variable_id,
           })),
           placeholder: 'Selecione uma variante',
@@ -102,9 +112,9 @@ export function cem_censo_2010(viewSpec, allViewSpecs) {
             '$fetch',
             [
               '$template',
-              `${METADATA_API_ENDPOINT}/${TABLE_ID}?select=` +
+              `${METADATA_API_ENDPOINT}/${collection_id}?select=` +
                 '${variableId}' +
-                '&cod_municipio=eq.' +
+                '&cd_geocodm=eq.' +
                 '${municipioId}',
               {
                 variableId: ['$get', 'view.conf.data.variableId'],
@@ -134,7 +144,7 @@ export function cem_censo_2010(viewSpec, allViewSpecs) {
 
     sources: {
       ...globalRes.sources,
-      [VECTOR_SOURCE_ID]: tableVectorSource(TABLE_ID, {
+      [VECTOR_SOURCE_ID]: tableVectorSource(collection_id, {
         minzoom: 8,
         maxzoom: 20,
       }),
@@ -208,7 +218,7 @@ export function cem_censo_2010(viewSpec, allViewSpecs) {
         source: VECTOR_SOURCE_ID,
         'source-layer': VECTOR_SOURCE_ID,
         type: 'fill',
-        filter: ['==', ['get', 'cod_municipio'], ['$get', 'municipioId']],
+        filter: ['==', ['get', 'cd_geocodm'], ['$get', 'municipioId']],
         paint: {
           'fill-color': [
             '$flat',

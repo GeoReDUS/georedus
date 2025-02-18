@@ -2,7 +2,14 @@ import { schemeRdYlGn } from 'd3-scale-chromatic'
 import { METADATA_API_ENDPOINT } from '../constants'
 import { globalResources, tableVectorSource, vectorLayer } from '../util'
 
-export function cem_educacao_escolas_2022({ variableId }) {
+export function cem_escolas_2022({
+  collection_id,
+  indicator_id,
+  indicator_path,
+  indicator_label,
+  indicator_type,
+  measure_unit
+}) {
   const TABLE_ID = 'cem_educacao_escolas_2022'
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
   const VARIABLE_ID = variableId
@@ -12,6 +19,8 @@ export function cem_educacao_escolas_2022({ variableId }) {
   const globalRes = globalResources()
 
   const viewId = `${TABLE_ID}.${VARIABLE_ID}`
+
+  console.log('here')
 
   return [
     viewId,

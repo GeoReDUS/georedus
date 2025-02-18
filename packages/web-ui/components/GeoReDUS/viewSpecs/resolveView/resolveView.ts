@@ -7,6 +7,9 @@ export async function resolveView(
   viewConf: ResolvedViewConf,
   viewContext: ViewContext,
 ) {
+
+  console.log(viewSpec)
+
   const VIEW_AT_METADATA_STAGE = {
     conf: viewConf,
   }
@@ -14,6 +17,14 @@ export async function resolveView(
     ...viewContext,
     view: VIEW_AT_METADATA_STAGE,
   })
+
+  if (viewSpec.debug) {
+    console.log('resolveView / metadata', metadata, {
+      viewSpec,
+      viewConf,
+      viewContext,
+    })
+  }
 
   const VIEW_AT_SOURCES_STAGE = {
     ...VIEW_AT_METADATA_STAGE,
@@ -23,6 +34,14 @@ export async function resolveView(
     ...viewContext,
     view: VIEW_AT_SOURCES_STAGE,
   })
+
+  if (viewSpec.debug) {
+    console.log('resolveView / sources', sources, {
+      viewSpec,
+      viewConf,
+      viewContext,
+    })
+  }
 
   //
   // Resolve layers
@@ -58,12 +77,28 @@ export async function resolveView(
     }),
   )
 
+  if (viewSpec.debug) {
+    console.log('resolveView / layers', layers, {
+      viewSpec,
+      viewConf,
+      viewContext,
+    })
+  }
+
   const legends = get(Object.values(layers), '[].legends[]')
     .filter(Boolean)
     .map((legend, index) => ({
       ...legend,
       id: `${viewSpec.id}_${index}`,
     }))
+
+  if (viewSpec.debug) {
+    console.log('resolveView / legends', legends, {
+      viewSpec,
+      viewConf,
+      viewContext,
+    })
+  }
 
   return {
     id: viewSpec.id,

@@ -4,9 +4,7 @@ import { Icon } from '@mdi/react'
 import { mdiAccountGroup, mdiSchool, mdiTrainCar } from '@mdi/js'
 import { ViewControl } from '../ViewControl'
 import styled from 'styled-components'
-import { createContext, useContext, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { resolveViewSpecs } from '../viewSpecs'
+import { createContext, useContext } from 'react'
 
 const STATIC_NODE_ICONS = {
   'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
@@ -60,7 +58,7 @@ const DirNav = makeDirNav({
 })
 
 export function ViewMenu({
-  viewSpecs: viewSpecsInput,
+  viewSpecs,
   viewConfById,
   onActivateView,
   onDeactivateView,
@@ -68,42 +66,29 @@ export function ViewMenu({
   style,
   ...props
 }) {
-  const viewSpecsQuery = useQuery({
-    queryKey: ['ViewSpecs', viewSpecsInput],
-    queryFn: async () => resolveViewSpecs(viewSpecsInput),
-    throwOnError: process.env.NODE_ENV !== 'production',
-  })
-
   return (
     <div style={style}>
-      {viewSpecsQuery.status === 'pending' && <LoadingIndicator />}
-      {viewSpecsQuery.status === 'error' && (
-        <div>Houve um erro ao carregar os dados</div>
-      )}
-
-      {viewSpecsQuery.status === 'success' && (
-        <ViewMenuContext.Provider
-          value={{
-            viewConfById,
-            onActivateView,
-            onDeactivateView,
-            onUpdateViewConf,
+      <ViewMenuContext.Provider
+        value={{
+          viewConfById,
+          onActivateView,
+          onDeactivateView,
+          onUpdateViewConf,
+        }}
+      >
+        <DirNav
+          style={{
+            flexGrow: 1,
+            overflow: 'hidden',
           }}
-        >
-          <DirNav
-            style={{
-              flexGrow: 1,
-              overflow: 'hidden',
-            }}
-            items={viewSpecsQuery.data}
-            onSelectItem={(item) => {
-              setSelected(item)
-            }}
-            getNodeIcon={(node) => STATIC_NODE_ICONS[node.id]}
-            {...props}
-          />
-        </ViewMenuContext.Provider>
-      )}
+          items={viewSpecs}
+          onSelectItem={(item) => {
+            setSelected(item)
+          }}
+          getNodeIcon={(node) => STATIC_NODE_ICONS[node.id]}
+          {...props}
+        />
+      </ViewMenuContext.Provider>
     </div>
   )
 }

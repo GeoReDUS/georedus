@@ -70,12 +70,17 @@ const IconTabTrigger = styled(Tabs.Trigger)`
   }
 `
 
+const TabsRoot = styled(Tabs.Root)`
+  > * {
+    height: 100%;
+  }
+`
+
 function defaultGetNodeIcon(node: DirItem): React.ReactNode {
   return <Icon path={mdiFolderOutline} size="30px" />
 }
 
 export function makeDirNav(config: MakeDirNavProps = {}) {
-
   const DirSection = makeDirSection(config)
 
   return function DirNav({
@@ -111,51 +116,50 @@ export function makeDirNav(config: MakeDirNavProps = {}) {
           onSelectItem,
         }}
       >
-        <Tabs.Root
+        <TabsRoot
           orientation="vertical"
+          defaultValue="_search"
           style={{
             ...style,
+            height: '100%',
             '--dir-nav-tab-button-size': '60px',
             '--dir-nav-surface-color': 'var(--accent-2)',
             '--dir-nav-background-color': 'var(--accent-4)',
             '--dir-nav-separator-color': 'var(--accent-5)',
             '--dir-nav-base-padding': '10px',
           }}
-          defaultValue="_search"
         >
           <Flex direction="row" gap="0" height="100%" width="100%">
-            <Flex direction="column" justifyContent="space-between" gap="0">
-              <Tabs.List asChild>
-                <Flex
-                  direction="column"
-                  gap="0"
-                  style={{
-                    flexGrow: 0,
-                    flexShrink: 0,
-                    borderRight: '1px solid var(--gray-5)',
-                    backgroundColor: 'var(--dir-nav-surface-color)',
-                  }}
-                >
-                  <IconTabTrigger value="_search">
-                    <Tooltip side="right" content="Busca">
+            <Tabs.List asChild>
+              <Flex
+                direction="column"
+                gap="0"
+                style={{
+                  flexGrow: 0,
+                  flexShrink: 0,
+                  borderRight: '1px solid var(--gray-5)',
+                  backgroundColor: 'var(--dir-nav-surface-color)',
+                }}
+              >
+                <IconTabTrigger value="_search">
+                  <Tooltip side="right" content="Busca">
+                    <div>
+                      <Icon path={mdiMagnify} />
+                    </div>
+                  </Tooltip>
+                </IconTabTrigger>
+                {tree.rootNodeIds().map((id: string) => (
+                  <IconTabTrigger key={id} value={id}>
+                    <Tooltip side="right" content={tree.node(id).label}>
                       <div>
-                        <Icon path={mdiMagnify} />
+                        {getNodeIcon(tree.node(id)) || tree.node(id).label}
                       </div>
                     </Tooltip>
                   </IconTabTrigger>
-                  {tree.rootNodeIds().map((id: string) => (
-                    <IconTabTrigger key={id} value={id}>
-                      <Tooltip side="right" content={tree.node(id).label}>
-                        <div>
-                          {getNodeIcon(tree.node(id)) || tree.node(id).label}
-                        </div>
-                      </Tooltip>
-                    </IconTabTrigger>
-                  ))}
-                </Flex>
-              </Tabs.List>
-              {sideBarBottom}
-            </Flex>
+                ))}
+                {sideBarBottom}
+              </Flex>
+            </Tabs.List>
 
             <div
               style={{
@@ -187,7 +191,7 @@ export function makeDirNav(config: MakeDirNavProps = {}) {
               ))}
             </div>
           </Flex>
-        </Tabs.Root>
+        </TabsRoot>
       </DirNavContext.Provider>
     )
   }

@@ -1,6 +1,8 @@
 import { set } from 'lodash'
 import { VECTOR_TILE_SERVER_ENDPOINT } from '../constants'
 
+export * from './colorSchemes'
+
 export function tableVectorSource(tableId, override = {}) {
   return {
     type: 'vector',

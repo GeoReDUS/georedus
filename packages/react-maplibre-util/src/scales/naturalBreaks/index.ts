@@ -9,6 +9,7 @@ const DEFAULT_COLOR_SCALE = schemeYlOrRd
 type ScaleNaturalBreaksProps = {
   values: number[]
   k?: number
+  defaultColor?: string
   minK?: number
   maxK?: number
   scalesByK?: typeof DEFAULT_COLOR_SCALE
@@ -25,9 +26,12 @@ export function naturalBreakBounds(
   return bounds
 }
 
+const DEFAULT_COLOR = '#cccccc'
+
 export function scaleNaturalBreaks({
   values,
   k,
+  defaultColor = DEFAULT_COLOR,
   minK = MIN_K,
   maxK = MAX_K,
   scalesByK = DEFAULT_COLOR_SCALE,
@@ -65,7 +69,7 @@ export function scaleNaturalBreaks({
 
     return steps
   } catch (err) {
-    return '#cccccc'
+    return defaultColor
   }
 }
 
