@@ -16,6 +16,9 @@ export function numerical_size(
   const TABLE_ID = collection_id
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
 
+  const SIZE_MAX = 25
+  const SIZE_MIN = 6
+
   return {
     ...base,
     layers: {
@@ -23,25 +26,18 @@ export function numerical_size(
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
         type: 'circle',
 
-        // legends: [
-        //   {
-        //     type: 'ColorLegend',
-        //     title: indicator_label,
-        //     items: [
-        //       {
-        //         color: 'green',
-        //         label: 'Sim',
-        //       },
-        //       {
-        //         color: 'red',
-        //         label: 'Não',
-        //       }
-        //     ],
-
-        //     // unit: measure_unit,
-        //     // steps: ['$get', 'view.metadata.colorScaleStops'],
-        //   },
-        // ],
+        legends: [
+          {
+            type: 'ProportionalSymbolLegend',
+            unit: measure_unit,
+            title: indicator_label,
+            min: ['$min', ['$get', 'view.metadata.variableValues']],
+            max: ['$max', ['$get', 'view.metadata.variableValues']],
+            sizeMin: SIZE_MIN * 2,
+            sizeMax: SIZE_MAX * 2,
+            numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
+          },
+        ],
         interactive: true,
         tooltip: {
           title: ['$literal', ['$get', 'feature.properties.no_entidade']],
@@ -73,9 +69,9 @@ export function numerical_size(
             ['linear'],
             ['get', VARIABLE_ID], // Replace "density" with your property name
             ['$min', ['$get', 'view.metadata.variableValues']],
-            6, // When qt_mat_fund_ai is 0, radius is 6
+            SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
             ['$max', ['$get', 'view.metadata.variableValues']],
-            25, // When qt_mat_fund_ai is 100, radius is 20
+            SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
           ],
           'circle-color': get(COLOR_SCHEMES, color_scheme) || color_scheme,
         },

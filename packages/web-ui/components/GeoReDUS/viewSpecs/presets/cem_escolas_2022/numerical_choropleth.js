@@ -11,6 +11,7 @@ export function numerical_choropleth(
 
     $circleRadius,
     $tooltip,
+    $legends,
   },
 ) {
   const VARIABLE_ID = indicator_id
@@ -56,6 +57,7 @@ export function numerical_choropleth(
             unit: measure_unit,
             steps: ['$get', 'view.metadata.colorScaleStops'],
           },
+          ...$legends,
         ],
         interactive: true,
         tooltip: $tooltip,

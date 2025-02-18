@@ -93,7 +93,11 @@ export function cem_escolas_2022(config) {
                   },
                 ],
               ],
-              ['$not', ['$empty', ['$iterator', 'item']]],
+              [
+                '$and',
+                ['$not', ['$empty', ['$iterator', 'item']]],
+                ['$gt', ['$iterator', 'item'], 0],
+              ],
             ],
             null,
           ]
@@ -112,6 +116,10 @@ export function cem_escolas_2022(config) {
     },
   }
 
+  const SIZE_DEFAULT = 10
+  const SIZE_MAX = 25
+  const SIZE_MIN = 6
+
   //
   // Specify some utilities connected to the base setup
   // but that will need specific placement at the indicator_type
@@ -126,13 +134,13 @@ export function cem_escolas_2022(config) {
           ['linear'],
           ['get', sizing_variable_id], // Replace "density" with your property name
           ['$min', ['$get', 'view.metadata.sizingValues']],
-          6, // When qt_mat_fund_ai is 0, radius is 6
+          SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
           ['$max', ['$get', 'view.metadata.sizingValues']],
-          20, // When qt_mat_fund_ai is 100, radius is 20
+          SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
         ],
-        10,
+        SIZE_DEFAULT,
       ]
-    : 10
+    : SIZE_DEFAULT
 
   const $tooltip = {
     title: ['$literal', ['$get', 'feature.properties.no_entidade']],
@@ -153,6 +161,26 @@ export function cem_escolas_2022(config) {
     ].filter(Boolean),
   }
 
+  const $legends = sizing_variable_id
+    ? [
+        [
+          '$if',
+          ['$get', 'view.conf.data.showSize'],
+          {
+            type: 'ProportionalSymbolLegend',
+            unit: 'Matrículas',
+            title: sizing_variable_id,
+            min: ['$min', ['$get', 'view.metadata.sizingValues']],
+            max: ['$max', ['$get', 'view.metadata.sizingValues']],
+            sizeMin: SIZE_MIN * 2,
+            sizeMax: SIZE_MAX * 2,
+            numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
+          },
+          null,
+        ],
+      ]
+    : []
+
   const typeParser = BY_TYPE[indicator_type]
 
   if (!typeParser) {
@@ -160,5 +188,5 @@ export function cem_escolas_2022(config) {
     return null
   }
 
-  return typeParser(base, { ...config, $circleRadius, $tooltip })
+  return typeParser(base, { ...config, $circleRadius, $tooltip, $legends })
 }

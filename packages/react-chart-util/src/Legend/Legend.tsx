@@ -1,14 +1,16 @@
 import React from 'react'
-import { ColorLegend } from './ColorLegend'
 import {
+  ColorLegend,
   ThresholdColorLegend,
   SequentialColorLegend,
-} from './ThresholdColorLegend'
+} from '../ColorLegend'
+import { ProportionalSymbolLegend } from '../ProportionalSymbolLegend'
 
 const LEGENDS = {
   ColorLegend,
   ThresholdColorLegend,
   SequentialColorLegend,
+  ProportionalSymbolLegend,
 }
 
 export function Legend({

@@ -30,6 +30,7 @@
     "@orioro/cast": "workspace:*",
     "@orioro/react-ui-core": "workspace:*",
     "@orioro/util": "workspace:*",
+    "d3-scale": "^4.0.2",
     "lodash-es": "^4.17.21",
     "react": "^18.2.0",
     "styled-components": "^6.1.8"

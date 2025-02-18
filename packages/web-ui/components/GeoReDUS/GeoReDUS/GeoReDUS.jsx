@@ -1,4 +1,6 @@
 import {
+  Box,
+  EvenSpacedList,
   Flex,
   Input,
   entriesByIdInitialState,
@@ -34,6 +36,7 @@ import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import { IconButton } from '@radix-ui/themes'
 import Icon from '@mdi/react'
 import { mdiUpload, mdiUploadNetworkOutline } from '@mdi/js'
+import styled from 'styled-components'
 
 const CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
@@ -58,8 +61,13 @@ const GOOGLE_SHEETS_VIEW_SPECS = [
   CEM_ESCOLAS_2022,
 ]
 
-// const GOOGLE_SHEETS_VIEW_SPECS =
-//   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2016686120&single=true&output=csv'
+const LegendContainer = styled(Box)`
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  background-color: white;
+  border-radius: 4px;
+`
 
 const LayeredMapWithHover = withHover(LayeredMap, {
   tooltip: ({ point, features }) => {
@@ -185,6 +193,11 @@ export function GeoReDUS() {
     flyToMunicipio()
   }, [municipioId])
 
+  const legends = useMemo(
+    () => resolvedViews.flatMap((view) => view?.legends || []),
+    [resolvedViews],
+  )
+
   return (
     <Flex>
       <Flex
@@ -199,6 +212,9 @@ export function GeoReDUS() {
           top: 0,
           left: 0,
           bottom: 0,
+          boxShadow:
+            'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
+            'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
         }}
         onClick={(e) => {
           console.log('did click')
@@ -326,23 +342,30 @@ export function GeoReDUS() {
         <GeolocateControl position="top-right" />
         <FullscreenControl position="top-right" />
         <NavigationControl position="top-right" />
-        <ScaleControl position="top-right" />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 40,
-            right: 10,
-            zIndex: 20,
-          }}
-        >
-          <Flex direction="row" gap="10px">
-            {resolvedViews
-              .flatMap((view) => view?.legends || [])
-              .map((legend) => (
-                <Legend key={legend.id} {...legend} />
+        <ScaleControl position="bottom-right" />
+        {legends.length > 0 && (
+          <LegendContainer
+            style={{
+              position: 'absolute',
+              bottom: '50px',
+              right: '20px',
+              zIndex: 20,
+            }}
+            p="4"
+          >
+            <EvenSpacedList columns={legends.length > 1 ? 2 : 1} gap="10px">
+              {legends.map((legend) => (
+                <Legend
+                  style={{
+                    maxWidth: 250,
+                  }}
+                  key={legend.id}
+                  {...legend}
+                />
               ))}
-          </Flex>
-        </div>
+            </EvenSpacedList>
+          </LegendContainer>
+        )}
       </LayeredMapWithHover>
     </Flex>
   )

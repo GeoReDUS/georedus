@@ -1,6 +1,7 @@
 import React from 'react'
 import { Flex, FlexProps } from '@orioro/react-ui-core'
 import styled from 'styled-components'
+import { LegendLayout, LegendLayoutProps } from '../LegendLayout'
 
 export type ColorLegendItem = {
   id: string | number
@@ -8,12 +9,11 @@ export type ColorLegendItem = {
   label: React.ReactNode
 }
 
-export type ColorLegendProps = FlexProps & {
-  title?: React.ReactNode
-  unit?: React.ReactNode
-  description?: React.ReactNode
-  items: ColorLegendItem[]
-}
+export type ColorLegendProps = FlexProps &
+  Omit<LegendLayoutProps, 'children'> & {
+    description?: React.ReactNode
+    items: ColorLegendItem[]
+  }
 
 const ColorDisplay = styled.div`
   background-color: var(--background-color);
@@ -34,7 +34,7 @@ const LegendTitle = styled.h3`
 `
 
 const LegendUnit = styled.span`
-  font-size: .8rem;
+  font-size: 0.8rem;
 `
 
 export function ColorLegendItems({
@@ -63,16 +63,15 @@ export function ColorLegendItems({
   )
 }
 
-export function ColorLegend({ title, unit, ...props }: ColorLegendProps) {
+export function ColorLegend({
+  title,
+  unit,
+  style,
+  ...props
+}: ColorLegendProps) {
   return (
-    <Flex direction="column" gap="10px">
-      {(title || unit) && (
-        <div>
-          {title && <LegendTitle>{title}</LegendTitle>}
-          {unit && <LegendUnit>({unit})</LegendUnit>}
-        </div>
-      )}
+    <LegendLayout title={title} unit={unit} style={style}>
       <ColorLegendItems {...props} />
-    </Flex>
+    </LegendLayout>
   )
 }
