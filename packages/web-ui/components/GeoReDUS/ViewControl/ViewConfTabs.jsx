@@ -1,9 +1,9 @@
-import { Box, Input } from '@orioro/react-ui-core'
-import { Tabs, Text, Theme, Tooltip } from '@radix-ui/themes'
+import { Box, Flex, DropdownMenu, Input } from '@orioro/react-ui-core'
+import { IconButton, Tabs, Theme, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
-import { mdiFilterVariant, mdiPalette } from '@mdi/js'
+import { mdiDotsVertical, mdiFilterVariant, mdiPalette } from '@mdi/js'
 import { useMemo, useState } from 'react'
-import { isPlainObject, pick } from 'lodash'
+import { isPlainObject } from 'lodash'
 
 import { useDebounce } from 'react-use'
 
@@ -22,15 +22,13 @@ const CONF_TABS = {
 
 const CONF_TAB_ORDER = ['data', 'style']
 
-export function ViewConfTabs({ viewSpec, viewConf, onUpdateViewConf }) {
+export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
   //
   // Debounce updating view conf. Prevent's fast changing controls
   // from accidentally triggering map view re-renders unnecessarily
   //
   const [immediateViewConf, setImmediateViewConf] = useState(viewConf)
-  useDebounce(() => onUpdateViewConf(immediateViewConf), 500, [
-    immediateViewConf,
-  ])
+  useDebounce(() => onSetView(immediateViewConf), 500, [immediateViewConf])
 
   const enabledTabs = useMemo(
     () =>
@@ -46,13 +44,40 @@ export function ViewConfTabs({ viewSpec, viewConf, onUpdateViewConf }) {
 
   return enabledTabs.length > 0 ? (
     <Tabs.Root defaultValue={enabledTabs[0].id}>
-      <Tabs.List size="1">
-        {enabledTabs.map((tab) => (
-          <Tabs.Trigger key={tab.id} value={tab.id}>
-            <Tooltip content={tab.label}>{tab.icon}</Tooltip>
-          </Tabs.Trigger>
-        ))}
-      </Tabs.List>
+      <Flex direction="row" gap="0">
+        <Tabs.List size="1">
+          {enabledTabs.map((tab) => (
+            <Tabs.Trigger key={tab.id} value={tab.id}>
+              <Tooltip content={tab.label}>{tab.icon}</Tooltip>
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+
+        <Flex
+          direction="row"
+          alignItems="center"
+          pr="10px"
+          pl="10px"
+          style={{
+            flexGrow: 1,
+            boxShadow:
+              'color(display-p3 0.0039 0.251 0.5137 / 0.174) 0px -1px 0px 0px inset',
+          }}
+        >
+          <DropdownMenu
+            options={[
+              {
+                label: 'Visualizar como mapa comparado',
+                onClick: () => onSetView(viewConf, 1),
+              },
+            ]}
+          >
+            <IconButton variant="ghost" size="1">
+              <Icon path={mdiDotsVertical} size="16px" />
+            </IconButton>
+          </DropdownMenu>
+        </Flex>
+      </Flex>
       {enabledTabs.map((tab) => {
         const tabConfSchema = viewSpec.conf[tab.id]
         const tabConfValue = immediateViewConf[tab.id]

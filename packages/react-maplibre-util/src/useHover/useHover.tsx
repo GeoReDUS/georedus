@@ -1,4 +1,3 @@
-import { pick } from 'lodash-es'
 import { MapMouseEvent } from 'maplibre-gl'
 import React, { useCallback, useState } from 'react'
 

@@ -4,13 +4,14 @@ import styled from 'styled-components'
 
 type DataSectionProps = FlexProps & {
   title: string
-  entries: React.ReactNode[]
+  entries: [React.ReactNode, React.ReactNode][]
 }
 
 type HoverTooltipProps = {
   position: [number, number]
   children?: React.ReactNode
   dataSections?: DataSectionProps[]
+  style?: React.CSSProperties
 }
 
 const Container = styled.div`
@@ -78,12 +79,14 @@ export function HoverTooltip({
   position,
   children,
   dataSections,
+  style = {},
 }: HoverTooltipProps) {
   return (
     <Container
       style={{
         left: position[0] + 15,
         top: position[1] - 20,
+        ...style,
       }}
     >
       {Array.isArray(dataSections) && dataSections.length > 0 && (

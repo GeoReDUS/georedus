@@ -53,9 +53,8 @@ function resolveDefaultConf(viewSpec) {
 export function ViewControl({
   viewSpec,
   viewConf,
-  onActivateView,
+  onSetView,
   onDeactivateView,
-  onUpdateViewConf,
 }) {
   useEffect(() => {
     console.log(`Component mounted: ViewControl`)
@@ -69,14 +68,14 @@ export function ViewControl({
     [onDeactivateView],
   )
 
-  const activateView = useCallback(
-    () => onActivateView(resolveDefaultConf(viewSpec)),
-    [viewSpec, onActivateView],
+  const setView = useCallback(
+    (layoutIndex) => onSetView(resolveDefaultConf(viewSpec), layoutIndex),
+    [viewSpec, onSetView],
   )
 
   const toggleView = useCallback(
-    () => (active ? deactivateView() : activateView()),
-    [active, deactivateView, activateView],
+    () => (active ? deactivateView() : setView(0)),
+    [active, deactivateView, setView],
   )
 
   return (
@@ -92,7 +91,7 @@ export function ViewControl({
           >
             <Flex
               direction="column"
-              gap="0"
+              gap="1"
               onClick={() => toggleView()}
               style={{
                 flexGrow: '1',
@@ -114,6 +113,7 @@ export function ViewControl({
                   color: 'var(--gray-9)',
                   textTransform: 'uppercase',
                 }}
+                size="2"
               >
                 {viewSpec.sourceLabel}
               </Text>
@@ -136,7 +136,7 @@ export function ViewControl({
             <ViewConfTabs
               viewSpec={viewSpec}
               viewConf={viewConf}
-              onUpdateViewConf={onUpdateViewConf}
+              onSetView={onSetView}
             />
           )}
         </CollapsibleContent>

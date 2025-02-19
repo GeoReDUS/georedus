@@ -107,6 +107,28 @@ export function getSrcViewByLayerId(
     : null
 }
 
+export function augmentFeature(
+  parsed: MapViewsParseResult,
+  feature: GeoJSON.Feature & {
+    layer: {
+      id: string
+    }
+  },
+) {
+  //
+  // Augment the feature with the mapView property
+  //
+  const mapView = getSrcViewByLayerId(parsed, feature.layer.id)
+
+  const layer = getSrcLayer(parsed, feature.layer.id)
+
+  return {
+    ...feature,
+    layer,
+    mapView,
+  }
+}
+
 export function parseMapViews(
   orderedViews: MapView[],
   { existingLayers }: ParseMapViewsOptions = {},

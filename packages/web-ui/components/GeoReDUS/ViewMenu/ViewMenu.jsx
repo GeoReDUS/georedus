@@ -17,24 +17,29 @@ function errNoViewMenuContext() {
 }
 
 const ViewMenuContext = createContext({
-  viewConfById: {},
-  onActivateView: errNoViewMenuContext,
+  viewConfState: {},
+  onSetView: errNoViewMenuContext,
   onDeactivateView: errNoViewMenuContext,
-  onUpdateViewConf: errNoViewMenuContext,
 })
 
 function Item({ node, depth }) {
-  const { viewConfById, onActivateView, onDeactivateView, onUpdateViewConf } =
+  const { viewConfState, onSetView, onDeactivateView } =
     useContext(ViewMenuContext)
 
   return (
     <ViewControl
       viewSpec={node}
-      viewConf={viewConfById[node.id]}
+      viewConf={viewConfState.byId[node.id]}
+      viewConfState={viewConfState}
       onDeactivateView={() => onDeactivateView(node.id)}
-      onActivateView={(initialConf) => onActivateView(node.id, initialConf)}
-      onUpdateViewConf={(nextViewConf) =>
-        onUpdateViewConf(node.id, nextViewConf)
+      onSetView={(initialConf, layoutIndex) =>
+        onSetView(
+          {
+            ...initialConf,
+            id: node.id,
+          },
+          layoutIndex,
+        )
       }
     />
   )
@@ -59,10 +64,9 @@ const DirNav = makeDirNav({
 
 export function ViewMenu({
   viewSpecs,
-  viewConfById,
-  onActivateView,
+  viewConfState,
+  onSetView,
   onDeactivateView,
-  onUpdateViewConf,
   style,
   ...props
 }) {
@@ -70,10 +74,9 @@ export function ViewMenu({
     <div style={style}>
       <ViewMenuContext.Provider
         value={{
-          viewConfById,
-          onActivateView,
+          viewConfState,
+          onSetView,
           onDeactivateView,
-          onUpdateViewConf,
         }}
       >
         <DirNav

@@ -1,13 +1,14 @@
-import React, { forwardRef, useMemo, useRef } from 'react'
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
 import { Map, Layer, Source, MapInstance } from 'react-map-gl/maplibre'
 import { LayeredMapProps } from '../types'
 import {
   MapViewsParseResult,
+  augmentFeature,
   getSrcLayer,
   getSrcViewByLayerId,
   parseMapViews,
 } from './parseMapViews'
-import { mergeRefs } from 'react-merge-refs'
+// import { mergeRefs } from 'react-merge-refs'
 
 //
 // Augment mouse events with info from original view
@@ -29,21 +30,6 @@ function useViewAugmentedEventHandlers(
   props: LayeredMapProps,
   parsedMapViews: MapViewsParseResult,
 ): Partial<LayeredMapProps> {
-  function augmentFeature(feature) {
-    //
-    // Augment the feature with the mapView property
-    //
-    const mapView = getSrcViewByLayerId(parsedMapViews, feature.layer.id)
-
-    const layer = getSrcLayer(parsedMapViews, feature.layer.id)
-
-    return {
-      ...feature,
-      layer,
-      mapView,
-    }
-  }
-
   const handlers = Object.fromEntries(
     VIEW_AUGMENTED_EVENT_HANDLERS.map((handlerName) =>
       typeof props[handlerName] === 'function'
@@ -52,7 +38,9 @@ function useViewAugmentedEventHandlers(
             (evt) =>
               props[handlerName]({
                 ...evt,
-                features: evt.features?.map((feat) => augmentFeature(feat)),
+                features: evt.features?.map((feat) =>
+                  augmentFeature(parsedMapViews, feat),
+                ),
               }),
           ]
         : null,
@@ -62,60 +50,81 @@ function useViewAugmentedEventHandlers(
   return handlers
 }
 
-export const LayeredMap = forwardRef<MapInstance, LayeredMapProps>(
-  function LayeredMapInner(
-    {
-      views,
-      interactiveLayerIds: interactiveLayerIdsInput = [],
-      children,
-      hover,
-      ...mapProps
-    }: LayeredMapProps,
-    externalRef,
-  ) {
-    const mapRef = useRef<MapInstance>(null)
-
-    //
-    // Parse sources, layers and interactiveLayerIds from
-    // views spec
-    //
-    const parsed = useMemo(
-      () =>
-        views
-          ? parseMapViews(views, {
-              existingLayers: mapRef.current
-                ? mapRef.current.getStyle()?.layers || null
-                : null,
-            })
-          : {
-              srcMapViews: [],
-              sources: [],
-              layers: [],
-              interactiveLayerIds: [],
-            },
-      [views, mapRef.current],
-    )
-
-    const evtHandlers = useViewAugmentedEventHandlers(mapProps, parsed)
-
-    return (
-      <Map
-        ref={mergeRefs([mapRef, externalRef].filter(Boolean))}
-        interactiveLayerIds={[
-          ...interactiveLayerIdsInput,
-          ...parsed.interactiveLayerIds,
-        ]}
-        {...mapProps}
-        {...evtHandlers}
-      >
-        {children}
-        {parsed.sources.map(({ id, ...source }) => (
-          <Source key={id} id={id} {...source} />
-        ))}
-        {parsed.layers.map(({ id, ...layer }) => (
-          <Layer key={id} id={id} {...layer} />
-        ))}
-      </Map>
-    )
+export const LayeredMap = forwardRef<
+  {
+    map: MapInstance
+    augmentFeature: (
+      feature: Parameters<typeof augmentFeature>[1],
+    ) => ReturnType<typeof augmentFeature>
+    getSrcViewByLayerId: (
+      layerId: string,
+    ) => ReturnType<typeof getSrcViewByLayerId>
+    getSrcLayer: (layerId: string) => ReturnType<typeof getSrcLayer>
   },
-)
+  LayeredMapProps
+>(function LayeredMapInner(
+  {
+    views,
+    interactiveLayerIds: interactiveLayerIdsInput = [],
+    children,
+    hover,
+    ...mapProps
+  }: LayeredMapProps,
+  layeredMapRef,
+) {
+  const mapRef = useRef<MapInstance>(null)
+
+  //
+  // Parse sources, layers and interactiveLayerIds from
+  // views spec
+  //
+  const parsed = useMemo(
+    () =>
+      views
+        ? parseMapViews(views, {
+            existingLayers: mapRef.current
+              ? mapRef.current.getStyle()?.layers || null
+              : null,
+          })
+        : {
+            srcMapViews: [],
+            sources: [],
+            layers: [],
+            interactiveLayerIds: [],
+          },
+    [views, mapRef.current],
+  )
+
+  const evtHandlers = useViewAugmentedEventHandlers(mapProps, parsed)
+
+  useImperativeHandle(
+    layeredMapRef,
+    () => ({
+      map: mapRef.current as MapInstance,
+      augmentFeature: augmentFeature.bind(null, parsed),
+      getSrcViewByLayerId: getSrcViewByLayerId.bind(null, parsed),
+      getSrcLayer: getSrcLayer.bind(null, parsed),
+    }),
+    [mapRef.current, parsed],
+  )
+
+  return (
+    <Map
+      ref={mapRef}
+      interactiveLayerIds={[
+        ...interactiveLayerIdsInput,
+        ...parsed.interactiveLayerIds,
+      ]}
+      {...mapProps}
+      {...evtHandlers}
+    >
+      {children}
+      {parsed.sources.map(({ id, viewId, ...source }) => (
+        <Source key={id} id={id} {...source} />
+      ))}
+      {parsed.layers.map(({ id, ...layer }) => (
+        <Layer key={id} id={id} {...layer} />
+      ))}
+    </Map>
+  )
+})

@@ -45,7 +45,7 @@ export type MapView = {
   id: string
   sources: Record<string, MapViewSource>
   layers: Record<string, MapViewLayer>
-  legends: MapViewLegend[]
+  legends?: MapViewLegend[]
 
   [key: string]: any
 }

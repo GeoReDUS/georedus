@@ -5,7 +5,7 @@ import styled from 'styled-components'
 const LegendTitle = styled.h3`
   margin: 0;
   font-size: 0.9rem;
-  line-height: 1;
+  line-height: 1.3;
 `
 
 const LegendUnit = styled.span`

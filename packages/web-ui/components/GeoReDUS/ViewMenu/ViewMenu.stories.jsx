@@ -5,6 +5,10 @@ import {
   entriesByIdReducer,
 } from '@orioro/react-ui-core'
 import { ViewMenu } from './ViewMenu'
+import {
+  viewConfReducer,
+  viewConfReducerInitialState,
+} from '../GeoReDUS/viewConfReducer'
 import { useReducer, useState } from 'react'
 import { IconButton } from '@radix-ui/themes'
 import { mdiUpload } from '@mdi/js'
@@ -39,8 +43,8 @@ const CEM_ESCOLAS_2022 =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
 
 const GOOGLE_SHEETS_VIEW_SPECS = [
-  // CEM_CENSO_2010,
-  // CEM_CENSO_2022,
+  CEM_CENSO_2010,
+  CEM_CENSO_2022,
   CEM_ESCOLAS_2022,
 ]
 
@@ -48,10 +52,11 @@ export const Basic = () => {
   const dialogs = useDialogs()
 
   const [viewConfState, viewConfDispatch] = useReducer(
-    entriesByIdReducer,
+    viewConfReducer,
     null,
-    entriesByIdInitialState,
+    viewConfReducerInitialState,
   )
+
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', GOOGLE_SHEETS_VIEW_SPECS],
     queryFn: async () =>
@@ -74,32 +79,22 @@ export const Basic = () => {
         {viewSpecsQuery.status === 'success' && (
           <ViewMenu
             viewSpecs={viewSpecsQuery.data}
-            viewConfById={viewConfState.byId}
-            onActivateView={(viewId, initialConf) =>
+            viewConfState={viewConfState}
+            onSetView={(viewConf, layoutIndex) => {
               viewConfDispatch({
-                type: 'ADD_ENTRY',
+                type: 'SET_VIEW',
                 payload: {
-                  ...initialConf,
-                  id: viewId,
+                  viewConf,
+                  layoutIndex,
                 },
               })
-            }
+            }}
             onDeactivateView={(viewId) => {
-              console.log('DELETE_ENTRY', viewId)
               viewConfDispatch({
-                type: 'DELETE_ENTRY',
+                type: 'DEACTIVATE_VIEW',
                 payload: viewId,
               })
             }}
-            onUpdateViewConf={(viewId, nextViewConf) =>
-              viewConfDispatch({
-                type: 'UPDATE_ENTRY',
-                payload: {
-                  ...nextViewConf,
-                  id: viewId,
-                },
-              })
-            }
             sideBarBottom={
               <Flex direction="column" alignItems="center" p="4">
                 <IconButton

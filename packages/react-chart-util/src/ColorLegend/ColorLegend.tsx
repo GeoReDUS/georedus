@@ -66,12 +66,12 @@ export function ColorLegendItems({
 export function ColorLegend({
   title,
   unit,
-  style,
+  items,
   ...props
 }: ColorLegendProps) {
   return (
-    <LegendLayout title={title} unit={unit} style={style}>
-      <ColorLegendItems {...props} />
+    <LegendLayout title={title} unit={unit} {...props}>
+      <ColorLegendItems items={items} />
     </LegendLayout>
   )
 }
