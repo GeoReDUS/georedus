@@ -1,5 +1,5 @@
 import { Box, Flex, SwitchInput, TextEllipsis } from '@orioro/react-ui-core'
-import { Heading, Text } from '@radix-ui/themes'
+import { Heading, Text, Tooltip } from '@radix-ui/themes'
 import styled from 'styled-components'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { CollapsibleContent } from './CollapsibleContent'
@@ -96,16 +96,18 @@ export function ViewControl({
                 flexGrow: '1',
               }}
             >
-              <Heading
-                size="2"
-                as="h4"
-                style={{
-                  fontWeight: 'normal',
-                  color: 'var(--accent-12)',
-                }}
-              >
-                <TextEllipsis maxLines={2}>{viewSpec.label}</TextEllipsis>
-              </Heading>
+              <Tooltip content={viewSpec.label}>
+                <Heading
+                  size="2"
+                  as="h4"
+                  style={{
+                    fontWeight: 'normal',
+                    color: 'var(--accent-12)',
+                  }}
+                >
+                  <TextEllipsis maxLines={2}>{viewSpec.label}</TextEllipsis>
+                </Heading>
+              </Tooltip>
               <Text
                 color="gray"
                 style={{

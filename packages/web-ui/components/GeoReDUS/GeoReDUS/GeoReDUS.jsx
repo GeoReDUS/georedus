@@ -60,10 +60,14 @@ const CEM_CENSO_2022 =
 const CEM_ESCOLAS_2022 =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
 
+const CEM_SAUDE_2024 =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
+
 const GOOGLE_SHEETS_VIEW_SPECS = [
   CEM_CENSO_2010,
   CEM_CENSO_2022,
   CEM_ESCOLAS_2022,
+  CEM_SAUDE_2024,
 ]
 
 const LegendContainer = styled(Box)`

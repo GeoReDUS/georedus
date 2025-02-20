@@ -168,7 +168,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
       ...globalRes.sources,
       [VECTOR_SOURCE_ID]: {
         type: 'vector',
-        minzoom: 9,
+        minzoom: 6,
         maxzoom: 20,
         tiles: [
           [
