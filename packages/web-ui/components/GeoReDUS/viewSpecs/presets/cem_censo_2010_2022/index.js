@@ -53,14 +53,14 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
   // const number_format =
   //   viewSpec.number_format || isPercentage ? 'percent' : ['pt-BR']
 
-  // const NUMBER_FMT = [
-  //   '$if',
-  //   ['$endsWith', ['$get', 'view.conf.data.variableId'], '_pct'],
-  //   ['pt-BR', { style: 'percent' }],
-  //   ['pt-BR', { style: 'unit' }],
-  // ]
+  const NUMBER_FMT = [
+    '$if',
+    ['$endsWith', ['$get', 'view.conf.data.variableId'], '_pct'],
+    ['pt-BR', { style: 'percent' }],
+    ['pt-BR', {}],
+  ]
 
-  const NUMBER_FMT = ['pt-BR', {}]
+  // const NUMBER_FMT = ['pt-BR', {}]
   // typeof number_format === 'string'
   //   ? ['pt-BR', { style: number_format }]
   //   : number_format
@@ -129,9 +129,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     id: viewId,
     path: indicator_path,
     label: indicator_label,
-    sourceLabel: collection_id.endsWith('2010')
-      ? 'CENSO 2010'
-      : 'CENSO 2022',
+    sourceLabel: collection_id.endsWith('2010') ? 'CENSO 2010' : 'CENSO 2022',
     conf: {
       data: {
         variableId: {
@@ -435,21 +433,18 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
               [
                 '$literal',
                 [
-                  '$get',
+                  '$fmt',
                   [
-                    '$template',
-                    'feature.properties.${0}' +
-                      `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                    ['$get', 'view.conf.data.variableId'],
+                    '$get',
+                    [
+                      '$template',
+                      'feature.properties.${0}',
+                      // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
+                      ['$get', 'view.conf.data.variableId'],
+                    ],
                   ],
+                  { number: NUMBER_FMT },
                 ],
-              ],
-            ],
-            [
-              'Pessoas Residentes',
-              [
-                '$literal',
-                ['$get', `feature.properties.pop_bas_mor_tot_pes::string`],
               ],
             ],
           ],
