@@ -3,6 +3,7 @@ import {
   EvenSpacedList,
   Flex,
   Input,
+  LoadingIndicator,
   entriesByIdInitialState,
   entriesByIdReducer,
 } from '@orioro/react-ui-core'
@@ -104,11 +105,17 @@ export function GeoReDUS() {
 
   const syncedMapsRef = useRef(null)
 
-  const [municipioId, setMunicipioId] = useState('1501402')
+  const [municipioId, setMunicipioId] = useState(
+    // '1501402',
+    '3550308',
+  )
 
   const [viewState, setViewState] = useState({
-    latitude: -1.455833,
-    longitude: -48.503887,
+    // latitude: -1.455833,
+    // longitude: -48.503887,
+
+    latitude: -23.533773,
+    longitude: -46.62529,
     zoom: 10,
   })
   // const onMove = useCallback((evt) => setViewState(evt.viewState), [])
@@ -258,6 +265,14 @@ export function GeoReDUS() {
     }
   }, [])
 
+  const isLoading = viewsQueries.some(
+    (viewQuery) => viewQuery.status === 'pending',
+  )
+
+  console.log({
+    isLoading,
+  })
+
   return (
     <Flex>
       <LeftPanel
@@ -364,46 +379,17 @@ export function GeoReDUS() {
             </>
           ),
         }))}
-        // maps={[
-        //   // {
-        //   //   views: resolvedViews,
-        //   // },
-        //   {
-        //     views: resolvedViews,
-        //     children: (
-        //       <>
-        //         <GeolocateControl position="top-right" />
-        //         <FullscreenControl position="top-right" />
-        //         <NavigationControl position="top-right" />
-        //         <ScaleControl position="bottom-right" />
-        //       </>
-        //     ),
-        //   },
-        // ]}
       >
-        {/*{legends.length > 0 && (
-          <LegendContainer
+        {isLoading && (
+          <LoadingIndicator
             style={{
-              position: 'absolute',
-              bottom: '50px',
-              right: '20px',
+              position: 'fixed',
+              bottom: '10px',
+              right: '10px',
               zIndex: 20,
             }}
-            p="4"
-          >
-            <EvenSpacedList columns={legends.length > 1 ? 2 : 1} gap="10px">
-              {legends.map((legend) => (
-                <Legend
-                  style={{
-                    maxWidth: 250,
-                  }}
-                  key={legend.id}
-                  {...legend}
-                />
-              ))}
-            </EvenSpacedList>
-          </LegendContainer>
-        )}*/}
+          />
+        )}
       </SyncedMaps>
     </Flex>
   )

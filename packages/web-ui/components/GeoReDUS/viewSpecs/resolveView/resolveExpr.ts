@@ -22,7 +22,7 @@ const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
         ...CUSTOM_EXPR,
         $fetch: fetchExpr({
           isFetchAllowed: fetchExpr.allowOrigins({
-            [METADATA_API_ENDPOINT]: ['GET'],
+            [METADATA_API_ENDPOINT]: ['GET', 'POST'],
           }),
         }),
         $naturalBreaks,

@@ -1,3 +1,4 @@
+import { FileReadAsType, fileReadAs } from '@orioro/react-ui-core'
 import { ExpressionFn } from '@orioro/resolve/dist/resolvers/expressions/types'
 import queryString, { StringifyOptions } from 'query-string'
 
@@ -27,4 +28,16 @@ export const $urlSearch: ExpressionFn<
           ]),
         ),
       )
+}
+
+export const $fileReadAs: ExpressionFn<
+  [File, FileReadAsType | 'geojson']
+> = async ([file, readAsType]) => {
+  if (readAsType === 'geojson') {
+    const contents = await fileReadAs(file, 'text')
+
+    return JSON.parse(contents as string)
+  } else {
+    return fileReadAs(file, readAsType)
+  }
 }

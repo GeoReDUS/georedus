@@ -7,6 +7,9 @@ import { globalResources, tableVectorSource } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
+import { resolve } from '@orioro/resolve'
+import { get } from '@orioro/get'
+import { fileReadAs } from '@orioro/react-ui-core'
 
 function safeScheme(scheme) {
   //
@@ -29,7 +32,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     indicator_id,
     indicator_label,
     variable_id,
-    number_format = 'percent',
     variant_label,
     measure_unit,
     variable_id_pct,
@@ -46,10 +48,22 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
 
   const viewId = `${collection_id}.${variable_id}`
 
-  const NUMBER_FMT =
-    typeof number_format === 'string'
-      ? ['pt-BR', { style: number_format }]
-      : number_format
+  // const isPercentage = variable_id.endsWith('_pct')
+
+  // const number_format =
+  //   viewSpec.number_format || isPercentage ? 'percent' : ['pt-BR']
+
+  // const NUMBER_FMT = [
+  //   '$if',
+  //   ['$endsWith', ['$get', 'view.conf.data.variableId'], '_pct'],
+  //   ['pt-BR', { style: 'percent' }],
+  //   ['pt-BR', { style: 'unit' }],
+  // ]
+
+  const NUMBER_FMT = ['pt-BR', {}]
+  // typeof number_format === 'string'
+  //   ? ['pt-BR', { style: number_format }]
+  //   : number_format
 
   if (variable_id !== indicator_id) {
     return null
@@ -86,10 +100,38 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     variants.map((variant) => [variant.variable_id, variant.measure_unit]),
   )
 
+  const _legends = [
+    {
+      type: 'SequentialColorLegend',
+      title: [
+        '$join',
+        [
+          indicator_label,
+          [
+            '$get',
+            ['$get', 'view.conf.data.variableId'],
+            ['$get', 'view.metadata.labels'],
+          ],
+        ],
+        ' | ',
+      ],
+      unit: measure_unit,
+      format: {
+        number: NUMBER_FMT,
+        below: 'Sem dados',
+      },
+      steps: ['$get', 'view.metadata.colorScaleStops'],
+    },
+  ]
+
   return {
+    debug: true,
     id: viewId,
     path: indicator_path,
     label: indicator_label,
+    sourceLabel: collection_id.endsWith('2010')
+      ? 'CENSO 2010'
+      : 'CENSO 2022',
     conf: {
       data: {
         variableId: {
@@ -102,6 +144,10 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
           placeholder: 'Selecione uma variante',
           clearable: false,
           defaultValue: variable_id,
+        },
+        customSpatialAggregationUnit: {
+          type: 'file',
+          label: 'Malha territorial customizada',
         },
       },
       style: {
@@ -120,52 +166,138 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     metadata: [
       '$let',
       {
-        variableValues: [
-          '$get',
-          ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
+        customGeoJSON: [
+          '$if',
+          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+          null,
           [
-            '$fetch',
-            [
-              '$template',
-              `${METADATA_API_ENDPOINT}` +
-                '/${source_table_id}?select=' +
-                '${variableId}' +
-                '&cd_mun=eq.' +
-                '${municipioId}',
-              {
-                variableId: ['$get', 'view.conf.data.variableId'],
-                municipioId: ['$context', 'municipioId'],
-                source_table_id: [
-                  '$get',
-                  [
-                    '$template',
-                    '${0}.source_table_id',
-                    ['$get', 'view.conf.data.variableId'],
-                  ],
-                  variantsByVariableId,
-                ],
-              },
-            ],
+            '$fileReadAs',
+            ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+            'geojson',
           ],
         ],
       },
-      {
-        labels,
-        measureUnits,
-        variableValues: ['$get', 'variableValues'],
-        colorScaleStops: [
-          '$naturalBreaks',
-          ['$get', 'variableValues'],
-          {
-            scalesByK: safeScheme(schemeRdPu),
-            minK: 5,
-          },
-        ],
-      },
+      [
+        '$let',
+        {
+          variableValues: [
+            '$if',
+            ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+            [
+              '$get',
+              ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
+              [
+                '$fetch',
+                [
+                  '$template',
+                  `${METADATA_API_ENDPOINT}` +
+                    '/${source_table_id}?select=' +
+                    '${variableId}' +
+                    '&cd_mun=eq.' +
+                    '${municipioId}',
+                  {
+                    variableId: ['$get', 'view.conf.data.variableId'],
+                    municipioId: ['$context', 'municipioId'],
+                    source_table_id: [
+                      '$get',
+                      [
+                        '$template',
+                        '${0}.source_table_id',
+                        ['$get', 'view.conf.data.variableId'],
+                      ],
+                      variantsByVariableId,
+                    ],
+                  },
+                ],
+              ],
+            ],
+            [
+              '$fetch',
+              {
+                href: METADATA_API_ENDPOINT,
+                pathname: 'rpc/aggregate_by_geojson',
+              },
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: {
+                  geometries: [
+                    '$get',
+                    'features[].geometry',
+                    ['$get', 'customGeoJSON'],
+                  ],
+                  view: 'ibge_malha_br_setor_censitario_2010_spatial_agg',
+                  agg_column: ['$get', 'view.conf.data.variableId'],
+                  agg_type: [
+                    '$if',
+                    [
+                      '$endsWith',
+                      ['$get', 'view.conf.data.variableId'],
+                      '_pct',
+                    ],
+                    'weighted_avg',
+                    'sum',
+                  ],
+                },
+              },
+            ],
+            // [
+            //   100, 400, 339, 66, 838, 661, 883, 33, 100, 400, 339, 66, 838, 661,
+            //   883, 33, 100, 400, 339, 66, 838, 661, 883, 33, 100, 400, 339, 66,
+            //   838, 661, 883, 33,
+            // ],
+          ],
+        },
+        {
+          labels,
+          measureUnits,
+          variableValues: ['$get', 'variableValues'],
+          customGeoJSON: ['$get', 'customGeoJSON'],
+          colorScaleStops: [
+            '$naturalBreaks',
+            ['$get', 'variableValues'],
+            {
+              scalesByK: safeScheme(schemeRdPu),
+              minK: 5,
+            },
+          ],
+        },
+      ],
     ],
 
     sources: {
       ...globalRes.sources,
+
+      customGeoJSON: [
+        '$if',
+        [['$empty', ['$get', 'view.metadata.customGeoJSON']]],
+        null,
+        resolve.fn((context) => {
+          // ['$get', 'view.metadata.customGeoJSON'],
+          const { customGeoJSON, variableValues } = context.view.metadata
+
+          if (!customGeoJSON) {
+            return null
+          }
+
+          return {
+            type: 'geojson',
+            data: {
+              ...customGeoJSON,
+              features: customGeoJSON.features.map((feature, index) => ({
+                ...feature,
+                properties: {
+                  ...(feature.properties || {}),
+                  [context.view.conf.data.variableId]: variableValues[index],
+                },
+              })),
+            },
+          }
+        }),
+      ],
+
       [VECTOR_SOURCE_ID]: {
         type: 'vector',
         minzoom: 6,
@@ -222,32 +354,71 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     },
     layers: {
       ...globalRes.layers,
-      [`${VECTOR_SOURCE_ID}_fill`]: {
-        interactive: true,
 
-        legends: [
-          {
-            type: 'SequentialColorLegend',
-            title: [
-              '$join',
+      customGeoJSON_fill: {
+        hidden: [
+          '$empty',
+          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        ],
+        source: 'customGeoJSON',
+        type: 'fill',
+        legends: _legends,
+        tooltip: {
+          title: [
+            '$literal',
+            [
+              '$coalesce',
+              ['$get', 'feature.properties.name'],
+              ['$get', 'feature.properties.nome'],
+              ['$get', 'feature.properties.label'],
+              ['$get', 'feature.properties.title'],
+              ['$get', 'feature.properties.id'],
               [
-                indicator_label,
+                '$get',
+                ['$get', '0', ['$keys', ['$get', 'feature.properties']]],
+                ['$get', 'feature.properties'],
+              ],
+            ],
+          ],
+          entries: ['$literal', ['$entries', ['$get', 'feature.properties']]],
+        },
+        paint: {
+          'fill-color': [
+            '$flat',
+            [
+              [
+                'step',
                 [
-                  '$get',
-                  ['$get', 'view.conf.data.variableId'],
-                  ['$get', 'view.metadata.labels'],
+                  'coalesce',
+                  ['get', ['$get', 'view.conf.data.variableId']],
+                  -1,
                 ],
               ],
-              ' | ',
+              ['$get', 'view.metadata.colorScaleStops'],
             ],
-            unit: measure_unit,
-            format: {
-              number: NUMBER_FMT,
-              below: 'Sem dados',
-            },
-            steps: ['$get', 'view.metadata.colorScaleStops'],
-          },
+          ],
+          'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
+          'fill-outline-color': 'transparent',
+        },
+
+        // type: 'geojson',
+        // data: [
+        //   '$fileReadAs',
+        //   ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        //   'geojson',
+        // ],
+      },
+
+      [`${VECTOR_SOURCE_ID}_fill`]: {
+        hidden: [
+          '$not',
+          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
         ],
+        // interactive: [
+        //   '$empty',
+        //   ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        // ],
+        legends: _legends,
 
         tooltip: {
           title: [

@@ -103,6 +103,10 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
           clearable: false,
           defaultValue: variable_id,
         },
+        customSpatialAggregationUnit: {
+          type: 'file',
+          label: 'Malha territorial customizada',
+        },
       },
       style: {
         layerOpacity: {
@@ -166,6 +170,24 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
 
     sources: {
       ...globalRes.sources,
+
+      customGeoJson: [
+        '$if',
+        [
+          '$not',
+          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+        ],
+        {
+          type: 'geojson',
+          data: [
+            '$fileReadAs',
+            ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+            'geojson',
+          ],
+        },
+        null,
+      ],
+
       [VECTOR_SOURCE_ID]: {
         type: 'vector',
         minzoom: 6,
@@ -222,90 +244,116 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     },
     layers: {
       ...globalRes.layers,
-      [`${VECTOR_SOURCE_ID}_fill`]: {
-        interactive: true,
 
-        legends: [
-          {
-            type: 'SequentialColorLegend',
-            title: [
-              '$join',
-              [
-                indicator_label,
-                [
-                  '$get',
-                  ['$get', 'view.conf.data.variableId'],
-                  ['$get', 'view.metadata.labels'],
-                ],
-              ],
-              ' | ',
-            ],
-            unit: measure_unit,
-            format: {
-              number: NUMBER_FMT,
-              below: 'Sem dados',
-            },
-            steps: ['$get', 'view.metadata.colorScaleStops'],
-          },
+      customGeoJson_fill: [
+        '$if',
+        [
+          '$not',
+          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
         ],
+        {
+          source: 'customGeoJson',
+          type: 'fill',
+          paint: {
+            'fill-color': 'red',
+            'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
+            'fill-outline-color': 'transparent',
+          },
 
-        tooltip: {
-          title: [
-            '$literal',
-            [
-              '$template',
-              'Setor ${0}',
-              ['$get', 'feature.properties.cd_setor'],
-            ],
-          ],
-          entries: [
-            [
-              ['$get', 'view.conf.data.variableId'],
-              [
-                '$literal',
+          // type: 'geojson',
+          // data: [
+          //   '$fileReadAs',
+          //   ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+          //   'geojson',
+          // ],
+        },
+        {
+          interactive: true,
+
+          legends: [
+            {
+              type: 'SequentialColorLegend',
+              title: [
+                '$join',
                 [
-                  '$get',
+                  indicator_label,
                   [
-                    '$template',
-                    'feature.properties.${0}' +
-                      `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
+                    '$get',
                     ['$get', 'view.conf.data.variableId'],
+                    ['$get', 'view.metadata.labels'],
+                  ],
+                ],
+                ' | ',
+              ],
+              unit: measure_unit,
+              format: {
+                number: NUMBER_FMT,
+                below: 'Sem dados',
+              },
+              steps: ['$get', 'view.metadata.colorScaleStops'],
+            },
+          ],
+
+          tooltip: {
+            title: [
+              '$literal',
+              [
+                '$template',
+                'Setor ${0}',
+                ['$get', 'feature.properties.cd_setor'],
+              ],
+            ],
+            entries: [
+              [
+                ['$get', 'view.conf.data.variableId'],
+                [
+                  '$literal',
+                  [
+                    '$get',
+                    [
+                      '$template',
+                      'feature.properties.${0}' +
+                        `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
+                      ['$get', 'view.conf.data.variableId'],
+                    ],
                   ],
                 ],
               ],
-            ],
-            [
-              'Pessoas Residentes',
               [
-                '$literal',
-                ['$get', `feature.properties.pop_bas_mor_tot_pes::string`],
-              ],
-            ],
-          ],
-        },
-        source: VECTOR_SOURCE_ID,
-        'source-layer': 'dynamic_vector_tile',
-        type: 'fill',
-        // filter: ['==', ['get', 'cd_mun'], ['$get', 'municipioId']],
-        paint: {
-          'fill-color': [
-            '$flat',
-            [
-              [
-                'step',
+                'Pessoas Residentes',
                 [
-                  'coalesce',
-                  ['get', ['$get', 'view.conf.data.variableId']],
-                  -1,
+                  '$literal',
+                  ['$get', `feature.properties.pop_bas_mor_tot_pes::string`],
                 ],
               ],
-              ['$get', 'view.metadata.colorScaleStops'],
             ],
-          ],
-          'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
-          'fill-outline-color': 'transparent',
+          },
+          source: VECTOR_SOURCE_ID,
+          'source-layer': 'dynamic_vector_tile',
+          type: 'fill',
+          // filter: ['==', ['get', 'cd_mun'], ['$get', 'municipioId']],
+          paint: {
+            'fill-color': [
+              '$flat',
+              [
+                [
+                  'step',
+                  [
+                    'coalesce',
+                    ['get', ['$get', 'view.conf.data.variableId']],
+                    -1,
+                  ],
+                ],
+                ['$get', 'view.metadata.colorScaleStops'],
+              ],
+            ],
+            'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
+            'fill-outline-color': 'transparent',
+          },
         },
-      },
+      ],
+
+      // [`${VECTOR_SOURCE_ID}_fill`]: ,
     },
   }
 }

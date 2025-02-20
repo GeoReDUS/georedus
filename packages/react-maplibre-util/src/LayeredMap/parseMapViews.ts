@@ -137,16 +137,19 @@ export function parseMapViews(
     (acc, { id: viewId, sources, layers }) => {
       const _sources = isPlainObject(sources)
         ? Object.entries(sources).reduce(
-            (acc, [sourceRelativeId, source]) => [
-              ...acc,
-              {
-                ...source,
-                viewId,
-                id: source.absoluteId
-                  ? source.absoluteId
-                  : `${viewId}__${sourceRelativeId}`,
-              },
-            ],
+            (acc, [sourceRelativeId, source]) =>
+              !source
+                ? acc
+                : [
+                    ...acc,
+                    {
+                      ...source,
+                      viewId,
+                      id: source.absoluteId
+                        ? source.absoluteId
+                        : `${viewId}__${sourceRelativeId}`,
+                    },
+                  ],
             [] as ParsedSource[],
           )
         : []
@@ -154,6 +157,10 @@ export function parseMapViews(
       const { _layers, interactiveLayerIds } = isPlainObject(layers)
         ? Object.entries(layers).reduce(
             (acc, [layerRelativeId, layer]) => {
+              if (!layer) {
+                return acc
+              }
+
               const layerId = layer.absoluteId
                 ? layer.absoluteId
                 : `${viewId}__${layerRelativeId}`

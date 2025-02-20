@@ -1,3 +1,4 @@
+import { isPlainObject } from 'lodash'
 import { ResolvedViewConf, ViewContext, ViewSpec } from '../types'
 import { resolveExpr, resolveExprAsync } from './resolveExpr'
 import { get } from '@orioro/get'
@@ -7,7 +8,6 @@ export async function resolveView(
   viewConf: ResolvedViewConf,
   viewContext: ViewContext,
 ) {
-
   console.log(viewSpec)
 
   const VIEW_AT_METADATA_STAGE = {
@@ -60,21 +60,26 @@ export async function resolveView(
   // for a specific feature
   //
   const layers = Object.fromEntries(
-    Object.entries(layersBase).map(([layerId, layerBase]) => {
-      return [
-        layerId,
-        {
-          ...layerBase,
-          tooltip: layerBase.tooltip
-            ? ({ feature }) =>
-                resolveExpr(layerBase.tooltip, {
-                  feature,
-                  view: VIEW_AT_LAYERS_STAGE,
-                })
-            : null,
-        },
-      ]
-    }),
+    Object.entries(layersBase)
+      .filter(
+        ([layerId, layerBase]) => isPlainObject(layerBase) && !layerBase.hidden,
+      )
+      .map(([layerId, layerBase]) => {
+        return [
+          layerId,
+          {
+            ...layerBase,
+            tooltip:
+              layerBase.interactive !== false && layerBase.tooltip
+                ? ({ feature }) =>
+                    resolveExpr(layerBase.tooltip, {
+                      feature,
+                      view: VIEW_AT_LAYERS_STAGE,
+                    })
+                : null,
+          },
+        ]
+      }),
   )
 
   if (viewSpec.debug) {

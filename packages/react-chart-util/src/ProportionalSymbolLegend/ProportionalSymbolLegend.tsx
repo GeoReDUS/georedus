@@ -119,7 +119,9 @@ export function ProportionalSymbolLegendItems({
   const formatNumber = useCallback(
     (number: number) => {
       if (numberFormat) {
-        return new Intl.NumberFormat(...numberFormat).format(number)
+        return new Intl.NumberFormat(numberFormat[0], numberFormat[1]).format(
+          number,
+        )
       } else {
         return new Intl.NumberFormat().format(number)
       }
