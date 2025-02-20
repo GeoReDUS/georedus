@@ -44,31 +44,43 @@ import { IconButton } from '@radix-ui/themes'
 import Icon from '@mdi/react'
 import { mdiClose } from '@mdi/js'
 
-const CEM_CENSO_2010 =
+const GOOGLE_CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
   '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
   '/pub?gid=' +
   '2016686120' +
   '&single=true&output=csv'
 
-const CEM_CENSO_2022 =
+const GOOGLE_CEM_CENSO_2022 =
   'https://docs.google.com/spreadsheets/d/e/' +
   '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
   '/pub?gid=' +
   '1523585495' +
   '&single=true&output=csv'
 
-const CEM_ESCOLAS_2022 =
+const GOOGLE_CEM_ESCOLAS_2022 =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
 
-const CEM_SAUDE_2024 =
+const GOOGLE_CEM_SAUDE_2024 =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
 
 const GOOGLE_SHEETS_VIEW_SPECS = [
-  CEM_CENSO_2010,
-  CEM_CENSO_2022,
-  CEM_ESCOLAS_2022,
-  CEM_SAUDE_2024,
+  GOOGLE_CEM_CENSO_2010,
+  GOOGLE_CEM_CENSO_2022,
+  GOOGLE_CEM_ESCOLAS_2022,
+  GOOGLE_CEM_SAUDE_2024,
+]
+
+const BUILT_IN_CEM_CENSO_2010 = '/georedus/data/cem_censo_2010.csv'
+const BUILT_IN_CEM_CENSO_2022 = '/georedus/data/cem_censo_2022.csv'
+const BUILT_IN_CEM_ESCOLAS_2022 = '/georedus/data/cem_escolas_2022.csv'
+const BUILT_IN_CEM_SAUDE_2024 = '/georedus/data/cem_saude_2024.csv'
+
+const BUILT_IN_VIEW_SPECS = [
+  BUILT_IN_CEM_CENSO_2010,
+  BUILT_IN_CEM_CENSO_2022,
+  BUILT_IN_CEM_ESCOLAS_2022,
+  BUILT_IN_CEM_SAUDE_2024,
 ]
 
 const LegendContainer = styled(Box)`
@@ -106,22 +118,27 @@ export function GeoReDUS() {
   const syncedMapsRef = useRef(null)
 
   const [municipioId, setMunicipioId] = useState(
-    // '1501402',
-    '3550308',
+    // Belém
+    '1501402',
+    // São Paulo
+    // '3550308',
   )
 
   const [viewState, setViewState] = useState({
-    // latitude: -1.455833,
-    // longitude: -48.503887,
+    // Belém
+    latitude: -1.455833,
+    longitude: -48.503887,
 
-    latitude: -23.533773,
-    longitude: -46.62529,
+    // São Paulo
+    // latitude: -23.533773,
+    // longitude: -46.62529,
     zoom: 10,
   })
   // const onMove = useCallback((evt) => setViewState(evt.viewState), [])
 
   const [viewSpecSources, setViewSpecSources] = useState(
-    GOOGLE_SHEETS_VIEW_SPECS,
+    BUILT_IN_VIEW_SPECS,
+    // GOOGLE_SHEETS_VIEW_SPECS,
   )
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', viewSpecSources],
