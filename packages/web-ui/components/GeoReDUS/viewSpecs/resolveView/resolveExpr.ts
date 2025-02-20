@@ -9,6 +9,7 @@ import {
 
 import { $naturalBreaks } from '@orioro/react-maplibre-util'
 import { METADATA_API_ENDPOINT } from '../constants'
+import * as CUSTOM_EXPR from './customExpr'
 
 const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
   resolvers: withExpressionResolvers(
@@ -18,6 +19,7 @@ const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
       // @ts-ignore
       exps: {
         ...ALL_EXPR,
+        ...CUSTOM_EXPR,
         $fetch: fetchExpr({
           isFetchAllowed: fetchExpr.allowOrigins({
             [METADATA_API_ENDPOINT]: ['GET'],

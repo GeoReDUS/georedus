@@ -1,7 +1,7 @@
 import { Flex, LoadingIndicator, withDefaults } from '@orioro/react-ui-core'
 import { makeDirNav } from '@orioro/react-dir-nav'
 import { Icon } from '@mdi/react'
-import { mdiAccountGroup, mdiSchool, mdiTrainCar } from '@mdi/js'
+import { mdiAccountGroup, mdiSchool, mdiHomeCity } from '@mdi/js'
 import { ViewControl } from '../ViewControl'
 import styled from 'styled-components'
 import { createContext, useContext } from 'react'
@@ -9,7 +9,7 @@ import { createContext, useContext } from 'react'
 const STATIC_NODE_ICONS = {
   'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
   educacao: <Icon path={mdiSchool} />,
-  'infraestrutura-e-servicos-urbanos': <Icon path={mdiTrainCar} />,
+  'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
 }
 
 function errNoViewMenuContext() {

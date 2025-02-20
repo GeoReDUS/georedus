@@ -3,6 +3,7 @@ import { ckmeans } from 'simple-statistics'
 import { schemeYlOrRd } from 'd3-scale-chromatic'
 import { MAX_K, MIN_K, autoK, within } from './autoK'
 import { isPlainObject, pick } from 'lodash-es'
+import greenlet from 'greenlet'
 
 const DEFAULT_COLOR_SCALE = schemeYlOrRd
 
@@ -26,7 +27,7 @@ export function naturalBreakBounds(
   return bounds
 }
 
-const DEFAULT_COLOR = '#cccccc'
+const DEFAULT_COLOR = 'transparent'
 
 export function scaleNaturalBreaks({
   values,
@@ -61,9 +62,9 @@ export function scaleNaturalBreaks({
     //
     const steps = bounds
       .map(([min, max], index) => {
-        const scaleValue = scale[index]
+        const color = scale[index]
 
-        return index === 0 ? [scaleValue] : [min, scaleValue]
+        return index === 0 ? [defaultColor, min, color] : [min, color]
       })
       .flat(1)
 

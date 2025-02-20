@@ -81,7 +81,7 @@ export function ViewControl({
   return (
     <Collapsible.Root open={active}>
       <Container>
-        <Summary type="button">
+        <Summary type="button" role="button" onClick={() => toggleView()}>
           <Flex
             direction="row"
             alignItems="center"
@@ -92,7 +92,6 @@ export function ViewControl({
             <Flex
               direction="column"
               gap="1"
-              onClick={() => toggleView()}
               style={{
                 flexGrow: '1',
               }}
@@ -123,6 +122,10 @@ export function ViewControl({
               radius="full"
               value={active}
               onSetValue={() => toggleView()}
+              //
+              // TODO: implement onclick over
+              //
+              onClick={(e) => e.stopPropagation()}
             />
           </Flex>
         </Summary>

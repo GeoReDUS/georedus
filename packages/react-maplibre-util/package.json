@@ -38,6 +38,7 @@
     "@types/geojson": "^7946.0.16",
     "d3": "^7.9.0",
     "d3-scale-chromatic": "^3.1.0",
+    "greenlet": "^1.1.0",
     "lodash-es": "^4.17.21",
     "maplibre-gl": "^5.1.0",
     "query-string": "^9.1.1",

@@ -63,9 +63,6 @@ export function cem_escolas_2022(config) {
               co_municipio: ['$template', 'eq.${0}', ['$get', 'municipioId']],
             },
           },
-          {
-            cache: 'force-cache',
-          },
         ],
       ],
       sizingValues: sizing_variable_id

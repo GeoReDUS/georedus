@@ -27,16 +27,6 @@ const ItemLabel = styled.div`
   align-items: center;
 `
 
-const LegendTitle = styled.h3`
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1;
-`
-
-const LegendUnit = styled.span`
-  font-size: 0.8rem;
-`
-
 export function ColorLegendItems({
   items,
   ...props
@@ -53,6 +43,10 @@ export function ColorLegendItems({
           <ColorDisplay
             style={{
               '--background-color': item.color,
+              border:
+                item.color === 'transparent'
+                  ? '1px dotted #555555'
+                  : '1px solid var(--background-color)',
             }}
           />
 

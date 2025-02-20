@@ -1,8 +1,5 @@
 import { uniqBy } from 'lodash'
-import {
-  METADATA_API_ENDPOINT,
-  VECTOR_TILE_SERVER_ENDPOINT,
-} from '../../constants'
+import { METADATA_API_ENDPOINT } from '../../constants'
 import { globalResources, tableVectorSource } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
@@ -24,7 +21,6 @@ function safeScheme(scheme) {
 export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
   const {
     collection_id,
-    source_table_id,
     indicator_path,
     indicator_id,
     indicator_label,
@@ -61,22 +57,11 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     return null
   }
 
-  if (!source_table_id) {
-    console.warn(
-      `found variable without source source_table_id, will ignore ${variable_id}`,
-    )
-    return null
-  }
-
   const variants = uniqBy(
     allViewSpecs.filter(
       (otherViewSpec) => otherViewSpec.indicator_id === indicator_id,
     ),
     (viewSpec) => viewSpec.variable_id,
-  )
-
-  const variantsByVariableId = Object.fromEntries(
-    variants.map((variant) => [variant.variable_id, variant]),
   )
 
   const labels = Object.fromEntries(
@@ -127,25 +112,18 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
             '$fetch',
             [
               '$template',
-              `${METADATA_API_ENDPOINT}` +
-                '/${source_table_id}?select=' +
+              `${METADATA_API_ENDPOINT}/${collection_id}?select=` +
                 '${variableId}' +
-                '&cd_mun=eq.' +
+                '&cd_geocodm=eq.' +
                 '${municipioId}',
               {
                 variableId: ['$get', 'view.conf.data.variableId'],
                 municipioId: ['$context', 'municipioId'],
-                source_table_id: [
-                  '$get',
-                  [
-                    '$template',
-                    '${0}.source_table_id',
-                    ['$get', 'view.conf.data.variableId'],
-                  ],
-                  variantsByVariableId,
-                ],
               },
             ],
+            {
+              cache: 'force-cache',
+            },
           ],
         ],
       },
@@ -166,59 +144,10 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
 
     sources: {
       ...globalRes.sources,
-      [VECTOR_SOURCE_ID]: {
-        type: 'vector',
-        minzoom: 9,
+      [VECTOR_SOURCE_ID]: tableVectorSource(collection_id, {
+        minzoom: 8,
         maxzoom: 20,
-        tiles: [
-          [
-            '$join',
-            [
-              `${VECTOR_TILE_SERVER_ENDPOINT}/dynamic_vector_tiles/{z}/{x}/{y}?`,
-              [
-                '$urlSearch',
-                {
-                  view: [
-                    '$get',
-                    [
-                      '$template',
-                      '${0}.collection_id',
-                      ['$get', 'view.conf.data.variableId'],
-                    ],
-                    variantsByVariableId,
-                  ],
-                  select: ['cd_setor'],
-                  join_view: [
-                    '$get',
-                    [
-                      '$template',
-                      '${0}.source_table_id',
-                      ['$get', 'view.conf.data.variableId'],
-                    ],
-                    variantsByVariableId,
-                  ],
-                  join_source_column: 'cd_setor',
-                  join_target_column: 'cd_setor',
-                  join_select: [['$get', 'view.conf.data.variableId']],
-                  where: {
-                    cd_mun: [['$get', 'municipioId']],
-                  },
-                },
-              ],
-            ],
-          ],
-        ],
-
-        // tiles: [
-        //   `http://localhost:6002/dynamic_vector_tile/{z}/{x}/{y}?view=ibge_malha_br_setor_censitario_2010_2&select=%5B%22tipo%22%5D&join_view=cem_censo_2010_rel&join_source_column=cd_setor&join_target_column=cd_setor&join_select=%5B%22${variable_id}%22%5D`,
-        //   // `http://localhost:6002/dynamic_vector_tile/{z}/{x}/{y}?view=ibge_malha_br_setor_censitario_2010_2&select=%5B%22tipo%22%5D&join.view=cem_censo_2010_rel&join.source_key=cd_setor&join.target_key=cd_setor&join.select=%5B%22${variable_id}%22%5D`
-        //   // `http://localhost:6002/dynamic_vector_tile/{z}/{x}/{y}?main_view_name=ibge_malha_br_setor_censitario_2010_2&main_view_join_key=cd_setor&join_view_name=cem_censo_2010_rel&join_view_join_key=cd_setor&main_view_select=%5B%22tipo%22%5D&join_view_select=%5B%22${variable_id}%22%5D`,
-        // ],
-      },
-      // [VECTOR_SOURCE_ID]: tableVectorSource(collection_id, {
-      //   minzoom: 8,
-      //   maxzoom: 20,
-      // }),
+      }),
     },
     layers: {
       ...globalRes.layers,
@@ -240,10 +169,13 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
               ],
               ' | ',
             ],
-            unit: measure_unit,
+            unit: [
+              '$get',
+              ['$get', 'view.conf.data.variableId'],
+              ['$get', 'view.metadata.measureUnits'],
+            ],
             format: {
               number: NUMBER_FMT,
-              below: 'Sem dados',
             },
             steps: ['$get', 'view.metadata.colorScaleStops'],
           },
@@ -255,7 +187,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
             [
               '$template',
               'Setor ${0}',
-              ['$get', 'feature.properties.cd_setor'],
+              ['$get', 'feature.properties.cd_geocodi'],
             ],
           ],
           entries: [
@@ -284,21 +216,14 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
           ],
         },
         source: VECTOR_SOURCE_ID,
-        'source-layer': 'dynamic_vector_tile',
+        'source-layer': VECTOR_SOURCE_ID,
         type: 'fill',
-        // filter: ['==', ['get', 'cd_mun'], ['$get', 'municipioId']],
+        filter: ['==', ['get', 'cd_geocodm'], ['$get', 'municipioId']],
         paint: {
           'fill-color': [
             '$flat',
             [
-              [
-                'step',
-                [
-                  'coalesce',
-                  ['get', ['$get', 'view.conf.data.variableId']],
-                  -1,
-                ],
-              ],
+              ['step', ['get', ['$get', 'view.conf.data.variableId']]],
               ['$get', 'view.metadata.colorScaleStops'],
             ],
           ],
