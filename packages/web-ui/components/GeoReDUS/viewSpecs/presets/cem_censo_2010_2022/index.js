@@ -352,6 +352,18 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     },
     layers: {
       ...globalRes.layers,
+      customGeoJSON_line: {
+        hidden: [
+          '$empty',
+          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        ],
+        source: 'customGeoJSON',
+        type: 'line',
+        paint: {
+          'line-color': safeScheme(schemeRdPu)[5][4],
+          'line-width': 2,
+        },
+      },
 
       customGeoJSON_fill: {
         hidden: [
