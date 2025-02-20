@@ -9,8 +9,8 @@ import {
 import { useMemo } from 'react'
 import * as Tabs from '@radix-ui/react-tabs'
 import styled from 'styled-components'
-import { DirSection, makeDirSection } from '../DirSection'
-import { SearchSection } from '../SearchSection'
+import { makeDirSection } from '../DirSection'
+import { makeSearchSection } from '../SearchSection'
 import { Icon } from '@mdi/react'
 import { mdiFolderOutline, mdiMagnify } from '@mdi/js'
 import { Tooltip } from '@radix-ui/themes'
@@ -82,6 +82,7 @@ function defaultGetNodeIcon(node: DirItem): React.ReactNode {
 
 export function makeDirNav(config: MakeDirNavProps = {}) {
   const DirSection = makeDirSection(config)
+  const SearchSection = makeSearchSection(config)
 
   return function DirNav({
     items,
