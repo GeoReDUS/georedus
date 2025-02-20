@@ -316,13 +316,18 @@ export function GeoReDUS() {
           schema={{
             type: 'select',
             options: useCallback(async () => {
+              // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
               const municipios = await fetch(
-                'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
+                `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
               ).then((response) => response.json())
 
+              // const municipios = await fetch(
+              //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
+              // ).then((response) => response.json())
+
               return municipios.map((mun) => ({
-                label: `${mun['municipio-nome']} (${mun['UF-sigla']})`,
-                value: mun['municipio-id'] + '',
+                label: `${mun['nome']} (${mun['uf_sigla']})`,
+                value: mun['id'] + '',
               }))
             }, []),
           }}

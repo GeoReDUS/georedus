@@ -114,7 +114,7 @@ export function ViewControl({
                   color: 'var(--gray-9)',
                   textTransform: 'uppercase',
                 }}
-                size="2"
+                size="1"
               >
                 {viewSpec.sourceLabel}
               </Text>
