@@ -137,8 +137,8 @@ export function GeoReDUS() {
   // const onMove = useCallback((evt) => setViewState(evt.viewState), [])
 
   const [viewSpecSources, setViewSpecSources] = useState(
-    BUILT_IN_VIEW_SPECS,
-    // GOOGLE_SHEETS_VIEW_SPECS,
+    // BUILT_IN_VIEW_SPECS,
+    GOOGLE_SHEETS_VIEW_SPECS,
   )
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', viewSpecSources],
