@@ -1,4 +1,6 @@
 import { set } from 'lodash'
+import { BASE_MAP_LAYERS } from './BASE_MAP_LAYERS'
+import { slugify } from '@orioro/util'
 
 export * from './colorSchemes'
 
@@ -21,17 +23,37 @@ export function vectorLayer(sourceId, override) {
   }
 }
 
+const BASE_MAP_LAYERS_OBJ = BASE_MAP_LAYERS.reduce(
+  (acc, layer, index) => ({
+    ...acc,
+    [slugify(layer.id, '_')]: [
+      //
+      // Important! use $literal expression
+      // to avoid unnecessary computing on resolution
+      //
+      '$literal',
+      {
+        ...layer,
+        interactive: false,
+        zIndex: 100 + index,
+        source: 'planet',
+      },
+    ],
+  }),
+  {},
+)
+
 export function globalResources(context) {
   const MUNICIPIO_MALHA_TABLE_ID = 'ibge_malha_br_municipio'
 
   return {
     sources: {
-      // planet: {
-      //   type: 'vector',
-      //   tiles: [
-      //     `https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=${context.MAP_TILER_API_KEY}`,
-      //   ],
-      // },
+      planet: {
+        type: 'vector',
+        tiles: [
+          `https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=${context.MAP_TILER_API_KEY}`,
+        ],
+      },
       global_municipio: tableVectorSource(context, MUNICIPIO_MALHA_TABLE_ID, {
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         minzoom: 4,
@@ -40,6 +62,7 @@ export function globalResources(context) {
     },
     layers: {
       municipio: {
+        zIndex: 1000,
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         absoluteSourceId: MUNICIPIO_MALHA_TABLE_ID,
         'source-layer': `${MUNICIPIO_MALHA_TABLE_ID}.geom`,
@@ -53,30 +76,7 @@ export function globalResources(context) {
         },
       },
 
-      // landcover: {
-      //   zIndex: 9,
-      //   // "id": "Landcover",
-      //   type: 'fill',
-      //   source: 'planet',
-      //   'source-layer': 'landcover',
-      //   layout: {
-      //     visibility: 'visible',
-      //   },
-      //   paint: {
-      //     'fill-antialias': false,
-      //     'fill-color': 'hsl(96, 44%, 79%)',
-      //     // 'fill-color': 'red',
-      //     'fill-opacity': 1,
-      //     // 'fill-opacity': {
-      //     //   stops: [
-      //     //     [8, 0.2],
-      //     //     [9, 0.25],
-      //     //     [11, 0.35],
-      //     //   ],
-      //     // },
-      //   },
-      //   filter: ['in', 'class', 'wood', 'grass'],
-      // },
+      ...BASE_MAP_LAYERS_OBJ,
     },
   }
 }
