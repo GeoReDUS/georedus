@@ -7,9 +7,18 @@ import {
   $$literal,
 } from '@orioro/resolve'
 
+import { apiConf } from '@/api'
+
 import { $naturalBreaks } from '@orioro/react-maplibre-util'
-import { METADATA_API_ENDPOINT } from '../constants'
 import * as CUSTOM_EXPR from './customExpr'
+
+async function isFetchAllowed(resource, options) {
+  const conf = await apiConf()
+
+  return fetchExpr.allowOrigins({
+    [conf.GEO_METADATA_API_ENDPOINT]: ['GET', 'POST'],
+  })(resource, options)
+}
 
 const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
   resolvers: withExpressionResolvers(
@@ -21,9 +30,7 @@ const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
         ...ALL_EXPR,
         ...CUSTOM_EXPR,
         $fetch: fetchExpr({
-          isFetchAllowed: fetchExpr.allowOrigins({
-            [METADATA_API_ENDPOINT]: ['GET', 'POST'],
-          }),
+          isFetchAllowed,
         }),
         $naturalBreaks,
       },

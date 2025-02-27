@@ -1,9 +1,9 @@
 import { set } from 'lodash'
-import { VECTOR_TILE_SERVER_ENDPOINT } from '../constants'
 
 export * from './colorSchemes'
 
-export function tableVectorSource(tableId, override = {}) {
+export function tableVectorSource(context, tableId, override = {}) {
+  const { VECTOR_TILE_SERVER_ENDPOINT } = context
   return {
     type: 'vector',
     tiles: [`${VECTOR_TILE_SERVER_ENDPOINT}/${tableId}.geom/{z}/{x}/{y}`],
@@ -21,12 +21,12 @@ export function vectorLayer(sourceId, override) {
   }
 }
 
-export function globalResources() {
+export function globalResources(context) {
   const MUNICIPIO_MALHA_TABLE_ID = 'ibge_malha_br_municipio'
 
   return {
     sources: {
-      global_municipio: tableVectorSource(MUNICIPIO_MALHA_TABLE_ID, {
+      global_municipio: tableVectorSource(context, MUNICIPIO_MALHA_TABLE_ID, {
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         minzoom: 4,
         maxzoom: 20,

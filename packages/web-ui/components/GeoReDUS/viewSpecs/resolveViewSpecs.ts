@@ -1,5 +1,5 @@
 import { csvParse } from 'd3-dsv'
-import { ViewSpec } from './types'
+import { ResolveViewSpecsContext, ViewSpec } from './types'
 import { parseViewSpec } from './parseViewSpec'
 import { groupBy, isPlainObject, uniqBy } from 'lodash'
 import { fileReadAs } from '@orioro/react-ui-core'
@@ -59,7 +59,10 @@ type ViewSpecInput = ViewSpec & {
 
 const NO_COLLECTION = 'no_collection'
 
-export function resolveViewSpecs(viewSpecsInput: ViewSpecInput[]) {
+export function resolveViewSpecs(
+  viewSpecsInput: ViewSpecInput[],
+  context: ResolveViewSpecsContext,
+) {
   //
   // Filter out specs that do not specify
   // - collection_id or indicator_id
@@ -95,7 +98,7 @@ export function resolveViewSpecs(viewSpecsInput: ViewSpecInput[]) {
 
       return (
         viewSpecsInput
-          .map((entry) => parseViewSpec(entry, viewSpecsInput))
+          .map((entry) => parseViewSpec(entry, viewSpecsInput, context))
           // parseViewSpec may return an array of view specs
           .flat(1)
           // or no view spec

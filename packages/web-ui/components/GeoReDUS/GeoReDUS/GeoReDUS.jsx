@@ -24,10 +24,8 @@ import {
 import { Legend } from '@orioro/react-chart-util'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-import { METADATA_API_ENDPOINT } from '../viewSpecs/constants'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { resolveView } from '../viewSpecs/resolveView'
-import { withHover } from '@orioro/react-maplibre-util'
 import { HoverTooltip } from '@orioro/react-maplibre-util'
 import {
   NavigationControl,
@@ -97,7 +95,7 @@ const SyncedMaps = makeSyncedMaps({
   },
 })
 
-async function _flyToMunicipio(map, municipioId) {
+async function _flyToMunicipio(map, METADATA_API_ENDPOINT, municipioId) {
   const [mun] = await fetch(
     `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=bbox&id=eq.${municipioId}`,
   ).then((res) => res.json())
@@ -107,7 +105,9 @@ async function _flyToMunicipio(map, municipioId) {
   }
 }
 
-export function GeoReDUS() {
+export function GeoReDUS({ api }) {
+  const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
+
   const [viewConfState, viewConfDispatch] = useReducer(viewConfReducer, {
     byId: {},
     layout: [[]],
@@ -143,7 +143,10 @@ export function GeoReDUS() {
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', viewSpecSources],
     queryFn: async () =>
-      resolveViewSpecs(await fetchViewSpecs(viewSpecSources)),
+      resolveViewSpecs(await fetchViewSpecs(viewSpecSources), {
+        METADATA_API_ENDPOINT,
+        VECTOR_TILE_SERVER_ENDPOINT,
+      }),
     throwOnError: process.env.NODE_ENV !== 'production',
   })
 
@@ -231,7 +234,7 @@ export function GeoReDUS() {
       return
     }
 
-    _flyToMunicipio(mainMap, municipioId)
+    _flyToMunicipio(mainMap, METADATA_API_ENDPOINT, municipioId)
   }, [municipioId, mainMap])
 
   //
@@ -339,7 +342,7 @@ export function GeoReDUS() {
       <SyncedMaps
         ref={syncedMapsRef}
         onLoad={async (event) => {
-          _flyToMunicipio(event.target, municipioId)
+          _flyToMunicipio(event.target, METADATA_API_ENDPOINT, municipioId)
         }}
         initialViewState={viewState}
         style={{ position: 'fixed', top: 0, bottom: 0, left: '60px', right: 0 }}

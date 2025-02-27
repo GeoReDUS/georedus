@@ -60,8 +60,11 @@ export const Basic = () => {
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', GOOGLE_SHEETS_VIEW_SPECS],
     queryFn: async () =>
-      resolveViewSpecs(await fetchViewSpecs(GOOGLE_SHEETS_VIEW_SPECS)),
-    throwOnError: process.env.NODE_ENV !== 'production',
+      resolveViewSpecs(await fetchViewSpecs(GOOGLE_SHEETS_VIEW_SPECS), {
+        METADATA_API_ENDPOINT: 'metadata_api',
+        VECTOR_TILE_SERVER_ENDPOINT: 'vector_tile_server',
+      }),
+    throwOnError: true,
   })
 
   return (

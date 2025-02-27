@@ -1,15 +1,9 @@
 import { uniqBy } from 'lodash'
-import {
-  METADATA_API_ENDPOINT,
-  VECTOR_TILE_SERVER_ENDPOINT,
-} from '../../constants'
-import { globalResources, tableVectorSource } from '../../util'
+import { globalResources } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
 import { resolve } from '@orioro/resolve'
-import { get } from '@orioro/get'
-import { fileReadAs } from '@orioro/react-ui-core'
 
 function safeScheme(scheme) {
   //
@@ -24,7 +18,7 @@ function safeScheme(scheme) {
   return Array.from(scheme, (d) => d || null)
 }
 
-export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
+export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
   const {
     collection_id,
     source_table_id,
@@ -40,11 +34,13 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
     preset,
   } = viewSpec
 
+  const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = context
+
   const COLLECTION = COLLECTION_SCHEMAS[collection_id]
 
   const VECTOR_SOURCE_ID = `${collection_id}.geom`
 
-  const globalRes = globalResources()
+  const globalRes = globalResources(context)
 
   const viewId = `${collection_id}.${variable_id}`
 
@@ -241,11 +237,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
                 },
               },
             ],
-            // [
-            //   100, 400, 339, 66, 838, 661, 883, 33, 100, 400, 339, 66, 838, 661,
-            //   883, 33, 100, 400, 339, 66, 838, 661, 883, 33, 100, 400, 339, 66,
-            //   838, 661, 883, 33,
-            // ],
           ],
         },
         {
@@ -338,17 +329,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs) {
             ],
           ],
         ],
-
-        // tiles: [
-        //   `http://localhost:6002/dynamic_vector_tile/{z}/{x}/{y}?view=ibge_malha_br_setor_censitario_2010_2&select=%5B%22tipo%22%5D&join_view=cem_censo_2010_rel&join_source_column=cd_setor&join_target_column=cd_setor&join_select=%5B%22${variable_id}%22%5D`,
-        //   // `http://localhost:6002/dynamic_vector_tile/{z}/{x}/{y}?view=ibge_malha_br_setor_censitario_2010_2&select=%5B%22tipo%22%5D&join.view=cem_censo_2010_rel&join.source_key=cd_setor&join.target_key=cd_setor&join.select=%5B%22${variable_id}%22%5D`
-        //   // `http://localhost:6002/dynamic_vector_tile/{z}/{x}/{y}?main_view_name=ibge_malha_br_setor_censitario_2010_2&main_view_join_key=cd_setor&join_view_name=cem_censo_2010_rel&join_view_join_key=cd_setor&main_view_select=%5B%22tipo%22%5D&join_view_select=%5B%22${variable_id}%22%5D`,
-        // ],
       },
-      // [VECTOR_SOURCE_ID]: tableVectorSource(collection_id, {
-      //   minzoom: 8,
-      //   maxzoom: 20,
-      // }),
     },
     layers: {
       ...globalRes.layers,

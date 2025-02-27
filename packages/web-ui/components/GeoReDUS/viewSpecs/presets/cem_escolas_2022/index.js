@@ -1,4 +1,3 @@
-import { METADATA_API_ENDPOINT } from '../../constants'
 import { globalResources, tableVectorSource } from '../../util'
 
 import { numerical_choropleth } from './numerical_choropleth'
@@ -13,7 +12,7 @@ const BY_TYPE = {
   categorical,
 }
 
-export function cem_escolas_2022(config) {
+export function cem_escolas_2022(config, otherView, context) {
   const {
     collection_id,
     indicator_id,
@@ -23,13 +22,15 @@ export function cem_escolas_2022(config) {
     sizing_variable_id,
   } = config
 
+  const { METADATA_API_ENDPOINT } = context
+
   const VARIABLE_ID = indicator_id
   const TABLE_ID = collection_id
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
 
   const viewId = `${collection_id}.${VARIABLE_ID}`
 
-  const globalRes = globalResources()
+  const globalRes = globalResources(context)
 
   const base = {
     id: viewId,
@@ -103,7 +104,7 @@ export function cem_escolas_2022(config) {
 
     sources: {
       ...globalRes.sources,
-      [VECTOR_SOURCE_ID]: tableVectorSource(collection_id, {
+      [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
         minzoom: 8,
         maxzoom: 20,
       }),
