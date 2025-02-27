@@ -7,6 +7,17 @@ export default {
   title: 'GeoReDUS / ViewControl',
 }
 
+const METODOLOGY_TEXT = `
+Lift($$L$$) can be determined by Lift Coefficient ($$C_L$$) like the following
+equation.
+
+$$
+L = \\frac{1}{2} \\rho v^2 S C_L
+$$
+`
+
+const METODOLOGY_URL = 'https://raw.githubusercontent.com/remarkjs/remark-math/refs/heads/main/readme.md'
+
 export const Basic = () => {
   const [activeViewsById, setActiveViewsById] = useState({})
 
@@ -23,16 +34,10 @@ export const Basic = () => {
     >
       <ViewControl
         viewConf={activeViewsById[viewId]}
-        onActivateView={(newViewConf) =>
-          setActiveViewsById({
-            ...activeViewsById,
-            [viewId]: newViewConf,
-          })
-        }
         onDeactivateView={() =>
           setActiveViewsById(omit(activeViewsById, [viewId]))
         }
-        onUpdateViewConf={(nextViewConf) =>
+        onSetView={(nextViewConf) =>
           setActiveViewsById({
             ...activeViewsById,
             [viewId]: nextViewConf,
@@ -42,6 +47,8 @@ export const Basic = () => {
           id: viewId,
           label: 'Pessoas alfabetizadas entre 10 e 14 anos',
           sourceLabel: 'Censo 2022',
+          // metodology: METODOLOGY_TEXT,
+          metodology: METODOLOGY_URL,
           conf: {
             data: {
               variableId: {

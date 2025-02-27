@@ -15,6 +15,7 @@ const BY_TYPE = {
 export function cem_saude_2024(config, otherViewSpecs, context) {
   const {
     collection_id,
+    metodology,
     indicator_id,
     variable_id,
     indicator_path,
@@ -38,6 +39,7 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
     id: viewId,
     label: indicator_label,
     path: indicator_path,
+    metodology,
 
     conf: {
       data: {

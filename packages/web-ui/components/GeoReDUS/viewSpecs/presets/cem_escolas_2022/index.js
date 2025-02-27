@@ -20,6 +20,7 @@ export function cem_escolas_2022(config, otherView, context) {
     indicator_label,
     indicator_type,
     sizing_variable_id,
+    metodology,
   } = config
 
   const { METADATA_API_ENDPOINT } = context
@@ -36,6 +37,7 @@ export function cem_escolas_2022(config, otherView, context) {
     id: viewId,
     label: indicator_label,
     path: indicator_path,
+    metodology,
 
     conf: {
       data: {

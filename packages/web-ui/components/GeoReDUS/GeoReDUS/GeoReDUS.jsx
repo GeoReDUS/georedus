@@ -105,6 +105,8 @@ async function _flyToMunicipio(map, METADATA_API_ENDPOINT, municipioId) {
   }
 }
 
+const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+
 export function GeoReDUS({ api }) {
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
@@ -146,6 +148,7 @@ export function GeoReDUS({ api }) {
       resolveViewSpecs(await fetchViewSpecs(viewSpecSources), {
         METADATA_API_ENDPOINT,
         VECTOR_TILE_SERVER_ENDPOINT,
+        MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
       }),
     throwOnError: process.env.NODE_ENV !== 'production',
   })
@@ -218,7 +221,7 @@ export function GeoReDUS({ api }) {
 
       setTimeout(() => {
         setLeftPanelOpen(false)
-      }, 10)
+      }, 100)
     }
   }, [resolvedLayout.length])
 
@@ -289,10 +292,6 @@ export function GeoReDUS({ api }) {
     (viewQuery) => viewQuery.status === 'pending',
   )
 
-  console.log({
-    isLoading,
-  })
-
   return (
     <Flex>
       <LeftPanel
@@ -347,7 +346,7 @@ export function GeoReDUS({ api }) {
         initialViewState={viewState}
         style={{ position: 'fixed', top: 0, bottom: 0, left: '60px', right: 0 }}
         setPrefetchZoomDelta={0}
-        mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`}
+        mapStyle={MAP_STYLE_URL}
         tooltip={getTooltip}
         maps={resolvedLayout.map(({ views, legends }, index) => ({
           views,

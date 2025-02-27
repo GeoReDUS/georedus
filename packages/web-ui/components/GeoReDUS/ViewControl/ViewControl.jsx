@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { CollapsibleContent } from './CollapsibleContent'
 import { ViewConfTabs } from './ViewConfTabs'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 const Container = styled(Box)`
   --view-control-base-padding: 12px;
@@ -56,11 +56,6 @@ export function ViewControl({
   onSetView,
   onDeactivateView,
 }) {
-  useEffect(() => {
-    console.log(`Component mounted: ViewControl`)
-    return () => console.log(`Component unmounted: ViewControl`)
-  }, [])
-
   const active = Boolean(viewConf)
 
   const deactivateView = useCallback(

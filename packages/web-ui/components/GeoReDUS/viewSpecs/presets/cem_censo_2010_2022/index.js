@@ -25,6 +25,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     indicator_path,
     indicator_id,
     indicator_label,
+    year,
     variable_id,
     variant_label,
     measure_unit,
@@ -90,7 +91,17 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
   )
 
   const labels = Object.fromEntries(
-    variants.map((variant) => [variant.variable_id, variant.variant_label]),
+    variants.map((variant) => [
+      variant.variable_id,
+      [
+        variant.variable_id === indicator_id
+          ? indicator_label
+          : [indicator_label, variant.variant_label].join(' | '),
+        year ? `(${year})` : null,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    ]),
   )
   const measureUnits = Object.fromEntries(
     variants.map((variant) => [variant.variable_id, variant.measure_unit]),
@@ -100,18 +111,15 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     {
       type: 'SequentialColorLegend',
       title: [
-        '$join',
-        [
-          indicator_label,
-          [
-            '$get',
-            ['$get', 'view.conf.data.variableId'],
-            ['$get', 'view.metadata.labels'],
-          ],
-        ],
-        ' | ',
+        '$get',
+        ['$get', 'view.conf.data.variableId'],
+        ['$get', 'view.metadata.labels'],
       ],
-      unit: measure_unit,
+      unit: [
+        '$get',
+        ['$get', 'view.conf.data.variableId'],
+        ['$get', 'view.metadata.measureUnits'],
+      ],
       format: {
         number: NUMBER_FMT,
         below: 'Sem dados',
@@ -125,6 +133,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     id: viewId,
     path: indicator_path,
     label: indicator_label,
+    metodology: 'metodologia',
     sourceLabel: collection_id.endsWith('2010') ? 'CENSO 2010' : 'CENSO 2022',
     conf: {
       data: {
@@ -422,7 +431,11 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           ],
           entries: [
             [
-              ['$get', 'view.conf.data.variableId'],
+              [
+                '$get',
+                ['$get', 'view.conf.data.variableId'],
+                ['$get', 'view.metadata.labels'],
+              ],
               [
                 '$literal',
                 [

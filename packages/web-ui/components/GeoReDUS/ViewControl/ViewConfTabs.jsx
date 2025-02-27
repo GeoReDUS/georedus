@@ -1,11 +1,18 @@
 import { Box, Flex, DropdownMenu, Input } from '@orioro/react-ui-core'
-import { IconButton, Tabs, Theme, Tooltip } from '@radix-ui/themes'
+import { Markdown } from '@/components/Markdown'
+import { Heading, IconButton, Tabs, Theme, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
-import { mdiDotsVertical, mdiFilterVariant, mdiPalette } from '@mdi/js'
+import {
+  mdiDotsVertical,
+  mdiFilterVariant,
+  mdiHelpCircleOutline,
+  mdiPalette,
+} from '@mdi/js'
 import { useMemo, useState } from 'react'
 import { isPlainObject } from 'lodash'
 
 import { useDebounce } from 'react-use'
+import { useDialogs } from '@/components/DialogSystem'
 
 const CONF_TABS = {
   data: {
@@ -42,8 +49,10 @@ export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
     [viewSpec],
   )
 
-  return enabledTabs.length > 0 ? (
-    <Tabs.Root defaultValue={enabledTabs[0].id}>
+  const dialogs = useDialogs()
+
+  return (
+    <Tabs.Root defaultValue={enabledTabs[0]?.id || null}>
       <Flex direction="row" gap="0">
         <Tabs.List size="1">
           {enabledTabs.map((tab) => (
@@ -56,14 +65,51 @@ export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
         <Flex
           direction="row"
           alignItems="center"
+          gap="10px"
           pr="10px"
           pl="10px"
+          height="var(--space-6)"
           style={{
             flexGrow: 1,
             boxShadow:
               'color(display-p3 0.0039 0.251 0.5137 / 0.174) 0px -1px 0px 0px inset',
           }}
         >
+          {viewSpec.metodology && (
+            <IconButton
+              variant="ghost"
+              size="1"
+              onClick={async () => {
+                const markdown = await dialogs.loading(async () => {
+                  if (typeof viewSpec.metodology === 'function') {
+                    return viewSpec.metodology(viewSpec)
+                  } else if (typeof viewSpec.metodology === 'string') {
+                    return viewSpec.metodology.startsWith('https://')
+                      ? fetch(viewSpec.metodology).then((res) => res.text())
+                      : viewSpec.metodology
+                  } else {
+                    return null
+                  }
+                })
+
+                if (typeof markdown === 'string') {
+                  await dialogs.view({
+                    maxHeight: '90vh',
+                    children: (
+                      <>
+                        <Heading as="h1">
+                          {viewSpec.label} - Notas metodológicas
+                        </Heading>
+                        <Markdown children={markdown.trim()} />
+                      </>
+                    ),
+                  })
+                }
+              }}
+            >
+              <Icon path={mdiHelpCircleOutline} size="16px" />
+            </IconButton>
+          )}
           <DropdownMenu
             options={[
               {
@@ -78,44 +124,46 @@ export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
           </DropdownMenu>
         </Flex>
       </Flex>
-      {enabledTabs.map((tab) => {
-        const tabConfSchema = viewSpec.conf[tab.id]
-        const tabConfValue = immediateViewConf[tab.id]
+      {Array.isArray(enabledTabs) && enabledTabs.length > 0 ? (
+        enabledTabs.map((tab) => {
+          const tabConfSchema = viewSpec.conf[tab.id]
+          const tabConfValue = immediateViewConf[tab.id]
 
-        return (
-          <Tabs.Content key={tab.id} value={tab.id}>
-            <Box p="3">
-              <Theme scaling="100%">
-                <Input
-                  schema={{
-                    type: 'object',
-                    properties: tabConfSchema,
-                  }}
-                  value={tabConfValue}
-                  onSetValue={(nextValue) =>
-                    setImmediateViewConf({
-                      ...viewConf,
-                      [tab.id]: {
-                        ...(viewConf[tab.id] || {}),
-                        ...nextValue,
-                      },
-                    })
-                  }
-                />
-              </Theme>
-            </Box>
-          </Tabs.Content>
-        )
-      })}
+          return (
+            <Tabs.Content key={tab.id} value={tab.id}>
+              <Box p="3">
+                <Theme scaling="100%">
+                  <Input
+                    schema={{
+                      type: 'object',
+                      properties: tabConfSchema,
+                    }}
+                    value={tabConfValue}
+                    onSetValue={(nextValue) =>
+                      setImmediateViewConf({
+                        ...viewConf,
+                        [tab.id]: {
+                          ...(viewConf[tab.id] || {}),
+                          ...nextValue,
+                        },
+                      })
+                    }
+                  />
+                </Theme>
+              </Box>
+            </Tabs.Content>
+          )
+        })
+      ) : (
+        <Box
+          p="3"
+          style={{
+            fontSize: '.9rem',
+          }}
+        >
+          Visualização habilitada
+        </Box>
+      )}
     </Tabs.Root>
-  ) : (
-    <Box
-      p="3"
-      style={{
-        fontSize: '.9rem',
-      }}
-    >
-      Visualização habilitada
-    </Box>
   )
 }

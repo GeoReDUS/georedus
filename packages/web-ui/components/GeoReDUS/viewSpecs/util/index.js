@@ -26,6 +26,12 @@ export function globalResources(context) {
 
   return {
     sources: {
+      // planet: {
+      //   type: 'vector',
+      //   tiles: [
+      //     `https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=${context.MAP_TILER_API_KEY}`,
+      //   ],
+      // },
       global_municipio: tableVectorSource(context, MUNICIPIO_MALHA_TABLE_ID, {
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         minzoom: 4,
@@ -40,12 +46,37 @@ export function globalResources(context) {
         type: 'line',
         filter: ['==', ['get', 'id'], ['$get', 'municipioId']],
         paint: {
-          'line-color': '#0000FF', // Line color
+          'line-color': '#000000', // Line color
           'line-width': 4, // Line width
           'line-opacity': 0.5,
           // 'line-dasharray': [2, 4], // Dash pattern
         },
       },
+
+      // landcover: {
+      //   zIndex: 9,
+      //   // "id": "Landcover",
+      //   type: 'fill',
+      //   source: 'planet',
+      //   'source-layer': 'landcover',
+      //   layout: {
+      //     visibility: 'visible',
+      //   },
+      //   paint: {
+      //     'fill-antialias': false,
+      //     'fill-color': 'hsl(96, 44%, 79%)',
+      //     // 'fill-color': 'red',
+      //     'fill-opacity': 1,
+      //     // 'fill-opacity': {
+      //     //   stops: [
+      //     //     [8, 0.2],
+      //     //     [9, 0.25],
+      //     //     [11, 0.35],
+      //     //   ],
+      //     // },
+      //   },
+      //   filter: ['in', 'class', 'wood', 'grass'],
+      // },
     },
   }
 }

@@ -6,7 +6,7 @@ import Icon from '@mdi/react'
 import { mdiArrowLeft } from '@mdi/js'
 import { useEffect, useState } from 'react'
 
-const OPEN_WIDTH = '350px'
+const OPEN_WIDTH = '380px'
 const CLOSED_WIDTH = '60px'
 
 const HEADER_HEIGHT = 50
@@ -155,15 +155,18 @@ export function LeftPanel({
         )}
         <Flex
           p="0"
-          width="350px"
           style={{
             backgroundColor: 'white',
           }}
+          direction="row"
+          justifyContent="center"
         >
           <img
             style={{
               transition: 'opacity .1s ease-out',
               opacity: open ? 1 : 0,
+              height: 70,
+              width: 'auto',
             }}
             src="/georedus/assets/parcerias.png"
           />
