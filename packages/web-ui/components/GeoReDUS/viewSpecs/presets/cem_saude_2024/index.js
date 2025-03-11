@@ -46,7 +46,7 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
         sizingVariable: dynamic_sizing
           ? {
               type: 'select',
-              label: 'Tamano proporcional à',
+              label: 'Tamanho proporcional à',
               options: [
                 {
                   value: 'leitos_q',

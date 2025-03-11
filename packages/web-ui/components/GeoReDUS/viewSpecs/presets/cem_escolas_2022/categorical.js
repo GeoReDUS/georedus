@@ -3,7 +3,7 @@ import { vectorLayer, COLOR_SCHEMES, DEFAULT_NULL_COLOR } from '../../util'
 
 export function categorical(
   base,
-  { collection_id, indicator_id, indicator_label, categories },
+  { collection_id, indicator_id, indicator_label, categories, filter },
 ) {
   const VARIABLE_ID = indicator_id
   const TABLE_ID = collection_id
@@ -75,6 +75,8 @@ export function categorical(
         filter: [
           'all',
           ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
+          ...(Array.isArray(filter) ? filter : []),
+
           // ['==', ['typeof', ['get', VARIABLE_ID]], 'number'],
         ],
         paint: {

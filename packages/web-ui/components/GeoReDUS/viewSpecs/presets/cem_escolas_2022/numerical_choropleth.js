@@ -7,6 +7,7 @@ export function numerical_choropleth(
     indicator_id,
     indicator_label,
     color_scheme = 'schemeRdYlBu',
+    filter,
     measure_unit,
 
     $circleRadius,
@@ -80,6 +81,7 @@ export function numerical_choropleth(
           'all',
           ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
           ['==', ['typeof', ['get', VARIABLE_ID]], 'number'],
+          ...(Array.isArray(filter) ? filter : []),
         ],
         paint: {
           'circle-opacity': 1,
