@@ -55,6 +55,13 @@ export function ViewControl({
   viewConf,
   onSetView,
   onDeactivateView,
+
+  //
+  // By default the view control is configurable
+  // This may evolve into custom configurable settings, such
+  // as 'explicit_toggle'
+  //
+  configurable = true,
 }) {
   const active = Boolean(viewConf)
 
@@ -74,7 +81,7 @@ export function ViewControl({
   )
 
   return (
-    <Collapsible.Root open={active}>
+    <Collapsible.Root open={configurable === true && active}>
       <Container>
         <Summary type="button" role="button" onClick={() => toggleView()}>
           <Flex

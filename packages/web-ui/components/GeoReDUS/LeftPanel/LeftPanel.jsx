@@ -4,12 +4,22 @@ import { DevControls } from '../DevControls'
 import { IconButton } from '@radix-ui/themes'
 import Icon from '@mdi/react'
 import { mdiArrowLeft } from '@mdi/js'
-import { useEffect, useState } from 'react'
+import { ReDUSLogo } from '@/components/ReDUSLogo'
+import styled from 'styled-components'
 
 const OPEN_WIDTH = '380px'
 const CLOSED_WIDTH = '60px'
 
 const HEADER_HEIGHT = 50
+
+const LogoContainer = styled.div`
+  height: 100%;
+
+  svg {
+    height: 100%;
+    width: auto;
+  }
+`
 
 export function LeftPanel({
   viewConfState,
@@ -78,18 +88,22 @@ export function LeftPanel({
         onClick={(e) => onSetOpen(true)}
       >
         <Flex
-          p="10px"
+          p="4px"
           height={HEADER_HEIGHT}
           alignItems="center"
           direction="row"
           style={{
-            backgroundColor: 'var(--accent-3)',
+            backgroundColor: 'var(--accent-9)',
             whiteSpace: 'nowrap',
             flexShrink: 0,
             flexGrow: 0,
           }}
         >
-          {open ? 'GeoReDUS' : null}
+          {open ? (
+            <LogoContainer>
+              <ReDUSLogo dark />
+            </LogoContainer>
+          ) : null}
         </Flex>
         {Array.isArray(viewSpecs) ? (
           <ViewMenu

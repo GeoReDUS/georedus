@@ -1,5 +1,10 @@
 import { get } from 'lodash'
-import { vectorLayer, COLOR_SCHEMES, DEFAULT_NULL_COLOR } from '../../util'
+import {
+  vectorLayer,
+  COLOR_SCHEMES,
+  DEFAULT_NULL_COLOR,
+  ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+} from '../../util'
 
 export function categorical(
   base,
@@ -26,6 +31,7 @@ export function categorical(
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
         type: 'circle',
 
         legends: categories

@@ -1,5 +1,9 @@
 import { get } from 'lodash'
-import { COLOR_SCHEMES, vectorLayer } from '../../util'
+import {
+  ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+  COLOR_SCHEMES,
+  vectorLayer,
+} from '../../util'
 
 export function numerical_size(
   base,
@@ -24,6 +28,7 @@ export function numerical_size(
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
         type: 'circle',
 
         legends: [

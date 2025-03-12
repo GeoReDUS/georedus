@@ -23,6 +23,10 @@ export function vectorLayer(sourceId, override) {
   }
 }
 
+export const BASE_MAP_LAYERS_Z_INDEX_BASE = 100
+
+export const ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE = 1000
+
 const BASE_MAP_LAYERS_OBJ = BASE_MAP_LAYERS.reduce(
   (acc, layer, index) => ({
     ...acc,
@@ -35,7 +39,7 @@ const BASE_MAP_LAYERS_OBJ = BASE_MAP_LAYERS.reduce(
       {
         ...layer,
         interactive: false,
-        zIndex: 100 + index,
+        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + index,
         source: 'planet',
       },
     ],
@@ -62,7 +66,7 @@ export function globalResources(context) {
     },
     layers: {
       municipio: {
-        zIndex: 1000,
+        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + BASE_MAP_LAYERS.length + 1,
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         absoluteSourceId: MUNICIPIO_MALHA_TABLE_ID,
         'source-layer': `${MUNICIPIO_MALHA_TABLE_ID}.geom`,

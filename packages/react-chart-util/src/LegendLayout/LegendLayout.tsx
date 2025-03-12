@@ -22,12 +22,17 @@ export function LegendLayout({
   title,
   unit,
   children,
+  direction = 'column',
   ...props
 }: LegendLayoutProps) {
   return (
-    <Flex direction="column" gap="10px" maxWidth="300px" {...props}>
+    <Flex direction={direction} gap="10px" maxWidth="300px" {...props}>
       {(title || unit) && (
-        <div>
+        <div
+          style={{
+            maxWidth: direction === 'row' ? 150 : 'none',
+          }}
+        >
           {title && <LegendTitle>{title}</LegendTitle>}
           {unit && <LegendUnit>({unit})</LegendUnit>}
         </div>

@@ -4,10 +4,9 @@ import {
   Flex,
   Input,
   LoadingIndicator,
-  entriesByIdInitialState,
-  entriesByIdReducer,
 } from '@orioro/react-ui-core'
 import { LeftPanel } from '../LeftPanel'
+import { ViewLayoutPopover } from '../ViewLayoutPopover'
 import {
   useCallback,
   useEffect,
@@ -36,11 +35,11 @@ import {
 
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import styled from 'styled-components'
-import { viewConfReducer } from './viewConfReducer'
+import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
 import { get } from 'lodash'
 import { IconButton } from '@radix-ui/themes'
 import Icon from '@mdi/react'
-import { mdiClose } from '@mdi/js'
+import { mdiClose, mdiLayers } from '@mdi/js'
 
 const GOOGLE_CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
@@ -110,10 +109,13 @@ const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${pr
 export function GeoReDUS({ api }) {
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
-  const [viewConfState, viewConfDispatch] = useReducer(viewConfReducer, {
-    byId: {},
-    layout: [[]],
-  })
+  const [viewConfState, viewConfDispatch] = useReducer(
+    viewConfReducer,
+    null,
+    viewConfReducerInitialState,
+  )
+
+  console.log({ viewConfState })
 
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
 
@@ -168,27 +170,31 @@ export function GeoReDUS({ api }) {
   )
 
   const viewsQueries = useQueries({
-    queries: viewConfState.layout.flat(1).map((viewId) => {
-      return {
-        queryKey: [
-          'ResolveView',
-          viewId,
-          municipioId,
-          viewSpecsById ? viewSpecsById[viewId] : null,
-          viewConfState.byId[viewId],
-        ],
-        queryFn: async () => {
-          const viewSpec = viewSpecsById ? viewSpecsById[viewId] : viewSpecsById
+    queries: viewConfState.layout
+      .flatMap((list) => list.items.map((item) => item.id))
+      .map((viewId) => {
+        return {
+          queryKey: [
+            'ResolveView',
+            viewId,
+            municipioId,
+            viewSpecsById ? viewSpecsById[viewId] : null,
+            viewConfState.byId[viewId],
+          ],
+          queryFn: async () => {
+            const viewSpec = viewSpecsById
+              ? viewSpecsById[viewId]
+              : viewSpecsById
 
-          return viewSpec
-            ? resolveView(viewSpec, viewConfState.byId[viewId], {
-                municipioId,
-              })
-            : null
-        },
-        throwOnError: true,
-      }
-    }),
+            return viewSpec
+              ? resolveView(viewSpec, viewConfState.byId[viewId], {
+                  municipioId,
+                })
+              : null
+          },
+          throwOnError: true,
+        }
+      }),
   })
 
   const resolvedViews = useMemo(
@@ -200,20 +206,40 @@ export function GeoReDUS({ api }) {
     [viewsQueries],
   )
 
+  console.log('viewConfState', viewConfState)
+
   const resolvedLayout = useMemo(() => {
     const resolvedViewsById = Object.fromEntries(
       resolvedViews.map((view) => [view.id, view]),
     )
 
-    return viewConfState.layout
-      .map((viewIdList) =>
-        viewIdList.map((viewId) => resolvedViewsById[viewId]).filter(Boolean),
+    const hasActiveViews = Object.keys(viewConfState.byId).length > 0
+
+    return (
+      (
+        hasActiveViews
+          ? //
+            // In case there are active views, filter layout lists
+            // for non-empty lists
+            //
+            viewConfState.layout.filter((list) => list.items.length > 0)
+          : //
+            // Otherwise, return the first list, in order to ensure at least
+            // empty map rendering
+            //
+            [viewConfState.layout[0]]
       )
-      .map((views) => ({
-        views,
-        legends: views.flatMap((view) => view?.legends || []),
-      }))
-  }, [viewConfState.layout, resolvedViews])
+        .map((list) => list.items.map((item) => item.id))
+        // .flatMap((list) => list.items.map((item) => item.id))
+        .map((viewIdList) =>
+          viewIdList.map((viewId) => resolvedViewsById[viewId]).filter(Boolean),
+        )
+        .map((views) => ({
+          views,
+          legends: views.flatMap((view) => view?.legends || []),
+        }))
+    )
+  }, [viewConfState.layout, viewConfState.byId, resolvedViews])
 
   useEffect(() => {
     if (resolvedLayout.length > 1) {
@@ -306,36 +332,45 @@ export function GeoReDUS({ api }) {
 
       <Flex
         style={{
-          width: '400px',
           position: 'fixed',
           zIndex: 2,
           right: '50px',
           top: '10px',
         }}
-        alignItems="stretch"
+        direction="row"
+        gap="4"
+        alignItems="center"
       >
-        <Input
-          schema={{
-            type: 'select',
-            options: useCallback(async () => {
-              // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
-              const municipios = await fetch(
-                `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
-              ).then((response) => response.json())
-
-              // const municipios = await fetch(
-              //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
-              // ).then((response) => response.json())
-
-              return municipios.map((mun) => ({
-                label: `${mun['nome']} (${mun['uf_sigla']})`,
-                value: mun['id'] + '',
-              }))
-            }, []),
-          }}
-          value={municipioId}
-          onSetValue={setMunicipioId}
+        <ViewLayoutPopover
+          viewSpecs={viewSpecsQuery.data}
+          viewConfState={viewConfState}
+          viewConfDispatch={viewConfDispatch}
         />
+
+        <Flex alignItems="strecth" width="400px">
+          <Input
+            schema={{
+              type: 'select',
+              options: useCallback(async () => {
+                // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
+                const municipios = await fetch(
+                  `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
+                ).then((response) => response.json())
+
+                // const municipios = await fetch(
+                //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
+                // ).then((response) => response.json())
+
+                return municipios.map((mun) => ({
+                  label: `${mun['nome']} (${mun['uf_sigla']})`,
+                  value: mun['id'] + '',
+                }))
+              }, []),
+            }}
+            value={municipioId}
+            onSetValue={setMunicipioId}
+          />
+        </Flex>
       </Flex>
 
       <SyncedMaps
@@ -357,9 +392,10 @@ export function GeoReDUS({ api }) {
                   style={{
                     position: 'absolute',
                     bottom: '50px',
-                    [resolvedLayout.length > 1 && index === 0
-                      ? 'left'
-                      : 'right']: '20px',
+                    right: '20px',
+                    // [resolvedLayout.length > 1 && index === 0
+                    //   ? 'left'
+                    //   : 'right']: '20px',
                     zIndex: 20,
                   }}
                   p="4"
@@ -369,7 +405,21 @@ export function GeoReDUS({ api }) {
                     gap="10px"
                   >
                     {legends.map((legend) => (
-                      <Legend maxWidth="140px" key={legend.id} {...legend} />
+                      <Legend
+                        {...(resolvedLayout.length > 1
+                          ? {
+                              direction: 'row',
+                              maxWidth: '300px',
+                            }
+                          : {
+                              direction: 'column',
+                              maxWidth: '150px',
+                            })}
+                        // direction="row"
+                        // maxWidth="140px"
+                        key={legend.id}
+                        {...legend}
+                      />
                     ))}
                   </EvenSpacedList>
                 </LegendContainer>
@@ -385,7 +435,7 @@ export function GeoReDUS({ api }) {
                   style={{
                     position: 'absolute',
                     zIndex: 10,
-                    top: 20,
+                    bottom: 20,
                     left: 20,
                   }}
                 >

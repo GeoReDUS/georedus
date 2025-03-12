@@ -421,14 +421,14 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         legends: _legends,
 
         tooltip: {
-          title: [
-            '$literal',
-            [
-              '$template',
-              'Setor ${0}',
-              ['$get', 'feature.properties.cd_setor'],
-            ],
-          ],
+          // title: [
+          //   '$literal',
+          //   [
+          //     '$template',
+          //     'Setor ${0}',
+          //     ['$get', 'feature.properties.cd_setor'],
+          //   ],
+          // ],
           entries: [
             [
               [

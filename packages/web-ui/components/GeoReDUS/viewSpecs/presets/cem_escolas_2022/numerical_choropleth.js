@@ -1,4 +1,8 @@
-import { vectorLayer, COLOR_SCHEMES } from '../../util'
+import {
+  vectorLayer,
+  COLOR_SCHEMES,
+  ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+} from '../../util'
 
 export function numerical_choropleth(
   base,
@@ -49,6 +53,7 @@ export function numerical_choropleth(
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
         type: 'circle',
 
         legends: [
