@@ -1,4 +1,12 @@
-import { Flex, LoadingIndicator, withDefaults } from '@orioro/react-ui-core'
+import {
+  Flex,
+  LoadingIndicator,
+  TextEllipsis,
+  withDefaults,
+} from '@orioro/react-ui-core'
+
+import { nodeIdFromPath } from '@orioro/tree-model'
+
 import { makeDirNav } from '@orioro/react-dir-nav'
 import { Icon } from '@mdi/react'
 import {
@@ -9,7 +17,7 @@ import {
 } from '@mdi/js'
 import { ViewControl } from '../ViewControl'
 import styled from 'styled-components'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../viewSpecs/constants'
 
 const STATIC_NODE_ICONS = {
@@ -29,13 +37,28 @@ const ViewMenuContext = createContext({
   onDeactivateView: errNoViewMenuContext,
 })
 
-function Item({ node, depth }) {
-  const { viewSpecs, viewConfState, onSetView, onDeactivateView } =
-    useContext(ViewMenuContext)
+const ActiveCounter = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-30%, -30%);
+  border-radius: 50%;
+  border: 1px solid white;
+  height: 20px;
+  width: 20px;
+  font-size: 12px;
+  background-color: var(--accent-9);
+  color: white;
+  font-weight: bold;
 
-  const viewSpecsById = Object.fromEntries(
-    viewSpecs.map((spec) => [spec.id, spec]),
-  )
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+function Item({ node, depth }) {
+  const { viewSpecsById, viewConfState, onSetView, onDeactivateView } =
+    useContext(ViewMenuContext)
 
   return (
     <ViewControl
@@ -100,10 +123,54 @@ const ItemContainer = styled(
   background-color: var(--accent-3);
 `
 
+function _countActiveViews({ viewConfState, viewSpecsById, nodeId }) {
+  return Object.keys(viewConfState.byId).filter((id) =>
+    nodeIdFromPath(viewSpecsById[id].path).startsWith(nodeId),
+  ).length
+}
+
 const DirNav = makeDirNav({
   components: {
     Item,
     ItemContainer,
+    DirLabel: function DirLabel({ node }) {
+      const { viewSpecsById, viewConfState } = useContext(ViewMenuContext)
+
+      const activeViewsCount = _countActiveViews({
+        viewConfState,
+        viewSpecsById,
+        nodeId: node.id,
+      })
+
+      return (
+        <div
+          style={{
+            flexGrow: 1,
+            textAlign: 'left',
+            // whiteSpace: 'nowrap',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <TextEllipsis
+            style={{
+              flexShrink: 1,
+            }}
+          >
+            {node.label}
+          </TextEllipsis>
+          {activeViewsCount > 0 && (
+            <span
+              style={{ marginLeft: 6, fontSize: '.8rem', fontWeight: 'bold' }}
+            >
+              ({activeViewsCount})
+            </span>
+          )}
+        </div>
+      )
+    },
   },
 })
 
@@ -115,11 +182,16 @@ export function ViewMenu({
   style,
   ...props
 }) {
+  const viewSpecsById = useMemo(
+    () => Object.fromEntries(viewSpecs.map((spec) => [spec.id, spec])),
+    [viewSpecs],
+  )
+
   return (
     <div style={style}>
       <ViewMenuContext.Provider
         value={{
-          viewSpecs,
+          viewSpecsById,
           viewConfState,
           onSetView,
           onDeactivateView,
@@ -134,7 +206,26 @@ export function ViewMenu({
           onSelectItem={(item) => {
             setSelected(item)
           }}
-          getNodeIcon={(node) => STATIC_NODE_ICONS[node.id]}
+          getNodeIcon={(node) => {
+            const activeViewsCount = _countActiveViews({
+              viewConfState,
+              viewSpecsById,
+              nodeId: node.id,
+            })
+
+            return (
+              <div
+                style={{
+                  position: 'relative',
+                }}
+              >
+                {STATIC_NODE_ICONS[node.id]}
+                {activeViewsCount > 0 && (
+                  <ActiveCounter>{activeViewsCount}</ActiveCounter>
+                )}
+              </div>
+            )
+          }}
           {...props}
         />
       </ViewMenuContext.Provider>

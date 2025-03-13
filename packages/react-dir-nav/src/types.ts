@@ -13,5 +13,10 @@ export type MakeDirNavProps = {
     Item?: React.FC<{ node: any; depth: number }>
     ItemContainer?: ReturnType<typeof styled.div>
     DirContainer?: ReturnType<typeof styled.div>
+    DirLabel?: React.FC<{
+      node: Node
+      depth: number
+      open: boolean
+    }>
   }
 }

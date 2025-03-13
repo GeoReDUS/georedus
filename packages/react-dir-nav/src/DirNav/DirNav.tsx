@@ -63,7 +63,8 @@ const IconTabTrigger = styled(Tabs.Trigger)`
     display: flex;
     align-items: center;
     justify-content: center;
-    > svg {
+
+    svg {
       height: calc(0.6 * var(--dir-nav-tab-button-size));
       width: calc(0.6 * var(--dir-nav-tab-button-size));
     }

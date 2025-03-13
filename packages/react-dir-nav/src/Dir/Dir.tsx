@@ -9,6 +9,7 @@ import { CollapsibleTrigger } from './CollapsibleTrigger'
 import { TextEllipsis, useComponents } from '@orioro/react-ui-core'
 import { useSortedNodesByType } from './useSortedNodesByType'
 import { MakeDirNavProps } from '../types'
+import { Node } from '@orioro/tree-model'
 
 const Container = styled.div`
   &:not(:last-child) {
@@ -23,8 +24,27 @@ const DefaultDirContainer = styled.div``
 
 const DefaultItemContainer = styled.div``
 
+export function DefaultDirLabel({
+  node,
+}: {
+  node: Node
+  depth: number
+  open: boolean
+}) {
+  return (
+    <TextEllipsis
+      style={{
+        textAlign: 'left',
+      }}
+    >
+      {node.label}
+    </TextEllipsis>
+  )
+}
+
 export function makeDir(config?: MakeDirNavProps) {
   const {
+    DirLabel = DefaultDirLabel,
     DirContainer = DefaultDirContainer,
     ItemContainer = DefaultItemContainer,
   } = config?.components || {}
@@ -52,13 +72,7 @@ export function makeDir(config?: MakeDirNavProps) {
               />
               <Icon path={open ? mdiFolderOpen : mdiFolder} size="20px" />
             </div>
-            <TextEllipsis
-              style={{
-                textAlign: 'left',
-              }}
-            >
-              {node.label}
-            </TextEllipsis>
+            <DirLabel node={node} depth={depth} open={open} />
           </CollapsibleTrigger>
 
           <CollapsibleContent>
