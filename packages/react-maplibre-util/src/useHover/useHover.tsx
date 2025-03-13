@@ -48,9 +48,24 @@ export function useHover<InfoT = any>(
     [...deps, props.tooltip],
   )
 
+  //
+  // There is no notion of mouseenter/mouseleave
+  // in maplibre.gl.
+  //
+  // Use onMouseOut instead
+  //
+  // https://github.com/mapbox/mapbox-gl-js/issues/10594
+  // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
+  //
+  const onMouseOut = useCallback(() => {
+    setHoverInfo(null)
+    setTooltip(null)
+  }, [setHoverInfo, setTooltip])
+
   return [
     {
       onMouseMove,
+      onMouseOut,
       onDragStart,
       onDragEnd,
       cursor: isDragging

@@ -2,6 +2,7 @@ import React from 'react'
 import { Meta } from '@storybook/react'
 import { ColorLegend } from './ColorLegend'
 import { ThemeProvider } from 'styled-components'
+import { Flex } from '@orioro/react-ui-core'
 
 const meta: Meta<typeof ColorLegend> = {
   title: 'ColorLegend',
@@ -22,7 +23,7 @@ const meta: Meta<typeof ColorLegend> = {
 
 export default meta
 
-export const Basic = () => {
+export const Basic = (props = {}) => {
   return (
     <ColorLegend
       title="Taxa de acerto"
@@ -46,19 +47,29 @@ export const Basic = () => {
         {
           id: '4',
           color: '#bcbddc',
-          label: '0.02 to 0.04'
+          label: '0.02 to 0.04',
         },
         {
           id: '5',
           color: '#dadaeb',
-          label: '0.01 to 0.02'
+          label: '0.01 to 0.02',
         },
         {
           id: '6',
           color: '#f2f0f7',
-          label: 'Less than 0.01'
-        }
+          label: 'Less than 0.01',
+        },
       ]}
+      {...props}
     />
+  )
+}
+
+export const Size = () => {
+  return (
+    <Flex gap="10px">
+      <Basic size="1" />
+      <Basic size="2" />
+    </Flex>
   )
 }

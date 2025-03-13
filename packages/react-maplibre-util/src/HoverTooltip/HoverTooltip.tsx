@@ -19,12 +19,24 @@ const Container = styled.div`
   position: absolute;
   z-index: 2;
 
-  background-color: black;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+
+  // background-color: black;
   color: white;
   border-radius: 5px;
   font-size: 0.9rem;
 
   max-width: 300px;
+
+  hyphens: auto;
+  word-break: break-word; /* Avoids overflow */
+  overflow-wrap: break-word; /* Ensures long words break */
+  white-space: normal;
 `
 
 const DataSectionHeading = styled.h3`
@@ -34,7 +46,7 @@ const DataSectionHeading = styled.h3`
 `
 
 const DataSectionContainer = styled(Flex)`
-  padding: 20px 15px;
+  padding: 15px 10px;
 `
 
 const EntriesList = styled.ul`
@@ -51,7 +63,7 @@ function DataSection({ title, entries, ...props }: DataSectionProps) {
   return (
     entries.length > 0 && (
       <DataSectionContainer direction="column" gap="10px" {...props}>
-        <DataSectionHeading>{title}</DataSectionHeading>
+        {title && <DataSectionHeading>{title}</DataSectionHeading>}
         <EntriesList>
           {entries.map(([label, value], index) => (
             <li key={index}>

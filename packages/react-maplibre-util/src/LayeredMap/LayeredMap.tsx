@@ -17,9 +17,16 @@ const VIEW_AUGMENTED_EVENT_HANDLERS = [
   'onMouseDown',
   'onMouseUp',
   'onMouseOver',
-  'onMouseEnter',
+  //
+  // There is no notion of mouseenter/mouseleave
+  // in maplibre.gl
+  //
+  // https://github.com/mapbox/mapbox-gl-js/issues/10594
+  // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
+  //
+  // 'onMouseEnter',
+  // 'onMouseLeave',
   'onMouseMove',
-  'onMouseLeave',
   'onMouseOut',
   'onClick',
   'onDblClick',

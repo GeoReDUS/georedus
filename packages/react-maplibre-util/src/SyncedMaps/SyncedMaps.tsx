@@ -159,6 +159,19 @@ export function makeSyncedMaps({
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
                 onMouseMove={(event) => onMouseMove(index, event)}
+                //
+                // There is no notion of mouseenter/mouseleave
+                // in maplibre.gl.
+                //
+                // Use onMouseOut instead
+                //
+                // https://github.com/mapbox/mapbox-gl-js/issues/10594
+                // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
+                //
+                onMouseOut={() => {
+                  setHoverInfo(null)
+                  setTooltips(null)
+                }}
               />
             </SingleMapContainer>
           )

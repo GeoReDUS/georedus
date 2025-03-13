@@ -4,10 +4,9 @@ import {
   Flex,
   Input,
   LoadingIndicator,
-  entriesByIdInitialState,
-  entriesByIdReducer,
 } from '@orioro/react-ui-core'
 import { LeftPanel } from '../LeftPanel'
+import { ViewLayoutPopover } from '../ViewLayoutPopover'
 import {
   useCallback,
   useEffect,
@@ -32,15 +31,16 @@ import {
   FullscreenControl,
   ScaleControl,
   GeolocateControl,
+  AttributionControl,
 } from 'react-map-gl/maplibre'
 
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import styled from 'styled-components'
-import { viewConfReducer } from './viewConfReducer'
+import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
 import { get } from 'lodash'
-import { IconButton } from '@radix-ui/themes'
+import { IconButton, Tooltip } from '@radix-ui/themes'
 import Icon from '@mdi/react'
-import { mdiClose } from '@mdi/js'
+import { mdiClose, mdiLayers } from '@mdi/js'
 
 const GOOGLE_CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
@@ -81,7 +81,7 @@ const BUILT_IN_VIEW_SPECS = [
   BUILT_IN_CEM_SAUDE_2024,
 ]
 
-const LegendContainer = styled(Box)`
+const LegendContainer = styled(Flex)`
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
@@ -95,13 +95,22 @@ const SyncedMaps = makeSyncedMaps({
   },
 })
 
-async function _flyToMunicipio(map, METADATA_API_ENDPOINT, municipioId) {
+const BASE_MAP_PADDING = 50
+const SIDE_BAR_OPEN_MAP_PADDING = 320
+const MULTI_MAP_VIEW_BOTTOM_PADDING = 170
+
+async function _flyToMunicipio(
+  map,
+  METADATA_API_ENDPOINT,
+  municipioId,
+  options,
+) {
   const [mun] = await fetch(
     `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=bbox&id=eq.${municipioId}`,
   ).then((res) => res.json())
 
   if (mun && mun.bbox) {
-    fitGeometry(map, mun.bbox)
+    fitGeometry(map, mun.bbox, options)
   }
 }
 
@@ -110,10 +119,13 @@ const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${pr
 export function GeoReDUS({ api }) {
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
-  const [viewConfState, viewConfDispatch] = useReducer(viewConfReducer, {
-    byId: {},
-    layout: [[]],
-  })
+  const [viewConfState, viewConfDispatch] = useReducer(
+    viewConfReducer,
+    null,
+    viewConfReducerInitialState,
+  )
+
+  console.log({ viewConfState })
 
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
 
@@ -168,27 +180,31 @@ export function GeoReDUS({ api }) {
   )
 
   const viewsQueries = useQueries({
-    queries: viewConfState.layout.flat(1).map((viewId) => {
-      return {
-        queryKey: [
-          'ResolveView',
-          viewId,
-          municipioId,
-          viewSpecsById ? viewSpecsById[viewId] : null,
-          viewConfState.byId[viewId],
-        ],
-        queryFn: async () => {
-          const viewSpec = viewSpecsById ? viewSpecsById[viewId] : viewSpecsById
+    queries: viewConfState.layout
+      .flatMap((list) => list.items.map((item) => item.id))
+      .map((viewId) => {
+        return {
+          queryKey: [
+            'ResolveView',
+            viewId,
+            municipioId,
+            viewSpecsById ? viewSpecsById[viewId] : null,
+            viewConfState.byId[viewId],
+          ],
+          queryFn: async () => {
+            const viewSpec = viewSpecsById
+              ? viewSpecsById[viewId]
+              : viewSpecsById
 
-          return viewSpec
-            ? resolveView(viewSpec, viewConfState.byId[viewId], {
-                municipioId,
-              })
-            : null
-        },
-        throwOnError: true,
-      }
-    }),
+            return viewSpec
+              ? resolveView(viewSpec, viewConfState.byId[viewId], {
+                  municipioId,
+                })
+              : null
+          },
+          throwOnError: true,
+        }
+      }),
   })
 
   const resolvedViews = useMemo(
@@ -200,20 +216,39 @@ export function GeoReDUS({ api }) {
     [viewsQueries],
   )
 
+  console.log('viewConfState', viewConfState)
+
   const resolvedLayout = useMemo(() => {
     const resolvedViewsById = Object.fromEntries(
       resolvedViews.map((view) => [view.id, view]),
     )
 
-    return viewConfState.layout
-      .map((viewIdList) =>
-        viewIdList.map((viewId) => resolvedViewsById[viewId]).filter(Boolean),
-      )
-      .map((views) => ({
+    const hasActiveViews = Object.keys(viewConfState.byId).length > 0
+
+    return (
+      hasActiveViews
+        ? //
+          // In case there are active views, filter layout lists
+          // for non-empty lists
+          //
+          viewConfState.layout.filter((list) => list.items.length > 0)
+        : //
+          // Otherwise, return the first list, in order to ensure at least
+          // empty map rendering
+          //
+          [viewConfState.layout[0]]
+    ).map((list) => {
+      const views = list.items
+        .map((item) => resolvedViewsById[item.id])
+        .filter(Boolean)
+
+      return {
+        id: list.id,
         views,
         legends: views.flatMap((view) => view?.legends || []),
-      }))
-  }, [viewConfState.layout, resolvedViews])
+      }
+    })
+  }, [viewConfState.layout, viewConfState.byId, resolvedViews])
 
   useEffect(() => {
     if (resolvedLayout.length > 1) {
@@ -226,19 +261,35 @@ export function GeoReDUS({ api }) {
   }, [resolvedLayout.length])
 
   console.log('hello')
-
-  //
-  // Fly to
-  //
-  const mainMap = get(syncedMapsRef.current, 'mapInstances[0].map')
+  const _refocus = (mapInstance) => {
+    _flyToMunicipio(mapInstance, METADATA_API_ENDPOINT, municipioId, {
+      padding: {
+        top: BASE_MAP_PADDING,
+        bottom:
+          resolvedLayout.length > 1
+            ? MULTI_MAP_VIEW_BOTTOM_PADDING
+            : BASE_MAP_PADDING,
+        left:
+          leftPanelOpen && resolvedLayout.length === 1
+            ? SIDE_BAR_OPEN_MAP_PADDING
+            : BASE_MAP_PADDING,
+        right: BASE_MAP_PADDING,
+      },
+    })
+  }
 
   useEffect(() => {
+    //
+    // Fly to
+    //
+    const mainMap = get(syncedMapsRef.current, 'mapInstances[0].map')
+
     if (!mainMap || !municipioId) {
       return
     }
 
-    _flyToMunicipio(mainMap, METADATA_API_ENDPOINT, municipioId)
-  }, [municipioId, mainMap])
+    _refocus(mainMap)
+  }, [municipioId, resolvedLayout.length])
 
   //
   // Tooltip getter
@@ -280,6 +331,7 @@ export function GeoReDUS({ api }) {
           <HoverTooltip
             position={hoverInfo.point}
             dataSections={tooltipDataSections}
+            style={{ zIndex: 99999, right: 10 }}
           />
         )
       )
@@ -304,100 +356,133 @@ export function GeoReDUS({ api }) {
         onSetViewSpecSources={setViewSpecSources}
       />
 
+      <ViewLayoutPopover
+        viewSpecs={viewSpecsQuery.data}
+        viewConfState={viewConfState}
+        viewConfDispatch={viewConfDispatch}
+        style={{
+          position: 'fixed',
+          zIndex: 2,
+          left: '50%',
+          top: '10px',
+          transform: 'translateX(-50%)',
+        }}
+      />
       <Flex
         style={{
-          width: '400px',
           position: 'fixed',
           zIndex: 2,
           right: '50px',
           top: '10px',
         }}
-        alignItems="stretch"
+        direction="row"
+        gap="4"
+        alignItems="center"
       >
-        <Input
-          schema={{
-            type: 'select',
-            options: useCallback(async () => {
-              // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
-              const municipios = await fetch(
-                `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
-              ).then((response) => response.json())
+        <Flex alignItems="strecth" width="400px" maxWidth="30vw">
+          <Input
+            schema={{
+              type: 'select',
+              clearable: false,
+              options: useCallback(async () => {
+                // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
+                const municipios = await fetch(
+                  `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
+                ).then((response) => response.json())
 
-              // const municipios = await fetch(
-              //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
-              // ).then((response) => response.json())
+                // const municipios = await fetch(
+                //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
+                // ).then((response) => response.json())
 
-              return municipios.map((mun) => ({
-                label: `${mun['nome']} (${mun['uf_sigla']})`,
-                value: mun['id'] + '',
-              }))
-            }, []),
-          }}
-          value={municipioId}
-          onSetValue={setMunicipioId}
-        />
+                return municipios.map((mun) => ({
+                  label: `${mun['nome']} (${mun['uf_sigla']})`,
+                  value: mun['id'] + '',
+                }))
+              }, []),
+            }}
+            value={municipioId}
+            onSetValue={setMunicipioId}
+          />
+        </Flex>
       </Flex>
 
       <SyncedMaps
         ref={syncedMapsRef}
-        onLoad={async (event) => {
-          _flyToMunicipio(event.target, METADATA_API_ENDPOINT, municipioId)
-        }}
+        onLoad={async (event) => _refocus(event.target)}
+        attributionControl={false}
         initialViewState={viewState}
         style={{ position: 'fixed', top: 0, bottom: 0, left: '60px', right: 0 }}
         setPrefetchZoomDelta={0}
         mapStyle={MAP_STYLE_URL}
         tooltip={getTooltip}
-        maps={resolvedLayout.map(({ views, legends }, index) => ({
+        maps={resolvedLayout.map(({ id, views, legends }, index) => ({
+          id,
           views,
           children: (
             <>
               {legends.length > 0 && (
                 <LegendContainer
+                  direction="row"
+                  gap="3"
                   style={{
                     position: 'absolute',
-                    bottom: '50px',
-                    [resolvedLayout.length > 1 && index === 0
-                      ? 'left'
-                      : 'right']: '20px',
+                    bottom: '20px',
+                    right: '10px',
+                    // [resolvedLayout.length > 1 && index === 0
+                    //   ? 'left'
+                    //   : 'right']: '20px',
                     zIndex: 20,
                   }}
-                  p="4"
+                  p={resolvedLayout.length > 1 ? '3' : '4'}
                 >
+                  {resolvedLayout.length > 1 && (
+                    <Tooltip content="Fechar visualização">
+                      <IconButton
+                        size="1"
+                        variant="soft"
+                        onClick={() =>
+                          viewConfDispatch({
+                            type: 'DEACTIVATE_VIEW',
+                            payload: views[0].id,
+                          })
+                        }
+                      >
+                        <Icon path={mdiClose} size="20px" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+
                   <EvenSpacedList
                     columns={legends.length > 1 ? 2 : 1}
                     gap="10px"
                   >
                     {legends.map((legend) => (
-                      <Legend maxWidth="140px" key={legend.id} {...legend} />
+                      <Legend
+                        {...(resolvedLayout.length > 1
+                          ? {
+                              direction: 'row',
+                              maxWidth: '300px',
+                              size: '1',
+                            }
+                          : {
+                              direction: 'column',
+                              maxWidth: '150px',
+                              size: '2',
+                            })}
+                        key={legend.id}
+                        {...legend}
+                      />
                     ))}
                   </EvenSpacedList>
                 </LegendContainer>
               )}
-              {index > 0 ? (
-                <IconButton
-                  onClick={() =>
-                    viewConfDispatch({
-                      type: 'DEACTIVATE_VIEW',
-                      payload: views[0].id,
-                    })
-                  }
-                  style={{
-                    position: 'absolute',
-                    zIndex: 10,
-                    top: 20,
-                    left: 20,
-                  }}
-                >
-                  <Icon path={mdiClose} size="20px" />
-                </IconButton>
-              ) : null}
               {index === resolvedLayout.length - 1 ? (
                 <>
                   <GeolocateControl position="top-right" />
                   <FullscreenControl position="top-right" />
                   <NavigationControl position="top-right" />
-                  <ScaleControl position="bottom-right" />
+                  <ScaleControl position="top-right" />
+                  <AttributionControl position="bottom-right" compact={false} />
                 </>
               ) : null}
             </>

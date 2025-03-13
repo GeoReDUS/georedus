@@ -1,9 +1,10 @@
 import { uniqBy } from 'lodash'
-import { globalResources } from '../../util'
+import { COLOR_SCHEMES, globalResources } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
 import { resolve } from '@orioro/resolve'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
 
 function safeScheme(scheme) {
   //
@@ -27,6 +28,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     indicator_label,
     year,
     variable_id,
+    metodology,
     variant_label,
     measure_unit,
     variable_id_pct,
@@ -107,6 +109,10 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     variants.map((variant) => [variant.variable_id, variant.measure_unit]),
   )
 
+  const _color_scheme = indicator_path.toLowerCase().includes('infraestrutura')
+    ? COLOR_SCHEMES.schemeBlues
+    : COLOR_SCHEMES.schemeOranges
+
   const _legends = [
     {
       type: 'SequentialColorLegend',
@@ -128,16 +134,22 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     },
   ]
 
+  const sourceLabel = collection_id.endsWith('2010')
+    ? 'CENSO 2010'
+    : 'CENSO 2022'
+
   return {
     debug: true,
     id: viewId,
     path: indicator_path,
     label: indicator_label,
-    metodology: 'metodologia',
-    sourceLabel: collection_id.endsWith('2010') ? 'CENSO 2010' : 'CENSO 2022',
+    metodology,
+    sourceLabel,
+    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
     conf: {
       data: {
         variableId: {
+          label: 'Recorte:',
           type: 'treeSelect',
           options: variants.map((variant) => ({
             path: variant.variant_path,
@@ -150,7 +162,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         },
         customSpatialAggregationUnit: {
           type: 'file',
-          label: 'Malha territorial customizada',
+          label: 'Malha territorial customizada:',
         },
       },
       style: {
@@ -257,7 +269,8 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
             '$naturalBreaks',
             ['$get', 'variableValues'],
             {
-              scalesByK: safeScheme(schemeRdPu),
+              // scalesByK: safeScheme(schemeRdPu),
+              ..._color_scheme,
               minK: 5,
             },
           ],
@@ -298,6 +311,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
 
       [VECTOR_SOURCE_ID]: {
         type: 'vector',
+        attribution: sourceLabel,
         minzoom: 6,
         maxzoom: 20,
         tiles: [
@@ -421,14 +435,14 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         legends: _legends,
 
         tooltip: {
-          title: [
-            '$literal',
-            [
-              '$template',
-              'Setor ${0}',
-              ['$get', 'feature.properties.cd_setor'],
-            ],
-          ],
+          // title: [
+          //   '$literal',
+          //   [
+          //     '$template',
+          //     'Setor ${0}',
+          //     ['$get', 'feature.properties.cd_setor'],
+          //   ],
+          // ],
           entries: [
             [
               [

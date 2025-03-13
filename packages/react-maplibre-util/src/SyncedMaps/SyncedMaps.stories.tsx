@@ -37,7 +37,7 @@ function layeredMapTooltip(hoverInfo, layeredMap) {
     .filter(({ mapView }) => Boolean(mapView))
 
   if (interactiveFeatures.length > 0) {
-    console.log(interactiveFeatures)
+    // console.log(interactiveFeatures)
     return (
       <HoverTooltip
         style={{
@@ -63,6 +63,7 @@ export const Basic = () => {
       style={{
         width: '100vw',
         height: '100vh',
+        fontFamily: 'sans-serif',
       }}
       initialViewState={{
         latitude: -1.455833,
@@ -96,6 +97,20 @@ export const Basic = () => {
                 },
               },
             ],
+            children: (
+              <div
+                style={{
+                  width: 200,
+                  height: 300,
+                  position: 'absolute',
+                  bottom: 10,
+                  right: 10,
+                  background: 'white',
+                }}
+              >
+                Some legend placeholder
+              </div>
+            ),
           },
           {
             id: 'right',
@@ -120,6 +135,20 @@ export const Basic = () => {
                 },
               },
             ],
+            children: (
+              <div
+                style={{
+                  width: 200,
+                  height: 300,
+                  position: 'absolute',
+                  bottom: 10,
+                  right: 10,
+                  background: 'white',
+                }}
+              >
+                Some legend placeholder
+              </div>
+            ),
           },
           // {
           //   id: 'other',

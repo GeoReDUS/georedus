@@ -10,6 +10,7 @@ import {
 import { ViewControl } from '../ViewControl'
 import styled from 'styled-components'
 import { createContext, useContext } from 'react'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../viewSpecs/constants'
 
 const STATIC_NODE_ICONS = {
   'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
@@ -29,8 +30,12 @@ const ViewMenuContext = createContext({
 })
 
 function Item({ node, depth }) {
-  const { viewConfState, onSetView, onDeactivateView } =
+  const { viewSpecs, viewConfState, onSetView, onDeactivateView } =
     useContext(ViewMenuContext)
+
+  const viewSpecsById = Object.fromEntries(
+    viewSpecs.map((spec) => [spec.id, spec]),
+  )
 
   return (
     <ViewControl
@@ -38,15 +43,49 @@ function Item({ node, depth }) {
       viewConf={viewConfState.byId[node.id]}
       viewConfState={viewConfState}
       onDeactivateView={() => onDeactivateView(node.id)}
-      onSetView={(initialConf, layoutIndex) =>
+      onSetView={(viewConf, layoutIndex) => {
+        // console.log('onSetView', vi, layoutIndex)
+
+        //
+        // If the layoutIndex is undefined
+        // and the viewConf still has not been allocated
+        // to any layout slot, attempt to find an appropriate
+        // initial layout slot
+        //
+        if (
+          typeof layoutIndex === 'undefined' &&
+          !viewConfState.layout.some((list) =>
+            list.items.some((item) => item.id === node.id),
+          )
+        ) {
+          layoutIndex =
+            viewSpecsById[node.id]?.viewType === VIEW_TYPE_SURFACE_CHOROPLETH
+              ? //
+                // If the new view is a surface_choropleth,
+                // find a map inside layout that still has no surface_choropleths
+                //
+                viewConfState.layout.findIndex((list) =>
+                  list.items.every(
+                    (item) =>
+                      viewSpecsById[item.id].viewType !==
+                      VIEW_TYPE_SURFACE_CHOROPLETH,
+                  ),
+                )
+              : 0
+        }
+
+        console.log('will set layoutIndex', layoutIndex)
+
+        layoutIndex = layoutIndex === -1 ? 0 : layoutIndex
+
         onSetView(
           {
-            ...initialConf,
+            ...viewConf,
             id: node.id,
           },
           layoutIndex,
         )
-      }
+      }}
     />
   )
 }
@@ -80,6 +119,7 @@ export function ViewMenu({
     <div style={style}>
       <ViewMenuContext.Provider
         value={{
+          viewSpecs,
           viewConfState,
           onSetView,
           onDeactivateView,
