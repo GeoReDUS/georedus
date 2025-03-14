@@ -161,8 +161,20 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           defaultValue: variable_id,
         },
         customSpatialAggregationUnit: {
-          type: 'file',
-          label: 'Malha territorial customizada:',
+          type: 'geoFile',
+          label: 'Malha territorial customizada',
+          helperText:
+            'Carregue um arquivo georreferenciado para visualizar os dados de acordo' +
+            ' com sua própria malha territorial. Formatos de arquivo suportados: ' +
+            [
+              'GeoPackage (.gpkg)',
+              'ESRI Shapefile (.shp)',
+              'KML (.kml)',
+              'GML (.gml)',
+              'CSV (.csv)',
+              'TIFF/GeoTIFF (.tif/.tiff)',
+              'GeoJSON (.json/.geojson)',
+            ].join(', '),
         },
       },
       style: {
