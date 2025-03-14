@@ -99,7 +99,7 @@ export const Basic = () => {
               })
             }}
             sideBarBottom={
-              <Flex direction="column" alignItems="center" p="4">
+              <Flex direction="column" alignItems="center" p="3">
                 <IconButton
                   radius="none"
                   variant="outline"

@@ -6,7 +6,7 @@ import {
   mdiDotsVertical,
   mdiFilterVariant,
   mdiHelpCircleOutline,
-  mdiPalette,
+  mdiOpacity,
 } from '@mdi/js'
 import { useMemo, useState } from 'react'
 import { isPlainObject } from 'lodash'
@@ -22,7 +22,7 @@ const CONF_TABS = {
   },
   style: {
     id: 'style',
-    icon: <Icon path={mdiPalette} size="16px" />,
+    icon: <Icon path={mdiOpacity} size="16px" />,
     label: 'Visualização',
   },
 }

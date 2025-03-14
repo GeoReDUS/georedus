@@ -6,7 +6,7 @@ const HeaderContainer = styled.div`
   background-color: var(--dir-nav-surface-color);
   padding: var(--dir-nav-base-padding);
   border-bottom: 1px solid var(--dir-nav-separator-color);
-  height: var(--dir-nav-tab-button-size);
+  height: var(--dir-nav-section-header-height);
   flex-shrink: 0;
   flex-grow: 0;
 

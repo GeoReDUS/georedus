@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Heading, Select } from '@radix-ui/themes'
-import { Flex } from '@orioro/react-ui-core'
+import { Flex, TextEllipsis } from '@orioro/react-ui-core'
 import { makeDirTree } from '../DirTree/DirTree'
 import styled from 'styled-components'
 import { NavSection } from '../NavSection'
@@ -34,16 +34,17 @@ export function makeDirSection(config?: MakeDirNavProps) {
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            gap="30px"
+            gap="10px"
           >
             <Heading
               as="h2"
-              size="3"
+              size="5"
               style={{
-                maxWidth: '60%',
+                // maxWidth: '60%',
+                color: 'var(--accent-9)',
               }}
             >
-              {node.label}
+              <TextEllipsis maxLines={2}>{node.label}</TextEllipsis>
             </Heading>
             {childNodes.length === 1 ? (
               <SingleChildBadge>{childNodes[0].label}</SingleChildBadge>

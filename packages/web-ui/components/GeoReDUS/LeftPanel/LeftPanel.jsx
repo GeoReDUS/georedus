@@ -10,7 +10,7 @@ import styled from 'styled-components'
 const OPEN_WIDTH = '380px'
 const CLOSED_WIDTH = '60px'
 
-const HEADER_HEIGHT = 50
+const HEADER_HEIGHT = 60
 
 const LogoContainer = styled.div`
   height: 100%;
@@ -59,6 +59,9 @@ export function LeftPanel({
           top: HEADER_HEIGHT / 2,
           left: 'calc(100%)',
           transform: 'translate(-50%, -50%)',
+          boxShadow:
+            'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
+            'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
         }}
         size="1"
         type="button"
@@ -89,7 +92,8 @@ export function LeftPanel({
         onClick={(e) => onSetOpen(true)}
       >
         <Flex
-          p="4px"
+          px="10px"
+          py="6px"
           height={HEADER_HEIGHT}
           alignItems="center"
           direction="row"

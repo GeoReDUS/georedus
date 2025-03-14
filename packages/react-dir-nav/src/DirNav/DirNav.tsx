@@ -35,6 +35,7 @@ const IconTabTrigger = styled(Tabs.Trigger)`
 
   width: var(--dir-nav-tab-button-size);
   height: var(--dir-nav-tab-button-size);
+  flex-shrink: 0;
 
   background-color: var(--dir-nav-surface-color);
 
@@ -124,6 +125,7 @@ export function makeDirNav(config: MakeDirNavProps = {}) {
           style={{
             ...style,
             height: '100%',
+            '--dir-nav-section-header-height': '80px',
             '--dir-nav-tab-button-size': '60px',
             '--dir-nav-surface-color': 'var(--accent-2)',
             '--dir-nav-background-color': 'var(--accent-4)',
@@ -143,7 +145,12 @@ export function makeDirNav(config: MakeDirNavProps = {}) {
                   backgroundColor: 'var(--dir-nav-surface-color)',
                 }}
               >
-                <IconTabTrigger value="_search">
+                <IconTabTrigger
+                  value="_search"
+                  style={{
+                    height: 'var(--dir-nav-section-header-height)',
+                  }}
+                >
                   <Tooltip side="right" content="Busca">
                     <div>
                       <Icon path={mdiMagnify} />

@@ -356,18 +356,6 @@ export function GeoReDUS({ api }) {
         onSetViewSpecSources={setViewSpecSources}
       />
 
-      <ViewLayoutPopover
-        viewSpecs={viewSpecsQuery.data}
-        viewConfState={viewConfState}
-        viewConfDispatch={viewConfDispatch}
-        style={{
-          position: 'fixed',
-          zIndex: 2,
-          left: '50%',
-          top: '10px',
-          transform: 'translateX(-50%)',
-        }}
-      />
       <Flex
         style={{
           position: 'fixed',
@@ -379,6 +367,12 @@ export function GeoReDUS({ api }) {
         gap="4"
         alignItems="center"
       >
+        <ViewLayoutPopover
+          viewSpecs={viewSpecsQuery.data}
+          viewConfState={viewConfState}
+          viewConfDispatch={viewConfDispatch}
+        />
+
         <Flex alignItems="strecth" width="400px" maxWidth="30vw">
           <Input
             schema={{
