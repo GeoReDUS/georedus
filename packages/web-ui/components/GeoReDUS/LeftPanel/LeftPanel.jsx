@@ -4,7 +4,7 @@ import { DevControls } from '../DevControls'
 import { IconButton } from '@radix-ui/themes'
 import Icon from '@mdi/react'
 import { mdiArrowLeft } from '@mdi/js'
-import { ReDUSLogo } from '@/components/ReDUSLogo'
+import { GeoReDUSLogo, GeoReDUSLogoSymbol } from '../GeoReDUSLogo'
 import styled from 'styled-components'
 
 const OPEN_WIDTH = '380px'
@@ -106,9 +106,13 @@ export function LeftPanel({
         >
           {open ? (
             <LogoContainer>
-              <ReDUSLogo dark />
+              <GeoReDUSLogo />
             </LogoContainer>
-          ) : null}
+          ) : (
+            <LogoContainer>
+              <GeoReDUSLogoSymbol />
+            </LogoContainer>
+          )}
         </Flex>
         {Array.isArray(viewSpecs) ? (
           <ViewMenu

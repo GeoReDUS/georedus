@@ -1,1 +1,2 @@
-export function GeoReDUSLogo() {}
+export * from './GeoReDUSLogo'
+export * from './GeoReDUSLogoSymbol'
