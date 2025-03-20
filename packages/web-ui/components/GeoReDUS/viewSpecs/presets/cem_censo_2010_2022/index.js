@@ -3,8 +3,11 @@ import { COLOR_SCHEMES, globalResources } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
-import { resolve } from '@orioro/resolve'
+import { resolve, resolveAsync } from '@orioro/resolve'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
+import { fileReadAs } from '@orioro/react-ui-core'
+
+import { buffer } from '@turf/turf'
 
 function safeScheme(scheme) {
   //
@@ -168,12 +171,12 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
             ' com sua própria malha territorial. Formatos de arquivo suportados: ' +
             [
               'GeoPackage (.gpkg)',
-              'ESRI Shapefile (.shp)',
               'KML (.kml)',
               'GML (.gml)',
-              'CSV (.csv)',
+              // 'CSV (.csv)',
               'TIFF/GeoTIFF (.tif/.tiff)',
               'GeoJSON (.json/.geojson)',
+              'ESRI Shapefile (armazenar arquivos .shp, .shx, .dbf, etc. em um arquivo .zip único)',
             ].join(', '),
         },
       },
@@ -197,11 +200,31 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           '$if',
           ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
           null,
-          [
-            '$fileReadAs',
-            ['$get', 'view.conf.data.customSpatialAggregationUnit'],
-            'geojson',
-          ],
+          resolveAsync.fn(async (context) => {
+            const contents = await fileReadAs(
+              context.view.conf.data.customSpatialAggregationUnit,
+              'text',
+            )
+
+            return JSON.parse(contents)
+
+            //
+            // Proof of concept of applying buffer to GeoJSON
+            //
+            // return buffer(JSON.parse(contents), 200, {
+            //   units: 'meters',
+            // })
+
+            // console.log(
+            //   buffer(JSON.parse(contents), 200, {
+            //     units: 'meters',
+            //   }),
+            // )
+
+            // return buffer(JSON.parse(contents), 200, {
+            //   units: 'meters',
+            // })
+          }),
         ],
       },
       [
