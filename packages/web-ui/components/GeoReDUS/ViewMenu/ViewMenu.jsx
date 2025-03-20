@@ -14,6 +14,7 @@ import {
   mdiSchool,
   mdiHomeCity,
   mdiBottleTonicPlusOutline,
+  mdiHospitalBox,
 } from '@mdi/js'
 import { ViewControl } from '../ViewControl'
 import styled from 'styled-components'
@@ -24,7 +25,7 @@ const STATIC_NODE_ICONS = {
   'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
   educacao: <Icon path={mdiSchool} />,
   'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
-  saude: <Icon path={mdiBottleTonicPlusOutline} />,
+  saude: <Icon path={mdiHospitalBox} />,
 }
 
 function errNoViewMenuContext() {
