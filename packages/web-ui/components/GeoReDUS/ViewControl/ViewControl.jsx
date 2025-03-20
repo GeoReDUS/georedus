@@ -14,11 +14,16 @@ const Container = styled(Box)`
 
   border-radius: 2px;
   background-color: var(--redus-bege, white);
+  // background-color: var(--accent-4, white);
 `
 
 const Summary = styled.div`
-  background-color: var(--redus-bege, white);
+  // background-color: var(--redus-bege, white);
+  background-color: ${({ $active }) =>
+    $active ? 'var(--redus-bege, white)' : 'var(--accent-2)'};
   padding: 0;
+
+  transition: background-color .1s ease-out;
 
   display: flex;
   border: none;
@@ -28,7 +33,11 @@ const Summary = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: color-mix(in srgb, var(--redus-bege) 80%, white);
+    // background-color: color-mix(in srgb, var(--redus-bege) 80%, white);
+    background-color: ${({ $active }) =>
+      $active
+        ? 'color-mix(in srgb, var(--redus-bege) 80%, white)'
+        : 'var(--redus-bege)'};
   }
 
   &:active {
@@ -89,6 +98,7 @@ export function ViewControl({
           type="button"
           role="button"
           style={style}
+          $active={active}
           onClick={configurable ? () => toggleView() : null}
         >
           <Flex
@@ -111,7 +121,7 @@ export function ViewControl({
                   as="h4"
                   style={{
                     fontWeight: 'normal',
-                    color: 'var(--accent-12)',
+                    color: 'var(--accent-9)',
                   }}
                 >
                   <TextEllipsis maxLines={2}>{viewSpec.label}</TextEllipsis>
