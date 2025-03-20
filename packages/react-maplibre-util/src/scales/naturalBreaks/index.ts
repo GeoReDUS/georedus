@@ -3,7 +3,7 @@ import { ckmeans } from 'simple-statistics'
 import { schemeYlOrRd } from 'd3-scale-chromatic'
 import { MAX_K, MIN_K, autoK, within } from './autoK'
 import { isPlainObject, pick } from 'lodash-es'
-import greenlet from 'greenlet'
+// import greenlet from 'greenlet'
 
 const DEFAULT_COLOR_SCALE = schemeYlOrRd
 
@@ -20,7 +20,12 @@ export function naturalBreakBounds(
   values: number[],
   k: number,
 ): [number, number][] {
-  const groups = ckmeans(values, k)
+  //
+  // TODO: improve handling of scenarios in which there
+  // is not enough data available
+  // Ensure minK is always lesser than values.length
+  //
+  const groups = ckmeans(values, Math.min(k, values.length))
   const bounds = groups.map(
     (group) => [group[0], group[group.length - 1]] as [number, number],
   )
