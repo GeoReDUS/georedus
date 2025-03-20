@@ -431,6 +431,15 @@ export function GeoReDUS({ api }) {
       </Flex>
 
       <SyncedMaps
+        onMouseOver={() => {
+          if (resolvedLayout.length > 1) {
+            //
+            // In case there are two open maps, on mouseOver close
+            // left panel
+            //
+            setLeftPanelOpen(false)
+          }
+        }}
         ref={syncedMapsRef}
         onLoad={async (event) => _refocus(event.target)}
         attributionControl={false}
@@ -503,7 +512,7 @@ export function GeoReDUS({ api }) {
               {index === resolvedLayout.length - 1 ? (
                 <>
                   <GeolocateControl position="top-right" />
-                  <FullscreenControl position="top-right" />
+                  {/*<FullscreenControl position="top-right" />*/}
                   <NavigationControl position="top-right" />
                   <ScaleControl position="top-right" />
                   <AttributionControl position="bottom-right" compact={false} />
