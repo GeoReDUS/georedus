@@ -1,10 +1,9 @@
 import { Flex, LoadingOverlay } from '@orioro/react-ui-core'
 import { ViewMenu } from '../ViewMenu'
-import { DevControls } from '../DevControls'
-import { IconButton } from '@radix-ui/themes'
+import { IconButton, Tooltip } from '@radix-ui/themes'
 import Icon from '@mdi/react'
-import { mdiArrowLeft } from '@mdi/js'
-import { GeoReDUSLogo, GeoReDUSLogoSymbol } from '../GeoReDUSLogo'
+import { mdiChevronLeft } from '@mdi/js'
+import { GeoReDUSLogoSymbol, GeoReDUSLogoText } from '../GeoReDUSLogo'
 import styled from 'styled-components'
 
 const OPEN_WIDTH = '380px'
@@ -12,7 +11,7 @@ const CLOSED_WIDTH = '60px'
 
 const HEADER_HEIGHT = 60
 
-const LogoContainer = styled.div`
+const LogoContainer = styled(Flex)`
   height: 100%;
 
   svg {
@@ -30,16 +29,6 @@ export function LeftPanel({
   open,
   onSetOpen,
 }) {
-  // const [mouseIsOver, setMouseIsOver] = useState(false)
-
-  // useEffect(() => {
-  //   let timeout
-  //   if (mouseIsOver && !open) {
-  //     timeout = setTimeout(() => onSetOpen(true), 300)
-  //   }
-  //   return () => clearTimeout(timeout)
-  // }, [mouseIsOver, open])
-
   return (
     <div
       style={{
@@ -56,26 +45,31 @@ export function LeftPanel({
         style={{
           border: '1px solid white',
           position: 'absolute',
-          top: HEADER_HEIGHT / 2,
+          top: HEADER_HEIGHT * (2 / 3),
           left: 'calc(100%)',
           transform: 'translate(-50%, -50%)',
           boxShadow:
             'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
             'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
+
+          height: 20,
+          width: 20,
         }}
         size="1"
         type="button"
         onClick={() => onSetOpen(!open)}
         // variant="surface"
       >
-        <Icon
-          style={{
-            transition: 'transform .2s ease-out',
-            transform: `rotateZ(${open ? '0' : '180'}deg)`,
-          }}
-          path={mdiArrowLeft}
-          size="16px"
-        />
+        <Tooltip content={open ? 'Fechar painel' : 'Abrir painel'}>
+          <Icon
+            style={{
+              transition: 'transform .2s ease-out',
+              transform: `rotateZ(${open ? '0' : '180'}deg)`,
+            }}
+            path={mdiChevronLeft}
+            size="16px"
+          />
+        </Tooltip>
       </IconButton>
       <Flex
         direction="column"
@@ -92,8 +86,8 @@ export function LeftPanel({
         onClick={(e) => onSetOpen(true)}
       >
         <Flex
-          px="10px"
-          py="6px"
+          px="12px"
+          py="10px"
           height={HEADER_HEIGHT}
           alignItems="center"
           direction="row"
@@ -104,7 +98,22 @@ export function LeftPanel({
             flexGrow: 0,
           }}
         >
-          {open ? (
+          <LogoContainer direction="row" gap="8px">
+            <GeoReDUSLogoSymbol />
+
+            <div
+              style={{
+                transition: open
+                  ? 'opacity .7s ease-out'
+                  : 'opacity .1s ease-out',
+                opacity: open ? 1 : 0,
+              }}
+            >
+              <GeoReDUSLogoText />
+            </div>
+          </LogoContainer>
+
+          {/*{open ? (
             <LogoContainer>
               <GeoReDUSLogo />
             </LogoContainer>
@@ -112,7 +121,7 @@ export function LeftPanel({
             <LogoContainer>
               <GeoReDUSLogoSymbol />
             </LogoContainer>
-          )}
+          )}*/}
         </Flex>
         {Array.isArray(viewSpecs) ? (
           <ViewMenu
@@ -147,23 +156,24 @@ export function LeftPanel({
               })
             }}
             sideBarBottom={
-              <Flex
-                direction="column"
-                justifyContent="flex-end"
-                alignItems="center"
-                style={{
-                  flexGrow: 1,
-                  height: '100%',
-                }}
-                p="2"
-              >
-                {process.env.NODE_ENV !== 'production' && (
-                  <DevControls
-                    viewSpecSources={viewSpecSources}
-                    onSetViewSpecSources={onSetViewSpecSources}
-                  />
-                )}
-              </Flex>
+              null
+              // <Flex
+              //   direction="column"
+              //   justifyContent="flex-end"
+              //   alignItems="center"
+              //   style={{
+              //     flexGrow: 1,
+              //     height: '100%',
+              //   }}
+              //   p="2"
+              // >
+              //   {process.env.NODE_ENV !== 'production' && (
+              //     <DevControls
+              //       viewSpecSources={viewSpecSources}
+              //       onSetViewSpecSources={onSetViewSpecSources}
+              //     />
+              //   )}
+              // </Flex>
             }
           />
         ) : (
