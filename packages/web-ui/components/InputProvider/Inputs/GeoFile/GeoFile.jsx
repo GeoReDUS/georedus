@@ -30,7 +30,17 @@ export function GeoFile(props) {
           }
           const Gdal = await initGdalJs({ paths })
 
-          const { datasets, errors } = await Gdal.open(file)
+          const { datasets, errors } = await Gdal.open(
+            file,
+            [],
+            //
+            // https://gdal3.js.org/docs/module-f_open.html
+            // Opening a file using the virtual file system handler, ie. /vsicurl/ or /vsizip/.
+            // One common scenario is a .zip shapefile
+            // const result = await Gdal.open(file, [], ['vsizip']);
+            //
+            file.type === 'application/zip' ? ['vsizip'] : [],
+          )
 
           if (Array.isArray(errors) && errors.length > 0) {
             console.error(errors.join(' | '))
