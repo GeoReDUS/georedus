@@ -45,6 +45,8 @@ const IconTabTrigger = styled(Tabs.Trigger)`
 
   border-bottom: solid 1px var(--gray-7);
 
+  color: var(--accent-9);
+
   &:hover,
   &:focus {
     background-color: var(--accent-5);
