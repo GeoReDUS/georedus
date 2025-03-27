@@ -86,10 +86,13 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     return filter ? fmtMetadataApiFilterExp(filter) : {}
   })
 
+  const $sourceLabel = 'INEP (Censo Escolar 2022)'
+
   const base = {
     debug: true,
     id: viewId,
     label: indicator_label,
+    sourceLabel: $sourceLabel,
     path: indicator_path,
     metodology,
 
@@ -184,6 +187,8 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     sources: {
       ...globalRes.sources,
       [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
+        attribution: $sourceLabel,
+        version: 2,
         minzoom: 8,
         maxzoom: 20,
       }),
