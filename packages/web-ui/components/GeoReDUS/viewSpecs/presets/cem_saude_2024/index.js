@@ -120,7 +120,7 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
             pathname: collection_id,
             searchParams: {
               select: VARIABLE_ID,
-              co_municipio_gestor: [
+              id_municipio_gestor: [
                 '$template',
                 'eq.${0}',
                 ['$substr', ['$get', 'municipioId'], 0, 6],
@@ -146,7 +146,7 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
                   pathname: collection_id,
                   searchParams: {
                     select: ['$get', 'view.conf.data.sizingVariable'],
-                    co_municipio_gestor: [
+                    id_municipio_gestor: [
                       '$template',
                       'eq.${0}',
                       ['$substr', ['$get', 'municipioId'], 0, 6],

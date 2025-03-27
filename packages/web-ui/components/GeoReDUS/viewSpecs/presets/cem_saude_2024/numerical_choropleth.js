@@ -28,7 +28,6 @@ export function numerical_choropleth(
 
   return {
     ...base,
-    debug: true,
     metadata: [
       '$let',
       base.metadata,
@@ -83,7 +82,7 @@ export function numerical_choropleth(
         // },
         filter: [
           'all',
-          ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
+          ['==', ['get', 'id_municipio'], ['$get', 'municipioId']],
           ['==', ['typeof', ['get', VARIABLE_ID]], 'number'],
         ],
         paint: {

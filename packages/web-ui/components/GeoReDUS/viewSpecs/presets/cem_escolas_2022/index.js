@@ -1,9 +1,16 @@
-import { globalResources, tableVectorSource } from '../../util'
+import {
+  fmtMaplibreGlFilterExp,
+  fmtMetadataApiFilterExp,
+  globalResources,
+  tableVectorSource,
+} from '../../util'
 
 import { numerical_choropleth } from './numerical_choropleth'
 import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
+import { isPlainObject } from 'lodash'
+import { resolve } from '@orioro/resolve'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -12,28 +19,75 @@ const BY_TYPE = {
   categorical,
 }
 
-export function cem_escolas_2022(config, otherView, context) {
+export function cem_escolas_2022(config, allViewSpecs, context) {
   const {
     collection_id,
+    variable_id,
     indicator_id,
+    variant_of,
     indicator_path,
     indicator_label,
     indicator_type,
     sizing_variable_id,
+    number_format = ['pt-BR', {}],
     metodology,
   } = config
 
+  if (Boolean(variant_of)) {
+    return null
+  }
+
+  const variants = [
+    config,
+    ...allViewSpecs.filter(
+      (otherViewSpec) => otherViewSpec.variant_of === indicator_id,
+    ),
+  ]
+
+  const variantsById = Object.fromEntries(
+    variants.map((variant) => [variant.indicator_id, variant]),
+  )
+
+  function loadVariant(id) {
+    const variantSpec = variantsById[id]
+    const mainSpec = variantSpec.variant_of
+      ? variantsById[variantSpec.variant_of]
+      : null
+    return mainSpec ? { ...mainSpec, ...variantSpec } : variantSpec
+  }
+
   const { METADATA_API_ENDPOINT } = context
 
-  const VARIABLE_ID = indicator_id
+  const VARIABLE_ID = variable_id
   const TABLE_ID = collection_id
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
 
-  const viewId = `${collection_id}.${VARIABLE_ID}`
+  const viewId = `${collection_id}.${indicator_id}`
 
   const globalRes = globalResources(context)
 
+  const sizing_variable_view = sizing_variable_id
+    ? allViewSpecs.find((view) => view.variable_id === sizing_variable_id)
+    : null
+
+  const sizing_variable_label =
+    sizing_variable_view?.indicator_label || sizing_variable_id
+
+  //
+  // common resolver that takes in variant filter and converts into
+  // search parameters for metadata api for data fetching
+  //
+  const _fetchMetadataApiFilterExpResolver = resolve.fn((context) => {
+    const variantId = context.view?.conf?.data?.variantId
+
+    const variantSpec = loadVariant(variantId)
+
+    const filter = variantId ? variantSpec.filter : null
+    return filter ? fmtMetadataApiFilterExp(filter) : {}
+  })
+
   const base = {
+    debug: true,
     id: viewId,
     label: indicator_label,
     path: indicator_path,
@@ -41,12 +95,25 @@ export function cem_escolas_2022(config, otherView, context) {
 
     conf: {
       data: {
+        variantId: {
+          label: 'Rede de ensino:',
+          type: 'treeSelect',
+          options: variants.map((variant) => ({
+            path: variant.variant_path,
+            label: variant.variant_label || variant.indicator_id,
+            value: variant.indicator_id,
+          })),
+          placeholder: 'Selecione uma rede',
+          clearable: false,
+          defaultValue: indicator_id,
+        },
+
         showSize: sizing_variable_id
           ? {
               label: 'Matrículas',
               type: 'booleanCheckbox',
               description: 'Tamanho proporcional à quantidade de matrículas',
-              defaultValue: false,
+              defaultValue: true,
             }
           : null,
       },
@@ -61,10 +128,15 @@ export function cem_escolas_2022(config, otherView, context) {
           {
             href: METADATA_API_ENDPOINT,
             pathname: collection_id,
-            searchParams: {
-              select: VARIABLE_ID,
-              co_municipio: ['$template', 'eq.${0}', ['$get', 'municipioId']],
-            },
+            searchParams: [
+              '$merge',
+              {
+                select: VARIABLE_ID,
+                id_municipio: ['$template', 'eq.${0}', ['$get', 'municipioId']],
+              },
+
+              _fetchMetadataApiFilterExpResolver,
+            ],
           },
         ],
       ],
@@ -82,14 +154,19 @@ export function cem_escolas_2022(config, otherView, context) {
                   {
                     href: METADATA_API_ENDPOINT,
                     pathname: collection_id,
-                    searchParams: {
-                      select: sizing_variable_id,
-                      co_municipio: [
-                        '$template',
-                        'eq.${0}',
-                        ['$get', 'municipioId'],
-                      ],
-                    },
+
+                    searchParams: [
+                      '$merge',
+                      {
+                        select: sizing_variable_id,
+                        id_municipio: [
+                          '$template',
+                          'eq.${0}',
+                          ['$get', 'municipioId'],
+                        ],
+                      },
+                      _fetchMetadataApiFilterExpResolver,
+                    ],
                   },
                 ],
               ],
@@ -125,10 +202,29 @@ export function cem_escolas_2022(config, otherView, context) {
   // but that will need specific placement at the indicator_type
   // preset
   //
+  const $layerFilter = resolve.fn((context) => {
+    const variantId = context.view?.conf?.data?.variantId
+    const variantSpec = loadVariant(variantId)
+    const filter = variantId ? variantSpec.filter : null
+    return [
+      'all',
+      ['==', ['get', 'id_municipio'], ['$get', 'municipioId']],
+      ...(isPlainObject(filter) ? fmtMaplibreGlFilterExp(filter) : []),
+    ]
+  })
+
   const $circleRadius = sizing_variable_id
     ? [
         '$if',
-        ['$get', 'view.conf.data.showSize'],
+        [
+          '$and',
+          ['$get', 'view.conf.data.showSize'],
+          [
+            '$gt',
+            ['$get', 'length', ['$get', 'view.metadata.sizingValues']],
+            1,
+          ],
+        ],
         [
           'interpolate',
           ['linear'],
@@ -143,21 +239,65 @@ export function cem_escolas_2022(config, otherView, context) {
     : SIZE_DEFAULT
 
   const $tooltip = {
-    title: ['$literal', ['$get', 'feature.properties.no_entidade']],
+    title: ['$literal', ['$get', 'feature.properties.no_escola']],
     entries: [
       [
         indicator_label,
-        ['$literal', ['$get', `feature.properties.${VARIABLE_ID}::string`]],
+        [
+          '$literal',
+          [
+            '$coalesce',
+            [
+              '$get',
+              `feature.properties.${VARIABLE_ID}::string({
+                number: ${JSON.stringify(number_format)},
+                boolean: {
+                  true: 'Sim',
+                  false: 'Não'
+                }
+              })`,
+            ],
+            'Sem dados',
+          ],
+        ],
       ],
       sizing_variable_id
         ? [
-            sizing_variable_id,
+            sizing_variable_label,
             [
               '$literal',
               ['$get', `feature.properties.${sizing_variable_id}::string`],
             ],
           ]
         : null,
+      [
+        'Etapas de ensino',
+        [
+          '$literal',
+          resolve.fn((context) => {
+            const ETAPAS = {
+              in_inf_cre: 'Infantil / Creche',
+              in_inf_pre: 'Infantil / Pré-escola',
+              in_fund_ai: 'Fundamental I',
+              in_fund_af: 'Fundamental II',
+              in_med: 'Ensino Médio',
+            }
+
+            return Object.entries(ETAPAS)
+              .filter(
+                ([key, label]) =>
+                  context?.feature?.properties &&
+                  context?.feature?.properties[key],
+              )
+              .map(([key, label]) => label)
+              .join(', ')
+          }),
+        ],
+      ],
+      [
+        'Rede de ensino',
+        ['$literal', ['$get', 'feature.properties.tp_dependencia']],
+      ],
     ].filter(Boolean),
   }
 
@@ -169,7 +309,7 @@ export function cem_escolas_2022(config, otherView, context) {
           {
             type: 'ProportionalSymbolLegend',
             unit: 'Matrículas',
-            title: sizing_variable_id,
+            title: sizing_variable_label,
             min: ['$min', ['$get', 'view.metadata.sizingValues']],
             max: ['$max', ['$get', 'view.metadata.sizingValues']],
             sizeMin: SIZE_MIN * 2,
@@ -188,5 +328,12 @@ export function cem_escolas_2022(config, otherView, context) {
     return null
   }
 
-  return typeParser(base, { ...config, $circleRadius, $tooltip, $legends })
+  return typeParser(base, {
+    ...config,
+
+    $circleRadius,
+    $tooltip,
+    $legends,
+    $layerFilter,
+  })
 }

@@ -154,8 +154,6 @@ export function GeoReDUS({ api }) {
     viewConfReducerInitialState,
   )
 
-  console.log({ viewConfState })
-
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
 
   const syncedMapsRef = useRef(null)
@@ -246,8 +244,6 @@ export function GeoReDUS({ api }) {
     [viewsQueries],
   )
 
-  console.log('viewConfState', viewConfState)
-
   const resolvedLayout = useMemo(() => {
     const resolvedViewsById = Object.fromEntries(
       resolvedViews.map((view) => [view.id, view]),
@@ -282,15 +278,12 @@ export function GeoReDUS({ api }) {
 
   useEffect(() => {
     if (resolvedLayout.length > 1) {
-      console.log('auto close panel', resolvedLayout.length > 1)
-
       setTimeout(() => {
         setLeftPanelOpen(false)
       }, 100)
     }
   }, [resolvedLayout.length])
 
-  console.log('hello')
   const _refocus = (mapInstance) => {
     _flyToMunicipio(mapInstance, METADATA_API_ENDPOINT, municipioId, {
       padding: {

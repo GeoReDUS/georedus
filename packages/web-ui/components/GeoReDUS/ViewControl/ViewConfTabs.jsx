@@ -126,7 +126,14 @@ export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
       </Flex>
       {Array.isArray(enabledTabs) && enabledTabs.length > 0 ? (
         enabledTabs.map((tab) => {
-          const tabConfSchema = viewSpec.conf[tab.id]
+          const tabConfSchema = Object.fromEntries(
+            //
+            // Omit null confs
+            //
+            Object.entries(viewSpec.conf[tab.id]).filter(([key, value]) =>
+              Boolean(value),
+            ),
+          )
           const tabConfValue = immediateViewConf[tab.id]
 
           return (

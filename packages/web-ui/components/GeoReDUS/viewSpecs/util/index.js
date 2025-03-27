@@ -3,6 +3,7 @@ import { BASE_MAP_LAYERS } from './BASE_MAP_LAYERS'
 import { slugify } from '@orioro/util'
 
 export * from './colorSchemes'
+export * from './filter'
 
 export function tableVectorSource(context, tableId, override = {}) {
   const { VECTOR_TILE_SERVER_ENDPOINT } = context

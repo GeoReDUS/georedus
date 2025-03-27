@@ -8,9 +8,19 @@ import {
 
 export function categorical(
   base,
-  { collection_id, indicator_id, indicator_label, categories, filter },
+  {
+    collection_id,
+    measure_unit,
+    variable_id,
+    indicator_label,
+    categories,
+    $legends,
+    $tooltip,
+    $layerFilter,
+    $circleRadius,
+  },
 ) {
-  const VARIABLE_ID = indicator_id
+  const VARIABLE_ID = variable_id
   const TABLE_ID = collection_id
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
 
@@ -23,83 +33,34 @@ export function categorical(
 
   return {
     ...base,
-
-    //
-    // No need for metadata
-    //
-    metadata: {},
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
         zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
         type: 'circle',
 
-        legends: categories
-          ? [
-              {
-                type: 'ColorLegend',
-                title: indicator_label,
-                items: categories,
-
-                // unit: measure_unit,
-                // steps: ['$get', 'view.metadata.colorScaleStops'],
-              },
-            ]
-          : null,
-        // legends: [
-        //   {
-        //     type: 'SequentialColorLegend',
-        //     title: indicator_label,
-        //     unit: measure_unit,
-        //     steps: ['$get', 'view.metadata.colorScaleStops'],
-        //   },
-        // ],
-        interactive: true,
-        tooltip: {
-          title: ['$literal', ['$get', 'feature.properties.no_entidade']],
-          entries: [
-            [
-              indicator_label,
-              [
-                '$literal',
-                categories
-                  ? [
-                      '$get',
-                      ['$get', `feature.properties.${VARIABLE_ID}::string`],
-                      Object.fromEntries(
-                        categories.map((category) => [
-                          category.value,
-                          category.label,
-                        ]),
-                      ),
-                    ]
-                  : ['$get', `feature.properties.${VARIABLE_ID}::string`],
-              ],
-            ],
-          ],
-        },
-        filter: [
-          'all',
-          ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
-          ...(Array.isArray(filter) ? filter : []),
-
-          // ['==', ['typeof', ['get', VARIABLE_ID]], 'number'],
+        legends: [
+          ...(categories
+            ? [
+                {
+                  type: 'ColorLegend',
+                  title: indicator_label,
+                  unit: measure_unit,
+                  items: categories,
+                },
+              ]
+            : []),
+          ...$legends,
         ],
+        interactive: true,
+
+        tooltip: $tooltip,
+        filter: $layerFilter,
         paint: {
           'circle-opacity': 1,
-          'circle-radius': 10,
+          'circle-radius': $circleRadius,
           'circle-stroke-width': 1,
-          'circle-stroke-color': '#efefef',
-          // 'circle-radius': [
-          //   'interpolate',
-          //   ['linear'],
-          //   ['get', SIZING_VARIABLE_ID], // Replace "density" with your property name
-          //   ['$min', ['$get', 'sizingValues']],
-          //   6, // When qt_mat_fund_ai is 0, radius is 6
-          //   ['$max', ['$get', 'sizingValues']],
-          //   20, // When qt_mat_fund_ai is 100, radius is 20
-          // ],
-          // 'circle-radius': ['get', 'qt_mat_fund_ai'],
+          'circle-stroke-color': '#000000',
           'circle-color': categories
             ? [
                 'match',

@@ -142,7 +142,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     : 'CENSO 2022'
 
   return {
-    debug: true,
     id: viewId,
     path: indicator_path,
     label: indicator_label,
@@ -304,7 +303,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
             '$naturalBreaks',
             ['$get', 'variableValues'],
             {
-              // scalesByK: safeScheme(schemeRdPu),
               ..._color_scheme,
               minK: 5,
             },

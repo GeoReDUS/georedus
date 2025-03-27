@@ -8,8 +8,6 @@ export async function resolveView(
   viewConf: ResolvedViewConf,
   viewContext: ViewContext,
 ) {
-  console.log(viewSpec)
-
   const VIEW_AT_METADATA_STAGE = {
     conf: viewConf,
   }

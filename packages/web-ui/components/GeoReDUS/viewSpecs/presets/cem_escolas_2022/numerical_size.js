@@ -9,14 +9,14 @@ export function numerical_size(
   base,
   {
     collection_id,
-    indicator_id,
+    variable_id,
     indicator_label,
     color_scheme = 'schemeSet1.colors[1]',
-    filter,
     measure_unit,
+    $tooltip,
+    $layerFilter,
   },
 ) {
-  const VARIABLE_ID = indicator_id
   const TABLE_ID = collection_id
   const VECTOR_SOURCE_ID = `${TABLE_ID}.geom`
 
@@ -44,40 +44,31 @@ export function numerical_size(
           },
         ],
         interactive: true,
-        tooltip: {
-          title: ['$literal', ['$get', 'feature.properties.no_entidade']],
-          entries: [
-            [
-              indicator_label,
-              [
-                '$literal',
-                [
-                  '$get',
-                  `feature.properties.${VARIABLE_ID}::string({ "number": ["pt-BR"] })`,
-                ],
-              ],
-            ],
-          ],
-        },
-        filter: [
-          'all',
-          ['==', ['get', 'co_municipio'], ['$get', 'municipioId']],
-          ['==', ['typeof', ['get', VARIABLE_ID]], 'number'],
-          ...(Array.isArray(filter) ? filter : []),
-        ],
+        tooltip: $tooltip,
+        filter: $layerFilter,
         paint: {
           'circle-opacity': 1,
           'circle-stroke-width': 1,
-          'circle-stroke-color': '#efefef',
+          'circle-stroke-color': '#000000',
           'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['get', VARIABLE_ID], // Replace "density" with your property name
-            ['$min', ['$get', 'view.metadata.variableValues']],
-            SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
-            ['$max', ['$get', 'view.metadata.variableValues']],
-            SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+            '$if',
+            [
+              '$gt',
+              ['$get', 'length', ['$get', 'view.metadata.variableValues']],
+              1,
+            ],
+            [
+              'interpolate',
+              ['linear'],
+              ['get', variable_id], // Replace "density" with your property name
+              ['$min', ['$get', 'view.metadata.variableValues']],
+              SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
+              ['$max', ['$get', 'view.metadata.variableValues']],
+              SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+            ],
+            10,
           ],
+
           'circle-color': get(COLOR_SCHEMES, color_scheme) || color_scheme,
         },
       }),

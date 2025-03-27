@@ -98,8 +98,6 @@ function Item({ node, depth }) {
               : 0
         }
 
-        console.log('will set layoutIndex', layoutIndex)
-
         layoutIndex = layoutIndex === -1 ? 0 : layoutIndex
 
         onSetView(

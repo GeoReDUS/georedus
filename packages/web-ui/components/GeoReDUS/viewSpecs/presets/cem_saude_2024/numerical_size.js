@@ -51,7 +51,7 @@ export function numerical_size(
           'all',
           [
             '==',
-            ['get', 'co_municipio_gestor'],
+            ['get', 'id_municipio_gestor'],
             ['$substr', ['$get', 'municipioId'], 0, 6],
           ],
           ...(Array.isArray(filter) ? filter : []),
