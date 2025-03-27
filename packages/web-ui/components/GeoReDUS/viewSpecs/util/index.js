@@ -5,11 +5,17 @@ import { slugify } from '@orioro/util'
 export * from './colorSchemes'
 export * from './filter'
 
-export function tableVectorSource(context, tableId, override = {}) {
+export function tableVectorSource(
+  context,
+  tableId,
+  { version = '1', ...override } = {},
+) {
   const { VECTOR_TILE_SERVER_ENDPOINT } = context
   return {
     type: 'vector',
-    tiles: [`${VECTOR_TILE_SERVER_ENDPOINT}/${tableId}.geom/{z}/{x}/{y}`],
+    tiles: [
+      `${VECTOR_TILE_SERVER_ENDPOINT}/${tableId}.geom/{z}/{x}/{y}?v=${version}`,
+    ],
     minzoom: 9,
     maxzoom: 20,
     ...override,
