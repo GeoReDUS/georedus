@@ -1,7 +1,7 @@
 import { ExpressionFn } from '@orioro/resolve/dist/resolvers/expressions/types'
 import { ckmeans } from 'simple-statistics'
 import { schemeYlOrRd } from 'd3-scale-chromatic'
-import { MAX_K, MIN_K, autoK, within } from './autoK'
+import { DEFAULT_MAX_K, DEFAULT_MIN_K, autoK, within } from './autoK'
 import { isPlainObject, pick } from 'lodash-es'
 // import greenlet from 'greenlet'
 
@@ -20,15 +20,11 @@ export function naturalBreakBounds(
   values: number[],
   k: number,
 ): [number, number][] {
-  //
-  // TODO: improve handling of scenarios in which there
-  // is not enough data available
-  // Ensure minK is always lesser than values.length
-  //
-  const groups = ckmeans(values, Math.min(k, values.length))
+  const groups = ckmeans(values, k)
   const bounds = groups.map(
     (group) => [group[0], group[group.length - 1]] as [number, number],
   )
+
   return bounds
 }
 
@@ -38,8 +34,8 @@ export function scaleNaturalBreaks({
   values,
   k,
   defaultColor = DEFAULT_COLOR,
-  minK = MIN_K,
-  maxK = MAX_K,
+  minK = DEFAULT_MIN_K,
+  maxK = DEFAULT_MAX_K,
   scalesByK = DEFAULT_COLOR_SCALE,
 }: ScaleNaturalBreaksProps) {
   try {
@@ -49,6 +45,7 @@ export function scaleNaturalBreaks({
       typeof k === 'number'
         ? within(k, [minK, maxK])
         : autoK(values, [minK, maxK])
+
     const bounds = naturalBreakBounds(values, k)
 
     const scale = scalesByK[k]
@@ -75,7 +72,9 @@ export function scaleNaturalBreaks({
 
     return steps
   } catch (err) {
-    return defaultColor
+    console.error(err)
+
+    return null
   }
 }
 

@@ -1,16 +1,19 @@
 import { ckmeans } from 'simple-statistics'
 import { range, variance, sum, maxIndex } from 'd3'
 
-export const MIN_K = 3
-export const MAX_K = 9
+export const DEFAULT_MIN_K = 3
+export const DEFAULT_MAX_K = 9
 
 //
 // https://observablehq.com/@visionscarto/natural-breaks
 //
-export const elbowiness = (numbers: number[]) => {
+export const elbowiness = (
+  numbers: number[],
+  [minK, maxK]: [number, number],
+) => {
   const intrass = [
     null, // skip k = 0 // TODO: improve
-    ...range(1, MAX_K + 1).map((k) =>
+    ...range(1, maxK + 1).map((k) =>
       k === 1
         ? variance(numbers)
         : sum(ckmeans(numbers, k), (v) => variance(v)),
@@ -32,9 +35,12 @@ export function within(value: number, [min, max]: [number, number]) {
 
 export const autoK = (
   numbers: number[],
-  [min, max]: [number, number] = [MIN_K, MAX_K],
+  [minK, maxK]: [number, number] = [DEFAULT_MIN_K, DEFAULT_MAX_K],
 ) =>
   within(
-    maxIndex(elbowiness(numbers), (score, k) => score / (1 + Math.sqrt(k))),
-    [min, max],
+    maxIndex(
+      elbowiness(numbers, [minK, maxK]),
+      (score, k) => score / (1 + Math.sqrt(k)),
+    ),
+    [minK, maxK],
   )
