@@ -9,8 +9,8 @@ type Threshold = number
 type StepsInput = (Color | Threshold)[]
 
 type FormatOptions = {
-  below: string | ((max: string) => React.ReactNode)
-  above: string | ((min: string) => React.ReactNode)
+  below: null | string | ((max: string) => React.ReactNode)
+  above: null | string | ((min: string) => React.ReactNode)
   between: string | ((min: string, max: string) => React.ReactNode)
   number: CastNumberToStrOptions
 }
@@ -63,7 +63,9 @@ export function parseStepsToItems(
       label:
         typeof options.below === 'string'
           ? interpolate(options.below, defaultMaxStr)
-          : options.below(defaultMaxStr),
+          : typeof options.below === 'function'
+            ? options.below(defaultMaxStr)
+            : options.below,
     } as ParsedStepItem,
     ...chunk(rest, 2).map(([min, color], index, arr) => {
       const minStr = _cast(min)
@@ -81,7 +83,9 @@ export function parseStepsToItems(
               : options.between(minStr, maxStr)
             : typeof options.above === 'string'
               ? interpolate(options.above, minStr)
-              : options.above(minStr),
+              : typeof options.above === 'function'
+                ? options.above(minStr)
+                : options.above,
       } as ParsedStepItem
     }),
   ].reverse()

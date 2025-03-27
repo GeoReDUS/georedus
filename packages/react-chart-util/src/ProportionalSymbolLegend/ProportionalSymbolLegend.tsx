@@ -172,10 +172,18 @@ export function ProportionalSymbolLegend({
   title,
   unit,
   style,
+  maxWidth,
+  maxHeight,
   ...props
 }: ProportionalSymbolLegendProps) {
   return (
-    <LegendLayout title={title} unit={unit} style={style}>
+    <LegendLayout
+      title={title}
+      unit={unit}
+      style={style}
+      maxWidth={maxWidth}
+      maxHeight={maxHeight}
+    >
       <ProportionalSymbolLegendItems {...props} />
     </LegendLayout>
   )

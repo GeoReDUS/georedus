@@ -45,10 +45,6 @@ export function ColorLegendItems({
   size = '2',
   ...props
 }: Omit<ColorLegendProps, 'title'>) {
-  console.log({
-    size,
-  })
-
   return (
     <Flex direction="column" gap="2px" {...props}>
       {items.map((item, index) => (
