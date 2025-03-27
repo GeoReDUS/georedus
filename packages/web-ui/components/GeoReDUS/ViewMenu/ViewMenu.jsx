@@ -1,9 +1,4 @@
-import {
-  Flex,
-  LoadingIndicator,
-  TextEllipsis,
-  withDefaults,
-} from '@orioro/react-ui-core'
+import { Flex, TextEllipsis, withDefaults } from '@orioro/react-ui-core'
 
 import { nodeIdFromPath } from '@orioro/tree-model'
 
@@ -13,7 +8,6 @@ import {
   mdiAccountGroup,
   mdiSchool,
   mdiHomeCity,
-  mdiBottleTonicPlusOutline,
   mdiHospitalBox,
 } from '@mdi/js'
 import { ViewControl } from '../ViewControl'
@@ -68,8 +62,6 @@ function Item({ node, depth }) {
       viewConfState={viewConfState}
       onDeactivateView={() => onDeactivateView(node.id)}
       onSetView={(viewConf, layoutIndex) => {
-        // console.log('onSetView', vi, layoutIndex)
-
         //
         // If the layoutIndex is undefined
         // and the viewConf still has not been allocated
@@ -123,9 +115,18 @@ const ItemContainer = styled(
 `
 
 function _countActiveViews({ viewConfState, viewSpecsById, nodeId }) {
-  return Object.keys(viewConfState.byId).filter((id) =>
-    nodeIdFromPath(viewSpecsById[id].path).startsWith(nodeId),
-  ).length
+  // Add final forward slash to ensure node id is understood as a dir
+  const nodeDirPath = `${nodeId}/`
+
+  return Object.keys(viewConfState.byId).filter((activeItemId) => {
+    const activeItemPath = nodeIdFromPath(
+      viewSpecsById[activeItemId].path +
+        ' / ' +
+        viewSpecsById[activeItemId].label,
+    )
+
+    return activeItemPath.startsWith(nodeDirPath)
+  }).length
 }
 
 const DirNav = makeDirNav({
