@@ -16,6 +16,8 @@ type Action =
   | { type: 'DEACTIVATE_VIEW'; payload: string }
   | { type: 'SET_LAYOUT'; payload: ItemList[] }
 
+const CONF_TAB_IDS = ['data', 'style']
+
 export function viewConfReducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET_VIEW': {
@@ -93,3 +95,67 @@ export function viewConfReducerInitialState(): State {
     ],
   }
 }
+
+//
+// Loads viewconf and loads global/shared configuration
+//
+// export function resolveViewConf(
+//   state: State,
+//   id: string,
+//   viewSpecsById: Record<string, ViewSpec>,
+// ): ViewConf {
+//   //
+//   // Load the view's self conf
+//   //
+//   const viewConfSelf = state.byId[id]
+
+//   //
+//   // Load global configurations from other active views
+//   //
+//   const globalConf = Object.entries(state.byId)
+//     .map(([otherViewId, otherViewConf]) => {
+//       if (otherViewId === id) {
+//         return null
+//       }
+
+//       const otherViewSpec = viewSpecsById[otherViewId]
+
+//       const otherViewGlobalConfPairs =
+//         otherViewSpec.conf &&
+//         CONF_TAB_IDS.flatMap((tabId) => {
+//           const tabSchema = otherViewSpec.conf[tabId]
+
+//           if (!tabSchema) {
+//             return null
+//           }
+
+//           const tabValue = otherViewConf[tabId]
+
+//           return Object.entries(tabSchema)
+//             .filter(([propertyKey, propertySchema]) =>
+//               Boolean(propertySchema && propertySchema.global),
+//             )
+//             .map(([propertyKey, propertySchema]) => {
+//               const propertyValue = tabValue ? tabValue[propertyKey] : undefined
+
+//               return typeof propertyValue === 'undefined'
+//                 ? null
+//                 : [propertyKey, propertyValue]
+//             })
+//         }).filter(Boolean)
+
+//       return otherViewGlobalConfPairs.length > 0
+//         ? {
+//             viewId: otherViewId,
+//             conf: Object.fromEntries(otherViewGlobalConfPairs),
+//           }
+//         : null
+//     })
+//     .filter(Boolean)
+
+//   console.log({
+//     globalConf,
+//   })
+
+//   return { ...viewConfSelf, global: globalConf }
+// }

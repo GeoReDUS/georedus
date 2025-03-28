@@ -1,4 +1,4 @@
-import { uniqBy } from 'lodash'
+import { pick, uniqBy } from 'lodash'
 import { COLOR_SCHEMES, globalResources } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
@@ -7,7 +7,10 @@ import { resolve, resolveAsync } from '@orioro/resolve'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
 import { fileReadAs } from '@orioro/react-ui-core'
 
+import { dissolveAreasPreservingIsolated } from './util'
+
 import { buffer } from '@turf/turf'
+import { GeoReDUSWorker } from '@/components/GeoReDUS/GeoReDUSWorker'
 
 function safeScheme(scheme) {
   //
@@ -20,6 +23,33 @@ function safeScheme(scheme) {
   // those sparse arrays into same structure but filled ones
   //
   return Array.from(scheme, (d) => d || null)
+}
+
+const DEFAULT_POINT_BUFFER = 200
+const DEFAULT_LINE_BUFFER = 200
+
+const INSUFFICIENT_DATA_COLOR = 'red'
+
+//
+//
+//
+function _applyBuffers(geometry, { pointBuffer = DEFAULT_POINT_BUFFER } = {}) {
+  switch (geometry.type) {
+    case 'Point': {
+      return buffer(geometry, pointBuffer || DEFAULT_POINT_BUFFER, {
+        units: 'meters',
+      }).geometry
+    }
+    case 'LineString': {
+      return buffer(geometry, DEFAULT_LINE_BUFFER, {
+        units: 'meters',
+      }).geometry
+    }
+
+    default: {
+      return geometry
+    }
+  }
 }
 
 export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
@@ -129,19 +159,86 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         ['$get', 'view.conf.data.variableId'],
         ['$get', 'view.metadata.measureUnits'],
       ],
+
+      steps: [
+        '$coalesce',
+        ['$get', 'view.metadata.colorScaleStops'],
+        [
+          'transparent',
+          ['$min', ['$get', 'view.metadata.variableValues']],
+          INSUFFICIENT_DATA_COLOR,
+          ['$max', ['$get', 'view.metadata.variableValues']],
+        ],
+      ],
       format: {
-        number: NUMBER_FMT,
+        number: NUMBER_FMT || ['pt-BR', {}],
         below: 'Sem dados',
+        above: [
+          '$if',
+          ['$empty', ['$get', 'view.metadata.colorScaleStops']],
+          null,
+          'Acima de ${0}',
+        ],
       },
-      steps: ['$get', 'view.metadata.colorScaleStops'],
+
+      // format: {
+      //   number: NUMBER_FMT,
+      //   below: 'Sem dados',
+      // },
+      // steps: ['$get', 'view.metadata.colorScaleStops'],
     },
   ]
+
+  const _variableValueTooltipEntry = [
+    [
+      '$get',
+      ['$get', 'view.conf.data.variableId'],
+      ['$get', 'view.metadata.labels'],
+    ],
+    [
+      '$literal',
+      [
+        '$fmt',
+        [
+          '$get',
+          [
+            '$template',
+            'feature.properties.${0}',
+            // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
+            ['$get', 'view.conf.data.variableId'],
+          ],
+        ],
+        { number: NUMBER_FMT },
+      ],
+    ],
+  ]
+
+  const _customGeoJsonFeatureInfoTooltip = {
+    title: [
+      '$literal',
+      [
+        '$coalesce',
+        ['$get', 'feature.properties.name'],
+        ['$get', 'feature.properties.nome'],
+        ['$get', 'feature.properties.label'],
+        ['$get', 'feature.properties.title'],
+        ['$get', 'feature.properties.id'],
+        [
+          '$get',
+          ['$get', '0', ['$keys', ['$get', 'feature.properties']]],
+          ['$get', 'feature.properties'],
+        ],
+      ],
+    ],
+    entries: ['$literal', ['$entries', ['$get', 'feature.properties']]],
+  }
 
   const sourceLabel = collection_id.endsWith('2010')
     ? 'CENSO 2010'
     : 'CENSO 2022'
 
   return {
+    debug: true,
     id: viewId,
     path: indicator_path,
     label: indicator_label,
@@ -178,6 +275,36 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               'ESRI Shapefile (armazenar arquivos .shp, .shx, .dbf, etc. em um arquivo .zip único)',
             ].join(', '),
         },
+        pointBuffer: {
+          type: 'slider',
+          label: 'Raio de influência (m)',
+          helperText: 'Raio de influência do ponto',
+          min: 10,
+          max: 600,
+          step: 10,
+          defaultValue: DEFAULT_POINT_BUFFER,
+          inactive: resolve.fn((context) => {
+            const geometryTypes =
+              context.value?.customSpatialAggregationUnit?.GEO_FILE_METADATA
+                ?.geometryTypes
+
+            return (
+              !Array.isArray(geometryTypes) || !geometryTypes.includes('Point')
+            )
+          }),
+        },
+
+        dissolveOverlappingGeometries: {
+          inactive: resolve.fn((context) => {
+            return !Boolean(
+              context.value?.customSpatialAggregationUnit?.GEO_FILE_METADATA,
+            )
+          }),
+          type: 'booleanCheckbox',
+          label: 'Dissolver geometrias',
+          description: 'Unir geometrias sobrepostas',
+          defaultValue: false,
+        },
       },
       style: {
         layerOpacity: {
@@ -205,24 +332,51 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               'text',
             )
 
-            return JSON.parse(contents)
+            const BASE = JSON.parse(contents)
 
             //
-            // Proof of concept of applying buffer to GeoJSON
+            // Generate a layer with points only
             //
-            // return buffer(JSON.parse(contents), 200, {
-            //   units: 'meters',
-            // })
+            const POINTS = {
+              ...BASE,
+              features: BASE.features.filter(
+                (feat) => feat.geometry?.type === 'Point',
+              ),
+            }
 
-            // console.log(
-            //   buffer(JSON.parse(contents), 200, {
-            //     units: 'meters',
-            //   }),
-            // )
+            const LINE_STRINGS = {
+              ...BASE,
+              features: BASE.features.filter(
+                (feat) => feat.geometry?.type === 'LineString',
+              ),
+            }
 
-            // return buffer(JSON.parse(contents), 200, {
-            //   units: 'meters',
-            // })
+            //
+            // Layer with areas
+            //
+            const AREAS_BASE = {
+              ...BASE,
+              features: BASE.features.map((feat) => {
+                return {
+                  ...feat,
+                  geometry: _applyBuffers(
+                    feat.geometry,
+                    pick(context.view.conf.data, ['pointBuffer']),
+                  ),
+                }
+              }),
+            }
+
+            const AREAS = context.view.conf.data.dissolveOverlappingGeometries
+              ? await GeoReDUSWorker.dissolveAreasPreservingIsolated(AREAS_BASE)
+              : AREAS_BASE
+
+            return {
+              BASE,
+              POINTS,
+              LINE_STRINGS,
+              AREAS,
+            }
           }),
         ],
       },
@@ -231,7 +385,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         {
           variableValues: [
             '$if',
-            ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+            ['$empty', ['$get', 'customGeoJSON.AREAS']],
             [
               '$get',
               ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
@@ -275,7 +429,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
                   geometries: [
                     '$get',
                     'features[].geometry',
-                    ['$get', 'customGeoJSON'],
+                    ['$get', 'customGeoJSON.AREAS'],
                   ],
                   view: 'ibge_malha_br_setor_censitario_2010_spatial_agg',
                   agg_column: ['$get', 'view.conf.data.variableId'],
@@ -313,30 +467,87 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
 
     sources: {
       ...globalRes.sources,
-
-      customGeoJSON: [
+      //
+      // Points in custom GeoJson
+      //
+      customGeoJSON_Points: [
         '$if',
-        [['$empty', ['$get', 'view.metadata.customGeoJSON']]],
+        [['$empty', ['$get', 'view.metadata.customGeoJSON.POINTS']]],
         null,
         resolve.fn((context) => {
-          // ['$get', 'view.metadata.customGeoJSON'],
-          const { customGeoJSON, variableValues } = context.view.metadata
+          const { customGeoJSON } = context.view.metadata
 
-          if (!customGeoJSON) {
+          if (!customGeoJSON?.POINTS) {
             return null
           }
 
           return {
             type: 'geojson',
-            data: {
-              ...customGeoJSON,
-              features: customGeoJSON.features.map((feature, index) => ({
-                ...feature,
+            data: customGeoJSON.POINTS,
+          }
+        }),
+      ],
+
+      //
+      // LineStrings in custom GeoJson
+      //
+      customGeoJSON_LineStrings: [
+        '$if',
+        [['$empty', ['$get', 'view.metadata.customGeoJSON.LINE_STRINGS']]],
+        null,
+        resolve.fn((context) => {
+          const { customGeoJSON } = context.view.metadata
+
+          if (!customGeoJSON?.LINE_STRINGS) {
+            return null
+          }
+
+          return {
+            type: 'geojson',
+            data: customGeoJSON.LINE_STRINGS,
+          }
+        }),
+      ],
+
+      //
+      // The area of customGeoJson
+      //
+      customGeoJSON_Areas: [
+        '$if',
+        [['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']]],
+        null,
+        resolve.fn((context) => {
+          // ['$get', 'view.metadata.customGeoJSON'],
+          const { customGeoJSON, variableValues } = context.view.metadata
+
+          if (!customGeoJSON?.AREAS) {
+            return null
+          }
+
+          //
+          // Join geometry with variableValues
+          //
+          const features = customGeoJSON.AREAS.features.map(
+            (feat, featIndex) => {
+              return {
+                ...feat,
                 properties: {
-                  ...(feature.properties || {}),
-                  [context.view.conf.data.variableId]: variableValues[index],
+                  ...(feat.properties || {}),
+                  //
+                  // Variable values are loaded positionally
+                  //
+                  [context.view.conf.data.variableId]:
+                    variableValues[featIndex],
                 },
-              })),
+              }
+            },
+          )
+
+          return {
+            type: 'geojson',
+            data: {
+              ...customGeoJSON.AREAS,
+              features,
             },
           }
         }),
@@ -389,25 +600,13 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     },
     layers: {
       ...globalRes.layers,
-      customGeoJSON_line: {
-        hidden: [
-          '$empty',
-          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
-        ],
-        source: 'customGeoJSON',
-        type: 'line',
-        paint: {
-          'line-color': safeScheme(schemeRdPu)[5][4],
-          'line-width': 2,
-        },
-      },
 
-      customGeoJSON_fill: {
+      customGeoJSON_Areas_fill: {
         hidden: [
           '$empty',
           ['$get', 'view.conf.data.customSpatialAggregationUnit'],
         ],
-        source: 'customGeoJSON',
+        source: 'customGeoJSON_Areas',
         type: 'fill',
         legends: _legends,
         tooltip: {
@@ -427,33 +626,91 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               ],
             ],
           ],
-          entries: ['$literal', ['$entries', ['$get', 'feature.properties']]],
+          entries: [_variableValueTooltipEntry],
         },
+
         paint: {
           'fill-color': [
-            '$flat',
+            '$if',
+            ['$empty', ['$get', 'view.metadata.colorScaleStops']],
+            INSUFFICIENT_DATA_COLOR,
             [
+              '$flat',
               [
-                'step',
                 [
-                  'coalesce',
-                  ['get', ['$get', 'view.conf.data.variableId']],
-                  -1,
+                  'step',
+                  [
+                    'coalesce',
+                    ['get', ['$get', 'view.conf.data.variableId']],
+                    -1,
+                  ],
                 ],
+                ['$get', 'view.metadata.colorScaleStops'],
               ],
-              ['$get', 'view.metadata.colorScaleStops'],
             ],
           ],
+
+          // 'fill-color': [
+          //   '$flat',
+          //   [
+          //     [
+          //       'step',
+          //       [
+          //         'coalesce',
+          //         ['get', ['$get', 'view.conf.data.variableId']],
+          //         -1,
+          //       ],
+          //     ],
+          //     ['$get', 'view.metadata.colorScaleStops'],
+          //   ],
+          // ],
           'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
           'fill-outline-color': 'transparent',
         },
+      },
 
-        // type: 'geojson',
-        // data: [
-        //   '$fileReadAs',
-        //   ['$get', 'view.conf.data.customSpatialAggregationUnit'],
-        //   'geojson',
-        // ],
+      customGeoJSON_Areas_line: {
+        hidden: [
+          '$empty',
+          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        ],
+        source: 'customGeoJSON_Areas',
+        type: 'line',
+        paint: {
+          'line-color': safeScheme(schemeRdPu)[5][4],
+          'line-width': 2,
+        },
+      },
+
+      customGeoJSON_LineStrings_line: {
+        hidden: [
+          '$empty',
+          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        ],
+        source: 'customGeoJSON_LineStrings',
+        type: 'line',
+        paint: {
+          'line-color': safeScheme(schemeRdPu)[5][4],
+          'line-width': 2,
+        },
+        tooltip: _customGeoJsonFeatureInfoTooltip,
+      },
+
+      customGeoJSON_Points_circle: {
+        hidden: [
+          '$empty',
+          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+        ],
+        source: 'customGeoJSON_Points',
+        type: 'circle',
+        paint: {
+          'circle-opacity': 1,
+          'circle-radius': 5,
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#000000',
+          'circle-color': '#dddddd',
+        },
+        tooltip: _customGeoJsonFeatureInfoTooltip,
       },
 
       [`${VECTOR_SOURCE_ID}_fill`]: {
@@ -476,31 +733,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           //     ['$get', 'feature.properties.cd_setor'],
           //   ],
           // ],
-          entries: [
-            [
-              [
-                '$get',
-                ['$get', 'view.conf.data.variableId'],
-                ['$get', 'view.metadata.labels'],
-              ],
-              [
-                '$literal',
-                [
-                  '$fmt',
-                  [
-                    '$get',
-                    [
-                      '$template',
-                      'feature.properties.${0}',
-                      // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                      ['$get', 'view.conf.data.variableId'],
-                    ],
-                  ],
-                  { number: NUMBER_FMT },
-                ],
-              ],
-            ],
-          ],
+          entries: [_variableValueTooltipEntry],
         },
         source: VECTOR_SOURCE_ID,
         'source-layer': 'dynamic_vector_tile',

@@ -7,7 +7,7 @@ import { isPlainObject, pick } from 'lodash-es'
 
 const DEFAULT_COLOR_SCALE = schemeYlOrRd
 
-type ScaleNaturalBreaksProps = {
+export type ScaleNaturalBreaksProps = {
   values: number[]
   k?: number
   defaultColor?: string

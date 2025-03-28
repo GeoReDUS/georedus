@@ -1,8 +1,26 @@
 import initGdalJs from 'gdal3.js'
-import { SingleFileInput } from '@orioro/react-ui-core'
+import { SingleFileInput, fileReadAs } from '@orioro/react-ui-core'
 import { useDialogs } from '@/components/DialogSystem'
+import { uniq, uniqBy } from 'lodash'
 
 // TODO generalize for allow input types and output types
+
+async function parseGeoFileMetadata(file) {
+  const contents = await fileReadAs(file, 'text')
+
+  const geoJson = JSON.parse(contents)
+
+  const geometryTypes =
+    geoJson.type === 'FeatureCollection'
+      ? uniq(
+          (geoJson.features || []).map((feature) => feature.geometry?.type),
+        ).filter(Boolean)
+      : []
+
+  return {
+    geometryTypes,
+  }
+}
 
 export function GeoFile(props) {
   const dialogs = useDialogs()
@@ -71,9 +89,21 @@ export function GeoFile(props) {
           //
           await Gdal.close(datasets[0])
 
-          return new File([blob], file.name.replace(/\.[^/.]+$/, '.geojson'), {
-            type: 'application/geo+json',
-          })
+          const outFile = new File(
+            [blob],
+            file.name.replace(/\.[^/.]+$/, '.geojson'),
+            {
+              type: 'application/geo+json',
+            },
+          )
+
+          //
+          // Set custom data info
+          //
+          outFile.GEO_FILE_GEOMETRY_TYPES = ['Point']
+          outFile.GEO_FILE_METADATA = await parseGeoFileMetadata(outFile)
+
+          return outFile
         },
       ]}
     />

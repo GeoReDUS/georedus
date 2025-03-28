@@ -32,7 +32,7 @@ const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
         $fetch: fetchExpr({
           isFetchAllowed,
         }),
-        $naturalBreaks,
+        // $naturalBreaks,
       },
     }).resolver,
   ),

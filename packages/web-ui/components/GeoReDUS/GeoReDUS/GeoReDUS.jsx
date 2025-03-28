@@ -231,6 +231,7 @@ export function GeoReDUS({ api }) {
               : null
           },
           throwOnError: true,
+          retry: false,
         }
       }),
   })
