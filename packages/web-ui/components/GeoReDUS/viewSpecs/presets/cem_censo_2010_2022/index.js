@@ -7,7 +7,7 @@ import { resolve, resolveAsync } from '@orioro/resolve'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
 import { fileReadAs } from '@orioro/react-ui-core'
 
-import { dissolveAreasPreservingIsolated } from './util'
+// import { dissolveAreasPreservingIsolated } from './util'
 
 import { buffer } from '@turf/turf'
 import { GeoReDUSWorker } from '@/components/GeoReDUS/GeoReDUSWorker'
@@ -25,27 +25,25 @@ function safeScheme(scheme) {
   return Array.from(scheme, (d) => d || null)
 }
 
-const DEFAULT_POINT_BUFFER = 200
-const DEFAULT_LINE_BUFFER = 200
+const DEFAULT_BUFFER_SIZE = 200
 
 const INSUFFICIENT_DATA_COLOR = 'red'
 
 //
 //
 //
-function _applyBuffers(geometry, { pointBuffer = DEFAULT_POINT_BUFFER } = {}) {
-  switch (geometry.type) {
+function _applyBuffers(geometry, { bufferSize = DEFAULT_BUFFER_SIZE } = {}) {
+  switch (geometry?.type) {
     case 'Point': {
-      return buffer(geometry, pointBuffer || DEFAULT_POINT_BUFFER, {
+      return buffer(geometry, bufferSize || DEFAULT_BUFFER_SIZE, {
         units: 'meters',
       }).geometry
     }
     case 'LineString': {
-      return buffer(geometry, DEFAULT_LINE_BUFFER, {
+      return buffer(geometry, bufferSize || DEFAULT_BUFFER_SIZE, {
         units: 'meters',
       }).geometry
     }
-
     default: {
       return geometry
     }
@@ -238,7 +236,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     : 'CENSO 2022'
 
   return {
-    debug: true,
+    // debug: true,
     id: viewId,
     path: indicator_path,
     label: indicator_label,
@@ -275,14 +273,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               'ESRI Shapefile (armazenar arquivos .shp, .shx, .dbf, etc. em um arquivo .zip único)',
             ].join(', '),
         },
-        pointBuffer: {
-          type: 'slider',
-          label: 'Raio de influência (m)',
-          helperText: 'Raio de influência do ponto',
-          min: 10,
-          max: 600,
-          step: 10,
-          defaultValue: DEFAULT_POINT_BUFFER,
+        pointsDisplayMode: {
           inactive: resolve.fn((context) => {
             const geometryTypes =
               context.value?.customSpatialAggregationUnit?.GEO_FILE_METADATA
@@ -292,12 +283,53 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               !Array.isArray(geometryTypes) || !geometryTypes.includes('Point')
             )
           }),
+          clearable: false,
+          type: 'treeSelect',
+          label: 'Visualizar pontos',
+          options: [
+            {
+              path: null,
+              label: 'Círculos',
+              value: 'circle',
+            },
+            {
+              path: null,
+              label: 'Mapa de calor',
+              value: 'heatmap',
+            },
+          ],
+          defaultValue: 'circle',
+        },
+        bufferSize: {
+          type: 'slider',
+          label: resolve.fn((context) => {
+            return `Raio de influência (${context.value?.bufferSize || DEFAULT_BUFFER_SIZE}m)`
+          }),
+          helperText: 'Raio de influência do ponto',
+          min: 0,
+          max: 2000,
+          step: 50,
+          defaultValue: DEFAULT_BUFFER_SIZE,
+          inactive: resolve.fn((context) => {
+            const geometryTypes =
+              context.value?.customSpatialAggregationUnit?.GEO_FILE_METADATA
+                ?.geometryTypes
+
+            return (
+              !Array.isArray(geometryTypes) ||
+              (!geometryTypes.includes('Point') &&
+                !geometryTypes.includes('LineString')) ||
+              context.value?.pointsDisplayMode === 'heatmap'
+            )
+          }),
         },
 
         dissolveOverlappingGeometries: {
           inactive: resolve.fn((context) => {
-            return !Boolean(
-              context.value?.customSpatialAggregationUnit?.GEO_FILE_METADATA,
+            return (
+              !Boolean(
+                context.value?.customSpatialAggregationUnit?.GEO_FILE_METADATA,
+              ) || context.value?.pointsDisplayMode === 'heatmap'
             )
           }),
           type: 'booleanCheckbox',
@@ -354,22 +386,39 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
             //
             // Layer with areas
             //
+            const AREAS_FEATURES =
+              context.view.conf.data.pointsDisplayMode === 'heatmap'
+                ? //
+                  // If points are set to be displayed as heatmap,
+                  // remove them from area calculation
+                  //
+                  BASE.features.filter(
+                    (feat) => feat.geometry?.type !== 'Point',
+                  )
+                : BASE.features
+
             const AREAS_BASE = {
               ...BASE,
-              features: BASE.features.map((feat) => {
+              features: AREAS_FEATURES.map((feat) => {
                 return {
                   ...feat,
                   geometry: _applyBuffers(
                     feat.geometry,
-                    pick(context.view.conf.data, ['pointBuffer']),
+                    pick(context.view.conf.data, ['bufferSize']),
                   ),
                 }
               }),
             }
 
-            const AREAS = context.view.conf.data.dissolveOverlappingGeometries
-              ? await GeoReDUSWorker.dissolveAreasPreservingIsolated(AREAS_BASE)
-              : AREAS_BASE
+            const AREAS =
+              context.view.conf.data.pointsDisplayMode === 'heatmap'
+                ? null
+                : context.view.conf.data.dissolveOverlappingGeometries &&
+                    AREAS_BASE
+                  ? await GeoReDUSWorker.dissolveAreasPreservingIsolated(
+                      AREAS_BASE,
+                    )
+                  : AREAS_BASE
 
             return {
               BASE,
@@ -698,8 +747,12 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
 
       customGeoJSON_Points_circle: {
         hidden: [
-          '$empty',
-          ['$get', 'view.conf.data.customSpatialAggregationUnit'],
+          '$or',
+          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+          [
+            '$not',
+            ['$eq', ['$get', 'view.conf.data.pointsDisplayMode'], 'circle'],
+          ],
         ],
         source: 'customGeoJSON_Points',
         type: 'circle',
@@ -716,7 +769,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
       [`${VECTOR_SOURCE_ID}_fill`]: {
         hidden: [
           '$not',
-          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+          ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
         ],
         // interactive: [
         //   '$empty',
@@ -757,6 +810,19 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
           'fill-outline-color': 'transparent',
         },
+      },
+
+      customGeoJSON_Points_heatmap: {
+        hidden: [
+          '$or',
+          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+          [
+            '$not',
+            ['$eq', ['$get', 'view.conf.data.pointsDisplayMode'], 'heatmap'],
+          ],
+        ],
+        source: 'customGeoJSON_Points',
+        type: 'heatmap',
       },
     },
   }

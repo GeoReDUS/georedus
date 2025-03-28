@@ -11,6 +11,7 @@ import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
 import { isPlainObject } from 'lodash'
 import { resolve } from '@orioro/resolve'
+import { CANCELLED } from '@orioro/react-ui-core'
 
 const BY_TYPE = {
   numerical_choropleth,

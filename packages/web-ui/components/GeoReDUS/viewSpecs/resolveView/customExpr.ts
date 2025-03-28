@@ -7,9 +7,18 @@ import { isPlainObject, pick } from 'lodash'
 
 type SearchParams = Record<string, any>
 
-// GeoReDUSWorker.double(6).then((res) => {
-//   console.log('WORKER RESPONSE!', res)
-// })
+// export const $workerGet: ExpressionSpec<[any, any?]> = {
+//   parseArgs: ([arg1, arg2], { parseNodeInput }) =>
+//     typeof arg2 === 'undefined'
+//       ? [parseNodeInput(arg1)]
+//       : [parseNodeInput(arg1), parseNodeInput(arg2)],
+//   fn: (args, context) => {
+//     const path = args[0]
+//     const src = args.length === 1 ? context : args[1]
+
+//     return path === '' ? src : GeoReDUSWorker.get(src, path)
+//   },
+// }
 
 export const $naturalBreaks: ExpressionFn<
   [number[], opt?: Pick<ScaleNaturalBreaksProps, 'k' | 'scalesByK'>]

@@ -4,6 +4,7 @@ import { Heading, IconButton, Tabs, Theme, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import {
   mdiDotsVertical,
+  mdiDownload,
   mdiFilterVariant,
   mdiHelpCircleOutline,
   mdiOpacity,
@@ -110,6 +111,10 @@ export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
               <Icon path={mdiHelpCircleOutline} size="16px" />
             </IconButton>
           )}
+
+          <IconButton variant="ghost" size="1">
+            <Icon path={mdiDownload} size="16px" />
+          </IconButton>
           <DropdownMenu
             options={[
               {

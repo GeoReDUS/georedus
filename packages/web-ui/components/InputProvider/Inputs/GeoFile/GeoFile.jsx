@@ -10,6 +10,8 @@ async function parseGeoFileMetadata(file) {
 
   const geoJson = JSON.parse(contents)
 
+  console.log('parseGeoFileMetadata', geoJson)
+
   const geometryTypes =
     geoJson.type === 'FeatureCollection'
       ? uniq(

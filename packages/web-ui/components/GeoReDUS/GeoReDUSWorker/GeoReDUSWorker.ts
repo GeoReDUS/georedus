@@ -1,10 +1,9 @@
 import { wrap } from 'comlink'
 
-const worker = new Worker(
-  new URL('./GeoReDUSWorker.worker.ts', import.meta.url),
-  {
+const worker =
+  typeof Worker !== 'undefined' &&
+  new Worker(new URL('./GeoReDUSWorker.worker.ts', import.meta.url), {
     type: 'module',
-  },
-)
+  })
 
-export const GeoReDUSWorker = wrap(worker)
+export const GeoReDUSWorker = worker ? wrap(worker) : null
