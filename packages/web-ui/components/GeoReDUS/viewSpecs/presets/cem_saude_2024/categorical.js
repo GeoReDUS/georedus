@@ -18,6 +18,7 @@ export function categorical(
     $circleRadius,
     $tooltip,
     $legends,
+    $layerFilter,
   },
 ) {
   const VARIABLE_ID = variable_id
@@ -67,20 +68,21 @@ export function categorical(
         // ],
         interactive: true,
         tooltip: $tooltip,
-        filter: [
-          'all',
-          [
-            '==',
-            ['get', 'id_municipio_gestor'],
-            ['$substr', ['$get', 'municipioId'], 0, 6],
-          ],
-          ...(Array.isArray(filter) ? filter : []),
-        ],
+        filter: $layerFilter,
+        // filter: [
+        //   'all',
+        //   [
+        //     '==',
+        //     ['get', 'id_municipio_gestor'],
+        //     ['$substr', ['$get', 'municipioId'], 0, 6],
+        //   ],
+        //   ...(Array.isArray(filter) ? filter : []),
+        // ],
         paint: {
           'circle-opacity': 1,
           'circle-radius': 10,
           'circle-stroke-width': 1,
-          'circle-stroke-color': '#efefef',
+          'circle-stroke-color': '#000000',
           'circle-radius': $circleRadius,
           'circle-color': categories
             ? [

@@ -1,9 +1,17 @@
-import { globalResources, tableVectorSource } from '../../util'
+import {
+  fmtMaplibreGlFilterExp,
+  fmtMetadataApiFilterExp,
+  globalResources,
+  setupVariants,
+  tableVectorSource,
+} from '../../util'
 
 import { numerical_choropleth } from './numerical_choropleth'
 import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
+import { resolve } from '@orioro/resolve'
+import { isPlainObject } from 'lodash'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -12,7 +20,7 @@ const BY_TYPE = {
   categorical,
 }
 
-export function cem_saude_2024(config, otherViewSpecs, context) {
+export function cem_saude_2024(viewSpec, allViewSpecs, context) {
   const {
     collection_id,
     metodology,
@@ -21,9 +29,9 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
     indicator_path,
     indicator_label,
     indicator_type,
-    dynamic_sizing,
-    tipo_equipamento_in,
-  } = config
+    sizing_variable_id,
+    number_format = ['pt-BR', {}],
+  } = viewSpec
 
   const { METADATA_API_ENDPOINT } = context
 
@@ -35,77 +43,59 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
 
   const globalRes = globalResources(context)
 
+  const { variants, loadVariant } = setupVariants(viewSpec, allViewSpecs)
+
+  //
+  // common resolver that takes in variant filter and converts into
+  // search parameters for metadata api for data fetching
+  //
+  const _fetchMetadataApiFilterExpResolver = resolve.fn((context) => {
+    const variantId = context.view?.conf?.data?.variantId || indicator_id
+
+    const variantSpec = loadVariant(variantId)
+
+    const filter = variantId ? variantSpec.filter : null
+    return filter ? fmtMetadataApiFilterExp(filter) : {}
+  })
+
+  const $layerFilter = resolve.fn((context) => {
+    const variantId = context.view?.conf?.data?.variantId || indicator_id
+    const variantSpec = loadVariant(variantId)
+    const filter = variantId ? variantSpec.filter : null
+    return [
+      'all',
+      [
+        '==',
+        ['get', 'id_municipio_gestor'],
+        ['$substr', ['$get', 'municipioId'], 0, 6],
+      ],
+      ...(isPlainObject(filter) ? fmtMaplibreGlFilterExp(filter) : []),
+    ]
+  })
+
+  const $sourceLabel = 'CNES'
+
   const base = {
     id: viewId,
     label: indicator_label,
     path: indicator_path,
+    sourceLabel: $sourceLabel,
     metodology,
 
     conf: {
       data: {
-        sizingVariable: dynamic_sizing
-          ? {
-              type: 'select',
-              label: 'Tamanho proporcional à',
-              options: [
-                {
-                  value: 'leitos_q',
-                  label:
-                    'Quantidade de leitos hospitalares (Leitos Cirúrgicos + Clínicos + Complementares)',
-                },
-                {
-                  value: 'qtinstue',
-                  label:
-                    'Quantidade de instalações físicas de Urgência/Emergência',
-                },
-                {
-                  value: 'qtinstaa',
-                  label:
-                    'Quantidade de instalações de Atendimento Ambulatorial',
-                },
-                {
-                  value: 'qtinstcc',
-                  label:
-                    'Quantidade de instalações de Atendimento Hospitalar do tipo Centro Cirúrgico',
-                },
-                {
-                  value: 'qtinstco',
-                  label:
-                    'Quantidade de instalações de Atendimento Hospitalar do tipo Centro Obstétrico',
-                },
-                {
-                  value: 'qtinstun',
-                  label:
-                    'Quantidade de instalações de Atendimento Hospitalar do tipo Unidade Neonatal',
-                },
-                {
-                  value: 'profs',
-                  label: 'Quantidade de Profissionais no Estabelecimento',
-                },
-                {
-                  value: 'esp',
-                  label: 'Quantidade de Especializações Diferentes',
-                },
-                { value: 'qt_medico', label: 'Quantidade de Médicos' },
-                {
-                  value: 'equipes_dif',
-                  label: 'Quantidade de Equipes Diferentes',
-                },
-                { value: 'equipes', label: 'Quantidade de Equipes' },
-                { value: 'leitos_sus', label: 'Quantidade de Letios SUS' },
-                {
-                  value: 'leitos_dif',
-                  label: 'Quantidade de Letios diferentes',
-                },
-                { value: 'equipamentos', label: 'Quantidade de Equipamentos' },
-                {
-                  value: 'equipamentos_dif',
-                  label: 'Quantidade de Equipamentos Diferentes',
-                },
-              ],
-              defaultValue: 'leitos_q',
-            }
-          : null,
+        // variantId: {
+        //   label: 'Rede de ensino:',
+        //   type: 'treeSelect',
+        //   options: variants.map((variant) => ({
+        //     path: variant.variant_path,
+        //     label: variant.variant_label || variant.indicator_id,
+        //     value: variant.indicator_id,
+        //   })),
+        //   placeholder: 'Selecione uma rede',
+        //   clearable: false,
+        //   defaultValue: indicator_id,
+        // },
       },
     },
 
@@ -118,18 +108,33 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
           {
             href: METADATA_API_ENDPOINT,
             pathname: collection_id,
-            searchParams: {
-              select: VARIABLE_ID,
-              id_municipio_gestor: [
-                '$template',
-                'eq.${0}',
-                ['$substr', ['$get', 'municipioId'], 0, 6],
-              ],
-            },
+
+            searchParams: [
+              '$merge',
+              {
+                select: VARIABLE_ID,
+                id_municipio_gestor: [
+                  '$template',
+                  'eq.${0}',
+                  ['$substr', ['$get', 'municipioId'], 0, 6],
+                ],
+              },
+              _fetchMetadataApiFilterExpResolver,
+            ],
+
+            // searchParams: {
+            //   select: VARIABLE_ID,
+            //   id_municipio_gestor: [
+            //     '$template',
+            //     'eq.${0}',
+            //     ['$substr', ['$get', 'municipioId'], 0, 6],
+            //   ],
+            // },
           },
         ],
       ],
-      sizingValues: dynamic_sizing
+
+      sizingValues: sizing_variable_id
         ? [
             '$filter',
             [
@@ -137,26 +142,28 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
               [
                 '$template',
                 '[].${0}',
-                ['$get', 'view.conf.data.sizingVariable'],
+                sizing_variable_id,
+                // ['$get', 'view.conf.data.sizingVariable'],
               ],
               [
                 '$fetch',
                 {
                   href: METADATA_API_ENDPOINT,
                   pathname: collection_id,
-                  searchParams: {
-                    select: ['$get', 'view.conf.data.sizingVariable'],
-                    id_municipio_gestor: [
-                      '$template',
-                      'eq.${0}',
-                      ['$substr', ['$get', 'municipioId'], 0, 6],
-                    ],
-                    ds_tipo_estabelecimento: [
-                      '$template',
-                      'in.(${0})',
-                      ['$join', tipo_equipamento_in, ','],
-                    ],
-                  },
+
+                  searchParams: [
+                    '$merge',
+                    {
+                      select: sizing_variable_id,
+                      // select: ['$get', 'view.conf.data.sizingVariable'],
+                      id_municipio_gestor: [
+                        '$template',
+                        'eq.${0}',
+                        ['$substr', ['$get', 'municipioId'], 0, 6],
+                      ],
+                    },
+                    _fetchMetadataApiFilterExpResolver,
+                  ],
                 },
               ],
             ],
@@ -172,6 +179,7 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
     sources: {
       ...globalRes.sources,
       [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
+        attribution: $sourceLabel,
         minzoom: 8,
         maxzoom: 20,
       }),
@@ -190,60 +198,87 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
   // but that will need specific placement at the indicator_type
   // preset
   //
-  const $circleRadius = dynamic_sizing
+  // const $circleRadius = dynamic_sizing
+  //   ? [
+  //       'interpolate',
+  //       ['linear'],
+  //       ['get', ['$get', 'view.conf.data.sizingVariable']], // Replace "density" with your property name
+  //       ['$min', ['$get', 'view.metadata.sizingValues']],
+  //       SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
+  //       ['$max', ['$get', 'view.metadata.sizingValues']],
+  //       SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+  //     ]
+  //   : SIZE_DEFAULT
+
+  const $circleRadius = sizing_variable_id
     ? [
-        'interpolate',
-        ['linear'],
-        ['get', ['$get', 'view.conf.data.sizingVariable']], // Replace "density" with your property name
-        ['$min', ['$get', 'view.metadata.sizingValues']],
-        SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
-        ['$max', ['$get', 'view.metadata.sizingValues']],
-        SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+        '$if',
+        [
+          '$and',
+          // ['$get', 'view.conf.data.showSize'],
+          [
+            '$gt',
+            ['$get', 'length', ['$get', 'view.metadata.sizingValues']],
+            1,
+          ],
+        ],
+        [
+          'interpolate',
+          ['linear'],
+          ['get', sizing_variable_id], // Replace "density" with your property name
+          ['$min', ['$get', 'view.metadata.sizingValues']],
+          SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
+          ['$max', ['$get', 'view.metadata.sizingValues']],
+          SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+        ],
+        SIZE_DEFAULT,
       ]
     : SIZE_DEFAULT
 
   const $tooltip = {
-    title: [
-      '$literal',
-      [
-        '$join',
-        [
-          ['$get', 'feature.properties.ds_tipo_estabelecimento'],
-          ['$get', 'feature.properties.no_logradouro'],
-        ],
-        ' | ',
-      ],
-    ],
+    title: ['$literal', ['$get', 'feature.properties.str_nome_fantasia']],
     entries: [
+      ['ID CNES', ['$literal', ['$get', 'feature.properties.id_cnes']]],
       [
         indicator_label,
-        ['$literal', ['$get', `feature.properties.${VARIABLE_ID}::string`]],
+        [
+          '$literal',
+          [
+            '$coalesce',
+            [
+              '$get',
+              `feature.properties.${VARIABLE_ID}::string({
+                number: ${JSON.stringify(number_format)},
+                boolean: {
+                  true: 'Sim',
+                  false: 'Não'
+                }
+              })`,
+            ],
+            'Sem dados',
+          ],
+        ],
+        // ['$literal', ['$get', `feature.properties.${VARIABLE_ID}::string`]],
       ],
-      dynamic_sizing
+
+      sizing_variable_id
         ? [
-            ['$get', 'view.conf.data.sizingVariable'],
+            indicator_label,
             [
               '$literal',
-              [
-                '$get',
-                [
-                  '$template',
-                  'feature.properties.${0}::string',
-                  ['$get', 'view.conf.data.sizingVariable'],
-                ],
-              ],
+              ['$get', `feature.properties.${sizing_variable_id}::string`],
             ],
           ]
         : null,
     ].filter(Boolean),
   }
 
-  const $legends = dynamic_sizing
+  const $legends = sizing_variable_id
     ? [
         {
           type: 'ProportionalSymbolLegend',
           // unit: 'Matrículas',
-          title: ['$get', 'view.conf.data.sizingVariable'],
+          title: indicator_label,
           min: ['$min', ['$get', 'view.metadata.sizingValues']],
           max: ['$max', ['$get', 'view.metadata.sizingValues']],
           sizeMin: SIZE_MIN * 2,
@@ -252,7 +287,6 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
         },
       ]
     : []
-
   const typeParser = BY_TYPE[indicator_type]
 
   if (!typeParser) {
@@ -260,5 +294,11 @@ export function cem_saude_2024(config, otherViewSpecs, context) {
     return null
   }
 
-  return typeParser(base, { ...config, $circleRadius, $tooltip, $legends })
+  return typeParser(base, {
+    ...viewSpec,
+    $circleRadius,
+    $tooltip,
+    $legends,
+    $layerFilter,
+  })
 }

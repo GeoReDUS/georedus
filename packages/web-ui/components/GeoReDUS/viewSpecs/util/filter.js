@@ -15,7 +15,15 @@ export function fmtMetadataApiFilterExp(filter) {
   return Object.fromEntries(
     Object.entries(filter).map(([key, [comparator, targetValue]]) => {
       const cmp = COMPARATOR_DICT[comparator]
-      return [key, `${cmp}.${targetValue + ''}`]
+
+      switch (cmp) {
+        case 'in': {
+          return [key, `${cmp}.(${targetValue.join(',')})`]
+        }
+        default: {
+          return [key, `${cmp}.${targetValue + ''}`]
+        }
+      }
     }),
   )
 }
@@ -40,6 +48,10 @@ export function fmtMaplibreGlFilterExp(filter) {
       throw new Error(`compartor "${cmp}" not supported`)
     }
 
-    return [cmp, ['get', key], targetValue]
+    return [
+      cmp,
+      ['get', key],
+      Array.isArray(targetValue) ? ['literal', targetValue] : targetValue,
+    ]
   })
 }

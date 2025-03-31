@@ -2,6 +2,7 @@ import {
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
   globalResources,
+  setupVariants,
   tableVectorSource,
 } from '../../util'
 
@@ -11,7 +12,6 @@ import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
 import { isPlainObject } from 'lodash'
 import { resolve } from '@orioro/resolve'
-import { CANCELLED } from '@orioro/react-ui-core'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -38,24 +38,10 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     return null
   }
 
-  const variants = [
+  const { variants, variantsById, loadVariant } = setupVariants(
     config,
-    ...allViewSpecs.filter(
-      (otherViewSpec) => otherViewSpec.variant_of === indicator_id,
-    ),
-  ]
-
-  const variantsById = Object.fromEntries(
-    variants.map((variant) => [variant.indicator_id, variant]),
+    allViewSpecs,
   )
-
-  function loadVariant(id) {
-    const variantSpec = variantsById[id]
-    const mainSpec = variantSpec.variant_of
-      ? variantsById[variantSpec.variant_of]
-      : null
-    return mainSpec ? { ...mainSpec, ...variantSpec } : variantSpec
-  }
 
   const { METADATA_API_ENDPOINT } = context
 
@@ -90,7 +76,6 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
   const $sourceLabel = 'INEP (Censo Escolar 2022)'
 
   const base = {
-    debug: true,
     id: viewId,
     label: indicator_label,
     sourceLabel: $sourceLabel,

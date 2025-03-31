@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { CollapsibleContent } from './CollapsibleContent'
@@ -10,6 +10,7 @@ import { TextEllipsis, useComponents } from '@orioro/react-ui-core'
 import { useSortedNodesByType } from './useSortedNodesByType'
 import { MakeDirNavProps } from '../types'
 import { Node } from '@orioro/tree-model'
+import { groupBy } from 'lodash-es'
 
 const Container = styled.div`
   &:not(:last-child) {
@@ -52,7 +53,19 @@ export function makeDir(config?: MakeDirNavProps) {
   return function Dir({ node, depth, NodeList }) {
     const [open, setOpen] = useState(false)
 
-    const _byType = useSortedNodesByType(node.childNodes)
+    //
+    // Do not sort nodes, respect their natural order
+    // so that sorting is done outside
+    //
+    // TODO: review API
+    //
+    const _byType = useMemo(() => {
+      return groupBy(node.childNodes, (node) =>
+        node.type === 'dir' ? 'dir' : 'item',
+      )
+    }, [node.childNodes])
+
+    // const _byType = useSortedNodesByType(node.childNodes)
 
     return (
       <Container>

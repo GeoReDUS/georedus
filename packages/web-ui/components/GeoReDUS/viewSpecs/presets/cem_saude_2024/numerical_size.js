@@ -9,13 +9,12 @@ export function numerical_size(
   base,
   {
     collection_id,
-    indicator_id,
     variable_id,
     indicator_label,
     color_scheme = 'schemeSet1.colors[1]',
-    filter,
     measure_unit,
     $tooltip,
+    $layerFilter,
   },
 ) {
   const VARIABLE_ID = variable_id
@@ -47,19 +46,23 @@ export function numerical_size(
         ],
         interactive: true,
         tooltip: $tooltip,
-        filter: [
-          'all',
-          [
-            '==',
-            ['get', 'id_municipio_gestor'],
-            ['$substr', ['$get', 'municipioId'], 0, 6],
-          ],
-          ...(Array.isArray(filter) ? filter : []),
-        ],
+
+        filter: $layerFilter,
+
+        // filter: [
+        //   'all',
+        //   [
+        //     '==',
+        //     ['get', 'id_municipio_gestor'],
+        //     ['$substr', ['$get', 'municipioId'], 0, 6],
+        //   ],
+        //   ...(Array.isArray(filter) ? filter : []),
+        // ],
         paint: {
           'circle-opacity': 1,
           'circle-stroke-width': 1,
-          'circle-stroke-color': '#efefef',
+          'circle-stroke-color': '#000000',
+          // 'circle-radius': 10,
           'circle-radius': [
             'interpolate',
             ['linear'],
