@@ -1,6 +1,5 @@
-import { keyBy, pick, uniqBy } from 'lodash'
+import { pick, uniqBy } from 'lodash'
 import { COLOR_SCHEMES, downloadResolver, globalResources } from '../../util'
-import { schemeRdPu } from 'd3-scale-chromatic'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
 import { resolve, resolveAsync } from '@orioro/resolve'
@@ -12,20 +11,7 @@ import { fileReadAs } from '@orioro/react-ui-core'
 import { buffer } from '@turf/turf'
 import { GeoReDUSWorker } from '@/components/GeoReDUS/GeoReDUSWorker'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
-import { join } from '@orioro/util'
-
-function safeScheme(scheme) {
-  //
-  // d3 schemes use sparse arrays (new Array(3)) to
-  // keep initial schemes empty:
-  //
-  // https://github.com/d3/d3-scale-chromatic/blob/main/src/diverging/RdYlBu.js
-  //
-  // This causes some issues for us, thus we convert
-  // those sparse arrays into same structure but filled ones
-  //
-  return Array.from(scheme, (d) => d || null)
-}
+import { dataJoin } from '@orioro/util'
 
 const DEFAULT_BUFFER_SIZE = 200
 
@@ -891,7 +877,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           context,
         )
 
-        return join([geometries, data], {
+        return dataJoin([geometries, data], {
           key: 'cd_setor',
         })
       }),
