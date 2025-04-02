@@ -1,5 +1,5 @@
-import { pick, uniqBy } from 'lodash'
-import { COLOR_SCHEMES, globalResources } from '../../util'
+import { keyBy, pick, uniqBy } from 'lodash'
+import { COLOR_SCHEMES, downloadResolver, globalResources } from '../../util'
 import { schemeRdPu } from 'd3-scale-chromatic'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
@@ -11,6 +11,8 @@ import { fileReadAs } from '@orioro/react-ui-core'
 
 import { buffer } from '@turf/turf'
 import { GeoReDUSWorker } from '@/components/GeoReDUS/GeoReDUSWorker'
+import { resolveExprAsync } from '../../resolveView/resolveExpr'
+import { join } from '@orioro/util'
 
 function safeScheme(scheme) {
   //
@@ -57,7 +59,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     indicator_path,
     indicator_id,
     indicator_label,
-    year,
+    year = collection_id.endsWith('2010') ? '2010' : '2022',
     variable_id,
     metodology,
     variant_label,
@@ -231,9 +233,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     entries: ['$literal', ['$entries', ['$get', 'feature.properties']]],
   }
 
-  const sourceLabel = collection_id.endsWith('2010')
-    ? 'CENSO 2010'
-    : 'CENSO 2022'
+  const sourceLabel = `CENSO ${year}`
 
   return {
     // debug: true,
@@ -726,7 +726,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         source: 'customGeoJSON_Areas',
         type: 'line',
         paint: {
-          'line-color': safeScheme(schemeRdPu)[5][4],
+          'line-color': _color_scheme.scalesByK[5][4],
           'line-width': 2,
         },
       },
@@ -739,7 +739,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         source: 'customGeoJSON_LineStrings',
         type: 'line',
         paint: {
-          'line-color': safeScheme(schemeRdPu)[5][4],
+          'line-color': _color_scheme.scalesByK[5][4],
           'line-width': 2,
         },
         tooltip: _customGeoJsonFeatureInfoTooltip,
@@ -825,5 +825,76 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         type: 'heatmap',
       },
     },
+    download: downloadResolver({
+      fileNameBase: [
+        '$template',
+        '${0}_${1}_georedus_censo_${2}',
+        [['$get', 'view.conf.data.variableId'], ['$get', 'municipioId'], year],
+      ],
+      mainVariableId: ['$get', 'view.conf.data.variableId'],
+      availableVariableIds: [],
+
+      // availableVariableIds: [variable_id, 'str_nome_fantasia', 'id_cnes'],
+      fetchData: resolve.fn((context) => async ({ variableIds, options }) => {
+        const data = await resolveExprAsync(
+          [
+            '$fetch',
+            [
+              '$template',
+              `${METADATA_API_ENDPOINT}` +
+                '/${source_table_id}?select=' +
+                '${variableId},' +
+                'cd_setor' +
+                '&cd_mun=eq.' +
+                '${municipioId}',
+              {
+                variableId: ['$get', 'view.conf.data.variableId'],
+                municipioId: ['$context', 'municipioId'],
+                source_table_id: [
+                  '$get',
+                  [
+                    '$template',
+                    '${0}.source_table_id',
+                    ['$get', 'view.conf.data.variableId'],
+                  ],
+                  variantsByVariableId,
+                ],
+              },
+            ],
+          ],
+          context,
+        )
+
+        const geometries = await resolveExprAsync(
+          [
+            '$fetch',
+            [
+              '$template',
+              `${METADATA_API_ENDPOINT}` +
+                '/${collection_id}?select=geom,cd_setor' +
+                '&cd_mun=eq.' +
+                '${municipioId}',
+              {
+                municipioId: ['$context', 'municipioId'],
+                collection_id: [
+                  '$get',
+                  [
+                    '$template',
+                    '${0}.collection_id',
+                    ['$get', 'view.conf.data.variableId'],
+                  ],
+                  variantsByVariableId,
+                ],
+              },
+            ],
+          ],
+          context,
+        )
+
+        return join([geometries, data], {
+          key: 'cd_setor',
+        })
+      }),
+    }),
   }
 }

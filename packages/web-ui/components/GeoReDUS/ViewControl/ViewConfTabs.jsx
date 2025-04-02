@@ -30,7 +30,7 @@ const CONF_TABS = {
 
 const CONF_TAB_ORDER = ['data', 'style']
 
-export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
+export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
   //
   // Debounce updating view conf. Prevent's fast changing controls
   // from accidentally triggering map view re-renders unnecessarily
@@ -108,13 +108,27 @@ export function ViewConfTabs({ viewSpec, viewConf, onSetView }) {
                 }
               }}
             >
-              <Icon path={mdiHelpCircleOutline} size="16px" />
+              <Tooltip content="Notas metodológicas">
+                <Icon path={mdiHelpCircleOutline} size="16px" />
+              </Tooltip>
             </IconButton>
           )}
 
-          <IconButton variant="ghost" size="1">
-            <Icon path={mdiDownload} size="16px" />
-          </IconButton>
+          {typeof resolvedView?.download === 'function' && (
+            <IconButton
+              variant="ghost"
+              size="1"
+              onClick={() =>
+                resolvedView.download({
+                  dialogs,
+                })
+              }
+            >
+              <Tooltip content="Baixar dados">
+                <Icon path={mdiDownload} size="16px" />
+              </Tooltip>
+            </IconButton>
+          )}
           <DropdownMenu
             options={[
               {

@@ -1,4 +1,5 @@
 import {
+  downloadResolver,
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
   globalResources,
@@ -10,8 +11,9 @@ import { numerical_choropleth } from './numerical_choropleth'
 import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
-import { isPlainObject } from 'lodash'
+import { isPlainObject, uniqBy } from 'lodash'
 import { resolve } from '@orioro/resolve'
+import { resolveExprAsync } from '../../resolveView/resolveExpr'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -72,6 +74,11 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     const filter = variantId ? variantSpec.filter : null
     return filter ? fmtMetadataApiFilterExp(filter) : {}
   })
+  const _id_municipio_apiFilterExpr = [
+    '$template',
+    'eq.${0}',
+    ['$get', 'municipioId'],
+  ]
 
   const $sourceLabel = 'INEP (Censo Escolar 2022)'
 
@@ -121,7 +128,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
               '$merge',
               {
                 select: VARIABLE_ID,
-                id_municipio: ['$template', 'eq.${0}', ['$get', 'municipioId']],
+                id_municipio: _id_municipio_apiFilterExpr,
               },
 
               _fetchMetadataApiFilterExpResolver,
@@ -148,11 +155,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
                       '$merge',
                       {
                         select: sizing_variable_id,
-                        id_municipio: [
-                          '$template',
-                          'eq.${0}',
-                          ['$get', 'municipioId'],
-                        ],
+                        id_municipio: _id_municipio_apiFilterExpr,
                       },
                       _fetchMetadataApiFilterExpResolver,
                     ],
@@ -182,6 +185,53 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     layers: {
       ...globalRes.layers,
     },
+
+    download: downloadResolver({
+      fileNameBase: [
+        '$template',
+        '${0}_${1}_georedus_edu',
+        [VARIABLE_ID, ['$get', 'municipioId']],
+      ],
+      mainVariableId: VARIABLE_ID,
+      availableVariableIds: uniqBy(
+        allViewSpecs
+          .filter((spec) => Boolean(spec.variable_id))
+          .map((spec) => ({
+            label: [spec.indicator_label, spec.variant_label]
+              .filter(Boolean)
+              .join(' | '),
+            value: spec.variable_id,
+          })),
+        (opt) => opt.value,
+      ),
+
+      fetchData: resolve.fn((context) => async ({ variableIds, options }) => {
+        return await resolveExprAsync(
+          [
+            '$fetch',
+            {
+              href: METADATA_API_ENDPOINT,
+              pathname: collection_id,
+
+              searchParams: [
+                '$merge',
+                {
+                  select: [
+                    'geom',
+                    'no_escola',
+                    'id_escola',
+                    ...variableIds,
+                  ].join(','),
+                  id_municipio: _id_municipio_apiFilterExpr,
+                },
+                _fetchMetadataApiFilterExpResolver,
+              ],
+            },
+          ],
+          context,
+        )
+      }),
+    }),
   }
 
   const SIZE_DEFAULT = 10

@@ -2,6 +2,7 @@ import initGdalJs from 'gdal3.js'
 import { SingleFileInput, fileReadAs } from '@orioro/react-ui-core'
 import { useDialogs } from '@/components/DialogSystem'
 import { uniq, uniqBy } from 'lodash'
+import { setupGdal } from './setupGdal'
 
 // TODO generalize for allow input types and output types
 
@@ -9,8 +10,6 @@ async function parseGeoFileMetadata(file) {
   const contents = await fileReadAs(file, 'text')
 
   const geoJson = JSON.parse(contents)
-
-  console.log('parseGeoFileMetadata', geoJson)
 
   const geometryTypes =
     geoJson.type === 'FeatureCollection'
@@ -32,23 +31,29 @@ export function GeoFile(props) {
       {...props}
       middleware={[
         async (file) => {
-          const workerData = await fetch(
-            'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3.js',
-          )
-          const workerUrl = window.URL.createObjectURL(await workerData.blob())
+          // const workerData = await fetch(
+          //   'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3.js',
+          // )
+          // const workerUrl = window.URL.createObjectURL(await workerData.blob())
 
-          //
-          // From:
-          // https://github.com/bugra9/gdal3.js/blob/master/apps/example-singlefile/index.html
-          //
-          // TODO: use own hosted files?
-          //
-          const paths = {
-            wasm: 'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3WebAssembly.wasm',
-            data: 'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3WebAssembly.data',
-            js: workerUrl,
-          }
-          const Gdal = await initGdalJs({ paths })
+          // //
+          // // From:
+          // // https://github.com/bugra9/gdal3.js/blob/master/apps/example-singlefile/index.html
+          // //
+          // // TODO: use own hosted files?
+          // //
+          // const paths = {
+          //   wasm: 'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3WebAssembly.wasm',
+          //   data: 'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3WebAssembly.data',
+          //   js: workerUrl,
+          // }
+          // const Gdal = await initGdalJs({ paths })
+
+          const Gdal = await setupGdal()
+
+          // 
+          // TODO: convert to use ogr2ogr util at setupGdal.js
+          // 
 
           const { datasets, errors } = await Gdal.open(
             file,

@@ -103,11 +103,26 @@ export async function resolveView(
     })
   }
 
+  const VIEW_AT_DOWNLOAD_STAGE = {
+    ...VIEW_AT_LAYERS_STAGE,
+    layers,
+    legends,
+  }
+
+  //
+  // Resolve download function
+  //
+  const download = await resolveExprAsync(viewSpec.download, {
+    ...viewContext,
+    view: VIEW_AT_DOWNLOAD_STAGE,
+  })
+
   return {
     id: viewSpec.id,
     metadata,
     sources,
     layers,
     legends,
+    download,
   }
 }

@@ -52,14 +52,24 @@ const ActiveCounter = styled.div`
 `
 
 function Item({ node, depth }) {
-  const { viewSpecsById, viewConfState, onSetView, onDeactivateView } =
-    useContext(ViewMenuContext)
+  const {
+    viewSpecsById,
+    viewConfState,
+    resolvedViews,
+    onSetView,
+    onDeactivateView,
+  } = useContext(ViewMenuContext)
 
   return (
     <ViewControl
       viewSpec={node}
       viewConf={viewConfState.byId[node.id]}
       viewConfState={viewConfState}
+      resolvedView={
+        resolvedViews
+          ? resolvedViews.find((view) => view.id === node.id) || null
+          : null
+      }
       onDeactivateView={() => onDeactivateView(node.id)}
       onSetView={(viewConf, layoutIndex) => {
         //
@@ -177,6 +187,7 @@ const DirNav = makeDirNav({
 export function ViewMenu({
   viewSpecs,
   viewConfState,
+  resolvedViews,
   onSetView,
   onDeactivateView,
   style,
@@ -193,6 +204,7 @@ export function ViewMenu({
         value={{
           viewSpecsById,
           viewConfState,
+          resolvedViews,
           onSetView,
           onDeactivateView,
         }}

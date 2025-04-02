@@ -5,6 +5,7 @@ import { slugify } from '@orioro/util'
 export * from './colorSchemes'
 export * from './filter'
 export * from './setupVariants'
+export * from './downloadResolver'
 
 export function tableVectorSource(
   context,

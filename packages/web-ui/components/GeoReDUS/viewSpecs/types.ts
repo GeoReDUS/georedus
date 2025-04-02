@@ -17,9 +17,11 @@ export type ViewConfSpec = {
 
 export type ViewSpec = {
   id: string
+  debug?: boolean
   metadata: ExpressionOf<ViewMetadata>
   sources: ExpressionOf<Record<string, MapViewSource>>
   layers: ExpressionOf<Record<string, MapViewLayer>>
+  download?: ExpressionOf<({ dialogs: {} }) => Promise<void>>
   conf: ViewConfSpec
 }
 

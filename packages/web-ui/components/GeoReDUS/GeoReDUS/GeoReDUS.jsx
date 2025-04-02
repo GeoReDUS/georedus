@@ -41,6 +41,7 @@ import { get, isPlainObject } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import Icon from '@mdi/react'
 import { mdiClose, mdiLayers } from '@mdi/js'
+import { csvParse } from 'd3-dsv'
 
 const GOOGLE_CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
@@ -62,24 +63,35 @@ const GOOGLE_CEM_ESCOLAS_2022 =
 const GOOGLE_CEM_SAUDE_2024 =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
 
-const GOOGLE_SHEETS_VIEW_SPECS = [
-  GOOGLE_CEM_CENSO_2010,
-  GOOGLE_CEM_CENSO_2022,
-  GOOGLE_CEM_ESCOLAS_2022,
-  GOOGLE_CEM_SAUDE_2024,
-]
+const GOOGLE_SHEETS_VIEW_SPECS = {
+  all: [
+    GOOGLE_CEM_CENSO_2010,
+    GOOGLE_CEM_CENSO_2022,
+    GOOGLE_CEM_ESCOLAS_2022,
+    GOOGLE_CEM_SAUDE_2024,
+  ],
+  censo_only: [GOOGLE_CEM_CENSO_2010, GOOGLE_CEM_CENSO_2022],
+}
 
 const BUILT_IN_CEM_CENSO_2010 = '/georedus/data/cem_censo_2010.csv'
 const BUILT_IN_CEM_CENSO_2022 = '/georedus/data/cem_censo_2022.csv'
 const BUILT_IN_CEM_ESCOLAS_2022 = '/georedus/data/cem_escolas_2022.csv'
 const BUILT_IN_CEM_SAUDE_2024 = '/georedus/data/cem_saude_2024.csv'
 
-const BUILT_IN_VIEW_SPECS = [
-  BUILT_IN_CEM_CENSO_2010,
-  BUILT_IN_CEM_CENSO_2022,
-  BUILT_IN_CEM_ESCOLAS_2022,
-  BUILT_IN_CEM_SAUDE_2024,
-]
+//
+// List of municipio ids that are in the RM (Regiões Metropolitanas) dataset
+//
+const RM_MUNICIPIO_IDS_CEM = '/georedus/data/cem_rm_municipio_ids_20250401.csv'
+
+const BUILT_IN_VIEW_SPECS = {
+  all: [
+    BUILT_IN_CEM_CENSO_2010,
+    BUILT_IN_CEM_CENSO_2022,
+    BUILT_IN_CEM_ESCOLAS_2022,
+    BUILT_IN_CEM_SAUDE_2024,
+  ],
+  censo_only: [BUILT_IN_CEM_CENSO_2010, BUILT_IN_CEM_CENSO_2022],
+}
 
 const LegendContainer = styled(Flex)`
   box-shadow:
@@ -175,20 +187,30 @@ export function GeoReDUS({ api }) {
     // longitude: -46.62529,
     zoom: 10,
   })
-  // const onMove = useCallback((evt) => setViewState(evt.viewState), [])
 
-  const [viewSpecSources, setViewSpecSources] = useState(
-    // BUILT_IN_VIEW_SPECS,
-    GOOGLE_SHEETS_VIEW_SPECS,
-  )
   const viewSpecsQuery = useQuery({
-    queryKey: ['ViewSpecs', viewSpecSources],
-    queryFn: async () =>
-      resolveViewSpecs(await fetchViewSpecs(viewSpecSources), {
+    queryKey: ['ViewSpecs', municipioId],
+    queryFn: async () => {
+      //
+      // Load municipio ids that have SAUDE and EDUCACAO
+      // datasets
+      //
+      const RM_MUNICIPIO_IDS = csvParse(
+        await fetch(RM_MUNICIPIO_IDS_CEM).then((res) => res.text()),
+      )
+
+      const SPEC_SRCS = RM_MUNICIPIO_IDS.some(
+        (m) => m.id_municipio === municipioId,
+      )
+        ? GOOGLE_SHEETS_VIEW_SPECS.all
+        : GOOGLE_SHEETS_VIEW_SPECS.censo_only
+
+      return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
         METADATA_API_ENDPOINT,
         VECTOR_TILE_SERVER_ENDPOINT,
         MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
-      }),
+      })
+    },
     throwOnError: process.env.NODE_ENV !== 'production',
   })
 
@@ -376,8 +398,7 @@ export function GeoReDUS({ api }) {
         viewSpecs={viewSpecsQuery.data}
         viewConfState={viewConfState}
         viewConfDispatch={viewConfDispatch}
-        viewSpecSources={viewSpecSources}
-        onSetViewSpecSources={setViewSpecSources}
+        resolvedViews={resolvedViews}
       />
 
       <Flex

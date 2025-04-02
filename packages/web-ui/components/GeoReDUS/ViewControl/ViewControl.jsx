@@ -23,7 +23,7 @@ const Summary = styled.div`
     $active ? 'var(--redus-bege, white)' : 'var(--accent-2)'};
   padding: 0;
 
-  transition: background-color .1s ease-out;
+  transition: background-color 0.1s ease-out;
 
   display: flex;
   border: none;
@@ -62,6 +62,7 @@ function resolveDefaultConf(viewSpec) {
 export function ViewControl({
   viewSpec,
   viewConf,
+  resolvedView,
   onSetView,
   onDeactivateView,
 
@@ -160,6 +161,7 @@ export function ViewControl({
             <ViewConfTabs
               viewSpec={viewSpec}
               viewConf={viewConf}
+              resolvedView={resolvedView}
               onSetView={onSetView}
             />
           )}

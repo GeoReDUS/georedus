@@ -24,8 +24,7 @@ export function LeftPanel({
   viewConfState,
   viewConfDispatch,
   viewSpecs,
-  viewSpecSources,
-  onSetViewSpecSources,
+  resolvedViews,
   open,
   onSetOpen,
 }) {
@@ -131,6 +130,7 @@ export function LeftPanel({
             }}
             viewSpecs={viewSpecs}
             viewConfState={viewConfState}
+            resolvedViews={resolvedViews}
             onActivateView={(viewId, initialConf) =>
               viewConfDispatch({
                 type: 'ADD_ENTRY',
@@ -155,26 +155,7 @@ export function LeftPanel({
                 payload: viewId,
               })
             }}
-            sideBarBottom={
-              null
-              // <Flex
-              //   direction="column"
-              //   justifyContent="flex-end"
-              //   alignItems="center"
-              //   style={{
-              //     flexGrow: 1,
-              //     height: '100%',
-              //   }}
-              //   p="2"
-              // >
-              //   {process.env.NODE_ENV !== 'production' && (
-              //     <DevControls
-              //       viewSpecSources={viewSpecSources}
-              //       onSetViewSpecSources={onSetViewSpecSources}
-              //     />
-              //   )}
-              // </Flex>
-            }
+            sideBarBottom={null}
           />
         ) : (
           <div

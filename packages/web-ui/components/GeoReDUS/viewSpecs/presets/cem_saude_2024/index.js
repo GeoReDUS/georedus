@@ -1,4 +1,5 @@
 import {
+  downloadResolver,
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
   globalResources,
@@ -6,12 +7,14 @@ import {
   tableVectorSource,
 } from '../../util'
 
+import { resolveExprAsync } from '../../resolveView/resolveExpr'
+
 import { numerical_choropleth } from './numerical_choropleth'
 import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
 import { resolve } from '@orioro/resolve'
-import { isPlainObject } from 'lodash'
+import { isPlainObject, uniqBy } from 'lodash'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -57,6 +60,11 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
     const filter = variantId ? variantSpec.filter : null
     return filter ? fmtMetadataApiFilterExp(filter) : {}
   })
+  const _id_municipio_gestor_apiFilterExp = [
+    '$template',
+    'eq.${0}',
+    ['$substr', ['$get', 'municipioId'], 0, 6],
+  ]
 
   const $layerFilter = resolve.fn((context) => {
     const variantId = context.view?.conf?.data?.variantId || indicator_id
@@ -113,23 +121,10 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
               '$merge',
               {
                 select: VARIABLE_ID,
-                id_municipio_gestor: [
-                  '$template',
-                  'eq.${0}',
-                  ['$substr', ['$get', 'municipioId'], 0, 6],
-                ],
+                id_municipio_gestor: _id_municipio_gestor_apiFilterExp,
               },
               _fetchMetadataApiFilterExpResolver,
             ],
-
-            // searchParams: {
-            //   select: VARIABLE_ID,
-            //   id_municipio_gestor: [
-            //     '$template',
-            //     'eq.${0}',
-            //     ['$substr', ['$get', 'municipioId'], 0, 6],
-            //   ],
-            // },
           },
         ],
       ],
@@ -156,11 +151,7 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
                     {
                       select: sizing_variable_id,
                       // select: ['$get', 'view.conf.data.sizingVariable'],
-                      id_municipio_gestor: [
-                        '$template',
-                        'eq.${0}',
-                        ['$substr', ['$get', 'municipioId'], 0, 6],
-                      ],
+                      id_municipio_gestor: _id_municipio_gestor_apiFilterExp,
                     },
                     _fetchMetadataApiFilterExpResolver,
                   ],
@@ -187,6 +178,52 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
     layers: {
       ...globalRes.layers,
     },
+
+    download: downloadResolver({
+      fileNameBase: [
+        '$template',
+        '${0}_${1}_georedus_saude',
+        [VARIABLE_ID, ['$get', 'municipioId']],
+      ],
+      mainVariableId: VARIABLE_ID,
+      availableVariableIds: uniqBy(
+        allViewSpecs
+          .filter((spec) => Boolean(spec.variable_id))
+          .map((spec) => ({
+            label: spec.indicator_label,
+            value: spec.variable_id,
+          })),
+        (opt) => opt.value,
+      ),
+
+      // availableVariableIds: [variable_id, 'str_nome_fantasia', 'id_cnes'],
+      fetchData: resolve.fn((context) => async ({ variableIds, options }) => {
+        return await resolveExprAsync(
+          [
+            '$fetch',
+            {
+              href: METADATA_API_ENDPOINT,
+              pathname: collection_id,
+
+              searchParams: [
+                '$merge',
+                {
+                  select: [
+                    'geom',
+                    'id_cnes',
+                    'str_nome_fantasia',
+                    ...variableIds,
+                  ].join(','),
+                  id_municipio_gestor: _id_municipio_gestor_apiFilterExp,
+                },
+                _fetchMetadataApiFilterExpResolver,
+              ],
+            },
+          ],
+          context,
+        )
+      }),
+    }),
   }
 
   const SIZE_DEFAULT = 10
