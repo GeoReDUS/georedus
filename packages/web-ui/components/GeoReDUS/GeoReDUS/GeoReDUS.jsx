@@ -1,9 +1,9 @@
 import {
-  Box,
   EvenSpacedList,
   Flex,
   Input,
   LoadingIndicator,
+  useLocalState,
 } from '@orioro/react-ui-core'
 import { LeftPanel } from '../LeftPanel'
 import { ViewLayoutPopover } from '../ViewLayoutPopover'
@@ -28,7 +28,6 @@ import { resolveView } from '../viewSpecs/resolveView'
 import { HoverTooltip } from '@orioro/react-maplibre-util'
 import {
   NavigationControl,
-  FullscreenControl,
   ScaleControl,
   GeolocateControl,
   AttributionControl,
@@ -40,8 +39,10 @@ import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
 import { get, isPlainObject } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import Icon from '@mdi/react'
-import { mdiClose, mdiLayers } from '@mdi/js'
+import { mdiClose } from '@mdi/js'
 import { csvParse } from 'd3-dsv'
+import { resolveInitialMunicipioId } from './util'
+import { useDialogs } from '@/components/DialogSystem'
 
 const GOOGLE_CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
@@ -126,7 +127,13 @@ async function _flyToMunicipio(
   }
 }
 
-const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+//
+// We use a customizable style on maptiler
+//
+const REDUS_DATAVIZ_STYLE =
+  'https://api.maptiler.com/maps/0195f947-fb77-7256-83d6-47a54db345a3/style.json'
+// const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+const MAP_STYLE_URL = `${REDUS_DATAVIZ_STYLE}?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
 
 //
 // Custom queryKeyHashFn that correctly handles files
@@ -157,37 +164,75 @@ export function queryKeyHashFnWithFileSupport(queryKey) {
   })
 }
 
-export function GeoReDUS({ api }) {
+//
+// From:
+// https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR/metadados
+//
+const DEFAULT_INITIAL_VIEW_STATE = {
+  // // Brazil
+  longitude: -53.0736,
+  latitude: -10.7798,
+  zoom: 3.5,
+}
+
+//
+// From:
+// https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR/metadados
+//
+const BR_BBOX = {
+  type: 'Feature',
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-73.9904, 5.2718],
+        [-28.8476, -33.7512],
+        [-73.9904, 5.2718],
+      ],
+    ],
+  },
+  properties: {},
+}
+
+export function GeoReDUS({
+  state: globalState,
+  onSetState: onSetGlobalState,
+  api,
+}) {
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
   const [viewConfState, viewConfDispatch] = useReducer(
     viewConfReducer,
-    null,
+    globalState?.viewConf || null,
     viewConfReducerInitialState,
   )
+
+  //
+  // Sync viewConfState to external globalState
+  //
+  // useEffect(() => {
+  //   onSetGlobalState({
+  //     ...globalState,
+  //     viewConf: viewConfState,
+  //   })
+  // }, [viewConfState])
 
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
 
   const syncedMapsRef = useRef(null)
 
-  const [municipioId, setMunicipioId] = useState(
-    // Belém
-    '1501402',
-    // São Paulo
-    // '3550308',
+  const [municipioId, setMunicipioId] = useLocalState(
+    globalState.m,
+    // (nextMunicipioId) =>
+    //   onSetGlobalState({
+    //     ...globalState,
+    //     municipioId: nextMunicipioId,
+    //   }),
   )
 
-  const [viewState, setViewState] = useState({
-    // Belém
-    latitude: -1.455833,
-    longitude: -48.503887,
-
-    // São Paulo
-    // latitude: -23.533773,
-    // longitude: -46.62529,
-    zoom: 10,
-  })
-
+  //
+  // Query that resolves viewSpecs
+  //
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', municipioId],
     queryFn: async () => {
@@ -199,11 +244,11 @@ export function GeoReDUS({ api }) {
         await fetch(RM_MUNICIPIO_IDS_CEM).then((res) => res.text()),
       )
 
-      const SPEC_SRCS = RM_MUNICIPIO_IDS.some(
-        (m) => m.id_municipio === municipioId,
-      )
-        ? GOOGLE_SHEETS_VIEW_SPECS.all
-        : GOOGLE_SHEETS_VIEW_SPECS.censo_only
+      const SPEC_SRCS = municipioId
+        ? RM_MUNICIPIO_IDS.some((m) => m.id_municipio === municipioId)
+          ? GOOGLE_SHEETS_VIEW_SPECS.all
+          : GOOGLE_SHEETS_VIEW_SPECS.censo_only
+        : []
 
       return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
         METADATA_API_ENDPOINT,
@@ -307,8 +352,11 @@ export function GeoReDUS({ api }) {
     }
   }, [resolvedLayout.length])
 
-  const _refocus = (mapInstance) => {
-    _flyToMunicipio(mapInstance, METADATA_API_ENDPOINT, municipioId, {
+  //
+  // Compute fit geometry options given ui settings
+  //
+  const FIT_GEOMETRY_OPTIONS = useMemo(
+    () => ({
       padding: {
         top: BASE_MAP_PADDING,
         bottom:
@@ -321,16 +369,86 @@ export function GeoReDUS({ api }) {
             : BASE_MAP_PADDING,
         right: BASE_MAP_PADDING,
       },
-    })
+    }),
+    [resolvedLayout, leftPanelOpen],
+  )
+
+  const _refocus = (mapInstance) => {
+    if (!municipioId) {
+      fitGeometry(mapInstance, BR_BBOX, {
+        ...FIT_GEOMETRY_OPTIONS,
+        // Immediate
+        // duration: 0,
+      })
+    } else {
+      _flyToMunicipio(
+        mapInstance,
+        METADATA_API_ENDPOINT,
+        municipioId,
+        FIT_GEOMETRY_OPTIONS,
+      )
+    }
   }
 
+  const MUNICIPIO_ID_SELECTOR_SCHEMA = {
+    type: 'select',
+    required: true,
+    clearable: false,
+    placeholder: 'Selecione um município',
+    options: useCallback(async () => {
+      // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
+      const municipios = await fetch(
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
+      ).then((response) => response.json())
+
+      // const municipios = await fetch(
+      //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
+      // ).then((response) => response.json())
+
+      return municipios.map((mun) => ({
+        label: `${mun['nome']} (${mun['uf_sigla']})`,
+        value: mun['id'] + '',
+      }))
+    }, []),
+  }
+
+  const dialogs = useDialogs()
+
+  //
+  // Initial focus
+  //
   useEffect(() => {
-    //
-    // Fly to
-    //
+    if (!municipioId) {
+      resolveInitialMunicipioId({
+        METADATA_API_ENDPOINT,
+        coordinates: null,
+      }).then(async (resolvedMunicipioId) => {
+        if (!resolvedMunicipioId) {
+          let selectedMunicipioId = null
+
+          while (typeof selectedMunicipioId !== 'string') {
+            selectedMunicipioId = await dialogs.prompt({
+              input: { ...MUNICIPIO_ID_SELECTOR_SCHEMA, label: 'Município' },
+              submit: 'Ir para o município',
+              cancel: null,
+            })
+          }
+
+          setMunicipioId(selectedMunicipioId)
+        } else {
+          setTimeout(() => setMunicipioId(resolvedMunicipioId), 400)
+        }
+      })
+    }
+  }, [])
+
+  //
+  // Control map position focus
+  //
+  useEffect(() => {
     const mainMap = get(syncedMapsRef.current, 'mapInstances[0].map')
 
-    if (!mainMap || !municipioId) {
+    if (!mainMap) {
       return
     }
 
@@ -420,25 +538,7 @@ export function GeoReDUS({ api }) {
 
         <Flex alignItems="strecth" width="400px" maxWidth="30vw">
           <Input
-            schema={{
-              type: 'select',
-              clearable: false,
-              options: useCallback(async () => {
-                // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
-                const municipios = await fetch(
-                  `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
-                ).then((response) => response.json())
-
-                // const municipios = await fetch(
-                //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
-                // ).then((response) => response.json())
-
-                return municipios.map((mun) => ({
-                  label: `${mun['nome']} (${mun['uf_sigla']})`,
-                  value: mun['id'] + '',
-                }))
-              }, []),
-            }}
+            schema={MUNICIPIO_ID_SELECTOR_SCHEMA}
             value={municipioId}
             onSetValue={setMunicipioId}
           />
@@ -446,19 +546,19 @@ export function GeoReDUS({ api }) {
       </Flex>
 
       <SyncedMaps
-        // onMouseOver={() => {
-        //   if (resolvedLayout.length > 1) {
-        //     //
-        //     // In case there are two open maps, on mouseOver close
-        //     // left panel
-        //     //
-        //     setLeftPanelOpen(false)
-        //   }
-        // }}
+        onDrag={() => {
+          if (resolvedLayout.length > 1 && leftPanelOpen) {
+            //
+            // In case there are two open maps, on drag close
+            // left panel
+            //
+            setLeftPanelOpen(false)
+          }
+        }}
         ref={syncedMapsRef}
         onLoad={async (event) => _refocus(event.target)}
         attributionControl={false}
-        initialViewState={viewState}
+        initialViewState={DEFAULT_INITIAL_VIEW_STATE}
         style={{ position: 'fixed', top: 0, bottom: 0, left: '60px', right: 0 }}
         setPrefetchZoomDelta={0}
         mapStyle={MAP_STYLE_URL}
@@ -476,9 +576,6 @@ export function GeoReDUS({ api }) {
                     position: 'absolute',
                     bottom: '20px',
                     right: '10px',
-                    // [resolvedLayout.length > 1 && index === 0
-                    //   ? 'left'
-                    //   : 'right']: '20px',
                     zIndex: 20,
                   }}
                   p={resolvedLayout.length > 1 ? '3' : '4'}

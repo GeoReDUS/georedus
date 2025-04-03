@@ -1,5 +1,5 @@
 import React from 'react'
-import { Flex } from '@orioro/react-ui-core'
+import { Box, Flex } from '@orioro/react-ui-core'
 import {
   Node,
   nodesFromPaths,
@@ -16,6 +16,7 @@ import { mdiFolderOutline, mdiMagnify } from '@mdi/js'
 import { Tooltip } from '@radix-ui/themes'
 import { DirNavContext } from './DirNavContext'
 import { MakeDirNavProps } from '../types'
+import { NavSection } from '../NavSection'
 
 export type DirItem = Node & {
   path: string
@@ -84,9 +85,14 @@ function defaultGetNodeIcon(node: DirItem): React.ReactNode {
   return <Icon path={mdiFolderOutline} size="30px" />
 }
 
+function DefaultEmptySection() {
+  return <NavSection header={<div>{null}</div>}>{null}</NavSection>
+}
+
 export function makeDirNav(config: MakeDirNavProps = {}) {
   const DirSection = makeDirSection(config)
   const SearchSection = makeSearchSection(config)
+  // const EmptySection = config.components?.EmptySection || DefaultEmptySection
 
   return function DirNav({
     items,
@@ -146,19 +152,22 @@ export function makeDirNav(config: MakeDirNavProps = {}) {
                   borderRight: '1px solid var(--gray-5)',
                   backgroundColor: 'var(--dir-nav-surface-color)',
                 }}
+                width="var(--dir-nav-tab-button-size)"
               >
-                <IconTabTrigger
-                  value="_search"
-                  style={{
-                    height: 'var(--dir-nav-section-header-height)',
-                  }}
-                >
-                  <Tooltip side="right" content="Busca">
-                    <div>
-                      <Icon path={mdiMagnify} />
-                    </div>
-                  </Tooltip>
-                </IconTabTrigger>
+                {items.length > 0 ? (
+                  <IconTabTrigger
+                    value="_search"
+                    style={{
+                      height: 'var(--dir-nav-section-header-height)',
+                    }}
+                  >
+                    <Tooltip side="right" content="Busca">
+                      <div>
+                        <Icon path={mdiMagnify} />
+                      </div>
+                    </Tooltip>
+                  </IconTabTrigger>
+                ) : null}
                 {tree.rootNodeIds().map((id: string) => (
                   <IconTabTrigger key={id} value={id}>
                     <Tooltip side="right" content={tree.node(id).label}>
@@ -179,15 +188,19 @@ export function makeDirNav(config: MakeDirNavProps = {}) {
                 flexShrink: 1,
               }}
             >
-              <Tabs.Content
-                value="_search"
-                style={{
-                  height: '100%',
-                  width: '100%',
-                }}
-              >
-                <SearchSection tree={tree} />
-              </Tabs.Content>
+              {items.length > 0 ? (
+                <Tabs.Content
+                  value="_search"
+                  style={{
+                    height: '100%',
+                    width: '100%',
+                  }}
+                >
+                  <SearchSection tree={tree} />
+                </Tabs.Content>
+              ) : (
+                <DefaultEmptySection />
+              )}
               {tree.rootNodeIds().map((id: string) => (
                 <Tabs.Content
                   key={id}
