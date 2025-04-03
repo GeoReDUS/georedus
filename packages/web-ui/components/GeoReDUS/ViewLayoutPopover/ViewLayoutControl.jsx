@@ -72,6 +72,7 @@ const ViewLayoutSortable = makeSortableMultiList({
               style={{
                 height: CONTROL_HEIGHT,
               }}
+              path
               viewSpec={viewSpecs.find((spec) => spec.id === item.id)}
               viewConf={viewConfState.byId[item.id]}
               viewConfState={viewConfState}

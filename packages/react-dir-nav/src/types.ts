@@ -10,7 +10,7 @@ export type DirNavNode = Node | DirNode
 
 export type MakeDirNavProps = {
   components?: {
-    Item?: React.FC<{ node: any; depth: number }>
+    Item?: React.FC<{ node: any; depth: number; textSearch?: string }>
     ItemContainer?: ReturnType<typeof styled.div>
     DirContainer?: ReturnType<typeof styled.div>
     DirLabel?: React.FC<{

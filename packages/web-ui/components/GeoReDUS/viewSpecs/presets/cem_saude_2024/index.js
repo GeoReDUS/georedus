@@ -34,6 +34,7 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
     indicator_type,
     sizing_variable_id,
     number_format = ['pt-BR', {}],
+    keywords,
   } = viewSpec
 
   const { METADATA_API_ENDPOINT } = context
@@ -89,6 +90,14 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
     path: indicator_path,
     sourceLabel: $sourceLabel,
     metodology,
+    keywords: [
+      indicator_path,
+      $sourceLabel,
+      'saúde',
+      'hospital',
+      'UBS',
+      keywords,
+    ].filter(Boolean),
 
     conf: {
       data: {

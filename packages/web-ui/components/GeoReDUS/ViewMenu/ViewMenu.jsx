@@ -51,7 +51,7 @@ const ActiveCounter = styled.div`
   justify-content: center;
 `
 
-function Item({ node, depth }) {
+function Item({ node, depth, textSearch }) {
   const {
     viewSpecsById,
     viewConfState,
@@ -62,6 +62,8 @@ function Item({ node, depth }) {
 
   return (
     <ViewControl
+      textSearch={textSearch}
+      path={Boolean(textSearch) ? node.path : null}
       viewSpec={node}
       viewConf={viewConfState.byId[node.id]}
       viewConfState={viewConfState}

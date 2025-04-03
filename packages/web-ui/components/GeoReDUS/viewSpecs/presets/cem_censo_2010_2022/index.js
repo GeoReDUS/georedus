@@ -48,6 +48,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     year = collection_id.endsWith('2010') ? '2010' : '2022',
     variable_id,
     metodology,
+    keywords,
     variant_label,
     measure_unit,
     variable_id_pct,
@@ -229,6 +230,16 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     metodology,
     sourceLabel,
     viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
+
+    keywords: [
+      indicator_path,
+      sourceLabel,
+      variant_path,
+      variant_label,
+      variable_id,
+      keywords,
+    ].filter(Boolean),
+
     conf: {
       data: {
         variableId: {

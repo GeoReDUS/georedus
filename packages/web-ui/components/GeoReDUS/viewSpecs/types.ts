@@ -18,6 +18,7 @@ export type ViewConfSpec = {
 export type ViewSpec = {
   id: string
   debug?: boolean
+  keywords?: string | string[]
   metadata: ExpressionOf<ViewMetadata>
   sources: ExpressionOf<Record<string, MapViewSource>>
   layers: ExpressionOf<Record<string, MapViewLayer>>

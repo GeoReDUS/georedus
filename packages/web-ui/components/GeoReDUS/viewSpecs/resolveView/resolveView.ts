@@ -119,6 +119,7 @@ export async function resolveView(
 
   return {
     id: viewSpec.id,
+    keywords: viewSpec.keywords,
     metadata,
     sources,
     layers,

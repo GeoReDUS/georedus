@@ -6,6 +6,8 @@ import { CollapsibleContent } from './CollapsibleContent'
 import { ViewConfTabs } from './ViewConfTabs'
 import { useCallback } from 'react'
 
+import Highlighter from 'react-highlight-words'
+
 const Container = styled(Box)`
   --view-control-base-padding: 12px;
   box-shadow:
@@ -59,7 +61,38 @@ function resolveDefaultConf(viewSpec) {
   )
 }
 
+function HeadingWithTooltipAndEllipsis({
+  textSearch,
+  content,
+  maxLines = 2,
+  ...props
+}) {
+  return (
+    <Tooltip content={content}>
+      <Heading
+        size="2"
+        as="h4"
+        style={{
+          fontWeight: 'normal',
+          color: 'var(--accent-9)',
+        }}
+        {...props}
+      >
+        <TextEllipsis maxLines={maxLines}>
+          <Highlighter
+            searchWords={
+              textSearch && textSearch.length > 3 ? [textSearch] : []
+            }
+            textToHighlight={content}
+          />
+        </TextEllipsis>
+      </Heading>
+    </Tooltip>
+  )
+}
+
 export function ViewControl({
+  textSearch,
   viewSpec,
   viewConf,
   resolvedView,
@@ -72,6 +105,8 @@ export function ViewControl({
   // as 'explicit_toggle'
   //
   configurable = true,
+
+  path = null,
 
   style,
 }) {
@@ -116,18 +151,26 @@ export function ViewControl({
                 flexGrow: '1',
               }}
             >
-              <Tooltip content={viewSpec.label}>
-                <Heading
-                  size="2"
-                  as="h4"
+              {path && (
+                <HeadingWithTooltipAndEllipsis
+                  size="1"
+                  as="h6"
+                  content={typeof path === 'string' ? path : viewSpec.path}
+                  textSearch={textSearch}
+                  maxLines={1}
                   style={{
+                    color: 'var(--gray-9)',
                     fontWeight: 'normal',
-                    color: 'var(--accent-9)',
                   }}
-                >
-                  <TextEllipsis maxLines={2}>{viewSpec.label}</TextEllipsis>
-                </Heading>
-              </Tooltip>
+                />
+              )}
+
+              <HeadingWithTooltipAndEllipsis
+                content={viewSpec.label}
+                textSearch={textSearch}
+                maxLines={2}
+              />
+
               <Text
                 color="gray"
                 style={{

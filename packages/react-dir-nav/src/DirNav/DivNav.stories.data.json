@@ -2,12 +2,11 @@
   {
     "path": "População e domicílios/2010/População por faixa etária",
     "id": "pop_bas_mor_tot_60_mais",
+    "keywords": "teste",
     "sources": [
       {
         "id": "censo_2022",
-        "tiles": [
-          "https://georedus-martin.redus.org.br/function_zxy_query"
-        ]
+        "tiles": ["https://georedus-martin.redus.org.br/function_zxy_query"]
       }
     ],
     "label": "Pessoas de 60 ou mais anos de idade",
@@ -87,6 +86,7 @@
   },
   {
     "path": "População e domicílios/2010/População por faixa etária",
+    "keywords": ["palabra"],
     "id": "pop_bas_mor_tot_5_9",
     "label": "Pessoas de 5 a 9 anos de idade",
     "mapLayerId": "censo",

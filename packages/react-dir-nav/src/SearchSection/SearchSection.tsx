@@ -1,11 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react'
-import {
-  Button,
-  Flex,
-  Input,
-  TextInput,
-  useComponents,
-} from '@orioro/react-ui-core'
+import { Button, Flex, TextInput } from '@orioro/react-ui-core'
 import { optionsIndexer } from '@orioro/react-select'
 import { Item as DefaultItem } from '../Item'
 import styled from 'styled-components'
@@ -15,6 +9,12 @@ import { mdiClose } from '@mdi/js'
 import { MakeDirNavProps } from '../types'
 
 const index = optionsIndexer({
+  getOptionSearchCorpus: (option) => {
+    return [option.label, option.value, option.keywords]
+      .flat(1)
+      .filter(Boolean)
+      .join(' ')
+  },
   // getOptionSearchCorpus: (option)
 })
 
@@ -30,7 +30,7 @@ export function makeSearchSection(config?: MakeDirNavProps) {
   const { ItemContainer = DefaultItemContainer, Item = DefaultItem } =
     config?.components || {}
   return function SearchSection({ tree }) {
-    const [query, setQuery] = useState('')
+    const [textSearch, setTextSearch] = useState('')
 
     const queryInputRef = useRef(null)
 
@@ -43,6 +43,7 @@ export function makeSearchSection(config?: MakeDirNavProps) {
             .map((node) => ({
               value: node.id,
               label: node.label,
+              keywords: node.keywords,
             })),
         ),
       [tree],
@@ -51,26 +52,31 @@ export function makeSearchSection(config?: MakeDirNavProps) {
     const searchResults = useMemo(() => {
       const nodesById = tree.nodesById()
 
-      return search(query).map((option) => nodesById[option.value])
-    }, [search, query])
+      return search(textSearch).map((option) => nodesById[option.value])
+    }, [search, textSearch])
 
     return (
       <NavSection
         header={
           <TextInput
             ref={queryInputRef}
-            value={query}
-            onSetValue={setQuery}
+            value={textSearch}
+            onSetValue={setTextSearch}
             validate={false}
             placeholder="Pesquisar indicadores"
           />
         }
       >
-        {query &&
+        {textSearch &&
           (searchResults.length > 0 ? (
             <ItemContainer>
-              {search(query).map((option, index) => (
-                <Item key={index} node={tree.node(option.value)} depth={0} />
+              {search(textSearch).map((option, index) => (
+                <Item
+                  key={index}
+                  node={tree.node(option.value)}
+                  depth={0}
+                  textSearch={textSearch}
+                />
               ))}
             </ItemContainer>
           ) : (
@@ -83,7 +89,7 @@ export function makeSearchSection(config?: MakeDirNavProps) {
                   type="button"
                   onClick={() => {
                     queryInputRef.current?.focus()
-                    setQuery('')
+                    setTextSearch('')
                   }}
                 >
                   Limpar busca <Icon path={mdiClose} size="16px" />
@@ -92,7 +98,7 @@ export function makeSearchSection(config?: MakeDirNavProps) {
             </UsageInstructions>
           ))}
 
-        {!query && (
+        {!textSearch && (
           <UsageInstructions>
             Pesquise por indicadores digitando termos de interesse, ou navegue
             pelos temas nas abas à esquerda.

@@ -34,6 +34,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     sizing_variable_id,
     number_format = ['pt-BR', {}],
     metodology,
+    keywords,
   } = config
 
   if (Boolean(variant_of)) {
@@ -88,6 +89,10 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     sourceLabel: $sourceLabel,
     path: indicator_path,
     metodology,
+
+    keywords: [indicator_path, $sourceLabel, 'educação', keywords].filter(
+      Boolean,
+    ),
 
     conf: {
       data: {
