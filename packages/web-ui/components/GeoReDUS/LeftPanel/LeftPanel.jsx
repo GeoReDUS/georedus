@@ -2,9 +2,11 @@ import { Flex, LoadingOverlay } from '@orioro/react-ui-core'
 import { ViewMenu } from '../ViewMenu'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import Icon from '@mdi/react'
-import { mdiChevronLeft } from '@mdi/js'
+import { mdiChevronLeft, mdiShareVariantOutline } from '@mdi/js'
 import { GeoReDUSLogoSymbol, GeoReDUSLogoText } from '../GeoReDUSLogo'
+import { useDialogs } from '@/components/DialogSystem'
 import styled from 'styled-components'
+import { SharePanel } from './SharePanel'
 
 const OPEN_WIDTH = '380px'
 const CLOSED_WIDTH = '60px'
@@ -27,7 +29,11 @@ export function LeftPanel({
   resolvedViews,
   open,
   onSetOpen,
+  syncedMapsRef,
+  mapContainerRef,
 }) {
+  const dialogs = useDialogs()
+
   return (
     <div
       style={{
@@ -155,7 +161,32 @@ export function LeftPanel({
                 payload: viewId,
               })
             }}
-            sideBarBottom={null}
+            sideBarBottom={
+              <Flex
+                style={{
+                  flexGrow: 1,
+                }}
+                pb="3"
+                direction="column"
+                justifyContent="flex-end"
+                alignItems="center"
+              >
+                <IconButton
+                  variant="soft"
+                  size="3"
+                  onClick={async () => {
+                    await dialogs.view(
+                      <SharePanel
+                        mapContainerRef={mapContainerRef}
+                        syncedMapsRef={syncedMapsRef}
+                      />,
+                    )
+                  }}
+                >
+                  <Icon path={mdiShareVariantOutline} size="24px" />
+                </IconButton>
+              </Flex>
+            }
           />
         ) : (
           <div
@@ -168,7 +199,7 @@ export function LeftPanel({
           </div>
         )}
         <Flex
-          p="0"
+          p="2"
           style={{
             backgroundColor: 'white',
           }}
@@ -179,8 +210,11 @@ export function LeftPanel({
             style={{
               transition: 'opacity .1s ease-out',
               opacity: open ? 1 : 0,
-              height: 70,
+              height: 48,
               width: 'auto',
+
+              // height: 'auto',
+              // width: '100%',
             }}
             src="/georedus/assets/parcerias.png"
           />

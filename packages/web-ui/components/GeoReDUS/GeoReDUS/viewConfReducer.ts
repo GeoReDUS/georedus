@@ -86,14 +86,16 @@ export function viewConfReducer(state: State, action: Action): State {
   }
 }
 
-export function viewConfReducerInitialState(): State {
-  return {
-    byId: {},
-    layout: [
-      { id: 'left', items: [] },
-      { id: 'right', items: [] },
-    ],
-  }
+export function viewConfReducerInitialState(initialState): State {
+  return (
+    initialState || {
+      byId: {},
+      layout: [
+        { id: 'left', items: [] },
+        { id: 'right', items: [] },
+      ],
+    }
+  )
 }
 
 //
