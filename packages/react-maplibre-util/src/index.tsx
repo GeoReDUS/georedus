@@ -1,5 +1,6 @@
 export * from './LayeredMap'
 export * from './HoverTooltip'
+export * from './MapWindow'
 export * from './SyncedMaps'
 export * from './useHover'
 export * from './scales'

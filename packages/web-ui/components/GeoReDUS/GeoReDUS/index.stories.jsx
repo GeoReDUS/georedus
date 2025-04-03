@@ -20,7 +20,7 @@ export default {
 const VERSION_SPECS = [
   {
     id: 'v0',
-    fromPrev: (prev) => prev || {},
+    fromPrev: (prev) => ({ baseMapStyle: 'dataviz', ...(prev || {}) }),
     fromNext: (next) => next || {},
   },
 ]
@@ -35,6 +35,7 @@ export const Basic = () => {
     {},
     {
       schema: {
+        baseMapStyle: 'string',
         municipioId: 'string',
         viewConf: 'object',
       },

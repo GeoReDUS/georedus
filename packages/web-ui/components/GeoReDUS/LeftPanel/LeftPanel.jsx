@@ -8,7 +8,7 @@ import { useDialogs } from '@/components/DialogSystem'
 import styled from 'styled-components'
 import { SharePanel } from './SharePanel'
 
-const OPEN_WIDTH = '380px'
+const OPEN_WIDTH = { xs: 'calc(100vw - 30px)', sm: '380px' }
 const CLOSED_WIDTH = '60px'
 
 const HEADER_HEIGHT = 60
@@ -46,36 +46,52 @@ export function LeftPanel({
       // onMouseEnter={() => setMouseIsOver(true)}
       // onMouseLeave={() => setMouseIsOver(false)}
     >
-      <IconButton
+      <Flex
+        //
+        // Use flex for responsive positioning
+        //
         style={{
-          border: '1px solid white',
           position: 'absolute',
-          top: HEADER_HEIGHT * (2 / 3),
+          top: {
+            xs: `${1.2 * HEADER_HEIGHT}px`,
+            md: `${HEADER_HEIGHT * (2 / 3)}px`,
+          },
           left: 'calc(100%)',
           transform: 'translate(-50%, -50%)',
-          boxShadow:
-            'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
-            'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
 
-          height: 20,
-          width: 20,
+          height: { xs: '40px', md: '20px' },
+          width: { xs: '40px', md: '20px' },
         }}
-        size="1"
-        type="button"
-        onClick={() => onSetOpen(!open)}
-        // variant="surface"
       >
-        <Tooltip content={open ? 'Fechar painel' : 'Abrir painel'}>
-          <Icon
-            style={{
-              transition: 'transform .2s ease-out',
-              transform: `rotateZ(${open ? '0' : '180'}deg)`,
-            }}
-            path={mdiChevronLeft}
-            size="16px"
-          />
-        </Tooltip>
-      </IconButton>
+        <IconButton
+          size={{
+            xs: '3',
+            md: '1',
+          }}
+          type="button"
+          style={{
+            border: '1px solid white',
+            height: '100%',
+            width: '100%',
+            boxShadow:
+              'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
+              'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
+          }}
+          onClick={() => onSetOpen(!open)}
+          // variant="surface"
+        >
+          <Tooltip content={open ? 'Fechar painel' : 'Abrir painel'}>
+            <Icon
+              style={{
+                transition: 'transform .2s ease-out',
+                transform: `rotateZ(${open ? '0' : '180'}deg)`,
+              }}
+              path={mdiChevronLeft}
+              size="16px"
+            />
+          </Tooltip>
+        </IconButton>
+      </Flex>
       <Flex
         direction="column"
         gap="0"

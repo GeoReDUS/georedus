@@ -19,6 +19,7 @@ import {
   LayeredMap,
   fitGeometry,
   makeSyncedMaps,
+  MapWindow,
 } from '@orioro/react-maplibre-util'
 import { Legend } from '@orioro/react-chart-util'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -138,7 +139,57 @@ async function _flyToMunicipio(
 const REDUS_DATAVIZ_STYLE =
   'https://api.maptiler.com/maps/0195f947-fb77-7256-83d6-47a54db345a3/style.json'
 // const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
-const MAP_STYLE_URL = `${REDUS_DATAVIZ_STYLE}?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+const DATAVIZ_MAP_STYLE_URL = `${REDUS_DATAVIZ_STYLE}?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+const SATELLITE_MAP_STYLE_URL = `https://api.maptiler.com/maps/satellite/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+
+const MapStyleToggleCtrl = styled.button`
+  height: 100px;
+  width: 100px;
+
+  padding: 0;
+  border: none;
+  background-color: #efefef;
+  border-radius: 0;
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+
+  cursor: pointer;
+
+  &::after {
+    z-index: 2;
+    content: 'Trocar camada base';
+    color: transparent;
+    font-weight: bold;
+    display: flex;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.1s ease-in-out;
+  }
+
+  &:hover {
+    &::after {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+    }
+  }
+
+  @media (max-width: 500px) {
+    height: 50px;
+    width: 50px;
+    &::after {
+      font-size: 0.6rem;
+    }
+  }
+`
 
 //
 // Custom queryKeyHashFn that correctly handles files
@@ -227,6 +278,12 @@ export function GeoReDUS({
 
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
 
+  useEffect(() => {
+    if (window.innerWidth < 700) {
+      setLeftPanelOpen(false)
+    }
+  }, [])
+
   const syncedMapsRef = useRef(null)
 
   const [municipioId, setMunicipioId] = useLocalState(
@@ -235,6 +292,15 @@ export function GeoReDUS({
       onSetGlobalState({
         ...globalState,
         municipioId: nextMunicipioId,
+      }),
+  )
+
+  const [baseMapStyle, setBaseMapStyle] = useLocalState(
+    globalState.baseMapStyle || 'dataviz',
+    (nextBaseMapStyle) =>
+      onSetGlobalState({
+        ...globalState,
+        baseMapStyle: nextBaseMapStyle,
       }),
   )
 
@@ -302,6 +368,7 @@ export function GeoReDUS({
             return viewSpec
               ? resolveView(viewSpec, viewConfState.byId[viewId], {
                   municipioId,
+                  baseMapStyle,
                 })
               : null
           },
@@ -570,7 +637,11 @@ export function GeoReDUS({
         initialViewState={DEFAULT_INITIAL_VIEW_STATE}
         style={{ position: 'fixed', top: 0, bottom: 0, left: '60px', right: 0 }}
         setPrefetchZoomDelta={0}
-        mapStyle={MAP_STYLE_URL}
+        mapStyle={
+          baseMapStyle === 'satellite'
+            ? SATELLITE_MAP_STYLE_URL
+            : DATAVIZ_MAP_STYLE_URL
+        }
         tooltip={getTooltip}
         maps={resolvedLayout.map(({ id, views, legends }, index) => ({
           id,
@@ -584,6 +655,39 @@ export function GeoReDUS({
           // },
           children: (
             <>
+              {index === resolvedLayout.length - 1 && (
+                <MapStyleToggleCtrl
+                  style={{
+                    position: 'absolute',
+                    zIndex: 1000,
+                    top: 176,
+                    right: 12,
+                  }}
+                  type="button"
+                  onClick={() =>
+                    setBaseMapStyle(
+                      baseMapStyle === 'dataviz' ? 'satellite' : 'dataviz',
+                    )
+                  }
+                >
+                  <MapWindow
+                    style={{
+                      pointerEvents: 'none',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      height: '100%',
+                      width: '100%',
+                    }}
+                    mapStyle={
+                      baseMapStyle === 'satellite'
+                        ? DATAVIZ_MAP_STYLE_URL
+                        : SATELLITE_MAP_STYLE_URL
+                    }
+                  />
+                </MapStyleToggleCtrl>
+              )}
+
               {legends.length > 0 && (
                 <LegendContainer
                   direction="row"
