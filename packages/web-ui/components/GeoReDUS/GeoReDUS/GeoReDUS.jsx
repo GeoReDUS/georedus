@@ -94,6 +94,11 @@ const BUILT_IN_VIEW_SPECS = {
   censo_only: [BUILT_IN_CEM_CENSO_2010, BUILT_IN_CEM_CENSO_2022],
 }
 
+const VIEW_SPECS =
+  process.env.NODE_ENV === 'production'
+    ? BUILT_IN_VIEW_SPECS
+    : GOOGLE_SHEETS_VIEW_SPECS
+
 const LegendContainer = styled(Flex)`
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
@@ -249,8 +254,8 @@ export function GeoReDUS({
 
       const SPEC_SRCS = municipioId
         ? RM_MUNICIPIO_IDS.some((m) => m.id_municipio === municipioId)
-          ? GOOGLE_SHEETS_VIEW_SPECS.all
-          : GOOGLE_SHEETS_VIEW_SPECS.censo_only
+          ? VIEW_SPECS.all
+          : VIEW_SPECS.censo_only
         : []
 
       return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
