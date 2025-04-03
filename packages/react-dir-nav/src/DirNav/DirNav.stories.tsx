@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { DirNav } from './DirNav'
 import ITEMS from './DivNav.stories.data.json'
-import { Debug, Flex, UIProvider } from '@orioro/react-ui-core'
+import { Debug, Flex } from '@orioro/react-ui-core'
 import styled from 'styled-components'
 import { Icon } from '@mdi/react'
 import { mdiAccountGroup, mdiSchool, mdiShare, mdiTrainCar } from '@mdi/js'
@@ -31,58 +31,52 @@ export const Basic = () => {
 
   return (
     <Flex direction="row">
-      <UIProvider
-        components={{
-          ItemContainer,
-        }}
-      >
-        <Flex direction="column" height="100vh" width="350px">
-          <Flex
-            p="10px"
-            style={{
-              backgroundColor: 'var(--accent-3)',
-            }}
-          >
-            External App header
-          </Flex>
-
-          <DirNav
-            style={{
-              flexGrow: 1,
-              overflow: 'hidden',
-            }}
-            items={ITEMS}
-            onSelectItem={(item) => {
-              setSelected(item)
-            }}
-            getNodeIcon={(node) => STATIC_NODE_ICONS[node.id]}
-            sideBarBottom={
-              <Flex
-                direction="column"
-                alignItems="center"
-                pt="10px"
-                pb="10px"
-                style={{
-                  background: 'var(--green-3)',
-                }}
-              >
-                <IconButton radius="none" variant="outline">
-                  <Icon path={mdiShare} size="20px" />
-                </IconButton>
-              </Flex>
-            }
-          />
-
-          <Flex
-            p="10px"
-            style={{
-              backgroundColor: 'var(--accent-3)',
-            }}
-          >
-            External App footer
-          </Flex>
+      <Flex direction="column" height="100vh" width="350px">
+        <Flex
+          p="10px"
+          style={{
+            backgroundColor: 'var(--accent-3)',
+          }}
+        >
+          External App header
         </Flex>
-      </UIProvider>
+
+        <DirNav
+          style={{
+            flexGrow: 1,
+            overflow: 'hidden',
+          }}
+          items={ITEMS}
+          onSelectItem={(item) => {
+            setSelected(item)
+          }}
+          getNodeIcon={(node) => STATIC_NODE_ICONS[node.id]}
+          sideBarBottom={
+            <Flex
+              direction="column"
+              alignItems="center"
+              pt="10px"
+              pb="10px"
+              style={{
+                background: 'var(--green-3)',
+              }}
+            >
+              <IconButton radius="none" variant="outline">
+                <Icon path={mdiShare} size="20px" />
+              </IconButton>
+            </Flex>
+          }
+        />
+
+        <Flex
+          p="10px"
+          style={{
+            backgroundColor: 'var(--accent-3)',
+          }}
+        >
+          External App footer
+        </Flex>
+      </Flex>
       <Flex
         direction="row"
         alignItems="center"
@@ -100,6 +94,21 @@ export const Basic = () => {
           }}
         />
       </Flex>
+    </Flex>
+  )
+}
+
+export const Empty = () => {
+  return (
+    <Flex direction="column" height="100vh" width="350px">
+      <DirNav
+        style={{
+          flexGrow: 1,
+          overflow: 'hidden',
+        }}
+        items={[]}
+        getNodeIcon={(node) => STATIC_NODE_ICONS[node.id]}
+      />
     </Flex>
   )
 }
