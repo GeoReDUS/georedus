@@ -30,6 +30,36 @@ const useVersionedSearchParamsState = versionedSearchParamsStateHook(
   useSearchParams,
 )
 
+const GOOGLE_CEM_CENSO_2010 =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
+  '/pub?gid=' +
+  '2016686120' +
+  '&single=true&output=csv'
+
+const GOOGLE_CEM_CENSO_2022 =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
+  '/pub?gid=' +
+  '1523585495' +
+  '&single=true&output=csv'
+
+const GOOGLE_CEM_ESCOLAS_2022 =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
+
+const GOOGLE_CEM_SAUDE_2024 =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
+
+const GOOGLE_SHEETS_VIEW_SPECS = {
+  all: [
+    GOOGLE_CEM_CENSO_2010,
+    GOOGLE_CEM_CENSO_2022,
+    GOOGLE_CEM_ESCOLAS_2022,
+    GOOGLE_CEM_SAUDE_2024,
+  ],
+  censo_only: [GOOGLE_CEM_CENSO_2010, GOOGLE_CEM_CENSO_2022],
+}
+
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
     {},
@@ -46,6 +76,7 @@ export const Basic = () => {
     <GeoReDUS
       state={stateStorage}
       onSetState={setStateStorage}
+      viewSpecs={GOOGLE_SHEETS_VIEW_SPECS}
       api={{
         METADATA_API_ENDPOINT: process.env.STORYBOOK_GEO_METADATA_API_ENDPOINT,
         VECTOR_TILE_SERVER_ENDPOINT:

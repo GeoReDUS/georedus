@@ -45,60 +45,10 @@ import { csvParse } from 'd3-dsv'
 import { resolveInitialMunicipioId } from './util'
 import { useDialogs } from '@/components/DialogSystem'
 
-const GOOGLE_CEM_CENSO_2010 =
-  'https://docs.google.com/spreadsheets/d/e/' +
-  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
-  '/pub?gid=' +
-  '2016686120' +
-  '&single=true&output=csv'
-
-const GOOGLE_CEM_CENSO_2022 =
-  'https://docs.google.com/spreadsheets/d/e/' +
-  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
-  '/pub?gid=' +
-  '1523585495' +
-  '&single=true&output=csv'
-
-const GOOGLE_CEM_ESCOLAS_2022 =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
-
-const GOOGLE_CEM_SAUDE_2024 =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
-
-const GOOGLE_SHEETS_VIEW_SPECS = {
-  all: [
-    GOOGLE_CEM_CENSO_2010,
-    GOOGLE_CEM_CENSO_2022,
-    GOOGLE_CEM_ESCOLAS_2022,
-    GOOGLE_CEM_SAUDE_2024,
-  ],
-  censo_only: [GOOGLE_CEM_CENSO_2010, GOOGLE_CEM_CENSO_2022],
-}
-
-const BUILT_IN_CEM_CENSO_2010 = '/georedus/data/cem_censo_2010.csv'
-const BUILT_IN_CEM_CENSO_2022 = '/georedus/data/cem_censo_2022.csv'
-const BUILT_IN_CEM_ESCOLAS_2022 = '/georedus/data/cem_escolas_2022.csv'
-const BUILT_IN_CEM_SAUDE_2024 = '/georedus/data/cem_saude_2024.csv'
-
 //
 // List of municipio ids that are in the RM (Regiões Metropolitanas) dataset
 //
 const RM_MUNICIPIO_IDS_CEM = '/georedus/data/cem_rm_municipio_ids_20250401.csv'
-
-const BUILT_IN_VIEW_SPECS = {
-  all: [
-    BUILT_IN_CEM_CENSO_2010,
-    BUILT_IN_CEM_CENSO_2022,
-    BUILT_IN_CEM_ESCOLAS_2022,
-    BUILT_IN_CEM_SAUDE_2024,
-  ],
-  censo_only: [BUILT_IN_CEM_CENSO_2010, BUILT_IN_CEM_CENSO_2022],
-}
-
-const VIEW_SPECS =
-  process.env.NODE_ENV === 'production'
-    ? BUILT_IN_VIEW_SPECS
-    : GOOGLE_SHEETS_VIEW_SPECS
 
 const LegendContainer = styled(Flex)`
   box-shadow:
@@ -254,6 +204,7 @@ export function GeoReDUS({
   state: globalState,
   onSetState: onSetGlobalState,
   api,
+  viewSpecs,
 }) {
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
@@ -320,8 +271,8 @@ export function GeoReDUS({
 
       const SPEC_SRCS = municipioId
         ? RM_MUNICIPIO_IDS.some((m) => m.id_municipio === municipioId)
-          ? VIEW_SPECS.all
-          : VIEW_SPECS.censo_only
+          ? viewSpecs.all
+          : viewSpecs.censo_only
         : []
 
       return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
