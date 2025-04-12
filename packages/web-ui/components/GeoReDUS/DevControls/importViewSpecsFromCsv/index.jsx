@@ -1,7 +1,7 @@
 import { CANCELLED, Markdown } from '@orioro/react-ui-core'
 import { resolveData } from '@orioro/react-csv'
 
-import { validate } from '@orioro/util'
+import { validate } from '@orioro/validate'
 
 import ibge_malha_br_setor_censitario_2010 from './schemas/ibge_malha_br_setor_censitario_2010.json'
 import ibge_malha_br_setor_censitario_2022 from './schemas/ibge_malha_br_setor_censitario_2022.json'
