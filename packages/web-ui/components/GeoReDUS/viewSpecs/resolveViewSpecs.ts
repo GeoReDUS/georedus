@@ -3,7 +3,7 @@ import { ResolveViewSpecsContext, ViewSpec } from './types'
 import { parseViewSpec } from './parseViewSpec'
 import { groupBy, isPlainObject, uniqBy } from 'lodash'
 import { fileReadAs } from '@orioro/react-ui-core'
-import { strAutoCast } from '@orioro/util'
+import { strAutoCast } from '@orioro/cast'
 
 type ViewSource = string | File
 
