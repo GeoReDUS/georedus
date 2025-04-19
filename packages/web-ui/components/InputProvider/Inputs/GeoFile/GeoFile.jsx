@@ -1,8 +1,9 @@
 import initGdalJs from 'gdal3.js'
-import { SingleFileInput, fileReadAs } from '@orioro/react-ui-core'
+import { CANCELLED, SingleFileInput, fileReadAs } from '@orioro/react-ui-core'
 import { useDialogs } from '@/components/DialogSystem'
 import { uniq, uniqBy } from 'lodash'
 import { setupGdal } from './setupGdal'
+import { resolveData, toCsvFile } from '@orioro/react-csv'
 
 // TODO generalize for allow input types and output types
 
@@ -31,6 +32,23 @@ export function GeoFile(props) {
       {...props}
       middleware={[
         async (file) => {
+          //
+          // WORK IN PROGRESS: CSV IMPORT
+          // if (file.type === 'text/csv') {
+          //   const csvImportRes = await dialogs.importCsv({
+          //     file: file,
+          //   })
+
+          //   if (csvImportRes === CANCELLED) {
+          //     return null
+          //   }
+
+          //   file = toCsvFile(
+          //     resolveData(csvImportRes.data, csvImportRes.columnMap),
+          //     file.name,
+          //   )
+          // }
+
           // const workerData = await fetch(
           //   'https://cdn.jsdelivr.net/npm/gdal3.js@2.8.1/dist/package/gdal3.js',
           // )
@@ -51,9 +69,9 @@ export function GeoFile(props) {
 
           const Gdal = await setupGdal()
 
-          // 
+          //
           // TODO: convert to use ogr2ogr util at setupGdal.js
-          // 
+          //
 
           const { datasets, errors } = await Gdal.open(
             file,
