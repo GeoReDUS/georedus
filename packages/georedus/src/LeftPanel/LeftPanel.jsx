@@ -1,0 +1,241 @@
+import { Flex, LoadingOverlay } from '@orioro/react-ui-core'
+import { ViewMenu } from '../ViewMenu'
+import { IconButton, Tooltip } from '@radix-ui/themes'
+import Icon from '@mdi/react'
+import { mdiChevronLeft, mdiShareVariantOutline } from '@mdi/js'
+import { GeoReDUSLogoSymbol, GeoReDUSLogoText } from '../GeoReDUSLogo'
+import { useDialogs } from '../DialogSystem'
+import styled from 'styled-components'
+import { SharePanel } from './SharePanel'
+
+const OPEN_WIDTH = { xs: 'calc(100vw - 30px)', sm: '380px' }
+const CLOSED_WIDTH = '60px'
+
+const HEADER_HEIGHT = 60
+
+const LogoContainer = styled(Flex)`
+  height: 100%;
+
+  svg {
+    height: 100%;
+    width: auto;
+  }
+`
+
+export function LeftPanel({
+  viewConfState,
+  viewConfDispatch,
+  viewSpecs,
+  resolvedViews,
+  open,
+  onSetOpen,
+  syncedMapsRef,
+  mapContainerRef,
+}) {
+  const dialogs = useDialogs()
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        zIndex: 2,
+        top: 0,
+        left: 0,
+        bottom: 0,
+      }}
+      // onMouseEnter={() => setMouseIsOver(true)}
+      // onMouseLeave={() => setMouseIsOver(false)}
+    >
+      <Flex
+        //
+        // Use flex for responsive positioning
+        //
+        style={{
+          position: 'absolute',
+          top: {
+            xs: `${1.2 * HEADER_HEIGHT}px`,
+            md: `${HEADER_HEIGHT * (2 / 3)}px`,
+          },
+          left: 'calc(100%)',
+          transform: 'translate(-50%, -50%)',
+
+          height: { xs: '40px', md: '20px' },
+          width: { xs: '40px', md: '20px' },
+        }}
+      >
+        <IconButton
+          size={{
+            xs: '3',
+            md: '1',
+          }}
+          type="button"
+          style={{
+            border: '1px solid white',
+            height: '100%',
+            width: '100%',
+            boxShadow:
+              'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
+              'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
+          }}
+          onClick={() => onSetOpen(!open)}
+          // variant="surface"
+        >
+          <Tooltip content={open ? 'Fechar painel' : 'Abrir painel'}>
+            <Icon
+              style={{
+                transition: 'transform .2s ease-out',
+                transform: `rotateZ(${open ? '0' : '180'}deg)`,
+              }}
+              path={mdiChevronLeft}
+              size="16px"
+            />
+          </Tooltip>
+        </IconButton>
+      </Flex>
+      <Flex
+        direction="column"
+        gap="0"
+        height="100vh"
+        width={open ? OPEN_WIDTH : CLOSED_WIDTH}
+        style={{
+          transition: 'width .1s ease-out',
+          overflow: 'hidden',
+          boxShadow:
+            'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
+            'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
+        }}
+        onClick={(e) => onSetOpen(true)}
+      >
+        <Flex
+          px="12px"
+          py="10px"
+          height={HEADER_HEIGHT}
+          alignItems="center"
+          direction="row"
+          style={{
+            backgroundColor: 'var(--accent-9)',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            flexGrow: 0,
+          }}
+        >
+          <LogoContainer direction="row" gap="8px">
+            <GeoReDUSLogoSymbol />
+
+            <div
+              style={{
+                transition: open
+                  ? 'opacity .7s ease-out'
+                  : 'opacity .1s ease-out',
+                opacity: open ? 1 : 0,
+              }}
+            >
+              <GeoReDUSLogoText />
+            </div>
+          </LogoContainer>
+
+          {/*{open ? (
+            <LogoContainer>
+              <GeoReDUSLogo />
+            </LogoContainer>
+          ) : (
+            <LogoContainer>
+              <GeoReDUSLogoSymbol />
+            </LogoContainer>
+          )}*/}
+        </Flex>
+        {Array.isArray(viewSpecs) ? (
+          <ViewMenu
+            style={{
+              flexGrow: 1,
+              height: '1px',
+            }}
+            viewSpecs={viewSpecs}
+            viewConfState={viewConfState}
+            resolvedViews={resolvedViews}
+            onActivateView={(viewId, initialConf) =>
+              viewConfDispatch({
+                type: 'ADD_ENTRY',
+                payload: {
+                  ...initialConf,
+                  id: viewId,
+                },
+              })
+            }
+            onSetView={(viewConf, layoutIndex) => {
+              viewConfDispatch({
+                type: 'SET_VIEW',
+                payload: {
+                  viewConf,
+                  layoutIndex,
+                },
+              })
+            }}
+            onDeactivateView={(viewId) => {
+              viewConfDispatch({
+                type: 'DEACTIVATE_VIEW',
+                payload: viewId,
+              })
+            }}
+            sideBarBottom={
+              <Flex
+                style={{
+                  flexGrow: 1,
+                }}
+                pb="3"
+                direction="column"
+                justifyContent="flex-end"
+                alignItems="center"
+              >
+                <IconButton
+                  variant="soft"
+                  size="3"
+                  onClick={async () => {
+                    await dialogs.view(
+                      <SharePanel
+                        mapContainerRef={mapContainerRef}
+                        syncedMapsRef={syncedMapsRef}
+                      />,
+                    )
+                  }}
+                >
+                  <Icon path={mdiShareVariantOutline} size="24px" />
+                </IconButton>
+              </Flex>
+            }
+          />
+        ) : (
+          <div
+            style={{
+              flexGrow: 1,
+              position: 'relative',
+            }}
+          >
+            <LoadingOverlay />
+          </div>
+        )}
+        <Flex
+          p="2"
+          style={{
+            backgroundColor: 'white',
+          }}
+          direction="row"
+          justifyContent="center"
+        >
+          <img
+            style={{
+              transition: 'opacity .1s ease-out',
+              opacity: open ? 1 : 0,
+              height: 48,
+              width: 'auto',
+
+              // height: 'auto',
+              // width: '100%',
+            }}
+            src="/georedus/assets/parcerias.png"
+          />
+        </Flex>
+      </Flex>
+    </div>
+  )
+}

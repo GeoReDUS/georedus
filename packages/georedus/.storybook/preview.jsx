@@ -1,12 +1,13 @@
-import { ThemeProvider } from 'styled-components'
+import { DevContext } from '../src/DevContext'
+import '@radix-ui/themes/styles.css'
 
 /** @type { import('@storybook/react').Preview } */
 const preview = {
   decorators: [
     (Story) => (
-      <ThemeProvider theme={{}}>
+      <DevContext>
         <Story />
-      </ThemeProvider>
+      </DevContext>
     ),
   ],
 }
