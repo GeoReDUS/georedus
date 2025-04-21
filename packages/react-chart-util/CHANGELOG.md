@@ -1,5 +1,15 @@
 # @orioro/react-chart-util
 
+## 0.0.2
+
+### Patch Changes
+
+- fix changeset release with yarn
+- Updated dependencies
+  - @orioro/cast@0.0.2
+  - @orioro/react-ui-core@0.0.6
+  - @orioro/util@0.11.2
+
 ## 0.0.1
 
 ### Patch Changes
