@@ -8,4 +8,6 @@ git filter-repo \
   --path README.md \
   --path packages/web-ui/components/GeoReDUS \
   --path packages/web-ui/components/InputProvider/Inputs/GeoFile \
-  --path packages/react-maplibre-util
+  --path packages/react-maplibre-util \
+  --path packages/react-chart-util \
+  --path packages/react-dir-nav
