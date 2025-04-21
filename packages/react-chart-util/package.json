@@ -1,6 +1,6 @@
 {
   "name": "@orioro/react-chart-util",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/index.mjs",
