@@ -1,5 +1,6 @@
 {
-  "name": "@orioro/react-chart-util",
+  "name": "@redus/georedus",
+  "private": true,
   "version": "0.0.2",
   "packageManager": "yarn@4.0.2",
   "type": "module",
@@ -13,7 +14,7 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "private"
   },
   "license": "ISC",
   "scripts": {
@@ -28,11 +29,6 @@
     "storybook": "^8.0.0"
   },
   "dependencies": {
-    "@orioro/cast": "^0.0.2",
-    "@orioro/react-ui-core": "^0.0.6",
-    "@orioro/util": "^0.11.2",
-    "d3-scale": "^4.0.2",
-    "lodash-es": "^4.17.21",
     "react": "^18.2.0",
     "styled-components": "^6.1.8"
   }

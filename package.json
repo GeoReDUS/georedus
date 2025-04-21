@@ -1,0 +1,22 @@
+{
+  "name": "georedus",
+  "private": true,
+  "version": "0.1.2",
+  "packageManager": "yarn@4.0.2",
+  "scripts": {
+    "changeset": "changeset",
+    "?publish": "changeset does not support yarn@3+. Track: https://github.com/changesets/changesets/issues/432",
+    "publish": "yarn workspaces foreach --no-private --all npm publish",
+    "build_": "yarn workspaces foreach --all --parallel --interlaced --topological-dev run build"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": "20.x"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.2",
+    "prettier": "^3.5.2"
+  }
+}
