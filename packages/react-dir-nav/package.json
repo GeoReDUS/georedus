@@ -1,6 +1,6 @@
 {
   "name": "@orioro/react-dir-nav",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/index.mjs",
@@ -13,7 +13,7 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "private"
+    "access": "public"
   },
   "license": "ISC",
   "scripts": {
@@ -22,17 +22,17 @@
     "build-storybook": "storybook build"
   },
   "devDependencies": {
-    "@orioro/dev": "workspace:*",
+    "@orioro/dev": "workspace:^",
     "rollup": "^4.13.0",
     "storybook": "^8.0.0"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
-    "@orioro/react-select": "workspace:*",
-    "@orioro/react-tree": "workspace:*",
-    "@orioro/react-ui-core": "workspace:*",
-    "@orioro/tree-model": "workspace:*",
+    "@orioro/react-select": "workspace:^",
+    "@orioro/react-tree": "workspace:^",
+    "@orioro/react-ui-core": "workspace:^",
+    "@orioro/tree-model": "workspace:^",
     "@radix-ui/react-collapsible": "^1.1.3",
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/themes": "^3.0.1",
