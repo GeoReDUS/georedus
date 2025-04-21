@@ -13,7 +13,7 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "private"
+    "access": "public"
   },
   "license": "ISC",
   "scripts": {
