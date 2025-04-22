@@ -1,5 +1,17 @@
 # @orioro/template-react
 
+## 0.1.5
+
+### Patch Changes
+
+- fix: ensure Icon from @mdi/react is imported as named imp
+
+## 0.1.4
+
+### Patch Changes
+
+- list @orioro/react-ui-core as peerDependency instead of direct dependency
+
 ## 0.1.3
 
 ### Patch Changes

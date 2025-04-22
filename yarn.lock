@@ -2802,7 +2802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/react-dir-nav@workspace:packages/react-dir-nav":
+"@orioro/react-dir-nav@workspace:^, @orioro/react-dir-nav@workspace:packages/react-dir-nav":
   version: 0.0.0-use.local
   resolution: "@orioro/react-dir-nav@workspace:packages/react-dir-nav"
   dependencies:
@@ -2825,7 +2825,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@orioro/react-maplibre-util@workspace:packages/react-maplibre-util":
+"@orioro/react-maplibre-util@workspace:^, @orioro/react-maplibre-util@workspace:packages/react-maplibre-util":
   version: 0.0.0-use.local
   resolution: "@orioro/react-maplibre-util@workspace:packages/react-maplibre-util"
   dependencies:
@@ -4429,8 +4429,11 @@ __metadata:
     "@orioro/cast": "npm:^0.0.2"
     "@orioro/dev": "npm:^0.0.5"
     "@orioro/get": "npm:^0.0.2"
+    "@orioro/react-chart-util": "workspace:^"
     "@orioro/react-csv": "npm:^0.0.2"
     "@orioro/react-dialogs": "npm:^0.0.2"
+    "@orioro/react-dir-nav": "workspace:^"
+    "@orioro/react-maplibre-util": "workspace:^"
     "@orioro/react-sortable": "npm:^0.0.2"
     "@orioro/react-ui-core": "npm:^0.0.6"
     "@orioro/react-versioned-state": "npm:^0.0.2"
@@ -4452,7 +4455,7 @@ __metadata:
     maplibre-gl: "npm:^5.1.0"
     next: "npm:14.1.0"
     query-string: "npm:^9.1.1"
-    react: "npm:^18.2.0"
+    react: "npm:^18"
     react-highlight-words: "npm:^0.21.0"
     react-map-gl: "npm:^8.0.0"
     react-router-dom: "npm:^7.4.1"
@@ -4462,6 +4465,8 @@ __metadata:
     rollup: "npm:^4.13.0"
     storybook: "npm:^8.0.0"
     styled-components: "npm:^6.1.8"
+  peerDependencies:
+    "@orioro/react-ui-core": ^0.0.6
   languageName: unknown
   linkType: soft
 

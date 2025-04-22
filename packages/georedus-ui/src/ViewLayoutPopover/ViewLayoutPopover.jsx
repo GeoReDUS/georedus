@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Icon from '@mdi/react'
+import { Icon } from '@mdi/react'
 import { mdiClose, mdiLayers } from '@mdi/js'
 import { IconButton, Popover, Text } from '@radix-ui/themes'
 

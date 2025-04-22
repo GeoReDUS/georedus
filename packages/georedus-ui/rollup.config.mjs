@@ -1,4 +1,4 @@
-import { rollupConfig } from '@orioro/dev/react'
+import { rollupConfig, ROLLUP_CONFIG } from '@orioro/dev/react'
 
 export default rollupConfig({
   input: {
@@ -13,5 +13,14 @@ export default rollupConfig({
       entryFileNames: '[name].js',
     },
   ],
-  external: /node_modules/,
+  external: (id) => {
+    return (
+      id.includes('node_modules') ||
+      ROLLUP_CONFIG.external.some((ext) => id.includes(ext))
+    )
+  },
+  // external: /node_modules/,
+  // external: (id) => {
+  //   return id.includes('node_modules') || id.includes('packages')
+  // },
 })

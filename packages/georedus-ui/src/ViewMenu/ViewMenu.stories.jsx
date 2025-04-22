@@ -12,7 +12,7 @@ import {
 import { useReducer, useState } from 'react'
 import { IconButton } from '@radix-ui/themes'
 import { mdiUpload } from '@mdi/js'
-import Icon from '@mdi/react'
+import { Icon } from '@mdi/react'
 import { useDialogs } from '../DialogSystem'
 import { useQuery } from '@tanstack/react-query'
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
