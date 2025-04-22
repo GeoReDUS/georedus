@@ -1,5 +1,17 @@
 # @orioro/template-react
 
+## 0.1.2
+
+### Patch Changes
+
+- fix worker bundle
+
+## 0.1.1
+
+### Patch Changes
+
+- fix worker file bundling and exposure
+
 ## 0.1.0
 
 ### Minor Changes

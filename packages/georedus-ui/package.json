@@ -1,12 +1,12 @@
 {
   "name": "@redus/georedus-ui",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "packageManager": "yarn@4.0.2",
   "type": "module",
-  "main": "dist/index.mjs",
+  "main": "dist/main.mjs",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": "./dist/main.mjs",
     "./*": "./dist/*"
   },
   "files": [
