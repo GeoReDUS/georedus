@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.1.6
+
+### Patch Changes
+
+- 239abbb: update dependencies
+
 ## 0.1.5
 
 ### Patch Changes
