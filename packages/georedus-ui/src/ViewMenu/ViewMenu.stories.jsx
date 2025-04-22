@@ -16,6 +16,7 @@ import { Icon } from '@mdi/react'
 import { useDialogs } from '../DialogSystem'
 import { useQuery } from '@tanstack/react-query'
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
+import { InputProvider } from '../InputSystem'
 // import { importViewsFromCsv } from '../importViewsFromCsv'
 
 export default {
@@ -23,6 +24,13 @@ export default {
   parameters: {
     layout: 'fullscreen',
   },
+  decorators: [
+    (Story) => (
+      <InputProvider variant="labeled">
+        <Story />
+      </InputProvider>
+    ),
+  ],
 }
 
 const CEM_CENSO_2010 =

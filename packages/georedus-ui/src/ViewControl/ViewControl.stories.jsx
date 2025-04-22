@@ -2,9 +2,17 @@ import { Debug, Flex } from '@orioro/react-ui-core'
 import { ViewControl } from './ViewControl'
 import { useState } from 'react'
 import { omit } from 'lodash'
+import { InputProvider } from '../InputSystem'
 
 export default {
   title: 'GeoReDUS / ViewControl',
+  decorators: [
+    (Story) => (
+      <InputProvider variant="labeled">
+        <Story />
+      </InputProvider>
+    ),
+  ],
 }
 
 const METODOLOGY_TEXT = `
@@ -16,7 +24,8 @@ L = \\frac{1}{2} \\rho v^2 S C_L
 $$
 `
 
-const METODOLOGY_URL = 'https://raw.githubusercontent.com/remarkjs/remark-math/refs/heads/main/readme.md'
+const METODOLOGY_URL =
+  'https://raw.githubusercontent.com/remarkjs/remark-math/refs/heads/main/readme.md'
 
 export const Basic = () => {
   const [activeViewsById, setActiveViewsById] = useState({})
