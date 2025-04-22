@@ -1,5 +1,11 @@
 # @orioro/react-dir-nav
 
+## 0.1.0
+
+### Minor Changes
+
+- move georedus-related packages to isolated repo
+
 ## 0.0.2
 
 ### Patch Changes

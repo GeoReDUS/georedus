@@ -1,7 +1,6 @@
 {
   "name": "@redus/georedus-ui",
-  "private": true,
-  "version": "0.0.2",
+  "version": "0.1.0",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/index.mjs",
@@ -14,7 +13,7 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "private"
+    "access": "public"
   },
   "license": "ISC",
   "scripts": {
