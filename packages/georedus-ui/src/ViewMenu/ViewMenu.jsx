@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { Flex, TextEllipsis, withDefaults } from '@orioro/react-ui-core'
 
 import { nodeIdFromPath } from '@orioro/tree-model'

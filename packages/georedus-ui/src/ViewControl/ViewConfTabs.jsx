@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { Box, Flex, DropdownMenu, Input } from '@orioro/react-ui-core'
 import { Markdown } from '../Markdown'
 import { Heading, IconButton, Tabs, Theme, Tooltip } from '@radix-ui/themes'

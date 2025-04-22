@@ -1,3 +1,4 @@
+import React from 'react'
 import { CANCELLED } from '@orioro/react-ui-core'
 import { DIALOGS, createDialogSystem } from '@orioro/react-dialogs'
 import { CsvImportDialog } from '@orioro/react-csv'

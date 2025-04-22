@@ -1,3 +1,5 @@
+import React from 'react'
+
 import {
   INPUTS,
   InputProvider as InputProvider_,

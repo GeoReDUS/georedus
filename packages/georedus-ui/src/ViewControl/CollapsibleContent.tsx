@@ -1,3 +1,5 @@
+import React from 'react'
+
 import * as Collapsible from '@radix-ui/react-collapsible'
 import styled, { keyframes } from 'styled-components'
 

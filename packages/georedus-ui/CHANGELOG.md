@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.1.3
+
+### Patch Changes
+
+- fix issue related to missing react import and strict react version
+
 ## 0.1.2
 
 ### Patch Changes

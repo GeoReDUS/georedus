@@ -1,3 +1,5 @@
+import React from 'react'
+
 import {
   Markdown as Markdown_,
   MARKDOWN_DEFAULT_REHYPE_PLUGINS,
