@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.1.7
+
+### Patch Changes
+
+- add tslib to peerDependencies
+
 ## 0.1.6
 
 ### Patch Changes
