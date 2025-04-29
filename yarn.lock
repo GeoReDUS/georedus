@@ -4475,6 +4475,9 @@ __metadata:
     rollup: "npm:^4.13.0"
     storybook: "npm:^8.0.0"
     styled-components: "npm:^6.1.8"
+    tslib: "npm:^2.8.1"
+  peerDependencies:
+    tslib: ^2.8.1
   languageName: unknown
   linkType: soft
 
