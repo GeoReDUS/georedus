@@ -7,6 +7,7 @@
     "changeset": "changeset",
     "?publish": "changeset does not support yarn@3+. Track: https://github.com/changesets/changesets/issues/432",
     "publish": "yarn workspaces foreach --no-private --all npm publish",
+    "dev": "yarn workspace @redus/georedus-ui dev",
     "build_": "yarn workspaces foreach --all --parallel --interlaced --topological-dev run build"
   },
   "workspaces": [

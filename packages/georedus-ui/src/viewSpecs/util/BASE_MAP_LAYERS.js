@@ -50,7 +50,7 @@ export const BASE_MAP_LAYERS = [
       "fill-antialias": false,
       "fill-color": "hsl(96, 44%, 79%)",
       // "fill-color": "red",
-      "fill-opacity": 1
+      "fill-opacity": 0.6
       // "fill-opacity": {
       //   "stops": [
       //     [8, 0.2],

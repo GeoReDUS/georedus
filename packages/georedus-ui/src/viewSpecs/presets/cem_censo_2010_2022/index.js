@@ -6,8 +6,6 @@ import { resolve, resolveAsync } from '@orioro/resolve'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
 import { fileReadAs } from '@orioro/react-ui-core'
 
-// import { dissolveAreasPreservingIsolated } from './util'
-
 import { buffer } from '@turf/turf'
 import { GeoReDUSWorker } from '../../../GeoReDUSWorker'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
@@ -16,6 +14,9 @@ import { dataJoin } from '@orioro/util'
 const DEFAULT_BUFFER_SIZE = 200
 
 const INSUFFICIENT_DATA_COLOR = 'red'
+
+const BUILDINGS_MIN_ZOOM = 14
+const BUILDINGS_3D_MIN_ZOOM = 16
 
 //
 //
@@ -219,6 +220,21 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     ],
     entries: ['$literal', ['$entries', ['$get', 'feature.properties']]],
   }
+
+  //
+  // Fill color expression for data loaded from
+  // vector source
+  //
+  const _vectorSourceFillColor = [
+    '$flat',
+    [
+      [
+        'step',
+        ['coalesce', ['get', ['$get', 'view.conf.data.variableId']], -1],
+      ],
+      ['$get', 'view.metadata.colorScaleStops'],
+    ],
+  ]
 
   const sourceLabel = `CENSO ${year}`
 
@@ -604,6 +620,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         attribution: sourceLabel,
         minzoom: 6,
         maxzoom: 20,
+        promoteId: 'cd_setor',
         tiles: [
           [
             '$join',
@@ -636,6 +653,52 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
                   join_select: [['$get', 'view.conf.data.variableId']],
                   where: {
                     cd_mun: [['$get', 'municipioId']],
+                  },
+                },
+              ],
+            ],
+          ],
+        ],
+      },
+
+      [`${VECTOR_SOURCE_ID}_buildings`]: {
+        type: 'vector',
+        attribution: sourceLabel,
+        minzoom: 6,
+        maxzoom: 20,
+        tiles: [
+          [
+            '$join',
+            [
+              `${VECTOR_TILE_SERVER_ENDPOINT}/dynamic_vector_tiles/{z}/{x}/{y}?`,
+              [
+                '$urlSearch',
+                {
+                  view: 'overture_br_buildings',
+                  // view: [
+                  //   '$get',
+                  //   [
+                  //     '$template',
+                  //     '${0}.collection_id',
+                  //     ['$get', 'view.conf.data.variableId'],
+                  //   ],
+                  //   variantsByVariableId,
+                  // ],
+                  select: ['height', 'subtype'],
+                  join_view: [
+                    '$get',
+                    [
+                      '$template',
+                      '${0}.source_table_id',
+                      ['$get', 'view.conf.data.variableId'],
+                    ],
+                    variantsByVariableId,
+                  ],
+                  join_source_column: `setor_${year}_id`,
+                  join_target_column: 'cd_setor',
+                  join_select: [['$get', 'view.conf.data.variableId']],
+                  where: {
+                    municipio_id: [['$get', 'municipioId']],
                   },
                 },
               ],
@@ -763,49 +826,160 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         tooltip: _customGeoJsonFeatureInfoTooltip,
       },
 
+      //
+      // Polygon fill from the vector source layer
+      // (setor censitario)
+      //
       [`${VECTOR_SOURCE_ID}_fill`]: {
         hidden: [
           '$not',
           ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
         ],
-        // interactive: [
-        //   '$empty',
-        //   ['$get', 'view.conf.data.customSpatialAggregationUnit'],
-        // ],
+        interactive: true,
         legends: _legends,
 
         tooltip: {
-          // title: [
-          //   '$literal',
-          //   [
-          //     '$template',
-          //     'Setor ${0}',
-          //     ['$get', 'feature.properties.cd_setor'],
-          //   ],
-          // ],
+          title: null,
           entries: [_variableValueTooltipEntry],
         },
         source: VECTOR_SOURCE_ID,
         'source-layer': 'dynamic_vector_tile',
         type: 'fill',
-        // filter: ['==', ['get', 'cd_mun'], ['$get', 'municipioId']],
+        // maxzoom: 14,
         paint: {
-          'fill-color': [
-            '$flat',
-            [
-              [
-                'step',
-                [
-                  'coalesce',
-                  ['get', ['$get', 'view.conf.data.variableId']],
-                  -1,
-                ],
-              ],
-              ['$get', 'view.metadata.colorScaleStops'],
-            ],
+          // 'fill-color': [
+          //   '$flat',
+          //   [
+          //     [
+          //       'step',
+          //       [
+          //         'coalesce',
+          //         ['get', ['$get', 'view.conf.data.variableId']],
+          //         -1,
+          //       ],
+          //     ],
+          //     ['$get', 'view.metadata.colorScaleStops'],
+          //   ],
+          // ],
+          'fill-color': _vectorSourceFillColor,
+          // 'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
+          'fill-opacity': [
+            'step',
+            ['zoom'],
+            ['$get', 'view.conf.style.layerOpacity'], // default: zoom < 14 → opacity = 1
+            BUILDINGS_MIN_ZOOM,
+            0.1, // zoom ≥ 14 → opacity = 0
           ],
-          'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
           'fill-outline-color': 'transparent',
+        },
+      },
+
+      //
+      // Boundary lines from the vector source layer
+      // (setor censitario)
+      //
+      [`${VECTOR_SOURCE_ID}_boundary_lines`]: {
+        hidden: [
+          '$not',
+          ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ],
+        source: VECTOR_SOURCE_ID,
+        'source-layer': 'dynamic_vector_tile',
+        type: 'line',
+        interactive: true,
+        // minzoom: BUILDINGS_MIN_ZOOM,
+        paint: {
+          'line-color': _vectorSourceFillColor,
+          'line-width': [
+            'step',
+            ['zoom'],
+            // default: zoom < 14 → thin lines
+            ['case', ['boolean', ['feature-state', 'hover'], false], 4, 0],
+            BUILDINGS_MIN_ZOOM,
+            // zoom ≥ 14 → larger lines
+            ['case', ['boolean', ['feature-state', 'hover'], false], 5, 1],
+          ],
+          'line-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1,
+            ['$get', 'view.conf.style.layerOpacity'],
+          ],
+          'line-dasharray': [2, 2],
+        },
+      },
+
+      //
+      // Buildings layer
+      //
+      [`${VECTOR_SOURCE_ID}_buildings`]: {
+        hidden: [
+          '$not',
+          ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ],
+        interactive: false,
+        // tooltip: {
+        //   title: ['$literal', ['$get', 'feature.properties.primary_name']],
+        //   entries: [],
+        //   // entries: [
+        //   //   _variableValueTooltipEntry,
+        //   //   // ['subtype', ['$literal', ['$get', 'feature.properties.subtype']]],
+        //   // ],
+        // },
+        source: `${VECTOR_SOURCE_ID}_buildings`,
+        'source-layer': 'dynamic_vector_tile',
+        type: 'fill-extrusion',
+        minzoom: BUILDINGS_MIN_ZOOM,
+        paint: {
+          //
+          // If indicator is about populacao-e-domicilios,
+          // do not color paint buildings whose subtype
+          // is known and is not residential.
+          //
+          // Otherwise, apply color to all buildings
+          //
+          'fill-extrusion-color': indicator_path?.startsWith(
+            'População e domicílios',
+          )
+            ? [
+                'case',
+                [
+                  'in',
+                  ['get', 'subtype'],
+                  [
+                    'literal',
+                    [
+                      'agricultural',
+                      'civic',
+                      'commercial',
+                      'education',
+                      'entertainment',
+                      'industrial',
+                      'medical',
+                      'military',
+                      'outbuilding',
+                      'religious',
+                      // 'residential',
+                      'service',
+                      'transportation',
+                    ],
+                  ],
+                ],
+                '#EFEFEF',
+                _vectorSourceFillColor,
+              ]
+            : _vectorSourceFillColor,
+          'fill-extrusion-opacity': 0.8,
+          // 'fill-extrusion-opacity': ['$get', 'view.conf.style.layerOpacity'],
+          // 'fill-extrusion-outline-color': 'transparent',
+          'fill-extrusion-height': [
+            'step',
+            ['zoom'],
+            0,
+            BUILDINGS_3D_MIN_ZOOM,
+            ['coalesce', ['get', 'height'], 0],
+          ],
+          // ['get', 'height'], // Adjust as needed
         },
       },
 

@@ -23,12 +23,11 @@ type SearchParams = Record<string, any>
 export const $naturalBreaks: ExpressionFn<
   [number[], opt?: Pick<ScaleNaturalBreaksProps, 'k' | 'scalesByK'>]
 > = ([values, opt]) => {
-  console.log('will run $naturalBreaks in worker')
 
   const breaks = GeoReDUSWorker.scaleNaturalBreaks({
     values,
     ...(isPlainObject(opt)
-      ? pick(opt, ['scalesByK', 'k', 'minK', 'maxK'])
+      ? pick(opt, ['scalesByK', 'k', 'minK', 'maxK', 'defaultColor'])
       : {}),
   })
 
