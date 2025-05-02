@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.2.0
+
+### Minor Changes
+
+- implement 3D maps
+
 ## 0.1.0
 
 ### Minor Changes

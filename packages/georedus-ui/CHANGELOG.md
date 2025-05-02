@@ -1,5 +1,16 @@
 # @orioro/template-react
 
+## 0.2.0
+
+### Minor Changes
+
+- implement 3D maps
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.2.0
+
 ## 0.1.7
 
 ### Patch Changes
