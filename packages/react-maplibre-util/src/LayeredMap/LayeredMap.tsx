@@ -74,7 +74,6 @@ export const LayeredMap = forwardRef<
     views,
     interactiveLayerIds: interactiveLayerIdsInput = [],
     children,
-    hover,
     ...mapProps
   }: LayeredMapProps,
   layeredMapRef,

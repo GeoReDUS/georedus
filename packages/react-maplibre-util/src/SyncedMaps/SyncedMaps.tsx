@@ -9,14 +9,16 @@ import { Flex, useRefByKey } from '@orioro/react-ui-core'
 import { Map, MapInstance, MapMouseEvent } from 'react-map-gl/maplibre'
 import styled from 'styled-components'
 import { GhostCursor } from './GhostCursor'
+import { mapSetFeaturesState } from '../useHover'
+import { MapGeoJSONFeature } from 'maplibre-gl'
 // import { mergeRefs } from 'react-merge-refs'
-// import { hoverParseEvent, withHover } from '../useHover'
 
 type HoverInfo = {
   index: number
   point: [number, number]
   coordinates: [number, number]
   event: MapMouseEvent
+  features?: MapGeoJSONFeature[]
 }
 
 function parseHoverInfo(index: number, event: MapMouseEvent): HoverInfo {
@@ -25,6 +27,7 @@ function parseHoverInfo(index: number, event: MapMouseEvent): HoverInfo {
     point: [event.point.x, event.point.y],
     coordinates: [event.lngLat.lng, event.lngLat.lat],
     event,
+    features: event.features,
   }
 }
 
@@ -67,16 +70,30 @@ export function makeSyncedMaps({
     const onSyncMove = useCallback((evt) => setViewState(evt.viewState), [])
 
     const [isDragging, setIsDragging] = useState(false)
-    const onDragStart = useCallback(() => setIsDragging(true), [setIsDragging])
     const onDragEnd = useCallback(() => setIsDragging(false), [setIsDragging])
 
     const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null)
     const [tooltips, setTooltips] = useState<React.ReactNode[] | null>(null)
+    const onDragStart = useCallback(() => {
+      setIsDragging(true)
+      setTooltips(null)
+    }, [])
 
     const onMouseMove = useCallback(
       (index: number, event: MapMouseEvent) => {
         const nextHoverInfo = parseHoverInfo(index, event)
-        setHoverInfo(nextHoverInfo)
+
+        setHoverInfo((prevHoverInfo) => {
+          mapSetFeaturesState(event.target, prevHoverInfo?.features, {
+            hover: false,
+          })
+
+          mapSetFeaturesState(event.target, nextHoverInfo?.features, {
+            hover: true,
+          })
+
+          return nextHoverInfo
+        })
 
         setTooltips(
           typeof getTooltip === 'function'
@@ -96,6 +113,29 @@ export function makeSyncedMaps({
         )
       },
       [maps],
+    )
+
+    //
+    // There is no notion of mouseenter/mouseleave
+    // in maplibre.gl.
+    //
+    // Use onMouseOut instead
+    //
+    // https://github.com/mapbox/mapbox-gl-js/issues/10594
+    // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
+    //
+    const onMouseOut = useCallback(
+      (event) => {
+        setHoverInfo(null)
+        setTooltips(null)
+
+        if (Array.isArray(hoverInfo?.features)) {
+          mapSetFeaturesState(event.target, hoverInfo.features, {
+            hover: false,
+          })
+        }
+      },
+      [setHoverInfo, setTooltips, hoverInfo],
     )
 
     //
@@ -140,13 +180,22 @@ export function makeSyncedMaps({
                   }}
                 />
               ) : null}
-              {!isDragging && Array.isArray(tooltips) && tooltips[index]}
+              {Array.isArray(tooltips) && tooltips[index]}
               <MapComponent
                 ref={setMapInstanceRef(index)}
                 cursor={isDragging ? 'grabbing' : 'default'}
                 {...baseMapProps}
                 {...mapProps}
-                {...(viewState || {})}
+                //
+                // If only 1 map is being rendered,
+                // do not use controlled state. Instead, let
+                // it be uncontrolled for performance gains.
+                //
+                // Specifically, when using controlled state and
+                // 3D terrain rendering there are glitches on
+                // drag-end event.
+                //
+                {...(maps.length > 1 ? viewState || {} : {})}
                 style={{
                   ...(mapProps.style || {}),
                   position: 'absolute',
@@ -168,10 +217,7 @@ export function makeSyncedMaps({
                 // https://github.com/mapbox/mapbox-gl-js/issues/10594
                 // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
                 //
-                onMouseOut={() => {
-                  setHoverInfo(null)
-                  setTooltips(null)
-                }}
+                onMouseOut={onMouseOut}
               />
             </SingleMapContainer>
           )

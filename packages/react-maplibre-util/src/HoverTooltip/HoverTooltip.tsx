@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useMemo, useRef } from 'react'
+import { useState, useCallback, useLayoutEffect } from 'react'
+
 import { Flex, FlexProps } from '@orioro/react-ui-core'
 import styled from 'styled-components'
+import { usePrevious } from 'react-use'
 
 type DataSectionProps = FlexProps & {
-  title: string
-  entries: [React.ReactNode, React.ReactNode][]
+  title?: string
+  entries?: [React.ReactNode, React.ReactNode][]
 }
 
 type HoverTooltipProps = {
@@ -52,40 +55,81 @@ const DataSectionContainer = styled(Flex)`
 const EntriesList = styled.ul`
   padding: 0;
   list-style: none;
+  margin-top: 0;
   margin-bottom: 0;
   > li + li {
     margin-top: 4px;
   }
-  // padding: 10px;
 `
 
 function DataSection({ title, entries, ...props }: DataSectionProps) {
   return (
+    Array.isArray(entries) &&
     entries.length > 0 && (
       <DataSectionContainer direction="column" gap="10px" {...props}>
         {title && <DataSectionHeading>{title}</DataSectionHeading>}
-        <EntriesList>
-          {entries.map(([label, value], index) => (
-            <li key={index}>
-              {typeof label === 'string' ? <span>{label}: </span> : label}
-              {typeof value === 'string' ? (
-                <span
-                  style={{
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {value}
-                </span>
-              ) : (
-                value
-              )}
-            </li>
-          ))}
-        </EntriesList>
+        <div>
+          <EntriesList>
+            {entries.map(([label, value], index) => (
+              <li key={index}>
+                {typeof label === 'string' ? <span>{label}: </span> : label}
+                {typeof value === 'string' ? (
+                  <span
+                    style={{
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {value}
+                  </span>
+                ) : (
+                  value
+                )}
+              </li>
+            ))}
+          </EntriesList>
+        </div>
       </DataSectionContainer>
     )
   )
 }
+
+function useMaxValue(initial = -Infinity): (v: number) => number {
+  const maxRef = useRef(initial)
+
+  const applyMax = (value: number) => {
+    if (value > maxRef.current) {
+      maxRef.current = value
+    }
+    return maxRef.current
+  }
+
+  return applyMax
+}
+
+export function useClientRect<T extends HTMLElement>() {
+  const [rect, setRect] = useState<DOMRect | null>(null)
+
+  const ref = useCallback((node: T | null) => {
+    if (node !== null) {
+      setRect(node.getBoundingClientRect())
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      if (ref.current) {
+        setRect(ref.current.getBoundingClientRect())
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return [rect, ref] as const
+}
+
+const PADDING = 15
+const Y_OFFSET = -20
 
 export function HoverTooltip({
   position,
@@ -93,11 +137,65 @@ export function HoverTooltip({
   dataSections,
   style = {},
 }: HoverTooltipProps) {
+  const ref = useRef<HTMLElement>(null)
+
+  const applyMaxW = useMaxValue(0)
+  const applyMaxY = useMaxValue(0)
+
+  const prevRef = usePrevious(ref.current)
+
+  const positioning = useMemo(() => {
+    if (!ref.current) {
+      return {
+        opacity: 0,
+      }
+    }
+
+    const rect = ref.current.getBoundingClientRect()
+    const parentRect = ref.current.offsetParent?.getBoundingClientRect()
+
+    if (!parentRect) {
+      console.warn('could not find parentRect for HoverTooltip')
+      return {
+        opacity: 0,
+      }
+    }
+
+    const maxW = applyMaxW(rect?.width || 0)
+    const maxH = applyMaxY(rect?.height || 0)
+
+    const translateX =
+      position[0] + maxW + PADDING * 2 < parentRect.width
+        ? 'translateX(0)'
+        : `translateX(calc(-100% - ${2 * PADDING}px))`
+
+    const translateY =
+      position[1] + maxH + PADDING * 2 + Y_OFFSET < parentRect.height
+        ? 'translateY(0)'
+        : `translateY(calc(-100% + ${PADDING}px + ${-1 * Y_OFFSET}px)`
+
+    return {
+      left: position[0] + PADDING,
+      top: position[1] + Y_OFFSET,
+      transform: `${translateX} ${translateY}`,
+
+      //
+      // If previous ref was not set, it means
+      // that this is the first time the component
+      // is being rendered, thus do not animate
+      //
+      transition: !prevRef ? 'none' : 'transform .3s ease',
+    }
+  }, [position])
+
   return (
     <Container
+      ref={ref}
       style={{
-        left: position[0] + 15,
-        top: position[1] - 20,
+        // left: position[0],
+        // top: position[1],
+        ...positioning,
+        minWidth: 200,
         ...style,
       }}
     >
@@ -112,7 +210,6 @@ export function HoverTooltip({
                     width: '100%',
                     margin: 0,
                     borderBottom: '1px solid currentColor',
-                    // marginBottom: 'none',
                   }}
                 />
               )}

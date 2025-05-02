@@ -16,8 +16,6 @@ export const MapWindow = forwardRef(function MapWindowInner(
 
   const parentMapRef = useMap()
 
-  console.log('parentMapRef', parentMapRef)
-
   useSyncedMaps(
     parentMapRef,
     mapRef,

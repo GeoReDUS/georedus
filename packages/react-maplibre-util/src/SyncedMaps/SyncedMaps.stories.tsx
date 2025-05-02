@@ -3,6 +3,7 @@ import { makeSyncedMaps } from './SyncedMaps'
 import { LayeredMap } from '../LayeredMap'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { HoverTooltip } from '../HoverTooltip'
+import { ControlContainer } from '../Controls'
 
 export default {
   title: 'SyncedMaps',
@@ -82,34 +83,50 @@ export const Basic = () => {
                 sources: {
                   municipios: {
                     type: 'geojson',
-                    data: `https://servicodados.ibge.gov.br/api/v4/malhas/municipios/1501402?formato=application/vnd.geo+json`,
+                    promoteId: 'codarea',
+                    data: `https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR?intrarregiao=municipio&formato=application/vnd.geo+json&qualidade=minima`,
                   },
                 },
                 layers: {
-                  municipios: {
+                  municipios_fill: {
+                    interactive: true,
                     type: 'fill',
                     source: 'municipios',
                     paint: {
                       'fill-color': 'red',
-                      'fill-opacity': 0.6,
+                      // 'fill-opacity': 0.6,
+                      'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.3,
+                      ],
+                    },
+                  },
+                  municipios_bounds: {
+                    type: 'line',
+                    source: 'municipios',
+                    paint: {
+                      'line-color': 'red',
+                      'line-opacity': 1,
+                      'line-width': 2,
                     },
                   },
                 },
               },
             ],
             children: (
-              <div
-                style={{
-                  width: 200,
-                  height: 300,
-                  position: 'absolute',
-                  bottom: 10,
-                  right: 10,
-                  background: 'white',
-                }}
-              >
-                Some legend placeholder
-              </div>
+              <ControlContainer.StyleReset position="bottom-right">
+                <div
+                  style={{
+                    width: 200,
+                    height: 300,
+                    background: 'white',
+                  }}
+                >
+                  Some legend placeholder
+                </div>
+              </ControlContainer.StyleReset>
             ),
           },
           {
@@ -136,18 +153,17 @@ export const Basic = () => {
               },
             ],
             children: (
-              <div
-                style={{
-                  width: 200,
-                  height: 300,
-                  position: 'absolute',
-                  bottom: 10,
-                  right: 10,
-                  background: 'white',
-                }}
-              >
-                Some legend placeholder
-              </div>
+              <ControlContainer.StyleReset position="bottom-right">
+                <div
+                  style={{
+                    width: 200,
+                    height: 300,
+                    background: 'white',
+                  }}
+                >
+                  Some legend placeholder
+                </div>
+              </ControlContainer.StyleReset>
             ),
           },
           // {
