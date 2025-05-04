@@ -29,6 +29,7 @@
     "storybook": "^8.0.0"
   },
   "dependencies": {
+    "@maplibre/maplibre-gl-inspect": "^1.7.1",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "@orioro/react-chart-util": "workspace:^",

@@ -2417,6 +2417,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@maplibre/maplibre-gl-inspect@npm:^1.7.1":
+  version: 1.7.1
+  resolution: "@maplibre/maplibre-gl-inspect@npm:1.7.1"
+  dependencies:
+    lodash.isequal: "npm:^4.5.0"
+    randomcolor: "npm:^0.6.2"
+  peerDependencies:
+    maplibre-gl: ">3.0.0"
+  checksum: e58c991b845066192d58294347db42d5c171c6182790998caf3adda904aa932366ebbac04a3746a43a92d7ef76f3f09677bfc7cba484e3400926a5aff9fb2d3a
+  languageName: node
+  linkType: hard
+
 "@maplibre/maplibre-gl-style-spec@npm:^19.2.1":
   version: 19.3.3
   resolution: "@maplibre/maplibre-gl-style-spec@npm:19.3.3"
@@ -2829,6 +2841,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@orioro/react-maplibre-util@workspace:packages/react-maplibre-util"
   dependencies:
+    "@maplibre/maplibre-gl-inspect": "npm:^1.7.1"
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
     "@orioro/dev": "npm:^0.0.5"
@@ -13127,6 +13140,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.isequal@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.isequal@npm:4.5.0"
+  checksum: dfdb2356db19631a4b445d5f37868a095e2402292d59539a987f134a8778c62a2810c2452d11ae9e6dcac71fc9de40a6fedcb20e2952a15b431ad8b29e50e28f
+  languageName: node
+  linkType: hard
+
 "lodash.merge@npm:^4.6.2":
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
@@ -16158,6 +16178,13 @@ __metadata:
   dependencies:
     safe-buffer: "npm:^5.1.0"
   checksum: 50395efda7a8c94f5dffab564f9ff89736064d32addf0cc7e8bf5e4166f09f8ded7a0849ca6c2d2a59478f7d90f78f20d8048bca3cdf8be09d8e8a10790388f3
+  languageName: node
+  linkType: hard
+
+"randomcolor@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "randomcolor@npm:0.6.2"
+  checksum: 845b8b4a31ff4a6fe590930217db93ca5741b0eb7b363c564d5db72d52449383bd4cc44b77b8ae64cf4b70118ef7b8b9062134743e9ec7a6798d6a6f84318a2a
   languageName: node
   linkType: hard
 
