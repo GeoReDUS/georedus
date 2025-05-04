@@ -116,7 +116,7 @@ export const Basic = () => {
               },
             ],
             children: (
-              <ControlContainer.StyleReset position="bottom-right">
+              <ControlContainer.Unstyled position="bottom-right">
                 <div
                   style={{
                     width: 200,
@@ -126,7 +126,7 @@ export const Basic = () => {
                 >
                   Some legend placeholder
                 </div>
-              </ControlContainer.StyleReset>
+              </ControlContainer.Unstyled>
             ),
           },
           {
@@ -153,7 +153,7 @@ export const Basic = () => {
               },
             ],
             children: (
-              <ControlContainer.StyleReset position="bottom-right">
+              <ControlContainer.Unstyled position="bottom-right">
                 <div
                   style={{
                     width: 200,
@@ -163,7 +163,7 @@ export const Basic = () => {
                 >
                   Some legend placeholder
                 </div>
-              </ControlContainer.StyleReset>
+              </ControlContainer.Unstyled>
             ),
           },
           // {

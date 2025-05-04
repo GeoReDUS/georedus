@@ -73,4 +73,4 @@ function ControlContainerWithStyleReset({
   )
 }
 
-ControlContainer.StyleReset = ControlContainerWithStyleReset
+ControlContainer.Unstyled = ControlContainerWithStyleReset
