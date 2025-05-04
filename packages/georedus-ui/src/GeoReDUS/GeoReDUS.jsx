@@ -730,6 +730,7 @@ function GeoReDUSInner({
                             ? DATAVIZ_MAP_STYLE_URL
                             : SATELLITE_MAP_STYLE_URL
                         }
+                        maxZoom={13}
                       />
                     </MapStyleToggleCtrl>
                   </ControlContainer>

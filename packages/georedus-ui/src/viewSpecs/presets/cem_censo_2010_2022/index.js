@@ -618,7 +618,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
       [VECTOR_SOURCE_ID]: {
         type: 'vector',
         attribution: sourceLabel,
-        minzoom: 6,
+        minzoom: 8,
         maxzoom: 20,
         promoteId: 'cd_setor',
         tiles: [
