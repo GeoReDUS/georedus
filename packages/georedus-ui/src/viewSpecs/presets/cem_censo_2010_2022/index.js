@@ -625,7 +625,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           [
             '$join',
             [
-              `${VECTOR_TILE_SERVER_ENDPOINT}/dynamic_vector_tiles/{z}/{x}/{y}?`,
+              `${VECTOR_TILE_SERVER_ENDPOINT}/dvt/{z}/{x}/{y}?`,
               [
                 '$urlSearch',
                 {
@@ -670,7 +670,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           [
             '$join',
             [
-              `${VECTOR_TILE_SERVER_ENDPOINT}/dynamic_vector_tiles/{z}/{x}/{y}?`,
+              `${VECTOR_TILE_SERVER_ENDPOINT}/dvt/{z}/{x}/{y}?`,
               [
                 '$urlSearch',
                 {
@@ -843,7 +843,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           entries: [_variableValueTooltipEntry],
         },
         source: VECTOR_SOURCE_ID,
-        'source-layer': 'dynamic_vector_tile',
+        'source-layer': 'dvt',
         type: 'fill',
         // maxzoom: 14,
         paint: {
@@ -884,7 +884,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
           ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
         ],
         source: VECTOR_SOURCE_ID,
-        'source-layer': 'dynamic_vector_tile',
+        'source-layer': 'dvt',
         type: 'line',
         interactive: true,
         // minzoom: BUILDINGS_MIN_ZOOM,
@@ -927,7 +927,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         //   // ],
         // },
         source: `${VECTOR_SOURCE_ID}_buildings`,
-        'source-layer': 'dynamic_vector_tile',
+        'source-layer': 'dvt',
         type: 'fill-extrusion',
         minzoom: BUILDINGS_MIN_ZOOM,
         paint: {
