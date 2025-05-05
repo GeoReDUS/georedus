@@ -943,7 +943,57 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
       //
       // Buildings layer
       //
-      [`${VECTOR_SOURCE_ID}_buildings`]: {
+      [`${VECTOR_SOURCE_ID}_buildings_fill`]: {
+        hidden: [
+          '$not',
+          ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ],
+        interactive: false,
+        source: `${VECTOR_SOURCE_ID}_buildings`,
+        'source-layer': 'dvt',
+        type: 'fill',
+        minzoom: BUILDINGS_MIN_ZOOM,
+        paint: {
+          //
+          // If indicator is about populacao-e-domicilios,
+          // do not color paint buildings whose subtype
+          // is known and is not residential.
+          //
+          // Otherwise, apply color to all buildings
+          //
+          'fill-color': indicator_path?.startsWith('População e domicílios')
+            ? [
+                'case',
+                [
+                  'in',
+                  ['get', 'subtype'],
+                  [
+                    'literal',
+                    [
+                      'agricultural',
+                      'civic',
+                      'commercial',
+                      'education',
+                      'entertainment',
+                      'industrial',
+                      'medical',
+                      'military',
+                      'outbuilding',
+                      'religious',
+                      // 'residential',
+                      'service',
+                      'transportation',
+                    ],
+                  ],
+                ],
+                '#EFEFEF',
+                _vectorSourceFillColor,
+              ]
+            : _vectorSourceFillColor,
+          'fill-opacity': 1,
+        },
+      },
+      [`${VECTOR_SOURCE_ID}_buildings_fill_extrusion`]: {
         hidden: [
           '$not',
           ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
