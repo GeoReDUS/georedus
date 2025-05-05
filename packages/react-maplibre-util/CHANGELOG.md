@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.3.1
+
+### Patch Changes
+
+- fix radix dependency version sync
+
 ## 0.3.0
 
 ### Minor Changes
