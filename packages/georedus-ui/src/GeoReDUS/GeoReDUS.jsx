@@ -49,6 +49,7 @@ import { resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
 import { useViews } from '../viewSpecs/useViews'
+import { useMapStyle } from './useMapStyle'
 
 //
 // List of municipio ids that are in the RM (Regiões Metropolitanas) dataset
@@ -103,6 +104,8 @@ const SATELLITE_MAP_STYLE_URL = `https://api.maptiler.com/maps/satellite/style.j
 //
 const DEM_SOURCE_URL = `https://api.maptiler.com/tiles/terrain-rgb-v2/{z}/{x}/{y}.webp?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
 const DEM_SOURCE_ENCODING = 'mapbox'
+
+const GLYPHS_URL = `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
 
 const MapStyleToggleCtrl = styled.button`
   height: 100px;
@@ -481,6 +484,19 @@ function GeoReDUSInner({
     }
   }, [])
 
+  const mapStyle = useMapStyle(
+    baseMapStyle === 'satellite'
+      ? SATELLITE_MAP_STYLE_URL
+      : DATAVIZ_MAP_STYLE_URL,
+    (styleBase) => {
+      return {
+        ...styleBase,
+        glyphs: GLYPHS_URL,
+        sprite: 'https://api.maptiler.com/maps/dataviz/sprite',
+      }
+    },
+  )
+
   return (
     <Flex>
       <LeftPanel
@@ -519,170 +535,178 @@ function GeoReDUSInner({
         </Flex>
       </Flex>
 
-      <SyncedMaps
-        maxPitch={80}
-        onDrag={() => {
-          if (resolvedLayout.length > 1 && leftPanelOpen) {
+      {mapStyle && (
+        <SyncedMaps
+          maxPitch={80}
+          onDrag={() => {
+            if (resolvedLayout.length > 1 && leftPanelOpen) {
+              //
+              // In case there are two open maps, on drag close
+              // left panel
+              //
+              setLeftPanelOpen(false)
+            }
+          }}
+          ref={syncedMapsRef}
+          onLoad={async (event) => _refocus(event.target)}
+          attributionControl={false}
+          initialViewState={DEFAULT_INITIAL_VIEW_STATE}
+          style={{
+            position: 'fixed',
+            top: 0,
+            bottom: 0,
+            left: '60px',
+            right: 0,
+          }}
+          setPrefetchZoomDelta={0}
+          mapStyle={mapStyle}
+          sky={SKY_STYLE}
+          tooltip={getTooltip}
+          maps={resolvedLayout.map(({ id, views, legends }, index) => ({
+            id,
+            views,
+
             //
-            // In case there are two open maps, on drag close
-            // left panel
+            // Required for exporting map:
             //
-            setLeftPanelOpen(false)
-          }
-        }}
-        ref={syncedMapsRef}
-        onLoad={async (event) => _refocus(event.target)}
-        attributionControl={false}
-        initialViewState={DEFAULT_INITIAL_VIEW_STATE}
-        style={{ position: 'fixed', top: 0, bottom: 0, left: '60px', right: 0 }}
-        setPrefetchZoomDelta={0}
-        mapStyle={
-          baseMapStyle === 'satellite'
-            ? SATELLITE_MAP_STYLE_URL
-            : DATAVIZ_MAP_STYLE_URL
-        }
-        sky={SKY_STYLE}
-        tooltip={getTooltip}
-        maps={resolvedLayout.map(({ id, views, legends }, index) => ({
-          id,
-          views,
+            // canvasContextAttributes: {
+            //   preserveDrawingBuffer: true,
+            // },
+            children: (
+              <>
+                <AttributionControl position="bottom-right" compact={false} />
 
-          //
-          // Required for exporting map:
-          //
-          // canvasContextAttributes: {
-          //   preserveDrawingBuffer: true,
-          // },
-          children: (
-            <>
-              <AttributionControl position="bottom-right" compact={false} />
-
-              <ControlContainer
-                style={{
-                  width: 'auto',
-                  height: 'auto',
-                  boxShadow: 'none',
-                  opacity: legends.length > 0 ? 1 : 0,
-                }}
-                position="bottom-right"
-              >
-                {legends.length > 0 && (
-                  <LegendContainer
-                    direction="row"
-                    gap="3"
-                    p={resolvedLayout.length > 1 ? '3' : '4'}
-                  >
-                    {resolvedLayout.length > 1 && (
-                      <Tooltip content="Fechar visualização">
-                        <IconButton
-                          size="1"
-                          variant="soft"
-                          onClick={() =>
-                            viewConfDispatch({
-                              type: 'DEACTIVATE_VIEW',
-                              payload: views[0].id,
-                            })
-                          }
-                        >
-                          <Icon path={mdiClose} size="20px" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-
-                    <EvenSpacedList
-                      columns={legends.length > 1 ? 2 : 1}
-                      gap="10px"
+                <ControlContainer
+                  style={{
+                    width: 'auto',
+                    height: 'auto',
+                    boxShadow: 'none',
+                    opacity: legends.length > 0 ? 1 : 0,
+                  }}
+                  position="bottom-right"
+                >
+                  {legends.length > 0 && (
+                    <LegendContainer
+                      direction="row"
+                      gap="3"
+                      p={resolvedLayout.length > 1 ? '3' : '4'}
                     >
-                      {legends.map((legend) => (
-                        <Legend
-                          {...(resolvedLayout.length > 1
-                            ? {
-                                direction: 'row',
-                                maxWidth: '300px',
-                                size: '1',
-                              }
-                            : {
-                                direction: 'column',
-                                maxWidth: '150px',
-                                size: '2',
-                              })}
-                          key={legend.id}
-                          {...legend}
-                        />
-                      ))}
-                    </EvenSpacedList>
-                  </LegendContainer>
-                )}
-              </ControlContainer>
+                      {resolvedLayout.length > 1 && (
+                        <Tooltip content="Fechar visualização">
+                          <IconButton
+                            size="1"
+                            variant="soft"
+                            onClick={() =>
+                              viewConfDispatch({
+                                type: 'DEACTIVATE_VIEW',
+                                payload: views[0].id,
+                              })
+                            }
+                          >
+                            <Icon path={mdiClose} size="20px" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
 
-              {index === resolvedLayout.length - 1 ? (
-                <>
-                  {process.env.NODE_ENV !== 'production' && <InspectControl />}
-                  <GeolocateControl position="top-right" />
-                  <FullscreenControl position="top-right" />
-                  <NavigationControl position="top-right" />
-                  <ScaleControl position="bottom-right" />
+                      <EvenSpacedList
+                        columns={legends.length > 1 ? 2 : 1}
+                        gap="10px"
+                      >
+                        {legends.map((legend) => (
+                          <Legend
+                            {...(resolvedLayout.length > 1
+                              ? {
+                                  direction: 'row',
+                                  maxWidth: '300px',
+                                  size: '1',
+                                }
+                              : {
+                                  direction: 'column',
+                                  maxWidth: '150px',
+                                  size: '2',
+                                })}
+                            key={legend.id}
+                            {...legend}
+                          />
+                        ))}
+                      </EvenSpacedList>
+                    </LegendContainer>
+                  )}
+                </ControlContainer>
 
-                  <ControlContainer
-                    style={{
-                      width: 100,
-                      height: 100,
-                      boxShadow: 'none',
-                    }}
-                  >
-                    <MapStyleToggleCtrl
+                {index === resolvedLayout.length - 1 ? (
+                  <>
+                    {process.env.NODE_ENV !== 'production' && (
+                      <InspectControl />
+                    )}
+                    <GeolocateControl position="top-right" />
+                    <FullscreenControl position="top-right" />
+                    <NavigationControl position="top-right" />
+                    <ScaleControl position="bottom-right" />
+
+                    <ControlContainer
                       style={{
-                        position: 'relative',
                         width: 100,
                         height: 100,
+                        boxShadow: 'none',
                       }}
-                      type="button"
-                      onClick={() =>
-                        setBaseMapStyle(
-                          baseMapStyle === 'dataviz' ? 'satellite' : 'dataviz',
-                        )
-                      }
                     >
-                      <MapWindow
+                      <MapStyleToggleCtrl
                         style={{
-                          pointerEvents: 'none',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          height: '100%',
-                          width: '100%',
+                          position: 'relative',
+                          width: 100,
+                          height: 100,
                         }}
-                        mapStyle={
-                          baseMapStyle === 'satellite'
-                            ? DATAVIZ_MAP_STYLE_URL
-                            : SATELLITE_MAP_STYLE_URL
+                        type="button"
+                        onClick={() =>
+                          setBaseMapStyle(
+                            baseMapStyle === 'dataviz'
+                              ? 'satellite'
+                              : 'dataviz',
+                          )
                         }
-                        maxZoom={13}
-                      />
-                    </MapStyleToggleCtrl>
-                  </ControlContainer>
-                </>
-              ) : null}
+                      >
+                        <MapWindow
+                          style={{
+                            pointerEvents: 'none',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            height: '100%',
+                            width: '100%',
+                          }}
+                          mapStyle={
+                            baseMapStyle === 'satellite'
+                              ? DATAVIZ_MAP_STYLE_URL
+                              : SATELLITE_MAP_STYLE_URL
+                          }
+                          maxZoom={13}
+                        />
+                      </MapStyleToggleCtrl>
+                    </ControlContainer>
+                  </>
+                ) : null}
 
-              <TerrainControl
-                demSourceUrl={DEM_SOURCE_URL}
-                demSourceEncoding={DEM_SOURCE_ENCODING}
-              />
-            </>
-          ),
-        }))}
-      >
-        {isLoading && (
-          <LoadingIndicator
-            style={{
-              position: 'fixed',
-              bottom: '10px',
-              right: '10px',
-              zIndex: 20,
-            }}
-          />
-        )}
-      </SyncedMaps>
+                <TerrainControl
+                  demSourceUrl={DEM_SOURCE_URL}
+                  demSourceEncoding={DEM_SOURCE_ENCODING}
+                />
+              </>
+            ),
+          }))}
+        >
+          {isLoading && (
+            <LoadingIndicator
+              style={{
+                position: 'fixed',
+                bottom: '10px',
+                right: '10px',
+                zIndex: 20,
+              }}
+            />
+          )}
+        </SyncedMaps>
+      )}
     </Flex>
   )
 }

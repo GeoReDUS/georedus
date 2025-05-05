@@ -151,7 +151,7 @@ function useViewStageQueries({
         viewId,
         stageKey,
         viewConf,
-        viewResolutionContextBase.app.municipioId,
+        viewResolutionContextBase.app,
         stageDependencies,
       ]
 

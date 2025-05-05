@@ -11,6 +11,7 @@ import {
   influenceAreaSources,
   setupVariants,
   tableVectorSource,
+  vectorLayer,
   zoomSensitiveLinearSizes,
 } from '../../util'
 
@@ -199,6 +200,26 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
     },
     layers: {
       ...globalRes.layers,
+
+      // icon: vectorLayer(VECTOR_SOURCE_ID, {
+      //   zIndex: 1000000000,
+      //   type: 'symbol',
+      //   filter: $layerFilter,
+      //   layout: {
+      //     'icon-image': 'hospital', // Maki-style icon
+      //     'icon-size': 1,
+      //     'icon-allow-overlap': true,
+      //     // 'text-field': ['get', 'str_nome_fantasia'],
+      //     // 'text-field': 'TEST',
+      //     'text-font': ['Open Sans Regular'],
+      //     'text-size': 12,
+      //     'text-offset': [0, 1.5],
+      //     'text-anchor': 'top',
+      //   },
+      //   paint: {
+      //     'text-color': '#333333',
+      //   },
+      // }),
 
       ...influenceAreaLayers({
         fillPaint: {

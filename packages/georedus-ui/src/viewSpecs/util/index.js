@@ -1,6 +1,7 @@
 import { set } from 'lodash'
-import { BASE_MAP_LAYERS } from './BASE_MAP_LAYERS'
+import { VEGETATION_AND_WATER_OVERLAY_LAYERS } from './VEGETATION_AND_WATER_OVERLAY_LAYERS'
 import { slugify } from '@orioro/util'
+import { resolve } from '@orioro/resolve'
 
 export * from './colorSchemes'
 export * from './filter'
@@ -38,26 +39,6 @@ export const BASE_MAP_LAYERS_Z_INDEX_BASE = 100
 
 export const ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE = 1000
 
-const BASE_MAP_LAYERS_OBJ = BASE_MAP_LAYERS.reduce(
-  (acc, layer, index) => ({
-    ...acc,
-    [slugify(layer.id, '_')]: [
-      //
-      // Important! use $literal expression
-      // to avoid unnecessary computing on resolution
-      //
-      '$literal',
-      {
-        ...layer,
-        interactive: false,
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + index,
-        source: 'planet',
-      },
-    ],
-  }),
-  {},
-)
-
 export function globalResources(context) {
   const MUNICIPIO_MALHA_TABLE_ID = 'ibge_malha_br_municipio'
 
@@ -77,7 +58,10 @@ export function globalResources(context) {
     },
     layers: {
       municipio: {
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + BASE_MAP_LAYERS.length + 9,
+        zIndex:
+          BASE_MAP_LAYERS_Z_INDEX_BASE +
+          VEGETATION_AND_WATER_OVERLAY_LAYERS.length +
+          9,
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         absoluteSourceId: MUNICIPIO_MALHA_TABLE_ID,
         'source-layer': `${MUNICIPIO_MALHA_TABLE_ID}.geom`,
@@ -91,7 +75,25 @@ export function globalResources(context) {
         },
       },
 
-      ...BASE_MAP_LAYERS_OBJ,
+      ...VEGETATION_AND_WATER_OVERLAY_LAYERS.reduce(
+        (acc, layer, index) => ({
+          ...acc,
+          [slugify(layer.id, '_')]: resolve.fn((context) => {
+            //
+            // It is important to return as literal in
+            // order to avoid unnecessary resolution attempts
+            //
+            return resolve.literal({
+              ...layer,
+              hidden: context.app?.baseMapStyle === 'satellite',
+              interactive: false,
+              zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + index,
+              source: 'planet',
+            })
+          }),
+        }),
+        {},
+      ),
     },
   }
 }

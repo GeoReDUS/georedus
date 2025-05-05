@@ -1,4 +1,4 @@
-export const BASE_MAP_LAYERS = [
+export const VEGETATION_AND_WATER_OVERLAY_LAYERS = [
   // {
   //   "id": "Background",
   //   "type": "background",

@@ -213,7 +213,7 @@ export function LeftPanel({
               position: 'relative',
             }}
           >
-            <LoadingOverlay />
+            <LoadingOverlay message={null} />
           </div>
         )}
         <Flex
