@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.4.0
+
+### Minor Changes
+
+- add influence area to saude
+
 ## 0.3.2
 
 ### Patch Changes
