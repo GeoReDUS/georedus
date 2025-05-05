@@ -1,5 +1,17 @@
 # @orioro/template-react
 
+## 0.5.0
+
+### Minor Changes
+
+- implement proof-of-concept of hover interaction on legend
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.4.0
+  - @orioro/react-chart-util@0.2.0
+
 ## 0.4.0
 
 ### Minor Changes

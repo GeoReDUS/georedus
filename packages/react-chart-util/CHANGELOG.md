@@ -1,5 +1,11 @@
 # @orioro/react-chart-util
 
+## 0.2.0
+
+### Minor Changes
+
+- implement proof-of-concept of hover interaction on legend
+
 ## 0.1.0
 
 ### Minor Changes
