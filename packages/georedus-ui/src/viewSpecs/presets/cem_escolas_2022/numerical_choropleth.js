@@ -27,32 +27,48 @@ export function numerical_choropleth(
 
   const _color_scheme = COLOR_SCHEMES[color_scheme]
 
+  const $circleColor = [
+    '$if',
+    ['$empty', ['$get', 'view.metadata.colorScaleStops']],
+    INSUFFICIENT_DATA_COLOR,
+    [
+      '$flat',
+      [
+        ['step', ['coalesce', ['get', variable_id], -1]],
+        ['$get', 'view.metadata.colorScaleStops'],
+      ],
+    ],
+  ]
+
   return {
     ...base,
-    metadata: [
-      '$let',
-      base.metadata,
-      {
-        variableValues: ['$get', 'variableValues'],
-        sizingValues: ['$get', 'sizingValues'],
-        colorScaleStops: [
-          '$naturalBreaks',
-          ['$get', 'variableValues'],
-          [
-            '$merge',
-            _color_scheme,
-            {
-              minK: 5,
-            },
+    metadata: {
+      _value: [
+        '$let',
+        base.metadata._value,
+        {
+          variableValues: ['$get', 'variableValues'],
+          sizingValues: ['$get', 'sizingValues'],
+          influenceArea: ['$get', 'influenceArea'],
+          colorScaleStops: [
+            '$naturalBreaks',
+            ['$get', 'variableValues'],
+            [
+              '$merge',
+              _color_scheme,
+              {
+                minK: 5,
+              },
+            ],
           ],
-        ],
-      },
-    ],
+        },
+      ],
+    },
 
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
         type: 'circle',
 
         legends: [
@@ -91,20 +107,17 @@ export function numerical_choropleth(
           'circle-radius': $circleRadius,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#000000',
-          'circle-color': [
-            '$if',
-            ['$empty', ['$get', 'view.metadata.colorScaleStops']],
-            INSUFFICIENT_DATA_COLOR,
-            [
-              '$flat',
-              [
-                ['step', ['coalesce', ['get', variable_id], -1]],
-                ['$get', 'view.metadata.colorScaleStops'],
-              ],
-            ],
-          ],
+          'circle-color': $circleColor,
         },
       }),
+
+      influenceArea_fill: {
+        ...base.layers.influenceArea_fill,
+        paint: {
+          ...base.layers.influenceArea_fill.paint,
+          'fill-color': $circleColor,
+        },
+      },
     },
   }
 }

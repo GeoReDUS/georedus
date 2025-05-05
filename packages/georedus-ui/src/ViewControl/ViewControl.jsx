@@ -49,9 +49,9 @@ const Summary = styled.div`
   }
 `
 
-function resolveDefaultConf(viewSpec) {
+function _resolveDefaultConf(confSchema) {
   return Object.fromEntries(
-    Object.entries(viewSpec.conf || {}).map(([confScopeId, confSet]) => [
+    Object.entries(confSchema || {}).map(([confScopeId, confSet]) => [
       confScopeId,
       Object.fromEntries(
         Object.entries(confSet).map(([confKey, confSettings]) => [
@@ -120,7 +120,8 @@ export function ViewControl({
   )
 
   const setView = useCallback(
-    (layoutIndex) => onSetView(resolveDefaultConf(viewSpec), layoutIndex),
+    (layoutIndex) =>
+      onSetView(_resolveDefaultConf(viewSpec.confSchema), layoutIndex),
     [viewSpec, onSetView],
   )
 

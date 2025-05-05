@@ -6,6 +6,7 @@ export * from './colorSchemes'
 export * from './filter'
 export * from './setupVariants'
 export * from './downloadResolver'
+export * from './zoomSensitiveLinearSizes'
 
 export function tableVectorSource(
   context,

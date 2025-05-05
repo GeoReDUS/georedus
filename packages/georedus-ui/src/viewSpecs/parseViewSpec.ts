@@ -6,9 +6,5 @@ export function parseViewSpec(specInput, otherSpecInputs, context) {
 
   const preset = specInput.preset ? PRESETS[specInput.preset] : null
 
-  if (preset) {
-    return preset(specInput, otherSpecInputs, context)
-  } else {
-    return specInput
-  }
+  return preset ? preset(specInput, otherSpecInputs, context) : specInput
 }

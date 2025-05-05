@@ -7,20 +7,25 @@ import {
   $$literal,
 } from '@orioro/resolve'
 
-// import { apiConf } from '@/api'
-
-// import { $naturalBreaks } from '@orioro/react-maplibre-util'
 import * as CUSTOM_EXPR from './customExpr'
 
+//
+// TODO: set dynamic values
+//
+const HARD_CODED_ALLOW_FETCH_SOURCES: Parameters<
+  typeof fetchExpr.allowOrigins
+>[0] = {
+  ['https://dev-geoapi-metadata.orioro.design']: ['GET', 'POST'],
+  ['http://localhost:6001']: ['GET', 'POST'],
+}
+
+console.warn('TODO: remove HARD_CODED_ALLOW_FETCH_SOURCES')
+
 async function isFetchAllowed(resource, options) {
-  console.error('isFetchAllowed must be defined')
-
-  return true
-  // const conf = await apiConf()
-
-  // return fetchExpr.allowOrigins({
-  //   [conf.GEO_METADATA_API_ENDPOINT]: ['GET', 'POST'],
-  // })(resource, options)
+  return fetchExpr.allowOrigins(HARD_CODED_ALLOW_FETCH_SOURCES)(
+    resource,
+    options,
+  )
 }
 
 const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
@@ -35,7 +40,6 @@ const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
         $fetch: fetchExpr({
           isFetchAllowed,
         }),
-        // $naturalBreaks,
       },
     }).resolver,
   ),

@@ -22,12 +22,12 @@ import {
   makeSyncedMaps,
   MapWindow,
   ControlContainer,
+  InspectControl,
 } from '@orioro/react-maplibre-util'
 import { Legend } from '@orioro/react-chart-util'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-import { useQueries, useQuery } from '@tanstack/react-query'
-import { resolveView } from '../viewSpecs/resolveView'
+import { useQuery } from '@tanstack/react-query'
 import { HoverTooltip, TerrainControl } from '@orioro/react-maplibre-util'
 import {
   NavigationControl,
@@ -40,7 +40,7 @@ import {
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import styled from 'styled-components'
 import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
-import { get, isPlainObject } from 'lodash'
+import { get } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import { mdiClose } from '@mdi/js'
@@ -48,6 +48,7 @@ import { csvParse } from 'd3-dsv'
 import { resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
+import { useViews } from '../viewSpecs/useViews'
 
 //
 // List of municipio ids that are in the RM (Regiões Metropolitanas) dataset
@@ -151,35 +152,6 @@ const MapStyleToggleCtrl = styled.button`
     }
   }
 `
-
-//
-// Custom queryKeyHashFn that correctly handles files
-//
-// https://github.com/TanStack/query/blob/ff788ac4e0a9cbc6af6cdf1837fcbf5c0b0b9a9c/packages/query-core/src/utils.ts#L217
-//
-export function queryKeyHashFnWithFileSupport(queryKey) {
-  return JSON.stringify(queryKey, (_, val) => {
-    if (val instanceof File) {
-      // Replace File with stable metadata representation
-      return {
-        __file__: true,
-        name: val.name,
-        size: val.size,
-        type: val.type,
-        lastModified: val.lastModified,
-      }
-    }
-
-    return isPlainObject(val)
-      ? Object.keys(val)
-          .sort()
-          .reduce((result, key) => {
-            result[key] = val[key]
-            return result
-          }, {})
-      : val
-  })
-}
 
 //
 // From:
@@ -305,60 +277,18 @@ function GeoReDUSInner({
     throwOnError: process.env.NODE_ENV !== 'production',
   })
 
-  const viewSpecsById = useMemo(
-    () =>
-      Array.isArray(viewSpecsQuery.data)
-        ? viewSpecsQuery.data.reduce(
-            (acc, viewSpec) => ({
-              ...acc,
-              [viewSpec.id]: viewSpec,
-            }),
-            {},
-          )
-        : null,
-    [viewSpecsQuery.data],
-  )
-
-  const viewsQueries = useQueries({
-    queries: viewConfState.layout
-      .flatMap((list) => list.items.map((item) => item.id))
-      .map((viewId) => {
-        return {
-          queryKey: [
-            'ResolveView',
-            viewId,
-            municipioId,
-            viewSpecsById ? viewSpecsById[viewId] : null,
-            viewConfState.byId[viewId],
-          ],
-          queryKeyHashFn: queryKeyHashFnWithFileSupport,
-          queryFn: async () => {
-            const viewSpec = viewSpecsById
-              ? viewSpecsById[viewId]
-              : viewSpecsById
-
-            return viewSpec
-              ? resolveView(viewSpec, viewConfState.byId[viewId], {
-                  municipioId,
-                  baseMapStyle,
-                })
-              : null
-          },
-          throwOnError: true,
-          retry: false,
-        }
-      }),
+  const { resolvedViews, resolvedViewSpecs, isLoading } = useViews({
+    viewSpecs: viewSpecsQuery.data,
+    viewConfState: viewConfState,
+    app: {
+      municipioId,
+      baseMapStyle,
+    },
   })
 
-  const resolvedViews = useMemo(
-    () =>
-      viewsQueries
-        // .filter((query) => query.status === 'success')
-        .map((query) => query.data)
-        .filter(Boolean),
-    [viewsQueries],
-  )
-
+  //
+  // Prepares layout for rendering
+  //
   const resolvedLayout = useMemo(() => {
     const resolvedViewsById = Object.fromEntries(
       resolvedViews.map((view) => [view.id, view]),
@@ -386,7 +316,7 @@ function GeoReDUSInner({
       return {
         id: list.id,
         views,
-        legends: views.flatMap((view) => view?.legends || []),
+        legends: views.flatMap((view) => view?.controls?.legends || []),
       }
     })
   }, [viewConfState.layout, viewConfState.byId, resolvedViews])
@@ -551,16 +481,12 @@ function GeoReDUSInner({
     }
   }, [])
 
-  const isLoading = viewsQueries.some(
-    (viewQuery) => viewQuery.status === 'pending',
-  )
-
   return (
     <Flex>
       <LeftPanel
         open={leftPanelOpen}
         onSetOpen={setLeftPanelOpen}
-        viewSpecs={viewSpecsQuery.data}
+        viewSpecs={resolvedViewSpecs}
         viewConfState={viewConfState}
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
@@ -691,6 +617,7 @@ function GeoReDUSInner({
 
               {index === resolvedLayout.length - 1 ? (
                 <>
+                  {process.env.NODE_ENV !== 'production' && <InspectControl />}
                   <GeolocateControl position="top-right" />
                   <FullscreenControl position="top-right" />
                   <NavigationControl position="top-right" />

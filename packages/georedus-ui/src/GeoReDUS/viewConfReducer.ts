@@ -1,12 +1,16 @@
+//
+// TODO: MOVE types into viewSpecs
+// Bind closer to the views model
+//
 import { ItemList } from '@orioro/react-sortable'
 import { uniqBy } from 'lodash'
 
-type ViewConf = {
+export type ViewConf = {
   id: string
   [key: string]: any
 }
 
-type State = {
+export type ViewConfState = {
   byId: Record<string, ViewConf>
   layout: ItemList[]
 }
@@ -18,7 +22,10 @@ type Action =
 
 const CONF_TAB_IDS = ['data', 'style']
 
-export function viewConfReducer(state: State, action: Action): State {
+export function viewConfReducer(
+  state: ViewConfState,
+  action: Action,
+): ViewConfState {
   switch (action.type) {
     case 'SET_VIEW': {
       const { viewConf } = action.payload
@@ -86,7 +93,7 @@ export function viewConfReducer(state: State, action: Action): State {
   }
 }
 
-export function viewConfReducerInitialState(initialState): State {
+export function viewConfReducerInitialState(initialState): ViewConfState {
   return (
     initialState || {
       byId: {},
@@ -97,67 +104,3 @@ export function viewConfReducerInitialState(initialState): State {
     }
   )
 }
-
-//
-// Loads viewconf and loads global/shared configuration
-//
-// export function resolveViewConf(
-//   state: State,
-//   id: string,
-//   viewSpecsById: Record<string, ViewSpec>,
-// ): ViewConf {
-//   //
-//   // Load the view's self conf
-//   //
-//   const viewConfSelf = state.byId[id]
-
-//   //
-//   // Load global configurations from other active views
-//   //
-//   const globalConf = Object.entries(state.byId)
-//     .map(([otherViewId, otherViewConf]) => {
-//       if (otherViewId === id) {
-//         return null
-//       }
-
-//       const otherViewSpec = viewSpecsById[otherViewId]
-
-//       const otherViewGlobalConfPairs =
-//         otherViewSpec.conf &&
-//         CONF_TAB_IDS.flatMap((tabId) => {
-//           const tabSchema = otherViewSpec.conf[tabId]
-
-//           if (!tabSchema) {
-//             return null
-//           }
-
-//           const tabValue = otherViewConf[tabId]
-
-//           return Object.entries(tabSchema)
-//             .filter(([propertyKey, propertySchema]) =>
-//               Boolean(propertySchema && propertySchema.global),
-//             )
-//             .map(([propertyKey, propertySchema]) => {
-//               const propertyValue = tabValue ? tabValue[propertyKey] : undefined
-
-//               return typeof propertyValue === 'undefined'
-//                 ? null
-//                 : [propertyKey, propertyValue]
-//             })
-//         }).filter(Boolean)
-
-//       return otherViewGlobalConfPairs.length > 0
-//         ? {
-//             viewId: otherViewId,
-//             conf: Object.fromEntries(otherViewGlobalConfPairs),
-//           }
-//         : null
-//     })
-//     .filter(Boolean)
-
-//   console.log({
-//     globalConf,
-//   })
-
-//   return { ...viewConfSelf, global: globalConf }
-// }

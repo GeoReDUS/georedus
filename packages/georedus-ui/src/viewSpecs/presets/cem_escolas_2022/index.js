@@ -1,19 +1,23 @@
 import {
+  ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+  COLOR_SCHEMES,
   downloadResolver,
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
   globalResources,
   setupVariants,
   tableVectorSource,
+  zoomSensitiveLinearSizes,
 } from '../../util'
 
 import { numerical_choropleth } from './numerical_choropleth'
 import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
-import { isPlainObject, uniqBy } from 'lodash'
-import { resolve } from '@orioro/resolve'
+import { get, isPlainObject, omit, uniqBy } from 'lodash'
+import { resolve, resolveAsync } from '@orioro/resolve'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
+import { GeoReDUSWorker } from '../../../GeoReDUSWorker'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -21,6 +25,8 @@ const BY_TYPE = {
   boolean_categorical,
   categorical,
 }
+
+const DEFAULT_BUFFER_SIZE = 200
 
 export function cem_escolas_2022(config, allViewSpecs, context) {
   const {
@@ -94,7 +100,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
       Boolean,
     ),
 
-    conf: {
+    confSchema: {
       data: {
         variantId: {
           label: 'Rede de ensino:',
@@ -117,78 +123,193 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
               defaultValue: true,
             }
           : null,
+
+        showInfluenceArea: {
+          type: 'booleanCheckbox',
+          label: 'Área de influência',
+          description: 'Visualizar área de influência',
+          defaultValue: true,
+        },
+
+        influenceAreaRadius: {
+          type: 'slider',
+          inactive: resolve.literal(
+            resolve.fn((context) => !context.value?.showInfluenceArea),
+          ),
+          label: resolve.literal(
+            resolve.fn((context) => {
+              return `Raio de influência (${context.value?.influenceAreaRadius || DEFAULT_BUFFER_SIZE}m)`
+            }),
+          ),
+          helperText: 'Raio de influência da escola',
+          min: 0,
+          max: 2000,
+          step: 50,
+          defaultValue: DEFAULT_BUFFER_SIZE,
+        },
+        dissolveOverlappingGeometries: {
+          inactive: resolve.literal(
+            resolve.fn((context) => !context.value?.showInfluenceArea),
+          ),
+          type: 'booleanCheckbox',
+          label: 'Dissolver geometrias',
+          description: 'Unir geometrias sobrepostas',
+          defaultValue: false,
+        },
       },
     },
 
     metadata: {
-      variableValues: [
-        '$get',
-        ['$template', '[].${0}', VARIABLE_ID],
-        [
-          '$fetch',
-          {
-            href: METADATA_API_ENDPOINT,
-            pathname: collection_id,
-            searchParams: [
-              '$merge',
-              {
-                select: VARIABLE_ID,
-                id_municipio: _id_municipio_apiFilterExpr,
-              },
+      _value: [
+        '$let',
+        {
+          rawData: [
+            '$fetch',
+            {
+              href: METADATA_API_ENDPOINT,
+              pathname: collection_id,
+              searchParams: [
+                '$merge',
+                {
+                  select: [VARIABLE_ID, 'geom'].join(','),
+                  id_municipio: _id_municipio_apiFilterExpr,
+                },
 
-              _fetchMetadataApiFilterExpResolver,
-            ],
-          },
-        ],
-      ],
-      sizingValues: sizing_variable_id
-        ? [
-            '$if',
-            ['$get', 'view.conf.data.showSize'],
-            [
-              '$filter',
-              [
-                '$get',
-                ['$template', '[].${0}', sizing_variable_id],
+                _fetchMetadataApiFilterExpResolver,
+              ],
+            },
+          ],
+        },
+        {
+          variableValues: [
+            '$get',
+            ['$template', 'rawData[].${0}', VARIABLE_ID],
+          ],
+          sizingValues: sizing_variable_id
+            ? [
+                '$if',
+                ['$get', 'view.conf.data.showSize'],
                 [
-                  '$fetch',
-                  {
-                    href: METADATA_API_ENDPOINT,
-                    pathname: collection_id,
-
-                    searchParams: [
-                      '$merge',
+                  '$filter',
+                  [
+                    '$get',
+                    ['$template', '[].${0}', sizing_variable_id],
+                    [
+                      '$fetch',
                       {
-                        select: sizing_variable_id,
-                        id_municipio: _id_municipio_apiFilterExpr,
+                        href: METADATA_API_ENDPOINT,
+                        pathname: collection_id,
+
+                        searchParams: [
+                          '$merge',
+                          {
+                            select: sizing_variable_id,
+                            id_municipio: _id_municipio_apiFilterExpr,
+                          },
+                          _fetchMetadataApiFilterExpResolver,
+                        ],
                       },
-                      _fetchMetadataApiFilterExpResolver,
                     ],
-                  },
+                  ],
+                  [
+                    '$and',
+                    ['$not', ['$empty', ['$iterator', 'item']]],
+                    ['$gt', ['$iterator', 'item'], 0],
+                  ],
                 ],
-              ],
-              [
-                '$and',
-                ['$not', ['$empty', ['$iterator', 'item']]],
-                ['$gt', ['$iterator', 'item'], 0],
-              ],
-            ],
-            null,
-          ]
-        : null,
+                null,
+              ]
+            : null,
+
+          influenceArea: resolveAsync.fn(async (context) => {
+            const {
+              influenceAreaRadius,
+              showInfluenceArea,
+              dissolveOverlappingGeometries,
+            } = get(context, 'view.conf.data') || {}
+
+            if (
+              showInfluenceArea &&
+              typeof influenceAreaRadius === 'number' &&
+              influenceAreaRadius > 0 &&
+              context.rawData
+            ) {
+              try {
+                const influenceArea = await GeoReDUSWorker.buffer(
+                  {
+                    type: 'FeatureCollection',
+                    features: context.rawData.map((entry) => ({
+                      type: 'Feature',
+                      geometry: entry.geom,
+                      properties: omit(entry, ['geom']),
+                    })),
+                  },
+                  influenceAreaRadius,
+                  {
+                    units: 'meters',
+                    dissolve: dissolveOverlappingGeometries,
+                  },
+                )
+
+                return influenceArea
+              } catch (err) {
+                return null
+              }
+            }
+
+            return null
+          }),
+        },
+      ],
     },
 
     sources: {
       ...globalRes.sources,
       [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
         attribution: $sourceLabel,
+        promoteId: 'id_escola',
         version: 2,
         minzoom: 8,
         maxzoom: 20,
       }),
+      influenceArea: [
+        '$if',
+        [['$empty', ['$get', 'view.metadata.influenceArea']]],
+        null,
+        resolve.fn((context) => {
+          return {
+            type: 'geojson',
+            data: context.view.metadata.influenceArea,
+          }
+        }),
+      ],
     },
     layers: {
       ...globalRes.layers,
+      influenceArea_fill: {
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
+        hidden: ['$empty', ['$get', 'view.metadata.influenceArea']],
+        source: 'influenceArea',
+        type: 'fill',
+
+        paint: {
+          'fill-color': get(COLOR_SCHEMES, 'schemeSet1.colors[1]'),
+          'fill-opacity': 0.3,
+        },
+      },
+      influenceArea_boundaries: {
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
+        hidden: ['$empty', ['$get', 'view.metadata.influenceArea']],
+        source: 'influenceArea',
+        type: 'line',
+
+        paint: {
+          'line-color': get(COLOR_SCHEMES, 'schemeSet1.colors[1]'),
+          'line-opacity': 0.8,
+          'line-width': 2,
+          'line-dasharray': [2, 2],
+        },
+      },
     },
 
     download: downloadResolver({
@@ -271,15 +392,15 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
             1,
           ],
         ],
-        [
-          'interpolate',
-          ['linear'],
-          ['get', sizing_variable_id], // Replace "density" with your property name
-          ['$min', ['$get', 'view.metadata.sizingValues']],
-          SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
-          ['$max', ['$get', 'view.metadata.sizingValues']],
-          SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
-        ],
+
+        zoomSensitiveLinearSizes({
+          variable: ['get', sizing_variable_id],
+          minValue: ['$min', ['$get', 'view.metadata.sizingValues']],
+          maxValue: ['$max', ['$get', 'view.metadata.sizingValues']],
+          minSize: SIZE_MIN,
+          maxSize: SIZE_MAX,
+        }),
+
         SIZE_DEFAULT,
       ]
     : SIZE_DEFAULT

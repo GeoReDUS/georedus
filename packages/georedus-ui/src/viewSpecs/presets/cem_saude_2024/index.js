@@ -99,7 +99,7 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
       keywords,
     ].filter(Boolean),
 
-    conf: {
+    confSchema: {
       data: {
         // variantId: {
         //   label: 'Rede de ensino:',
@@ -180,6 +180,7 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
       ...globalRes.sources,
       [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
         attribution: $sourceLabel,
+        promoteId: 'id_cnes',
         minzoom: 8,
         maxzoom: 20,
       }),

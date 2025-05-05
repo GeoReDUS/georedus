@@ -33,6 +33,8 @@ const CONF_TABS = {
 const CONF_TAB_ORDER = ['data', 'style']
 
 export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
+  const CONF_SCHEMA = viewSpec.confSchema
+
   //
   // Debounce updating view conf. Prevent's fast changing controls
   // from accidentally triggering map view re-renders unnecessarily
@@ -43,13 +45,13 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
   const enabledTabs = useMemo(
     () =>
       CONF_TAB_ORDER.map((tabId) =>
-        viewSpec.conf &&
-        isPlainObject(viewSpec.conf[tabId]) &&
-        Object.values(viewSpec.conf[tabId]).some(Boolean)
+        CONF_SCHEMA &&
+        isPlainObject(CONF_SCHEMA[tabId]) &&
+        Object.values(CONF_SCHEMA[tabId]).some(Boolean)
           ? CONF_TABS[tabId]
           : null,
       ).filter(Boolean),
-    [viewSpec],
+    [CONF_SCHEMA],
   )
 
   const dialogs = useDialogs()
@@ -151,7 +153,7 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
             //
             // Omit null confs
             //
-            Object.entries(viewSpec.conf[tab.id]).filter(([key, value]) =>
+            Object.entries(CONF_SCHEMA[tab.id]).filter(([key, value]) =>
               Boolean(value),
             ),
           )

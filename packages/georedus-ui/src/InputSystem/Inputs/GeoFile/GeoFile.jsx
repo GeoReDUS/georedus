@@ -1,9 +1,8 @@
 import React from 'react'
 
-import initGdalJs from 'gdal3.js'
 import { SingleFileInput, fileReadAs } from '@orioro/react-ui-core'
 import { useDialogs } from '../../../DialogSystem'
-import { uniq, uniqBy } from 'lodash'
+import { uniq } from 'lodash'
 import { setupGdal } from './setupGdal'
 
 // TODO generalize for allow input types and output types
@@ -53,9 +52,9 @@ export function GeoFile(props) {
 
           const Gdal = await setupGdal()
 
-          // 
+          //
           // TODO: convert to use ogr2ogr util at setupGdal.js
-          // 
+          //
 
           const { datasets, errors } = await Gdal.open(
             file,
