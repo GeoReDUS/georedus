@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.3.2
+
+### Patch Changes
+
+- fix peerDependencies
+
 ## 0.3.1
 
 ### Patch Changes
