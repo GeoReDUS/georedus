@@ -8,6 +8,7 @@ import {
 } from '../types'
 import { resolveExpr, resolveExprAsync } from './resolveExpr'
 import { get } from '@orioro/get'
+import { fmtLayerAbsoluteId } from '@orioro/react-maplibre-util'
 
 export const STAGE_VALUE_KEY = '_value'
 
@@ -143,20 +144,19 @@ export const resolveControls = _stageResolver<
   Pick<ResolvedView, 'conf' | 'metadata' | 'sources' | 'layers'>,
   ResolvedView['controls']
 >('controls', (controls = {}, { view, viewSpec }) => {
-  console.log('resolve controls', controls)
-
   const layerLegends = view.layers
-    ? get(
-        Object.values(view.layers).filter(
-          (layer) => !layer.hidden && layer.visibility !== 'none',
-        ),
-        '[].legends[]',
-      )
-        .filter(Boolean)
-        .map((legend, index) => ({
-          ...legend,
-          id: `${viewSpec.id}_${index}`,
-        }))
+    ? Object.entries(view.layers).flatMap(([layerRelativeId, layer]) => {
+        return layer.hidden || layer.visibility === 'none'
+          ? []
+          : (layer.legends || []).map((legend, index) => ({
+              ...legend,
+              //
+              // TODO: review if there is a better approach
+              //
+              layerId: fmtLayerAbsoluteId(view.id as string, layerRelativeId),
+              id: `${viewSpec.id}_${index}`,
+            }))
+      })
     : []
 
   return {

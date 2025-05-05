@@ -23,6 +23,7 @@ import {
   MapWindow,
   ControlContainer,
   InspectControl,
+  useLayeredMap,
 } from '@orioro/react-maplibre-util'
 import { Legend } from '@orioro/react-chart-util'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -35,6 +36,7 @@ import {
   GeolocateControl,
   AttributionControl,
   FullscreenControl,
+  useMap,
 } from 'react-map-gl/maplibre'
 
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
@@ -196,6 +198,69 @@ const SKY_STYLE = {
   'fog-color': '#0000ff',
   'fog-ground-blend': 0.5,
   'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 10, 1, 12, 0],
+}
+
+//
+// TODO: review, this is clearly not a structured way
+// of doing this
+//
+function HoverLegend({ layerId, __filterFeaturesForStep, ...legendProps }) {
+  const mapRef = useMap()
+
+  const SEQUENTIAL_COLOR_LEGEND_PROPS = useMemo(() => {
+    const onMouseEnterStep = (stepInfo) => {
+      const map = mapRef.current?.getMap()
+
+      if (!map) {
+        return
+      }
+
+      const targetFeatures = __filterFeaturesForStep(
+        stepInfo,
+        map.queryRenderedFeatures(undefined, {
+          layers: [layerId],
+        }),
+      )
+
+      for (const feature of targetFeatures) {
+        map.setFeatureState(feature, {
+          hover: true,
+        })
+      }
+    }
+
+    const onMouseLeaveStep = () => {
+      const map = mapRef.current?.getMap()
+
+      if (!map) {
+        return
+      }
+
+      const layerRenderedFeatures = map.queryRenderedFeatures(undefined, {
+        layers: [layerId],
+      })
+
+      for (const feature of layerRenderedFeatures) {
+        map.setFeatureState(feature, {
+          hover: false,
+        })
+      }
+    }
+
+    return {
+      onMouseEnterStep,
+      onMouseLeaveStep,
+    }
+  }, [])
+
+  return (
+    <Legend
+      {...legendProps}
+      {...(legendProps.type === 'SequentialColorLegend'
+        ? SEQUENTIAL_COLOR_LEGEND_PROPS
+        : {})}
+    />
+  )
 }
 
 function GeoReDUSInner({
@@ -615,7 +680,7 @@ function GeoReDUSInner({
                         gap="10px"
                       >
                         {legends.map((legend) => (
-                          <Legend
+                          <HoverLegend
                             {...(resolvedLayout.length > 1
                               ? {
                                   direction: 'row',

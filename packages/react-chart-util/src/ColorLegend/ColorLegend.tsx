@@ -7,6 +7,10 @@ export type ColorLegendItem = {
   id: string | number
   color: string
   label: React.ReactNode
+  style?: React.CSSProperties
+  boxStyle?: React.CSSProperties
+  labelStyle?: React.CSSProperties
+  [key: string]: any
 }
 
 export type ColorLegendProps = FlexProps &
@@ -27,6 +31,7 @@ const ItemLabel = styled.div`
   line-height: 1.2;
   display: flex;
   align-items: center;
+  cursor: default;
 `
 
 const STYLES_BY_SIZE = {
@@ -40,6 +45,20 @@ const STYLES_BY_SIZE = {
   },
 }
 
+const ColorLegendItem = styled(Flex)`
+  ${({ onMouseEnter, onClick, color }) => {
+    return typeof onMouseEnter === 'function' || typeof onClick === 'function'
+      ? `&:hover {
+          text-decoration: underline;
+
+          > div:first-child {
+            outline: 1px solid var(--background-color);
+          }
+        `
+      : ''
+  }}
+`
+
 export function ColorLegendItems({
   items,
   size = '2',
@@ -47,29 +66,45 @@ export function ColorLegendItems({
 }: Omit<ColorLegendProps, 'title'>) {
   return (
     <Flex direction="column" gap="2px" {...props}>
-      {items.map((item, index) => (
-        <Flex
-          key={item.id || index}
-          direction="row"
-          alignItems="center"
-          gap={size === '1' ? '8px' : '10px'}
-          style={{
-            ...STYLES_BY_SIZE[size],
-            '--background-color': item.color,
-          }}
-        >
-          <ColorDisplay
+      {items.map(
+        (
+          {
+            label,
+            id,
+            color,
+            style = {},
+            boxStyle = {},
+            labelStyle = {},
+            ...props
+          },
+          index,
+        ) => (
+          <ColorLegendItem
+            {...props}
+            key={id || index}
+            direction="row"
+            alignItems="center"
+            gap={size === '1' ? '8px' : '10px'}
             style={{
-              border:
-                item.color === 'transparent'
-                  ? '1px dotted #555555'
-                  : '1px solid var(--background-color)',
+              ...STYLES_BY_SIZE[size],
+              ...(style || {}),
+              '--background-color': color,
             }}
-          />
+          >
+            <ColorDisplay
+              style={{
+                border:
+                  color === 'transparent'
+                    ? '1px dotted #555555'
+                    : '1px solid var(--background-color)',
+                ...(boxStyle || {}),
+              }}
+            />
 
-          <ItemLabel>{item.label}</ItemLabel>
-        </Flex>
-      ))}
+            <ItemLabel style={labelStyle}>{label}</ItemLabel>
+          </ColorLegendItem>
+        ),
+      )}
     </Flex>
   )
 }

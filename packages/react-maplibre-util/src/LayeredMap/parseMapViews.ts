@@ -129,6 +129,10 @@ export function augmentFeature(
   }
 }
 
+export function fmtLayerAbsoluteId(viewId: string, layerRelativeId: string) {
+  return `${viewId}__${layerRelativeId}`
+}
+
 export function parseMapViews(
   orderedViews: MapView[],
   { existingLayers }: ParseMapViewsOptions = {},
@@ -163,7 +167,8 @@ export function parseMapViews(
 
               const layerId = layer.absoluteId
                 ? layer.absoluteId
-                : `${viewId}__${layerRelativeId}`
+                : fmtLayerAbsoluteId(viewId, layerRelativeId)
+              // : `${viewId}__${layerRelativeId}`
 
               return {
                 interactiveLayerIds: layer.interactive

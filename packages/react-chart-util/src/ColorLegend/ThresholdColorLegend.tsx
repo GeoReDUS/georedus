@@ -15,10 +15,24 @@ type FormatOptions = {
   number: CastNumberToStrOptions
 }
 
-type ThresholdColorLegendProps = Omit<ColorLegendProps, 'items'> & {
-  steps: StepsInput
-  format?: Partial<FormatOptions>
+type StepEventInfo = {
+  min: number
+  max: number | null
+  index: number
+  color: string
 }
+
+type StepEventHandlers = {
+  onMouseEnterStep?: (info: StepEventInfo) => any
+  onMouseLeaveStep?: (info: StepEventInfo) => any
+  onClickStep?: (info: StepEventInfo) => any
+}
+
+type ThresholdColorLegendProps = Omit<ColorLegendProps, 'items'> &
+  StepEventHandlers & {
+    steps: StepsInput
+    format?: Partial<FormatOptions>
+  }
 
 type ParsedStepItem = {
   min?: number
@@ -28,6 +42,7 @@ type ParsedStepItem = {
   color: string
   label: string
 }
+
 const DEFAULT_FORMAT_OPTIONS: FormatOptions = {
   below: 'Abaixo de ${0}',
   above: 'Acima de ${0}',
@@ -38,6 +53,7 @@ const DEFAULT_FORMAT_OPTIONS: FormatOptions = {
 export function parseStepsToItems(
   steps: StepsInput,
   options: FormatOptions = DEFAULT_FORMAT_OPTIONS,
+  { onMouseEnterStep, onMouseLeaveStep, onClickStep }: StepEventHandlers,
 ): ParsedStepItem[] {
   options = {
     ...DEFAULT_FORMAT_OPTIONS,
@@ -69,13 +85,33 @@ export function parseStepsToItems(
     } as ParsedStepItem,
     ...chunk(rest, 2).map(([min, color], index, arr) => {
       const minStr = _cast(min)
-      const maxStr = index < arr.length - 1 ? _cast(arr[index + 1][0]) : null
+      const max = index < arr.length - 1 ? arr[index + 1][0] : null
+      const maxStr = typeof max === 'number' ? _cast(max) : null
+
+      const stepInfo: StepEventInfo = {
+        min,
+        max,
+        index,
+        color,
+      }
 
       return {
         min,
         minStr,
         maxStr,
         color,
+        onMouseEnter:
+          typeof onMouseEnterStep === 'function'
+            ? () => onMouseEnterStep(stepInfo)
+            : undefined,
+        onMouseLeave:
+          typeof onMouseLeaveStep === 'function'
+            ? () => onMouseLeaveStep(stepInfo)
+            : undefined,
+        onClick:
+          typeof onClickStep === 'function'
+            ? () => onClickStep(stepInfo)
+            : undefined,
         label:
           index < arr.length - 1
             ? typeof options.between === 'string'
@@ -99,9 +135,22 @@ export type ParsedStepThresholds = {
 export function SequentialColorLegend({
   format,
   steps,
+
+  onMouseEnterStep,
+  onMouseLeaveStep,
+  onClickStep,
+
   ...props
 }: ThresholdColorLegendProps) {
-  const items = useMemo(() => parseStepsToItems(steps, format), [steps])
+  const items = useMemo(
+    () =>
+      parseStepsToItems(steps, format, {
+        onMouseEnterStep,
+        onMouseLeaveStep,
+        onClickStep,
+      }),
+    [steps, format, onMouseEnterStep, onMouseLeaveStep, onClickStep],
+  )
 
   return <ColorLegend items={items} {...props} />
 }
@@ -109,10 +158,17 @@ export function SequentialColorLegend({
 export function ThresholdColorLegend({
   steps,
   format,
+  onMouseEnterStep,
+  onMouseLeaveStep,
+  onClickStep,
   ...props
 }: ThresholdColorLegendProps) {
   const items = useMemo(() => {
-    const parsed = parseStepsToItems(steps, format)
+    const parsed = parseStepsToItems(steps, format, {
+      onMouseEnterStep,
+      onMouseLeaveStep,
+      onClickStep,
+    })
 
     return parsed.map((item, index, all) =>
       index === all.length - 1
@@ -134,7 +190,7 @@ export function ThresholdColorLegend({
             ),
           },
     )
-  }, [steps])
+  }, [steps, format, onMouseEnterStep, onMouseLeaveStep, onClickStep])
 
   return <ColorLegend items={items} {...props} />
 }

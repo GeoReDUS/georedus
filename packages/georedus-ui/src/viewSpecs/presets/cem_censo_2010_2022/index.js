@@ -169,6 +169,22 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         ],
       },
 
+      //
+      // TODO: review! Clearly not structured manner.
+      // Currently used @ GeoReDUS/GeoReDUS.jsx
+      //
+      __filterFeaturesForStep: (stepInfo, features) => {
+        return features.filter((feature) => {
+          const value = feature.properties?.[variable_id]
+
+          return (
+            typeof value === 'number' &&
+            value >= stepInfo.min &&
+            (value <= stepInfo.max || stepInfo.max === null)
+          )
+        })
+      },
+
       // format: {
       //   number: NUMBER_FMT,
       //   below: 'Sem dados',
@@ -878,28 +894,25 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         type: 'fill',
         // maxzoom: 14,
         paint: {
-          // 'fill-color': [
-          //   '$flat',
-          //   [
-          //     [
-          //       'step',
-          //       [
-          //         'coalesce',
-          //         ['get', ['$get', 'view.conf.data.variableId']],
-          //         -1,
-          //       ],
-          //     ],
-          //     ['$get', 'view.metadata.colorScaleStops'],
-          //   ],
-          // ],
           'fill-color': _vectorSourceFillColor,
-          // 'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
           'fill-opacity': [
             'step',
             ['zoom'],
-            ['$get', 'view.conf.style.layerOpacity'], // default: zoom < 14 → opacity = 1
+            //
+            // At lower zooms, opacities should be high
+            //
+            [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              1,
+              ['$get', 'view.conf.style.layerOpacity'],
+            ],
             BUILDINGS_MIN_ZOOM,
-            0.1, // zoom ≥ 14 → opacity = 0
+            //
+            // At higher zooms, opacity should be low,
+            // so that buildings show up
+            //
+            ['case', ['boolean', ['feature-state', 'hover'], false], 0.2, 0.1],
           ],
           'fill-outline-color': 'transparent',
         },

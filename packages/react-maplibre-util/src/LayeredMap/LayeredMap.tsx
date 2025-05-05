@@ -1,4 +1,11 @@
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  createContext,
+  useContext,
+} from 'react'
 import { Map, Layer, Source, MapInstance } from 'react-map-gl/maplibre'
 import { LayeredMapProps } from '../types'
 import {
@@ -32,6 +39,12 @@ const VIEW_AUGMENTED_EVENT_HANDLERS = [
   'onDblClick',
   'onContextMenu',
 ]
+
+const LayeredMapContext = createContext(null)
+
+export function useLayeredMap() {
+  return useContext(LayeredMapContext)
+}
 
 function useViewAugmentedEventHandlers(
   props: LayeredMapProps,
@@ -103,8 +116,7 @@ export const LayeredMap = forwardRef<
 
   const evtHandlers = useViewAugmentedEventHandlers(mapProps, parsed)
 
-  useImperativeHandle(
-    layeredMapRef,
+  const imperativeHandle = useMemo(
     () => ({
       map: mapRef.current as MapInstance,
       augmentFeature: augmentFeature.bind(null, parsed),
@@ -113,6 +125,8 @@ export const LayeredMap = forwardRef<
     }),
     [mapRef.current, parsed],
   )
+
+  useImperativeHandle(layeredMapRef, () => imperativeHandle, [imperativeHandle])
 
   return (
     <Map
@@ -124,13 +138,15 @@ export const LayeredMap = forwardRef<
       {...mapProps}
       {...evtHandlers}
     >
-      {children}
-      {parsed.sources.map(({ id, viewId, ...source }) => (
-        <Source key={id} id={id} {...source} />
-      ))}
-      {parsed.layers.map(({ id, ...layer }) => (
-        <Layer key={id} id={id} {...layer} />
-      ))}
+      <LayeredMapContext.Provider value={imperativeHandle}>
+        {children}
+        {parsed.sources.map(({ id, viewId, ...source }) => (
+          <Source key={id} id={id} {...source} />
+        ))}
+        {parsed.layers.map(({ id, ...layer }) => (
+          <Layer key={id} id={id} {...layer} />
+        ))}
+      </LayeredMapContext.Provider>
     </Map>
   )
 })
