@@ -1,5 +1,16 @@
 # @orioro/template-react
 
+## 0.3.0
+
+### Minor Changes
+
+- better support for 3d, refactor view resolution framework
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
