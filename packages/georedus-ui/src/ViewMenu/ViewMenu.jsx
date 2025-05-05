@@ -97,7 +97,7 @@ function Item({ node, depth, textSearch }) {
                 viewConfState.layout.findIndex((list) =>
                   list.items.every(
                     (item) =>
-                      viewSpecsById[item.id].viewType !==
+                      viewSpecsById[item.id]?.viewType !==
                       VIEW_TYPE_SURFACE_CHOROPLETH,
                   ),
                 )
@@ -133,10 +133,12 @@ function _countActiveViews({ viewConfState, viewSpecsById, nodeId }) {
   const nodeDirPath = `${nodeId}/`
 
   return Object.keys(viewConfState.byId).filter((activeItemId) => {
+    const viewSpec = viewSpecsById[activeItemId]
+
+    if (!viewSpec) return false
+
     const activeItemPath = nodeIdFromPath(
-      viewSpecsById[activeItemId].path +
-        ' / ' +
-        viewSpecsById[activeItemId].label,
+      viewSpec.path + ' / ' + viewSpec.label,
     )
 
     return activeItemPath.startsWith(nodeDirPath)

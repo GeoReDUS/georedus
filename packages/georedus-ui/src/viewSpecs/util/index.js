@@ -7,6 +7,7 @@ export * from './filter'
 export * from './setupVariants'
 export * from './downloadResolver'
 export * from './zoomSensitiveLinearSizes'
+export * from './influenceArea'
 
 export function tableVectorSource(
   context,

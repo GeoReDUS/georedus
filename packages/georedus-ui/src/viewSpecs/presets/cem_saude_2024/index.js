@@ -1,23 +1,30 @@
 import {
+  COLOR_SCHEMES,
+  colorScheme,
   downloadResolver,
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
   globalResources,
+  influenceAreaConf,
+  influenceAreaLayers,
+  influenceAreaMetadata,
+  influenceAreaSources,
   setupVariants,
   tableVectorSource,
+  zoomSensitiveLinearSizes,
 } from '../../util'
 
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
 
-import { numerical_choropleth } from './numerical_choropleth'
+// import { numerical_choropleth } from './numerical_choropleth'
 import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
 import { resolve } from '@orioro/resolve'
-import { isPlainObject, uniqBy } from 'lodash'
+import { get, isPlainObject, uniqBy } from 'lodash'
 
 const BY_TYPE = {
-  numerical_choropleth,
+  // numerical_choropleth,
   numerical_size,
   boolean_categorical,
   categorical,
@@ -33,6 +40,7 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
     indicator_label,
     indicator_type,
     sizing_variable_id,
+    tipo_estabelecimento,
     number_format = ['pt-BR', {}],
     keywords,
   } = viewSpec
@@ -101,79 +109,81 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
 
     confSchema: {
       data: {
-        // variantId: {
-        //   label: 'Rede de ensino:',
-        //   type: 'treeSelect',
-        //   options: variants.map((variant) => ({
-        //     path: variant.variant_path,
-        //     label: variant.variant_label || variant.indicator_id,
-        //     value: variant.indicator_id,
-        //   })),
-        //   placeholder: 'Selecione uma rede',
-        //   clearable: false,
-        //   defaultValue: indicator_id,
-        // },
+        ...influenceAreaConf({
+          defaultBufferSize: tipo_estabelecimento === 'HOSPITAL' ? 2000 : 500,
+          maxBufferSize: 5000,
+        }),
       },
     },
 
     metadata: {
-      variableValues: [
-        '$get',
-        ['$template', '[].${0}', VARIABLE_ID],
-        [
-          '$fetch',
-          {
-            href: METADATA_API_ENDPOINT,
-            pathname: collection_id,
+      _value: [
+        '$let',
+        {
+          rawData: [
+            '$fetch',
+            {
+              href: METADATA_API_ENDPOINT,
+              pathname: collection_id,
 
-            searchParams: [
-              '$merge',
-              {
-                select: VARIABLE_ID,
-                id_municipio_gestor: _id_municipio_gestor_apiFilterExp,
-              },
-              _fetchMetadataApiFilterExpResolver,
-            ],
-          },
-        ],
-      ],
-
-      sizingValues: sizing_variable_id
-        ? [
-            '$filter',
-            [
-              '$get',
-              [
-                '$template',
-                '[].${0}',
-                sizing_variable_id,
-                // ['$get', 'view.conf.data.sizingVariable'],
-              ],
-              [
-                '$fetch',
+              searchParams: [
+                '$merge',
                 {
-                  href: METADATA_API_ENDPOINT,
-                  pathname: collection_id,
-
-                  searchParams: [
-                    '$merge',
-                    {
-                      select: sizing_variable_id,
-                      // select: ['$get', 'view.conf.data.sizingVariable'],
-                      id_municipio_gestor: _id_municipio_gestor_apiFilterExp,
-                    },
-                    _fetchMetadataApiFilterExpResolver,
-                  ],
+                  select: [VARIABLE_ID, 'geom'].join(','),
+                  id_municipio_gestor: _id_municipio_gestor_apiFilterExp,
                 },
+                _fetchMetadataApiFilterExpResolver,
               ],
-            ],
-            [
-              '$and',
-              ['$not', ['$empty', ['$iterator', 'item']]],
-              ['$gt', ['$iterator', 'item'], 0],
-            ],
-          ]
-        : null,
+            },
+          ],
+        },
+        {
+          variableValues: [
+            '$get',
+            ['$template', 'rawData[].${0}', VARIABLE_ID],
+          ],
+
+          ...influenceAreaMetadata(),
+
+          sizingValues: sizing_variable_id
+            ? [
+                '$filter',
+                [
+                  '$get',
+                  [
+                    '$template',
+                    '[].${0}',
+                    sizing_variable_id,
+                    // ['$get', 'view.conf.data.sizingVariable'],
+                  ],
+                  [
+                    '$fetch',
+                    {
+                      href: METADATA_API_ENDPOINT,
+                      pathname: collection_id,
+
+                      searchParams: [
+                        '$merge',
+                        {
+                          select: sizing_variable_id,
+                          // select: ['$get', 'view.conf.data.sizingVariable'],
+                          id_municipio_gestor:
+                            _id_municipio_gestor_apiFilterExp,
+                        },
+                        _fetchMetadataApiFilterExpResolver,
+                      ],
+                    },
+                  ],
+                ],
+                [
+                  '$and',
+                  ['$not', ['$empty', ['$iterator', 'item']]],
+                  ['$gt', ['$iterator', 'item'], 0],
+                ],
+              ]
+            : null,
+        },
+      ],
     },
 
     sources: {
@@ -184,9 +194,24 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
         minzoom: 8,
         maxzoom: 20,
       }),
+
+      ...influenceAreaSources(),
     },
     layers: {
       ...globalRes.layers,
+
+      ...influenceAreaLayers({
+        fillPaint: {
+          'fill-color': colorScheme('schemeSet1.colors[2]'),
+          'fill-opacity': 0.3,
+        },
+        boundaryPaint: {
+          'line-color': colorScheme('schemeSet1.colors[2]'),
+          'line-opacity': 0.8,
+          'line-width': 2,
+          'line-dasharray': [2, 2],
+        },
+      }),
     },
 
     download: downloadResolver({
@@ -260,24 +285,24 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
   const $circleRadius = sizing_variable_id
     ? [
         '$if',
-        [
-          '$and',
-          // ['$get', 'view.conf.data.showSize'],
-          [
-            '$gt',
-            ['$get', 'length', ['$get', 'view.metadata.sizingValues']],
-            1,
-          ],
-        ],
-        [
-          'interpolate',
-          ['linear'],
-          ['get', sizing_variable_id], // Replace "density" with your property name
-          ['$min', ['$get', 'view.metadata.sizingValues']],
-          SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
-          ['$max', ['$get', 'view.metadata.sizingValues']],
-          SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
-        ],
+        ['$gt', ['$get', 'length', ['$get', 'view.metadata.sizingValues']], 1],
+        zoomSensitiveLinearSizes({
+          variable: ['get', sizing_variable_id],
+          minValue: ['$min', ['$get', 'view.metadata.sizingValues']],
+          maxValue: ['$max', ['$get', 'view.metadata.sizingValues']],
+          minSize: SIZE_MIN,
+          maxSize: SIZE_MAX,
+        }),
+
+        // [
+        //   'interpolate',
+        //   ['linear'],
+        //   ['get', sizing_variable_id], // Replace "density" with your property name
+        //   ['$min', ['$get', 'view.metadata.sizingValues']],
+        //   SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
+        //   ['$max', ['$get', 'view.metadata.sizingValues']],
+        //   SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+        // ],
         SIZE_DEFAULT,
       ]
     : SIZE_DEFAULT

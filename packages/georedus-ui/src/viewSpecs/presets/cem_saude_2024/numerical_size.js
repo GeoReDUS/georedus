@@ -3,6 +3,7 @@ import {
   ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
   COLOR_SCHEMES,
   vectorLayer,
+  zoomSensitiveLinearSizes,
 } from '../../util'
 
 export function numerical_size(
@@ -29,7 +30,7 @@ export function numerical_size(
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
         type: 'circle',
 
         legends: [
@@ -49,29 +50,29 @@ export function numerical_size(
 
         filter: $layerFilter,
 
-        // filter: [
-        //   'all',
-        //   [
-        //     '==',
-        //     ['get', 'id_municipio_gestor'],
-        //     ['$substr', ['$get', 'municipioId'], 0, 6],
-        //   ],
-        //   ...(Array.isArray(filter) ? filter : []),
-        // ],
         paint: {
           'circle-opacity': 1,
           'circle-stroke-width': 1,
           'circle-stroke-color': '#000000',
-          // 'circle-radius': 10,
+
           'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['get', VARIABLE_ID], // Replace "density" with your property name
-            ['$min', ['$get', 'view.metadata.variableValues']],
-            SIZE_MIN, // When qt_mat_fund_ai is 0, radius is 6
-            ['$max', ['$get', 'view.metadata.variableValues']],
-            SIZE_MAX, // When qt_mat_fund_ai is 100, radius is 20
+            '$if',
+            [
+              '$gt',
+              ['$get', 'length', ['$get', 'view.metadata.variableValues']],
+              1,
+            ],
+            zoomSensitiveLinearSizes({
+              variable: ['get', VARIABLE_ID],
+              minValue: ['$min', ['$get', 'view.metadata.variableValues']],
+              maxValue: ['$max', ['$get', 'view.metadata.variableValues']],
+              minSize: SIZE_MIN,
+              maxSize: SIZE_MAX,
+            }),
+
+            10,
           ],
+
           'circle-color': get(COLOR_SCHEMES, color_scheme) || color_scheme,
         },
       }),

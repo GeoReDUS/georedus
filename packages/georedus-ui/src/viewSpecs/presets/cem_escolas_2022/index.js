@@ -1,10 +1,13 @@
 import {
-  ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
   COLOR_SCHEMES,
   downloadResolver,
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
   globalResources,
+  influenceAreaConf,
+  influenceAreaLayers,
+  influenceAreaMetadata,
+  influenceAreaSources,
   setupVariants,
   tableVectorSource,
   zoomSensitiveLinearSizes,
@@ -15,9 +18,8 @@ import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
 import { get, isPlainObject, omit, uniqBy } from 'lodash'
-import { resolve, resolveAsync } from '@orioro/resolve'
+import { resolve } from '@orioro/resolve'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
-import { GeoReDUSWorker } from '../../../GeoReDUSWorker'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -25,8 +27,6 @@ const BY_TYPE = {
   boolean_categorical,
   categorical,
 }
-
-const DEFAULT_BUFFER_SIZE = 200
 
 export function cem_escolas_2022(config, allViewSpecs, context) {
   const {
@@ -124,38 +124,9 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
             }
           : null,
 
-        showInfluenceArea: {
-          type: 'booleanCheckbox',
-          label: 'Área de influência',
-          description: 'Visualizar área de influência',
-          defaultValue: true,
-        },
-
-        influenceAreaRadius: {
-          type: 'slider',
-          inactive: resolve.literal(
-            resolve.fn((context) => !context.value?.showInfluenceArea),
-          ),
-          label: resolve.literal(
-            resolve.fn((context) => {
-              return `Raio de influência (${context.value?.influenceAreaRadius || DEFAULT_BUFFER_SIZE}m)`
-            }),
-          ),
-          helperText: 'Raio de influência da escola',
-          min: 0,
-          max: 2000,
-          step: 50,
-          defaultValue: DEFAULT_BUFFER_SIZE,
-        },
-        dissolveOverlappingGeometries: {
-          inactive: resolve.literal(
-            resolve.fn((context) => !context.value?.showInfluenceArea),
-          ),
-          type: 'booleanCheckbox',
-          label: 'Dissolver geometrias',
-          description: 'Unir geometrias sobrepostas',
-          defaultValue: false,
-        },
+        ...influenceAreaConf({
+          defaultBufferSize: 200,
+        }),
       },
     },
 
@@ -221,44 +192,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
               ]
             : null,
 
-          influenceArea: resolveAsync.fn(async (context) => {
-            const {
-              influenceAreaRadius,
-              showInfluenceArea,
-              dissolveOverlappingGeometries,
-            } = get(context, 'view.conf.data') || {}
-
-            if (
-              showInfluenceArea &&
-              typeof influenceAreaRadius === 'number' &&
-              influenceAreaRadius > 0 &&
-              context.rawData
-            ) {
-              try {
-                const influenceArea = await GeoReDUSWorker.buffer(
-                  {
-                    type: 'FeatureCollection',
-                    features: context.rawData.map((entry) => ({
-                      type: 'Feature',
-                      geometry: entry.geom,
-                      properties: omit(entry, ['geom']),
-                    })),
-                  },
-                  influenceAreaRadius,
-                  {
-                    units: 'meters',
-                    dissolve: dissolveOverlappingGeometries,
-                  },
-                )
-
-                return influenceArea
-              } catch (err) {
-                return null
-              }
-            }
-
-            return null
-          }),
+          ...influenceAreaMetadata(),
         },
       ],
     },
@@ -272,44 +206,26 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
         minzoom: 8,
         maxzoom: 20,
       }),
-      influenceArea: [
-        '$if',
-        [['$empty', ['$get', 'view.metadata.influenceArea']]],
-        null,
-        resolve.fn((context) => {
-          return {
-            type: 'geojson',
-            data: context.view.metadata.influenceArea,
-          }
-        }),
-      ],
+
+      ...influenceAreaSources({
+        dataPath: 'view.metadata.influenceArea',
+      }),
     },
     layers: {
       ...globalRes.layers,
-      influenceArea_fill: {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
-        hidden: ['$empty', ['$get', 'view.metadata.influenceArea']],
-        source: 'influenceArea',
-        type: 'fill',
-
-        paint: {
+      ...influenceAreaLayers({
+        dataPath: 'view.metadata.influenceArea',
+        fillPaint: {
           'fill-color': get(COLOR_SCHEMES, 'schemeSet1.colors[1]'),
           'fill-opacity': 0.3,
         },
-      },
-      influenceArea_boundaries: {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
-        hidden: ['$empty', ['$get', 'view.metadata.influenceArea']],
-        source: 'influenceArea',
-        type: 'line',
-
-        paint: {
+        boundaryPaint: {
           'line-color': get(COLOR_SCHEMES, 'schemeSet1.colors[1]'),
           'line-opacity': 0.8,
           'line-width': 2,
           'line-dasharray': [2, 2],
         },
-      },
+      }),
     },
 
     download: downloadResolver({

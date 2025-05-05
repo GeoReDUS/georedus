@@ -47,6 +47,7 @@ import {
   schemeSet3,
   schemeTableau10,
 } from 'd3-scale-chromatic'
+import { get } from 'lodash'
 
 export const DEFAULT_NULL_COLOR = '#CCCCCC'
 
@@ -178,4 +179,14 @@ export const COLOR_SCHEMES = {
     `-${id}`,
     _reverseByKScheme(scheme),
   ]),
+}
+
+export function colorScheme(path: string) {
+  const scheme = get(COLOR_SCHEMES, path)
+
+  if (!scheme) {
+    throw new Error(`Could not find scheme at ${path}`)
+  }
+
+  return scheme
 }

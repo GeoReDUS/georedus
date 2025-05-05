@@ -131,88 +131,90 @@ export function ViewControl({
   )
 
   return (
-    <Collapsible.Root open={configurable === true && active}>
-      <Container>
-        <Summary
-          type="button"
-          role="button"
-          style={style}
-          $active={active}
-          onClick={configurable ? () => toggleView() : null}
-        >
-          <Flex
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            p="3"
-            width="100%"
+    viewSpec && (
+      <Collapsible.Root open={configurable === true && active}>
+        <Container>
+          <Summary
+            type="button"
+            role="button"
+            style={style}
+            $active={active}
+            onClick={configurable ? () => toggleView() : null}
           >
             <Flex
-              direction="column"
-              gap="1"
-              style={{
-                flexGrow: '1',
-              }}
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              p="3"
+              width="100%"
             >
-              {path && (
+              <Flex
+                direction="column"
+                gap="1"
+                style={{
+                  flexGrow: '1',
+                }}
+              >
+                {path && (
+                  <HeadingWithTooltipAndEllipsis
+                    size="1"
+                    as="h6"
+                    content={typeof path === 'string' ? path : viewSpec.path}
+                    textSearch={textSearch}
+                    maxLines={1}
+                    style={{
+                      color: 'var(--gray-9)',
+                      fontWeight: 'normal',
+                    }}
+                  />
+                )}
+
                 <HeadingWithTooltipAndEllipsis
-                  size="1"
-                  as="h6"
-                  content={typeof path === 'string' ? path : viewSpec.path}
+                  content={viewSpec.label}
                   textSearch={textSearch}
-                  maxLines={1}
+                  maxLines={2}
+                />
+
+                <Text
+                  color="gray"
                   style={{
                     color: 'var(--gray-9)',
-                    fontWeight: 'normal',
+                    textTransform: 'uppercase',
                   }}
-                />
-              )}
+                  size="1"
+                >
+                  {viewSpec.sourceLabel}
+                </Text>
+              </Flex>
 
-              <HeadingWithTooltipAndEllipsis
-                content={viewSpec.label}
-                textSearch={textSearch}
-                maxLines={2}
+              <SwitchInput
+                radius="full"
+                value={active}
+                onSetValue={() => toggleView()}
+                //
+                // TODO: implement onclick over
+                //
+                onClick={(e) => e.stopPropagation()}
               />
-
-              <Text
-                color="gray"
-                style={{
-                  color: 'var(--gray-9)',
-                  textTransform: 'uppercase',
-                }}
-                size="1"
-              >
-                {viewSpec.sourceLabel}
-              </Text>
             </Flex>
+          </Summary>
 
-            <SwitchInput
-              radius="full"
-              value={active}
-              onSetValue={() => toggleView()}
-              //
-              // TODO: implement onclick over
-              //
-              onClick={(e) => e.stopPropagation()}
-            />
-          </Flex>
-        </Summary>
-
-        <CollapsibleContent
-          style={{
-            borderTop: '1px solid var(--gray-8)',
-          }}
-        >
-          {viewConf && (
-            <ViewConfTabs
-              viewSpec={viewSpec}
-              viewConf={viewConf}
-              resolvedView={resolvedView}
-              onSetView={onSetView}
-            />
-          )}
-        </CollapsibleContent>
-      </Container>
-    </Collapsible.Root>
+          <CollapsibleContent
+            style={{
+              borderTop: '1px solid var(--gray-8)',
+            }}
+          >
+            {viewConf && (
+              <ViewConfTabs
+                viewSpec={viewSpec}
+                viewConf={viewConf}
+                resolvedView={resolvedView}
+                onSetView={onSetView}
+              />
+            )}
+          </CollapsibleContent>
+        </Container>
+      </Collapsible.Root>
+    )
   )
 }

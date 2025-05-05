@@ -32,17 +32,37 @@ export function categorical(
       }))
     : null
 
+  const $circleColor = categories
+    ? [
+        'match',
+        ['to-string', ['get', VARIABLE_ID]],
+        ...categories.flatMap((category) => [category.value, category.color]),
+        DEFAULT_NULL_COLOR,
+      ]
+    : DEFAULT_NULL_COLOR
+
   return {
     ...base,
-
-    //
-    // No need for metadata
-    //
-    // metadata: ,
     layers: {
       ...base.layers,
+
+      influenceArea_fill: {
+        ...base.layers.influenceArea_fill,
+        paint: {
+          ...base.layers.influenceArea_fill.paint,
+          'fill-color': $circleColor,
+        },
+      },
+      influenceArea_boundaries: {
+        ...base.layers.influenceArea_boundaries,
+        paint: {
+          ...base.layers.influenceArea_boundaries.paint,
+          'line-color': $circleColor,
+        },
+      },
+
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
+        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
         type: 'circle',
 
         legends: [
@@ -84,17 +104,7 @@ export function categorical(
           'circle-stroke-width': 1,
           'circle-stroke-color': '#000000',
           'circle-radius': $circleRadius,
-          'circle-color': categories
-            ? [
-                'match',
-                ['to-string', ['get', VARIABLE_ID]],
-                ...categories.flatMap((category) => [
-                  category.value,
-                  category.color,
-                ]),
-                DEFAULT_NULL_COLOR,
-              ]
-            : DEFAULT_NULL_COLOR,
+          'circle-color': $circleColor,
         },
       }),
     },
