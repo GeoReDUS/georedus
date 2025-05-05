@@ -1,4 +1,4 @@
-import { pick, uniqBy } from 'lodash'
+import { omit, pick, uniqBy } from 'lodash'
 import { COLOR_SCHEMES, downloadResolver, globalResources } from '../../util'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
@@ -364,168 +364,187 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
       },
     },
 
-    metadata: [
-      '$let',
-      {
-        customGeoJSON: [
-          '$if',
-          ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
-          null,
-          resolveAsync.fn(async (context) => {
-            const contents = await fileReadAs(
-              context.view.conf.data.customSpatialAggregationUnit,
-              'text',
-            )
+    metadata: {
+      _dependencies: ({ viewConfState }) => {
+        // console.log('run dependencies', omit(viewConfState.byId, [viewId]))
 
-            const BASE = JSON.parse(contents)
-
-            //
-            // Generate a layer with points only
-            //
-            const POINTS = {
-              ...BASE,
-              features: BASE.features.filter(
-                (feat) => feat.geometry?.type === 'Point',
-              ),
-            }
-
-            const LINE_STRINGS = {
-              ...BASE,
-              features: BASE.features.filter(
-                (feat) => feat.geometry?.type === 'LineString',
-              ),
-            }
-
-            //
-            // Layer with areas
-            //
-            const AREAS_FEATURES =
-              context.view.conf.data.pointsDisplayMode === 'heatmap'
-                ? //
-                  // If points are set to be displayed as heatmap,
-                  // remove them from area calculation
-                  //
-                  BASE.features.filter(
-                    (feat) => feat.geometry?.type !== 'Point',
-                  )
-                : BASE.features
-
-            const AREAS_BASE = {
-              ...BASE,
-              features: AREAS_FEATURES.map((feat) => {
-                return {
-                  ...feat,
-                  geometry: _applyBuffers(
-                    feat.geometry,
-                    pick(context.view.conf.data, ['bufferSize']),
-                  ),
-                }
-              }),
-            }
-
-            const AREAS =
-              context.view.conf.data.pointsDisplayMode === 'heatmap'
-                ? null
-                : context.view.conf.data.dissolveOverlappingGeometries &&
-                    AREAS_BASE
-                  ? await GeoReDUSWorker.dissolveAreasPreservingIsolated(
-                      AREAS_BASE,
-                    )
-                  : AREAS_BASE
-
-            return {
-              BASE,
-              POINTS,
-              LINE_STRINGS,
-              AREAS,
-            }
-          }),
-        ],
+        return omit(viewConfState.byId, [viewId])
       },
-      [
+      _value: [
         '$let',
         {
-          variableValues: [
+          customGeoJSON: [
             '$if',
-            ['$empty', ['$get', 'customGeoJSON.AREAS']],
-            [
-              '$get',
-              ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
+            ['$empty', ['$get', 'view.conf.data.customSpatialAggregationUnit']],
+            null,
+            resolveAsync.fn(async (context) => {
+              try {
+                const contents = await fileReadAs(
+                  context.view.conf.data.customSpatialAggregationUnit,
+                  'text',
+                )
+
+                const BASE = JSON.parse(contents)
+
+                //
+                // Generate a layer with points only
+                //
+                const POINTS = {
+                  ...BASE,
+                  features: BASE.features.filter(
+                    (feat) => feat.geometry?.type === 'Point',
+                  ),
+                }
+
+                const LINE_STRINGS = {
+                  ...BASE,
+                  features: BASE.features.filter(
+                    (feat) => feat.geometry?.type === 'LineString',
+                  ),
+                }
+
+                //
+                // Layer with areas
+                //
+                const AREAS_FEATURES =
+                  context.view.conf.data.pointsDisplayMode === 'heatmap'
+                    ? //
+                      // If points are set to be displayed as heatmap,
+                      // remove them from area calculation
+                      //
+                      BASE.features.filter(
+                        (feat) => feat.geometry?.type !== 'Point',
+                      )
+                    : BASE.features
+
+                const AREAS_BASE = {
+                  ...BASE,
+                  features: AREAS_FEATURES.map((feat) => {
+                    return {
+                      ...feat,
+                      geometry: _applyBuffers(
+                        feat.geometry,
+                        pick(context.view.conf.data, ['bufferSize']),
+                      ),
+                    }
+                  }),
+                }
+
+                const AREAS =
+                  context.view.conf.data.pointsDisplayMode === 'heatmap'
+                    ? null
+                    : context.view.conf.data.dissolveOverlappingGeometries &&
+                        AREAS_BASE
+                      ? await GeoReDUSWorker.dissolveAreasPreservingIsolated(
+                          AREAS_BASE,
+                        )
+                      : AREAS_BASE
+
+                return {
+                  BASE,
+                  POINTS,
+                  LINE_STRINGS,
+                  AREAS,
+                }
+              } catch (err) {
+                console.error(err)
+
+                return null
+              }
+            }),
+          ],
+        },
+        [
+          '$let',
+          {
+            variableValues: [
+              '$if',
+              ['$empty', ['$get', 'customGeoJSON.AREAS']],
               [
-                '$fetch',
+                '$get',
+                ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
                 [
-                  '$template',
-                  `${METADATA_API_ENDPOINT}` +
-                    '/${source_table_id}?select=' +
-                    '${variableId}' +
-                    '&cd_mun=eq.' +
-                    '${municipioId}',
-                  {
-                    variableId: ['$get', 'view.conf.data.variableId'],
-                    municipioId: ['$context', 'municipioId'],
-                    source_table_id: [
-                      '$get',
-                      [
-                        '$template',
-                        '${0}.source_table_id',
-                        ['$get', 'view.conf.data.variableId'],
+                  '$fetch',
+                  [
+                    '$template',
+                    `${METADATA_API_ENDPOINT}` +
+                      '/${source_table_id}?select=' +
+                      '${variableId}' +
+                      '&cd_mun=eq.' +
+                      '${municipioId}',
+                    {
+                      variableId: ['$get', 'view.conf.data.variableId'],
+                      municipioId: ['$context', 'municipioId'],
+                      source_table_id: [
+                        '$get',
+                        [
+                          '$template',
+                          '${0}.source_table_id',
+                          ['$get', 'view.conf.data.variableId'],
+                        ],
+                        variantsByVariableId,
                       ],
-                      variantsByVariableId,
-                    ],
-                  },
+                    },
+                  ],
                 ],
               ],
-            ],
-            [
-              '$fetch',
-              {
-                href: METADATA_API_ENDPOINT,
-                pathname: 'rpc/aggregate_by_geojson',
-              },
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
+              [
+                '$fetch',
+                {
+                  href: METADATA_API_ENDPOINT,
+                  pathname: 'rpc/aggregate_by_geojson',
                 },
-                body: {
-                  geometries: [
-                    '$get',
-                    'features[].geometry',
-                    ['$get', 'customGeoJSON.AREAS'],
-                  ],
-                  view: 'ibge_malha_br_setor_censitario_2010_spatial_agg',
-                  agg_column: ['$get', 'view.conf.data.variableId'],
-                  agg_type: [
-                    '$if',
-                    [
-                      '$endsWith',
-                      ['$get', 'view.conf.data.variableId'],
-                      '_pct',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: {
+                    geometries: [
+                      '$get',
+                      'features[].geometry',
+                      ['$get', 'customGeoJSON.AREAS'],
                     ],
-                    'weighted_avg',
-                    'sum',
-                  ],
+                    view: 'ibge_malha_br_setor_censitario_2010_spatial_agg',
+                    agg_column: ['$get', 'view.conf.data.variableId'],
+                    agg_type: [
+                      '$if',
+                      [
+                        '$endsWith',
+                        ['$get', 'view.conf.data.variableId'],
+                        '_pct',
+                      ],
+                      'weighted_avg',
+                      'sum',
+                    ],
+                  },
                 },
+              ],
+            ],
+          },
+          {
+            labels,
+            measureUnits,
+            variableValues: ['$get', 'variableValues'],
+            customGeoJSON: ['$get', 'customGeoJSON'],
+
+            customGeoJSON2: resolveAsync.fn(async (context) => {
+              // console.log('resolve customGeoJSON2', context)
+
+              // return Math.random()
+            }),
+            colorScaleStops: [
+              '$naturalBreaks',
+              ['$get', 'variableValues'],
+              {
+                ..._color_scheme,
+                minK: 5,
               },
             ],
-          ],
-        },
-        {
-          labels,
-          measureUnits,
-          variableValues: ['$get', 'variableValues'],
-          customGeoJSON: ['$get', 'customGeoJSON'],
-          colorScaleStops: [
-            '$naturalBreaks',
-            ['$get', 'variableValues'],
-            {
-              ..._color_scheme,
-              minK: 5,
-            },
-          ],
-        },
+          },
+        ],
       ],
-    ],
+    },
 
     sources: {
       ...globalRes.sources,

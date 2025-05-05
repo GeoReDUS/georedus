@@ -12,10 +12,25 @@ import {
 // import { $naturalBreaks } from '@orioro/react-maplibre-util'
 import * as CUSTOM_EXPR from './customExpr'
 
-async function isFetchAllowed(resource, options) {
-  console.error('isFetchAllowed must be defined')
+//
+// TODO: set dynamic values
+//
+const HARD_CODED_ALLOW_FETCH_SOURCES: Parameters<
+  typeof fetchExpr.allowOrigins
+>[0] = {
+  ['https://dev-geoapi-metadata.orioro.design']: ['GET', 'POST'],
+  ['http://localhost:6001']: ['GET', 'POST'],
+}
 
-  return true
+async function isFetchAllowed(resource, options) {
+  return fetchExpr.allowOrigins(HARD_CODED_ALLOW_FETCH_SOURCES)(
+    resource,
+    options,
+  )
+
+  // console.error('isFetchAllowed must be defined')
+
+  // return true
   // const conf = await apiConf()
 
   // return fetchExpr.allowOrigins({

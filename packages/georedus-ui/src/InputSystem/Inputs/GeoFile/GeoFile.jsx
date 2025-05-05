@@ -1,6 +1,6 @@
 import React from 'react'
 
-import initGdalJs from 'gdal3.js'
+// import initGdalJs from 'gdal3.js'
 import { SingleFileInput, fileReadAs } from '@orioro/react-ui-core'
 import { useDialogs } from '../../../DialogSystem'
 import { uniq, uniqBy } from 'lodash'

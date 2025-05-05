@@ -1,12 +1,12 @@
 import { ItemList } from '@orioro/react-sortable'
 import { uniqBy } from 'lodash'
 
-type ViewConf = {
+export type ViewConf = {
   id: string
   [key: string]: any
 }
 
-type State = {
+export type ViewConfState = {
   byId: Record<string, ViewConf>
   layout: ItemList[]
 }
@@ -18,7 +18,10 @@ type Action =
 
 const CONF_TAB_IDS = ['data', 'style']
 
-export function viewConfReducer(state: State, action: Action): State {
+export function viewConfReducer(
+  state: ViewConfState,
+  action: Action,
+): ViewConfState {
   switch (action.type) {
     case 'SET_VIEW': {
       const { viewConf } = action.payload
@@ -86,7 +89,7 @@ export function viewConfReducer(state: State, action: Action): State {
   }
 }
 
-export function viewConfReducerInitialState(initialState): State {
+export function viewConfReducerInitialState(initialState): ViewConfState {
   return (
     initialState || {
       byId: {},
@@ -102,7 +105,7 @@ export function viewConfReducerInitialState(initialState): State {
 // Loads viewconf and loads global/shared configuration
 //
 // export function resolveViewConf(
-//   state: State,
+//   state: ViewConfState,
 //   id: string,
 //   viewSpecsById: Record<string, ViewSpec>,
 // ): ViewConf {

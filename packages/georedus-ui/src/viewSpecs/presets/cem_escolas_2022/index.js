@@ -182,6 +182,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
       ...globalRes.sources,
       [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
         attribution: $sourceLabel,
+        promoteId: 'id_escola',
         version: 2,
         minzoom: 8,
         maxzoom: 20,

@@ -112,6 +112,12 @@ export function ViewControl({
 
   style,
 }) {
+
+  console.log('=====================')
+
+  console.log('viewConf', viewConf)
+  console.log('=====================')
+
   const active = Boolean(viewConf)
 
   const deactivateView = useCallback(

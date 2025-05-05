@@ -3,56 +3,156 @@ import {
   MapViewLayer,
   MapViewSource,
 } from '@orioro/react-maplibre-util'
-import type { GeoJSON } from 'geojson'
 import React from 'react'
+import { ViewConf, ViewConfState } from '../GeoReDUS/viewConfReducer'
+import { UseQueryOptions } from '@tanstack/react-query'
 
 export type ExpressionOf<ResultT> = ResultT | [string, ...any[]]
 
-export type ViewMetadata = Record<string, any>
+export type ViewMetadata = {
+  [key: string]: any
+}
 
-export type ViewConfSpec = {
+//
+// Resolution context available to all views
+//
+export type ViewResolutionContextBase = {
+  viewSpecs: ViewSpec[]
+  viewConfState: ViewConfState
+  app: AppContext
+}
+
+type StageSpec<
+  Spec extends { [key: string]: any },
+  PartialViewAtState extends Partial<ResolvedView | null>,
+> = Spec & {
+  _loading?: MapView & {
+    message?: React.ReactNode
+  }
+  _dependencies?: (
+    resolutionCtx: ViewResolutionContextBase & {
+      view: PartialViewAtState
+    },
+  ) => any
+  _value?: Spec
+  _query?: Pick<UseQueryOptions, 'gcTime'>
+}
+
+//
+// The view conf spec defines the configurations allowed
+//
+export type ViewConfSchema = {
   data?: Record<string, Record<string, any>>
   style?: Record<string, Record<string, any>>
 }
 
+//
+// This is not a typo!
+// TODO: review naming conventions...
+//
+// Maybe [whatever]Spec -> [whatever]Unresolved
+//
+// The view conf spec spec defines how the conf spec
+// is resolved
+//
+export type ViewConfSchemaSpec = StageSpec<
+  ViewConfSchema,
+  Partial<ResolvedView>
+>
+
+export type ViewMetadataSpec = StageSpec<
+  ViewMetadata,
+  Pick<ResolvedView, 'conf'>
+>
+
+export type ViewSources = {
+  [key: string]: MapViewSource
+}
+
+export type ViewSourcesSpec = StageSpec<
+  ViewSources,
+  Pick<ResolvedView, 'conf' | 'metadata'>
+>
+
+export type ViewLayers = {
+  [key: string]: MapViewLayer
+}
+
+export type ViewLayersSpec = StageSpec<
+  ViewLayers,
+  Pick<ResolvedView, 'conf' | 'metadata' | 'sources'>
+>
+
+export type ViewControls = {
+  legends?: MapView['legends']
+}
+
+export type ViewControlsSpec = StageSpec<
+  ViewControls,
+  Pick<ResolvedView, 'conf' | 'metadata' | 'sources' | 'layers'>
+>
+
+export type ViewDownload = (conf: {
+  dialogs: Record<string, any>
+}) => Promise<any>
+export type ViewDownloadSpec = StageSpec<
+  ViewDownload,
+  Pick<ResolvedView, 'conf' | 'metadata' | 'sources' | 'layers'>
+>
+
+export type ViewStageKey =
+  | 'confSchema'
+  | 'metadata'
+  | 'sources'
+  | 'layers'
+  | 'controls'
+  | 'download'
+
 export type ViewSpec = {
   id: string
   debug?: boolean
+  confSchema: ViewConfSchemaSpec
   keywords?: string | string[]
-  metadata: ExpressionOf<ViewMetadata>
-  sources: ExpressionOf<Record<string, MapViewSource>>
-  layers: ExpressionOf<Record<string, MapViewLayer>>
-  download?: ExpressionOf<({ dialogs: {} }) => Promise<void>>
-  conf: ViewConfSpec
+  metadata: ViewMetadataSpec
+  sources: ViewSourcesSpec
+  layers: ViewLayersSpec
+  controls: ViewControlsSpec
+  download?: ViewDownloadSpec
 }
 
-export type ResolvedViewConf = {
+export type ResolvedViewConf = ViewConf & {
   data?: Record<string, any>
   style?: Record<string, any>
 }
 
-type ResolvedLegend = Record<string, any>
+// type ResolvedLegend = MapView['legends']
 
 type ResolvedLayer = MapViewLayer & {
   tooltip?: (props: { feature: GeoJSON.Feature }) => React.ReactNode
 }
 
 export type ResolvedView = MapView & {
-  metadata: ViewMetadata
-  legends: ResolvedLegend[]
   conf: ResolvedViewConf
+  metadata: ViewMetadata
+  controls: ViewControls
+  download: ViewDownload
 }
 
-export type ViewContext = {
-  focus: {
-    //
-    // Possibly support;
-    // type: 'bairro' | 'municipio' | 'microrregiao' | 'mesoregiao' | 'regiao_de_saude' | 'uf'
-    //
-    type: 'municipio'
-    ids: string[]
-  } | null
-}
+// export type AppContext = {
+//   focus: {
+//     //
+//     // Possibly support;
+//     // type: 'bairro' | 'municipio' | 'microrregiao' | 'mesoregiao' | 'regiao_de_saude' | 'uf'
+//     //
+//     type: 'municipio'
+//     ids: string[]
+//   } | null
+// }
+//
+// AppContext can be anything. currently:
+// - municipioId: string
+//
+export type AppContext = Record<string, any>
 
 export type PresetFn<InputT extends Record<string, any> = Record<string, any>> =
   (input: InputT) => ViewSpec

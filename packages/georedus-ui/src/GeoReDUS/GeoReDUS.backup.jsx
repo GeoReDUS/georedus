@@ -22,12 +22,12 @@ import {
   makeSyncedMaps,
   MapWindow,
   ControlContainer,
-  InspectControl,
 } from '@orioro/react-maplibre-util'
 import { Legend } from '@orioro/react-chart-util'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import { resolveView } from '../viewSpecs/resolveView'
 import { HoverTooltip, TerrainControl } from '@orioro/react-maplibre-util'
 import {
   NavigationControl,
@@ -40,7 +40,7 @@ import {
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import styled from 'styled-components'
 import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
-import { get } from 'lodash'
+import { get, isPlainObject } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import { mdiClose } from '@mdi/js'
@@ -48,7 +48,7 @@ import { csvParse } from 'd3-dsv'
 import { resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
-import { useViews } from '../viewSpecs/useViews/useViews'
+import { queryKeyHashFnWithFileSupport } from '../viewSpecs/useViews/queryKeyHashFnWithFileSupport'
 
 //
 // List of municipio ids that are in the RM (Regiões Metropolitanas) dataset
@@ -277,14 +277,61 @@ function GeoReDUSInner({
     throwOnError: process.env.NODE_ENV !== 'production',
   })
 
-  const { resolvedViews, resolvedViewConfById, isLoading } = useViews({
-    viewSpecs: viewSpecsQuery.data,
-    viewConfState: viewConfState,
-    app: {
-      municipioId,
-      baseMapStyle,
-    },
+  const viewSpecsById = useMemo(
+    () =>
+      Array.isArray(viewSpecsQuery.data)
+        ? viewSpecsQuery.data.reduce(
+            (acc, viewSpec) => ({
+              ...acc,
+              [viewSpec.id]: viewSpec,
+            }),
+            {},
+          )
+        : null,
+    [viewSpecsQuery.data],
+  )
+
+  const viewsQueries = useQueries({
+    queries: viewConfState.layout
+      .flatMap((list) => list.items.map((item) => item.id))
+      .map((viewId) => {
+        return {
+          queryKey: [
+            'ResolveView',
+            viewId,
+            municipioId,
+            viewSpecsById ? viewSpecsById[viewId] : null,
+            viewConfState.byId[viewId],
+          ],
+          queryKeyHashFn: queryKeyHashFnWithFileSupport,
+          queryFn: async () => {
+            const viewSpec = viewSpecsById
+              ? viewSpecsById[viewId]
+              : viewSpecsById
+
+            return viewSpec
+              ? resolveView(viewSpec, viewConfState.byId[viewId], {
+                  app: {
+                    municipioId,
+                    baseMapStyle,
+                  },
+                })
+              : null
+          },
+          throwOnError: true,
+          retry: false,
+        }
+      }),
   })
+
+  const resolvedViews = useMemo(
+    () =>
+      viewsQueries
+        // .filter((query) => query.status === 'success')
+        .map((query) => query.data)
+        .filter(Boolean),
+    [viewsQueries],
+  )
 
   //
   // Prepares layout for rendering
@@ -481,13 +528,17 @@ function GeoReDUSInner({
     }
   }, [])
 
+  const isLoading = viewsQueries.some(
+    (viewQuery) => viewQuery.status === 'pending',
+  )
+
   return (
     <Flex>
       <LeftPanel
         open={leftPanelOpen}
         onSetOpen={setLeftPanelOpen}
         viewSpecs={viewSpecsQuery.data}
-        viewConfState={{ ...viewConfState, byId: resolvedViewConfById }}
+        viewConfState={viewConfState}
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         syncedMapsRef={syncedMapsRef}
@@ -617,7 +668,6 @@ function GeoReDUSInner({
 
               {index === resolvedLayout.length - 1 ? (
                 <>
-                  {process.env.NODE_ENV !== 'production' && <InspectControl />}
                   <GeolocateControl position="top-right" />
                   <FullscreenControl position="top-right" />
                   <NavigationControl position="top-right" />
