@@ -60,7 +60,7 @@ export function sortLayers(
       .map((layer, index, sortedLayers) => {
         if (index === sortedLayers.length - 1) {
           // is last layer
-          return layer
+          return { ...layer, beforeId: null }
         } else {
           const beforeId = sortedLayers[index + 1].id
           //

@@ -920,15 +920,16 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         interactive: true,
         // minzoom: BUILDINGS_MIN_ZOOM,
         paint: {
-          'line-color': _vectorSourceFillColor,
+          // 'line-color': _vectorSourceFillColor,
+          'line-color': _color_scheme.scalesByK[3][2],
           'line-width': [
             'step',
             ['zoom'],
             // default: zoom < 14 → thin lines
-            ['case', ['boolean', ['feature-state', 'hover'], false], 4, 0],
+            ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0],
             BUILDINGS_MIN_ZOOM,
             // zoom ≥ 14 → larger lines
-            ['case', ['boolean', ['feature-state', 'hover'], false], 5, 1],
+            ['case', ['boolean', ['feature-state', 'hover'], false], 4, 0],
           ],
           'line-opacity': [
             'case',
@@ -936,7 +937,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
             1,
             ['$get', 'view.conf.style.layerOpacity'],
           ],
-          'line-dasharray': [2, 2],
         },
       },
 

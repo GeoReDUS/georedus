@@ -94,11 +94,13 @@ async function _flyToMunicipio(
 //
 const REDUS_DATAVIZ_STYLE =
   'https://api.maptiler.com/maps/0195f947-fb77-7256-83d6-47a54db345a3/style.json'
+const REDUS_SATELLITE_STYLE =
+  'https://api.maptiler.com/maps/0196a042-ce24-74d5-8c4a-aacddb89c9ca/style.json'
 // const REDUS_DATAVIZ_STYLE =
 //   'https://api.maptiler.com/maps/streets-v2/style.json'
 // const MAP_STYLE_URL = `https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
 const DATAVIZ_MAP_STYLE_URL = `${REDUS_DATAVIZ_STYLE}?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
-const SATELLITE_MAP_STYLE_URL = `https://api.maptiler.com/maps/satellite/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
+const SATELLITE_MAP_STYLE_URL = `${REDUS_SATELLITE_STYLE}?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`
 //
 // For elevation rendering
 //
@@ -311,7 +313,7 @@ function GeoReDUSInner({
           // empty map rendering
           //
           [viewConfState.layout[0]]
-    ).map((list) => {
+    ).map((list, index) => {
       const views = list.items
         .map((item) => resolvedViewsById[item.id])
         .filter(Boolean)
