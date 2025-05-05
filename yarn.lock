@@ -2912,7 +2912,7 @@ __metadata:
     "@orioro/react-ui-core": "npm:^0.0.6"
     "@orioro/resolve": "npm:^0.1.2"
     "@orioro/scale-util": "npm:^0.0.2"
-    "@radix-ui/themes": "npm:^3.2.1"
+    "@radix-ui/themes": "npm:^3.0.1"
     "@tanstack/react-query": "npm:^5.66.0"
     "@turf/turf": "npm:^7.2.0"
     "@types/d3": "npm:^7.4.3"
@@ -4481,7 +4481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/themes@npm:^3.0.1, @radix-ui/themes@npm:^3.2.1":
+"@radix-ui/themes@npm:^3.0.1":
   version: 3.2.1
   resolution: "@radix-ui/themes@npm:3.2.1"
   dependencies:
