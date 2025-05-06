@@ -90,7 +90,9 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
   }
 
   if (!COLLECTION || !COLLECTION.variable_ids.includes(variable_id)) {
-    console.warn(`found invalid variable ${variable_id}, will ignore`)
+    console.warn(
+      `found invalid variable ${variable_id} (collection: ${collection_id}), will ignore`,
+    )
 
     return null
   }

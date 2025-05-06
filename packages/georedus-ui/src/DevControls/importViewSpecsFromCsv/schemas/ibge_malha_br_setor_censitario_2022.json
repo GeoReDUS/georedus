@@ -76,6 +76,7 @@
     "ser_lix_mor_sex_fem_pct",
     "ser_lix_mor_sex_mas_pct",
     "ser_lix_mor_tot_dom_pct",
+
     "dom_mor_mor_tot_med_mor",
     "pop_bas_mor_tot_pes",
     "pop_bas_mor_sex_mas",
@@ -160,6 +161,10 @@
     "pop_bas_mor_cor_60_mais_bra",
     "pop_bas_mor_cor_60_mais_neg",
     "pop_bas_mor_cor_60_mais_ama",
-    "pop_bas_mor_cor_60_mais_ind"
+    "pop_bas_mor_cor_60_mais_ind",
+
+    "dom_sem_arb_pct",
+    "dom_sem_calcada_pct",
+    "dom_sem_ilu_pub_pct"
   ]
 }
