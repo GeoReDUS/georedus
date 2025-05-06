@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.6.1
+
+### Patch Changes
+
+- removes distinctions from rms (regiões metropolitanas) viewspecs
+
 ## 0.6.0
 
 ### Minor Changes
