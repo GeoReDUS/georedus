@@ -324,11 +324,10 @@ function GeoReDUSInner({
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', municipioId],
     queryFn: async () => {
-      return viewSpecs.all
-      // //
-      // // Load municipio ids that have SAUDE and EDUCACAO
-      // // datasets
-      // //
+      //
+      // Load municipio ids that have SAUDE and EDUCACAO
+      // datasets
+      //
       // const RM_MUNICIPIO_IDS = csvParse(
       //   await fetch(RM_MUNICIPIO_IDS_CEM).then((res) => res.text()),
       // )
@@ -338,12 +337,13 @@ function GeoReDUSInner({
       //     ? viewSpecs.all
       //     : viewSpecs.censo_only
       //   : []
+      const SPEC_SRCS = viewSpecs.all
 
-      // return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
-      //   METADATA_API_ENDPOINT,
-      //   VECTOR_TILE_SERVER_ENDPOINT,
-      //   MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
-      // })
+      return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
+        METADATA_API_ENDPOINT,
+        VECTOR_TILE_SERVER_ENDPOINT,
+        MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
+      })
     },
     throwOnError: process.env.NODE_ENV !== 'production',
   })
