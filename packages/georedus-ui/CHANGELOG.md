@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.6.0
+
+### Minor Changes
+
+- enable 2022_variaveis_abr_25
+
 ## 0.5.0
 
 ### Minor Changes
