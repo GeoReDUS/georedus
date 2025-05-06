@@ -324,25 +324,26 @@ function GeoReDUSInner({
   const viewSpecsQuery = useQuery({
     queryKey: ['ViewSpecs', municipioId],
     queryFn: async () => {
-      //
-      // Load municipio ids that have SAUDE and EDUCACAO
-      // datasets
-      //
-      const RM_MUNICIPIO_IDS = csvParse(
-        await fetch(RM_MUNICIPIO_IDS_CEM).then((res) => res.text()),
-      )
+      return viewSpecs.all
+      // //
+      // // Load municipio ids that have SAUDE and EDUCACAO
+      // // datasets
+      // //
+      // const RM_MUNICIPIO_IDS = csvParse(
+      //   await fetch(RM_MUNICIPIO_IDS_CEM).then((res) => res.text()),
+      // )
 
-      const SPEC_SRCS = municipioId
-        ? RM_MUNICIPIO_IDS.some((m) => m.id_municipio === municipioId)
-          ? viewSpecs.all
-          : viewSpecs.censo_only
-        : []
+      // const SPEC_SRCS = municipioId
+      //   ? RM_MUNICIPIO_IDS.some((m) => m.id_municipio === municipioId)
+      //     ? viewSpecs.all
+      //     : viewSpecs.censo_only
+      //   : []
 
-      return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
-        METADATA_API_ENDPOINT,
-        VECTOR_TILE_SERVER_ENDPOINT,
-        MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
-      })
+      // return resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
+      //   METADATA_API_ENDPOINT,
+      //   VECTOR_TILE_SERVER_ENDPOINT,
+      //   MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
+      // })
     },
     throwOnError: process.env.NODE_ENV !== 'production',
   })
