@@ -79,6 +79,7 @@
 
     "dom_mor_mor_tot_med_mor",
     "pop_bas_mor_tot_pes",
+    "pes_100m2",
     "pop_bas_mor_sex_mas",
     "pop_bas_mor_sex_fem",
     "ser_lix_dom_tot_dom",
@@ -110,6 +111,7 @@
     "nome_subdistrito",
     "nome_uf",
     "pop_bas_mor_tot_res",
+    "res_100m2",
     "pop_bas_mor_sex_res_mas",
     "pop_bas_mor_sex_res_fem",
     "dom_bas_dom_tot_dpp",
