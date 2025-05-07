@@ -536,7 +536,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
                       'features[].geometry',
                       ['$get', 'customGeoJSON.AREAS'],
                     ],
-                    view: 'ibge_malha_br_setor_censitario_2010_spatial_agg',
+                    view: `ibge_malha_br_setor_censitario_${year}_spatial_agg`,
                     agg_column: ['$get', 'view.conf.data.variableId'],
                     agg_type: [
                       '$if',

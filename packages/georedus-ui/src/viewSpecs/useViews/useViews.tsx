@@ -237,10 +237,12 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       queriesByStage: null,
     }),
     queryFn: async ({ viewSpec }, partialView) => {
-      return resolveMetadata(
-        viewSpec,
-        partialView as Pick<ResolvedView, 'conf'>,
-        viewResolutionContextBase,
+      return (
+        (await resolveMetadata(
+          viewSpec,
+          partialView as Pick<ResolvedView, 'conf'>,
+          viewResolutionContextBase,
+        )) || null
       )
     },
   })
@@ -260,11 +262,11 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       queriesByStage: QUERIES_AT_SOURCES,
     }),
     queryFn: async ({ viewSpec }, partialView) =>
-      resolveSources(
+      (await resolveSources(
         viewSpec,
         partialView as Pick<ResolvedView, 'conf' | 'metadata'>,
         viewResolutionContextBase,
-      ),
+      )) || null,
   })
 
   const QUERIES_AT_LAYERS: Pick<QueriesByStage, 'metadata' | 'sources'> = {
@@ -282,11 +284,11 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       queriesByStage: QUERIES_AT_LAYERS,
     }),
     queryFn: async ({ viewSpec }, partialView) =>
-      resolveLayers(
+      (await resolveLayers(
         viewSpec,
         partialView as Pick<ResolvedView, 'conf' | 'metadata' | 'sources'>,
         viewResolutionContextBase,
-      ),
+      )) || null,
   })
 
   const QUERIES_AT_CONTROLS: Pick<
@@ -307,14 +309,14 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       queriesByStage: QUERIES_AT_CONTROLS,
     }),
     queryFn: async ({ viewSpec }, partialView) =>
-      resolveControls(
+      (await resolveControls(
         viewSpec,
         partialView as Pick<
           ResolvedView,
           'conf' | 'metadata' | 'sources' | 'layers'
         >,
         viewResolutionContextBase,
-      ),
+      )) || null,
   })
 
   const downloadQueries = useViewStageQueries({
@@ -328,14 +330,14 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       queriesByStage: QUERIES_AT_CONTROLS,
     }),
     queryFn: async ({ viewSpec }, partialView) =>
-      resolveDownload(
+      (await resolveDownload(
         viewSpec,
         partialView as Pick<
           ResolvedView,
           'conf' | 'metadata' | 'sources' | 'layers'
         >,
         viewResolutionContextBase,
-      ),
+      )) || null,
   })
 
   const resolvedViews = useMemo(() => {

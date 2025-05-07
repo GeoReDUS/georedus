@@ -14,6 +14,7 @@ export function useMapStyle(
 
       return typeof modifier === 'function' ? modifier(baseStyle) : baseStyle
     },
+    placeholderData: (prev) => prev,
     staleTime: Infinity,
     enabled: !!input,
   })

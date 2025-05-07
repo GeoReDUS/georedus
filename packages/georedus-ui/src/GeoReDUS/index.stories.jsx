@@ -68,6 +68,7 @@ export const Basic = () => {
         baseMapStyle: 'string',
         municipioId: 'string',
         viewConf: 'object',
+        env: 'string',
       },
     },
   )
