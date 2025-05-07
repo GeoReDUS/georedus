@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.7.0
+
+### Minor Changes
+
+- implement proof of concept support for places layer
+
 ## 0.6.2
 
 ### Patch Changes
