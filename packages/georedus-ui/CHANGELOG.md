@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.8.2
+
+### Patch Changes
+
+- apply bounds to censo 2010 and 2022 sources
+
 ## 0.8.1
 
 ### Patch Changes
