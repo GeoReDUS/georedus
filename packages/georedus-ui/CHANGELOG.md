@@ -1,5 +1,16 @@
 # @orioro/template-react
 
+## 0.8.0
+
+### Minor Changes
+
+- integrate vtx protocol into censo data
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/vector-tile-util@0.2.0
+
 ## 0.7.0
 
 ### Minor Changes
