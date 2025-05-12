@@ -53,7 +53,7 @@ export function globalResources(context) {
       global_municipio: tableVectorSource(context, MUNICIPIO_MALHA_TABLE_ID, {
         absoluteId: MUNICIPIO_MALHA_TABLE_ID,
         minzoom: 4,
-        maxzoom: 20,
+        maxzoom: 12,
       }),
     },
     layers: {
