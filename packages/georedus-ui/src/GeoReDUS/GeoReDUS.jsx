@@ -46,7 +46,6 @@ import { get } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import { mdiClose } from '@mdi/js'
-import { csvParse } from 'd3-dsv'
 import { resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
@@ -54,10 +53,12 @@ import { useViews } from '../viewSpecs/useViews'
 import { useMapStyle } from './useMapStyle'
 import { tableVectorSource } from '../viewSpecs/util'
 
+import { vtxSetup } from '../vtxProtocol'
+
 //
-// List of municipio ids that are in the RM (Regiões Metropolitanas) dataset
+// Sets up vtx:// protocol
 //
-const RM_MUNICIPIO_IDS_CEM = '/georedus/data/cem_rm_municipio_ids_20250401.csv'
+vtxSetup()
 
 const LegendContainer = styled(Flex)`
   box-shadow:

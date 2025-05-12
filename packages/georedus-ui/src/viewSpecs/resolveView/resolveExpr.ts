@@ -8,6 +8,7 @@ import {
 } from '@orioro/resolve'
 
 import * as CUSTOM_EXPR from './customExpr'
+import { vtx } from '../../vtxProtocol'
 
 //
 // TODO: set dynamic values
@@ -39,6 +40,16 @@ const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({
         ...CUSTOM_EXPR,
         $fetch: fetchExpr({
           isFetchAllowed,
+
+          //
+          // memoFetchData already parses
+          // response to json
+          //
+          // TODO: review integration techniques
+          // for better API
+          //
+          fetchFn: vtx.memoFetchData,
+          handleResponse: (data) => data,
         }),
       },
     }).resolver,

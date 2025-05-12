@@ -1,4 +1,4 @@
-import { omit, pick, uniqBy } from 'lodash'
+import { pick, uniqBy } from 'lodash'
 import { COLOR_SCHEMES, downloadResolver, globalResources } from '../../util'
 
 import { COLLECTION_SCHEMAS } from '../../../DevControls/importViewSpecsFromCsv'
@@ -10,6 +10,9 @@ import { buffer } from '@turf/turf'
 import { GeoReDUSWorker } from '../../../GeoReDUSWorker'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
 import { dataJoin } from '@orioro/util'
+
+import { $urlSearch } from '../../resolveView/customExpr'
+import { get } from '@orioro/get'
 
 const DEFAULT_BUFFER_SIZE = 200
 
@@ -256,6 +259,21 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
 
   const sourceLabel = `CENSO ${year}`
 
+  const _resolveDataUrl = resolve.fn((context) => {
+    const _variableId = get(context, 'view.conf.data.variableId')
+    const _variant = variantsByVariableId[_variableId]
+    const url = `${METADATA_API_ENDPOINT}/${_variant.source_table_id}?${$urlSearch(
+      [
+        {
+          select: ['cd_setor', _variableId].join(','),
+          cd_mun: `eq.${context.app.municipioId}`,
+        },
+      ],
+    )}`
+
+    return url
+  })
+
   return {
     // debug: true,
     id: viewId,
@@ -393,14 +411,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     },
 
     metadata: {
-      _dependencies: ({ viewConfState }) => {
-        // console.log('run dependencies', omit(viewConfState.byId, [viewId]))
-
-        // return omit(viewConfState.byId, [viewId])
-        return 'STABLE'
-
-        // return omit(viewConfState.byId, [viewId])
-      },
       _value: [
         '$let',
         {
@@ -494,30 +504,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               [
                 '$get',
                 ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
-                [
-                  '$fetch',
-                  [
-                    '$template',
-                    `${METADATA_API_ENDPOINT}` +
-                      '/${source_table_id}?select=' +
-                      '${variableId}' +
-                      '&cd_mun=eq.' +
-                      '${municipioId}',
-                    {
-                      variableId: ['$get', 'view.conf.data.variableId'],
-                      municipioId: ['$context', 'municipioId'],
-                      source_table_id: [
-                        '$get',
-                        [
-                          '$template',
-                          '${0}.source_table_id',
-                          ['$get', 'view.conf.data.variableId'],
-                        ],
-                        variantsByVariableId,
-                      ],
-                    },
-                  ],
-                ],
+                ['$fetch', _resolveDataUrl],
               ],
               [
                 '$fetch',
@@ -558,11 +545,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
             measureUnits,
             variableValues: ['$get', 'variableValues'],
             customGeoJSON: ['$get', 'customGeoJSON'],
-
-            customGeoJSON2: resolveAsync.fn(async (context) => {
-              // console.log('resolve customGeoJSON2', context)
-              // return Math.random()
-            }),
             colorScaleStops: [
               '$naturalBreaks',
               ['$get', 'variableValues'],
@@ -628,7 +610,6 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         [['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']]],
         null,
         resolve.fn((context) => {
-          // ['$get', 'view.metadata.customGeoJSON'],
           const { customGeoJSON, variableValues } = context.view.metadata
 
           if (!customGeoJSON?.AREAS) {
@@ -668,91 +649,65 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         type: 'vector',
         attribution: sourceLabel,
         minzoom: 8,
-        maxzoom: 20,
+        //
+        // Prevent system from fetching data beyond necessary detail
+        //
+        maxzoom: BUILDINGS_MIN_ZOOM,
         promoteId: 'cd_setor',
         tiles: [
-          [
-            '$join',
-            [
-              `${VECTOR_TILE_SERVER_ENDPOINT}/dvt/{z}/{x}/{y}?`,
-              [
-                '$urlSearch',
-                {
-                  view: [
-                    '$get',
-                    [
-                      '$template',
-                      '${0}.collection_id',
-                      ['$get', 'view.conf.data.variableId'],
-                    ],
-                    variantsByVariableId,
+          resolve.fn((context) => {
+            const _variableId = get(context, 'view.conf.data.variableId')
+            const _variant = variantsByVariableId[_variableId]
+
+            return [
+              '$vtxUrl',
+              {
+                tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/dvt/{z}/{x}/{y}?${$urlSearch(
+                  [
+                    {
+                      view: _variant.collection_id,
+                      select: ['cd_setor'],
+                      where: {
+                        cd_mun: [context.app.municipioId],
+                      },
+                    },
                   ],
-                  select: ['cd_setor'],
-                  join_view: [
-                    '$get',
-                    [
-                      '$template',
-                      '${0}.source_table_id',
-                      ['$get', 'view.conf.data.variableId'],
-                    ],
-                    variantsByVariableId,
-                  ],
-                  join_source_column: 'cd_setor',
-                  join_target_column: 'cd_setor',
-                  join_select: [['$get', 'view.conf.data.variableId']],
-                  where: {
-                    cd_mun: [['$get', 'municipioId']],
-                  },
-                },
-              ],
-            ],
-          ],
+                )}`,
+                data: [['cd_setor', _resolveDataUrl]],
+              },
+            ]
+          }),
         ],
       },
 
       [`${VECTOR_SOURCE_ID}_buildings`]: {
         type: 'vector',
         attribution: sourceLabel,
-        minzoom: 6,
-        maxzoom: 20,
+        minzoom: BUILDINGS_MIN_ZOOM,
+        maxzoom: BUILDINGS_MIN_ZOOM,
+        // Zoom levels make no real difference, buildings
+        // are pretty square
+        // maxzoom: 20,
         tiles: [
-          [
-            '$join',
-            [
-              `${VECTOR_TILE_SERVER_ENDPOINT}/dvt/{z}/{x}/{y}?`,
-              [
-                '$urlSearch',
-                {
-                  view: 'overture_br_buildings',
-                  // view: [
-                  //   '$get',
-                  //   [
-                  //     '$template',
-                  //     '${0}.collection_id',
-                  //     ['$get', 'view.conf.data.variableId'],
-                  //   ],
-                  //   variantsByVariableId,
-                  // ],
-                  select: ['height', 'subtype'],
-                  join_view: [
-                    '$get',
-                    [
-                      '$template',
-                      '${0}.source_table_id',
-                      ['$get', 'view.conf.data.variableId'],
-                    ],
-                    variantsByVariableId,
+          resolve.fn((context) => {
+            return [
+              '$vtxUrl',
+              {
+                tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/dvt/{z}/{x}/{y}?${$urlSearch(
+                  [
+                    {
+                      view: 'overture_br_buildings',
+                      select: [`setor_${year}_id`],
+                      where: {
+                        [`municipio_id`]: [context.app.municipioId],
+                      },
+                    },
                   ],
-                  join_source_column: `setor_${year}_id`,
-                  join_target_column: 'cd_setor',
-                  join_select: [['$get', 'view.conf.data.variableId']],
-                  where: {
-                    municipio_id: [['$get', 'municipioId']],
-                  },
-                },
-              ],
-            ],
-          ],
+                )}`,
+                data: [[`setor_${year}_id:cd_setor`, _resolveDataUrl]],
+              },
+            ]
+          }),
         ],
       },
     },

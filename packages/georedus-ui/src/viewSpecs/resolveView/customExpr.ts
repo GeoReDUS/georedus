@@ -4,6 +4,7 @@ import { GeoReDUSWorker } from '../../GeoReDUSWorker'
 
 import { ScaleNaturalBreaksProps } from '@orioro/react-maplibre-util'
 import { isPlainObject, pick } from 'lodash'
+import { vtxUrl } from '../../vtxProtocol'
 
 type SearchParams = Record<string, any>
 
@@ -23,7 +24,6 @@ type SearchParams = Record<string, any>
 export const $naturalBreaks: ExpressionFn<
   [number[], opt?: Pick<ScaleNaturalBreaksProps, 'k' | 'scalesByK'>]
 > = ([values, opt]) => {
-
   const breaks = GeoReDUSWorker.scaleNaturalBreaks({
     values,
     ...(isPlainObject(opt)
@@ -34,7 +34,8 @@ export const $naturalBreaks: ExpressionFn<
   return breaks
 }
 
-// export const $test = ()
+export const $vtxUrl: ExpressionFn<Parameters<typeof vtxUrl>> = ([options]) =>
+  vtxUrl(options)
 
 export const $urlSearch: ExpressionFn<
   [SearchParams | [SearchParams, StringifyOptions]]

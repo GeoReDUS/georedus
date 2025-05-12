@@ -54,6 +54,7 @@ export function LeftPanel({
         //
         style={{
           position: 'absolute',
+          zIndex: 1000,
           top: {
             xs: `${1.2 * HEADER_HEIGHT}px`,
             md: `${HEADER_HEIGHT * (2 / 3)}px`,
