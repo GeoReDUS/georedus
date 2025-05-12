@@ -21,8 +21,11 @@ const INSUFFICIENT_DATA_COLOR = 'red'
 const BUILDINGS_MIN_ZOOM = 14
 const BUILDINGS_3D_MIN_ZOOM = 16
 
+const UNBOUNDED_BOUNDS = [-180, -90, 180, 90]
+
 //
-//
+// TODO: deprecate in favor of applying buffers
+// inside worker
 //
 function _applyBuffers(geometry, { bufferSize = DEFAULT_BUFFER_SIZE } = {}) {
   switch (geometry?.type) {
@@ -272,6 +275,24 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     )}`
 
     return url
+  })
+
+  const _resolveSourceBounds = resolve.fn((context) => {
+    try {
+      const coordinates = context.view.metadata.municipioData?.bbox?.coordinates
+
+      if (!coordinates) {
+        return UNBOUNDED_BOUNDS
+      }
+
+      const [west, south] = coordinates[0][0] // first point: lower-left (southwest)
+      const [east, north] = coordinates[0][2] // third point: upper-right (northeast)
+
+      return [west, south, east, north] // [minX, minY, maxX, maxY]
+    } catch (err) {
+      console.warn(`error while retrieving bounds`, err)
+      return UNBOUNDED_BOUNDS
+    }
   })
 
   return {
@@ -539,11 +560,23 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
                 },
               ],
             ],
+            municipioData: [
+              '$get',
+              '0',
+              [
+                '$fetch',
+                resolve.fn(
+                  (context) =>
+                    `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=bbox&id=eq.${context.app.municipioId}`,
+                ),
+              ],
+            ],
           },
           {
             labels,
             measureUnits,
             variableValues: ['$get', 'variableValues'],
+            municipioData: ['$get', 'municipioData'],
             customGeoJSON: ['$get', 'customGeoJSON'],
             colorScaleStops: [
               '$naturalBreaks',
@@ -559,7 +592,15 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
     },
 
     sources: {
-      ...globalRes.sources,
+      ...Object.fromEntries(
+        Object.entries(globalRes.sources).map(([key, spec]) => [
+          key,
+          {
+            ...spec,
+            bounds: _resolveSourceBounds,
+          },
+        ]),
+      ),
       //
       // Points in custom GeoJson
       //
@@ -654,6 +695,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         //
         maxzoom: BUILDINGS_MIN_ZOOM,
         promoteId: 'cd_setor',
+        bounds: _resolveSourceBounds,
         tiles: [
           resolve.fn((context) => {
             const _variableId = get(context, 'view.conf.data.variableId')
@@ -685,6 +727,7 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
         attribution: sourceLabel,
         minzoom: BUILDINGS_MIN_ZOOM,
         maxzoom: BUILDINGS_MIN_ZOOM,
+        bounds: _resolveSourceBounds,
         // Zoom levels make no real difference, buildings
         // are pretty square
         // maxzoom: 20,
