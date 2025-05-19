@@ -1,0 +1,23 @@
+{
+  "mdi_forest": {
+    "height": 24,
+    "pixelRatio": 1,
+    "width": 24,
+    "x": 0,
+    "y": 0
+  },
+  "mdi_school": {
+    "height": 24,
+    "pixelRatio": 1,
+    "width": 24,
+    "x": 24,
+    "y": 0
+  },
+  "mdi_train": {
+    "height": 24,
+    "pixelRatio": 1,
+    "width": 24,
+    "x": 0,
+    "y": 24
+  }
+}

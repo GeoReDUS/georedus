@@ -4,6 +4,7 @@ import type {
   AnyLayer,
   AnySource,
 } from 'react-map-gl/dist/esm/exports-maplibre'
+import { MapGeoJSONFeature, MapMouseEvent } from 'maplibre-gl'
 
 // export type MapViewProps = {
 //   sources: Source[]
@@ -34,6 +35,11 @@ export type MapViewLayer = Omit<AnyLayer, 'id'> & {
   // zIndex is used to override ordering
   //
   zIndex?: number
+
+  //
+  // An optional layer click handler
+  //
+  onClick?: (feature: MapGeoJSONFeature, event: MapMouseEvent) => any
 }
 
 type MapViewLegend = {

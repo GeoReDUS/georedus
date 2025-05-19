@@ -2,6 +2,7 @@ import React from 'react'
 import Map from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Theme } from '@radix-ui/themes'
+import '@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css'
 
 import '@radix-ui/themes/styles.css'
 

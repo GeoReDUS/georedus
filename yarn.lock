@@ -3557,6 +3557,7 @@ __metadata:
     "@orioro/react-ui-core": "npm:^0.0.6"
     "@orioro/resolve": "npm:^0.1.2"
     "@orioro/scale-util": "npm:^0.0.2"
+    "@orioro/util": "npm:^0.13.0"
     "@radix-ui/themes": "npm:^3.0.1"
     "@tanstack/react-query": "npm:^5.66.0"
     "@turf/turf": "npm:^7.2.0"

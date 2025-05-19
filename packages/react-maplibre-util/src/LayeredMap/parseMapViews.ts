@@ -1,6 +1,7 @@
 import { AnyLayer } from 'react-map-gl/dist/esm/exports-maplibre'
 import { MapView, MapViewLayer, MapViewSource } from '../types'
 import { isPlainObject, uniq, uniqBy } from 'lodash-es'
+import { MapMouseEvent } from 'maplibre-gl'
 
 type ParsedSource = MapViewSource & {
   id: string
@@ -10,6 +11,7 @@ type ParsedSource = MapViewSource & {
 type ParsedLayer = MapViewLayer & {
   id: string
   viewId: string
+  onClick?: (feature: GeoJSON.Feature, event: MapMouseEvent) => any
 }
 
 export type MapViewsParseResult = {
@@ -171,9 +173,10 @@ export function parseMapViews(
               // : `${viewId}__${layerRelativeId}`
 
               return {
-                interactiveLayerIds: layer.interactive
-                  ? [...acc.interactiveLayerIds, layerId]
-                  : acc.interactiveLayerIds,
+                interactiveLayerIds:
+                  layer.interactive || typeof layer.onClick === 'function'
+                    ? [...acc.interactiveLayerIds, layerId]
+                    : acc.interactiveLayerIds,
                 _layers: [
                   ...acc._layers,
                   {

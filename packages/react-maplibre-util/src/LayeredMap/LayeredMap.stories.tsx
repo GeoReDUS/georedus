@@ -7,6 +7,7 @@ import { LayeredMapProps } from '../types'
 import { TerrainControl } from '../Controls'
 import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
+import { layeredMapOnClickHandler } from './layeredMapOnClickHandler'
 
 export default {
   title: 'LayeredMap',
@@ -21,7 +22,7 @@ export const Basic = () => {
   >({
     latitude: -1.455833,
     longitude: -48.503887,
-    zoom: 10,
+    zoom: 6,
   })
 
   const onMove = useCallback((evt) => setViewState(evt.viewState), [])
@@ -54,19 +55,17 @@ export const Basic = () => {
       [],
     )
 
+  const onClick = useMemo(() => layeredMapOnClickHandler(), [])
+
   return (
     <LayeredMap
       {...hoverProps}
       {...viewState}
+      onClick={onClick}
       onMove={onMove}
       style={{
         height: '100vh',
         width: '100vw',
-      }}
-      initialViewState={{
-        latitude: -1.455833,
-        longitude: -48.503887,
-        zoom: 10,
       }}
       mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`}
       views={[
@@ -75,10 +74,17 @@ export const Basic = () => {
           sources: {
             municipios: {
               type: 'geojson',
+              promoteId: 'codarea',
               data: `https://servicodados.ibge.gov.br/api/v4/malhas/municipios/1501402?formato=application/vnd.geo+json`,
+            },
+            estados: {
+              type: 'geojson',
+              promoteId: 'codarea',
+              data: `https://servicodados.ibge.gov.br/api/v4/malhas/estados/15?formato=application/vnd.geo+json`,
             },
             paises: {
               type: 'geojson',
+              promoteId: 'codarea',
               data: `https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR?formato=application/vnd.geo+json`,
             },
           },
@@ -89,7 +95,27 @@ export const Basic = () => {
               source: 'paises',
               paint: {
                 'fill-color': 'green',
-                'fill-opacity': 0.6,
+                'fill-opacity': 0.3,
+              },
+              // onClick: (feature, e) => {
+              //   alert('clicked: ' + feature.id)
+              // },
+            },
+            estados: {
+              interactive: true,
+              type: 'fill',
+              source: 'estados',
+              paint: {
+                'fill-color': 'blue',
+                'fill-opacity': [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0.6,
+                  0.3,
+                ],
+              },
+              onClick: (feature, e) => {
+                alert('clicked: ' + feature.id)
               },
             },
             municipios: {
@@ -98,7 +124,15 @@ export const Basic = () => {
               source: 'municipios',
               paint: {
                 'fill-color': 'red',
-                'fill-opacity': 0.6,
+                'fill-opacity': [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0.8,
+                  0.3,
+                ],
+              },
+              onClick: (feature, e) => {
+                alert('clicked: ' + feature.id)
               },
             },
           },

@@ -34,13 +34,13 @@ export function mapSetFeaturesState(
   }
 
   features.forEach((feat) => {
-    if (feat.id) {
+    if (typeof feat.id === 'number' || typeof feat.id === 'string') {
       map.setFeatureState(
         { source: feat.source, sourceLayer: feat.sourceLayer, id: feat.id },
         state,
       )
     } else {
-      console.warn(`could not get feature id`, feat)
+      // console.warn(`could not get feature id`, feat)
     }
   })
 }
@@ -114,8 +114,12 @@ export function useHover<InfoT = any>(
       onDragEnd,
       cursor: isDragging
         ? 'grabbing'
-        : hoverInfo?.features?.length > 0
-          ? 'default'
+        : (hoverInfo?.features?.length || 0) > 0
+          ? hoverInfo.features.some(
+              (feat) => typeof feat.layer?.onClick === 'function',
+            )
+            ? 'pointer'
+            : 'default'
           : 'grab',
       children: isDragging ? null : <>{tooltip}</>,
     },
