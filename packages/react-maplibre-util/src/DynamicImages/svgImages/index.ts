@@ -106,7 +106,25 @@ export function svgIconId(
   return options ? `${iconId}(${JSON.stringify(options)})` : iconId
 }
 
-export function svgIconGenerator(iconPathsById: Record<string, string>) {
+type SvgIconGeneratorReturn<T extends Record<string, string>> = {
+  (imageId: string): Promise<
+    | [
+        {
+          width: number
+          height: number
+          data: Uint8ClampedArray
+        },
+        Partial<StyleImageMetadata>,
+      ]
+    | null
+  >
+} & {
+  [K in keyof T]: (options?: IconPathToSvgOptions) => string
+}
+
+export function svgIconGenerator<T extends Record<string, string>>(
+  iconPathsById: T,
+): SvgIconGeneratorReturn<T> {
   const fns = Object.fromEntries(
     Object.entries(iconPathsById).map(([iconId, iconPath]) => [
       iconId,
@@ -120,9 +138,28 @@ export function svgIconGenerator(iconPathsById: Record<string, string>) {
     expressions: fns,
   })
 
-  return async function onGenerateSvgImage(imageId: string) {
-    const svg = expr.apply(imageId, undefined)
+  async function onGenerateSvgImage(imageId: string) {
+    try {
+      const imageExpr = expr.parse(imageId)
 
-    return svgToMaplibreImage(svg)
+      const svg = expr.apply(imageExpr, undefined)
+
+      return svgToMaplibreImage(svg)
+    } catch (err) {
+      // console.log(`will skip: ${imageId}`)
+      return null
+    }
   }
+
+  Object.assign(
+    onGenerateSvgImage,
+    Object.fromEntries(
+      Object.keys(iconPathsById).map((iconId) => [
+        iconId,
+        (options?: IconPathToSvgOptions) => svgIconId(iconId, options),
+      ]),
+    ),
+  )
+
+  return onGenerateSvgImage as SvgIconGeneratorReturn<T>
 }

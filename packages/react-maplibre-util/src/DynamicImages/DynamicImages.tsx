@@ -29,7 +29,7 @@ export function DynamicImages({ onGenerateImage }: DynamicImagesProps) {
         if (!map.hasImage(imageId)) {
           if (Array.isArray(result)) {
             map.addImage(imageId, result[0], result[1])
-          } else {
+          } else if (result) {
             map.addImage(imageId, result)
           }
         }

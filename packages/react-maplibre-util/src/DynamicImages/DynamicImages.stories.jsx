@@ -23,14 +23,14 @@ export default {
   },
 }
 
-const MAP_STYLE = `https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`
+const MAP_STYLE = `https://api.maptiler.com/maps/streets-v2/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`
 
 const FEATURES = [
   {
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0333, 0.7999],
+      coordinates: [-46.6333, -23.5505],
     },
     properties: { category: 'forest' },
   },
@@ -38,7 +38,7 @@ const FEATURES = [
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0433, 0.8099],
+      coordinates: [-46.6343, -23.5515],
     },
     properties: { category: 'hospital' },
   },
@@ -46,7 +46,7 @@ const FEATURES = [
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0533, 0.7999],
+      coordinates: [-46.6353, -23.5505],
     },
     properties: { category: 'parking' },
   },
@@ -54,7 +54,7 @@ const FEATURES = [
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0533, 0.81],
+      coordinates: [-46.6353, -23.5495],
     },
     properties: { category: 'parking' },
   },
@@ -62,7 +62,7 @@ const FEATURES = [
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0333, 0.7899],
+      coordinates: [-46.6333, -23.5525],
     },
     properties: { category: 'bus' },
   },
@@ -70,7 +70,7 @@ const FEATURES = [
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0233, 0.7999],
+      coordinates: [-46.6323, -23.5505],
     },
     properties: { category: 'school' },
   },
@@ -78,26 +78,22 @@ const FEATURES = [
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [-66.0133, 0.7999],
+      coordinates: [-46.6313, -23.5505],
     },
     properties: { category: 'unknown' },
   },
 ].map((feat, index) => ({ ...feat, id: index }))
 
-export const Basic = () => {
-  const MAP_SVG_GENERATOR = useMemo(
-    () =>
-      svgIconGenerator({
-        mdiForest,
-        mdiParking,
-        mdiBusSign,
-        mdiHospital,
-        mdiSchool,
-        mdiMapMarkerCircle,
-      }),
-    [],
-  )
+const MAP_ICONS = svgIconGenerator({
+  mdiForest,
+  mdiParking,
+  mdiBusSign,
+  mdiHospital,
+  mdiSchool,
+  mdiMapMarkerCircle,
+})
 
+export const Basic = () => {
   //
   // Hover stuff
   //
@@ -108,9 +104,9 @@ export const Basic = () => {
     <LayeredMap
       {...hoverProps}
       initialViewState={{
-        latitude: 0.7999968,
-        longitude: -66.0333332,
-        zoom: 12,
+        latitude: -23.5505,
+        longitude: -46.6333,
+        zoom: 14,
       }}
       style={{
         height: '100vh',
@@ -152,11 +148,11 @@ export const Basic = () => {
                   'match',
                   ['get', 'category'],
                   'forest',
-                  svgIconId('mdiForest', {
+                  MAP_ICONS.mdiForest({
                     fill: 'white',
                   }),
                   'hospital',
-                  svgIconId('mdiHospital', {
+                  MAP_ICONS.mdiHospital({
                     fill: 'white',
                   }),
                   'parking',
@@ -174,7 +170,7 @@ export const Basic = () => {
         },
       ]}
     >
-      <DynamicImages onGenerateImage={MAP_SVG_GENERATOR} />
+      <DynamicImages onGenerateImage={MAP_ICONS} />
       <InspectControl />
     </LayeredMap>
   )
