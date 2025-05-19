@@ -1,6 +1,6 @@
 {
   "name": "@orioro/react-maplibre-util",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/index.mjs",

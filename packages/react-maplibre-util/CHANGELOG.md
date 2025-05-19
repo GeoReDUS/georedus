@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.5.0
+
+### Minor Changes
+
+- implement onClick handler on LayeredMap layers; implement DynamicImage component and CustomSprite
+
 ## 0.4.0
 
 ### Minor Changes

@@ -25,6 +25,7 @@ import {
   InspectControl,
   useLayeredMap,
 } from '@orioro/react-maplibre-util'
+import '@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css'
 import { Legend } from '@orioro/react-chart-util'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
