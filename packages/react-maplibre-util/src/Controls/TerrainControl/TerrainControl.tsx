@@ -107,6 +107,8 @@ export function TerrainControl({
   demSource: DEM_SOURCE_SPEC = DEFAULT_DEM_SOURCE_SPEC,
 
   contourTileOptions: contourTileOptionsInput = DEFAULT_CONTOUR_TILE_OPTIONS,
+
+  ...controlContainerProps
 }: TerrainControlProps) {
   const _contourTileOptions: GlobalContourTileOptions = useMemo(
     () => ({
@@ -322,7 +324,7 @@ export function TerrainControl({
   }, [mapRef.current?.getMap(), settings && settings.enable3d])
 
   return (
-    <ControlContainer>
+    <ControlContainer {...controlContainerProps}>
       <DropdownMenu
         size="1"
         options={[
