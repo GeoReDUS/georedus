@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.5.2
+
+### Patch Changes
+
+- fix TerrainControl position usage
+
 ## 0.5.1
 
 ### Patch Changes
