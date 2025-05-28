@@ -312,6 +312,23 @@ function GeoReDUSInner({
       }),
   )
 
+  const regionMunicipioIdsQuery = useQuery({
+    queryKey: ['AdjacentMunicipioIds', municipioId],
+    queryFn: async () => {
+      const [mun] = await fetch(
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=regiao_imediata_id&id=eq.${municipioId}`,
+      ).then((response) => response.json())
+
+      const adjacendMuns = await fetch(
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=id&regiao_imediata_id=eq.${mun.regiao_imediata_id}`,
+      ).then((response) => response.json())
+
+      return adjacendMuns.map((mun) => mun.id)
+    },
+    enabled: Boolean(municipioId),
+    throwOnError: process.env.NODE_ENV !== 'production',
+  })
+
   const [baseMapStyle, setBaseMapStyle] = useLocalState(
     globalState.baseMapStyle || 'dataviz',
     (nextBaseMapStyle) =>
@@ -448,8 +465,13 @@ function GeoReDUSInner({
     viewConfState: viewConfState,
     app: {
       municipioId,
+      regionMunicipioIds:
+        regionMunicipioIdsQuery.status === 'success'
+          ? regionMunicipioIdsQuery.data
+          : null,
       baseMapStyle,
     },
+    enabled: regionMunicipioIdsQuery.status === 'success',
   })
 
   //

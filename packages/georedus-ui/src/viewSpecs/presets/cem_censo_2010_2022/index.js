@@ -45,6 +45,25 @@ function _applyBuffers(geometry, { bufferSize = DEFAULT_BUFFER_SIZE } = {}) {
   }
 }
 
+function _extractBounds(polygons) {
+  let minX = Infinity,
+    minY = Infinity
+  let maxX = -Infinity,
+    maxY = -Infinity
+
+  for (const item of polygons) {
+    const coords = item.coordinates[0]
+    for (const [x, y] of coords) {
+      if (x < minX) minX = x
+      if (y < minY) minY = y
+      if (x > maxX) maxX = x
+      if (y > maxY) maxY = y
+    }
+  }
+
+  return [minX, minY, maxX, maxY] // [west, south, east, north]
+}
+
 export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
   const {
     collection_id,
@@ -262,37 +281,54 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
 
   const sourceLabel = `CENSO ${year}`
 
-  const _resolveDataUrl = resolve.fn((context) => {
-    const _variableId = get(context, 'view.conf.data.variableId')
-    const _variant = variantsByVariableId[_variableId]
-    const url = `${METADATA_API_ENDPOINT}/${_variant.source_table_id}?${$urlSearch(
-      [
-        {
-          select: ['cd_setor', _variableId].join(','),
-          cd_mun: `eq.${context.app.municipioId}`,
-        },
-      ],
-    )}`
+  const _dataUrlResolver = (resolveMunicipioIds) =>
+    resolve.fn((context) => {
+      const _variableId = get(context, 'view.conf.data.variableId')
+      const _variant = variantsByVariableId[_variableId]
 
-    return url
-  })
+      const municipioIds = resolveMunicipioIds(context)
 
-  const _resolveSourceBounds = resolve.fn((context) => {
+      const url = `${METADATA_API_ENDPOINT}/${_variant.source_table_id}?${$urlSearch(
+        [
+          {
+            select: ['cd_setor', _variableId].join(','),
+            // cd_mun: `eq.${context.app.municipioId}`,
+            // cd_mun: `in.(${context.app.regionMunicipioIds.join(',')})`,
+            cd_mun: `in.(${municipioIds.join(',')})`,
+          },
+        ],
+      )}`
+
+      return url
+    })
+
+  const _resolveSourceBounds = resolveAsync.fn(async (context) => {
     try {
-      const coordinates = context.view.metadata.municipioData?.bbox?.coordinates
+      const regionMuns = await fetch(
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=bbox&id=in.(${context.app.regionMunicipioIds})`,
+      ).then((response) => response.json())
 
-      if (!coordinates) {
-        return UNBOUNDED_BOUNDS
-      }
-
-      const [west, south] = coordinates[0][0] // first point: lower-left (southwest)
-      const [east, north] = coordinates[0][2] // third point: upper-right (northeast)
-
-      return [west, south, east, north] // [minX, minY, maxX, maxY]
+      return _extractBounds(regionMuns.map((mun) => mun.bbox))
     } catch (err) {
       console.warn(`error while retrieving bounds`, err)
       return UNBOUNDED_BOUNDS
     }
+
+    // try {
+    //   const coordinates = context.view.metadata.municipioData?.bbox?.coordinates
+
+    //   if (!coordinates) {
+    //     return UNBOUNDED_BOUNDS
+    //   }
+
+    //   const [west, south] = coordinates[0][0] // first point: lower-left (southwest)
+    //   const [east, north] = coordinates[0][2] // third point: upper-right (northeast)
+
+    //   return [west, south, east, north] // [minX, minY, maxX, maxY]
+    // } catch (err) {
+    //   console.warn(`error while retrieving bounds`, err)
+    //   return UNBOUNDED_BOUNDS
+    // }
   })
 
   return {
@@ -525,7 +561,14 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
               [
                 '$get',
                 ['$template', '[].${0}', ['$get', 'view.conf.data.variableId']],
-                ['$fetch', _resolveDataUrl],
+                [
+                  '$fetch',
+                  //
+                  // Use only values for the focused municipio
+                  // for rendering legends
+                  //
+                  _dataUrlResolver((context) => [context.app.municipioId]),
+                ],
               ],
               [
                 '$fetch',
@@ -710,12 +753,20 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
                       view: _variant.collection_id,
                       select: ['cd_setor'],
                       where: {
-                        cd_mun: [context.app.municipioId],
+                        cd_mun: context.app.regionMunicipioIds,
+                        // cd_mun: [context.app.municipioId],
                       },
                     },
                   ],
                 )}`,
-                data: [['cd_setor', _resolveDataUrl]],
+                data: [
+                  [
+                    'cd_setor',
+                    _dataUrlResolver(
+                      (context) => context.app.regionMunicipioIds,
+                    ),
+                  ],
+                ],
               },
             ]
           }),
@@ -742,12 +793,20 @@ export function cem_censo_2010_2022(viewSpec, allViewSpecs, context) {
                       view: 'overture_br_buildings',
                       select: [`setor_${year}_id`],
                       where: {
-                        [`municipio_id`]: [context.app.municipioId],
+                        // [`municipio_id`]: [context.app.municipioId],
+                        [`municipio_id`]: context.app.regionMunicipioIds,
                       },
                     },
                   ],
                 )}`,
-                data: [[`setor_${year}_id:cd_setor`, _resolveDataUrl]],
+                data: [
+                  [
+                    `setor_${year}_id:cd_setor`,
+                    _dataUrlResolver(
+                      (context) => context.app.regionMunicipioIds,
+                    ),
+                  ],
+                ],
               },
             ]
           }),

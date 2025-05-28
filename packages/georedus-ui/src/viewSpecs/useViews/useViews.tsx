@@ -179,9 +179,9 @@ function useViewStageQueries({
 }
 
 export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
-  const { viewSpecs, viewConfState } = viewResolutionContextBase
+  const { viewSpecs, viewConfState, enabled = true } = viewResolutionContextBase
 
-  const VIEWS_ENABLED = Boolean(viewSpecs && viewConfState)
+  const VIEWS_ENABLED = Boolean(viewSpecs && viewConfState && enabled)
 
   const viewSpecsById = useMemo(
     () =>

@@ -20,6 +20,7 @@ export type ViewResolutionContextBase = {
   viewSpecs: ViewSpec[]
   viewConfState: ViewConfState
   app: AppContext
+  enabled?: boolean
 }
 
 type StageSpec<
