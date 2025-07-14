@@ -17,7 +17,7 @@ const HARD_CODED_ALLOW_FETCH_SOURCES: Parameters<
   typeof fetchExpr.allowOrigins
 >[0] = {
   ['https://dev-geoapi-metadata.orioro.design']: ['GET', 'POST'],
-  ['http://localhost:6001']: ['GET', 'POST'],
+  ['http://localhost:8001']: ['GET', 'POST'],
 }
 
 console.warn('TODO: remove HARD_CODED_ALLOW_FETCH_SOURCES')
