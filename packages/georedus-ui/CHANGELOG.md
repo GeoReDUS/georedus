@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.8.6
+
+### Patch Changes
+
+- update dev metadata api url
+
 ## 0.8.5
 
 ### Patch Changes
