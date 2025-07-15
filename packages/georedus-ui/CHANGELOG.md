@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.8.8
+
+### Patch Changes
+
+- add missing react import
+
 ## 0.8.7
 
 ### Patch Changes
