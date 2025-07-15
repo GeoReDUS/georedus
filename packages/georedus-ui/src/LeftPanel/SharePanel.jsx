@@ -1,7 +1,6 @@
 import React from 'react'
 import { Flex } from '@orioro/react-ui-core'
-// TODO: restore share button
-// import { ShareButtonBar } from '@/components/ShareButtonBar'
+import { ShareButtonBar } from '../ShareButtonBar'
 
 import { Dialog } from '@radix-ui/themes'
 
@@ -48,8 +47,7 @@ export function SharePanel({ syncedMapsRef, mapContainerRef }) {
           <img src={URL.createObjectURL(imageBlobQuery.data)} />
         )}
       </Flex>*/}
-        ShareButtonBar
-        {/*<ShareButtonBar />*/}
+        <ShareButtonBar />
       </Flex>
     </>
   )
