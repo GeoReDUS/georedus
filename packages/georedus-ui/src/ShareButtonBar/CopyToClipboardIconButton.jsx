@@ -1,7 +1,7 @@
+import React, { useState } from 'react'
 import { Button, IconButton, Popover, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import { mdiContentCopy } from '@mdi/js'
-import { useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 
 export function CopyToClipboardButton({ text, label, ...props }) {
