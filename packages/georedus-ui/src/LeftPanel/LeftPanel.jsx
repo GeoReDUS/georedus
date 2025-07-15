@@ -4,7 +4,11 @@ import { Flex, LoadingOverlay } from '@orioro/react-ui-core'
 import { ViewMenu } from '../ViewMenu'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
-import { mdiChevronLeft, mdiShareVariantOutline } from '@mdi/js'
+import {
+  mdiChevronLeft,
+  mdiForumOutline,
+  mdiShareVariantOutline,
+} from '@mdi/js'
 import { GeoReDUSLogoSymbol, GeoReDUSLogoText } from '../GeoReDUSLogo'
 import { useDialogs } from '../DialogSystem'
 import styled from 'styled-components'
@@ -187,6 +191,7 @@ export function LeftPanel({
                 }}
                 pb="3"
                 direction="column"
+                gap="3"
                 justifyContent="flex-end"
                 alignItems="center"
               >
@@ -202,7 +207,20 @@ export function LeftPanel({
                     )
                   }}
                 >
-                  <Icon path={mdiShareVariantOutline} size="24px" />
+                  <Tooltip content="Compartilhar">
+                    <Icon path={mdiShareVariantOutline} size="24px" />
+                  </Tooltip>
+                </IconButton>
+                <IconButton variant="soft" size="3" asChild>
+                  <a
+                    href="https://www.redus.org.br/georedus-rede-de-dados-urbanos/formularios/cbf766bb-9a74-4bc5-897a-70b9151afbdb"
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                  >
+                    <Tooltip content="Dúvidas e sugestões">
+                      <Icon path={mdiForumOutline} size="24px" />
+                    </Tooltip>
+                  </a>
                 </IconButton>
               </Flex>
             }
