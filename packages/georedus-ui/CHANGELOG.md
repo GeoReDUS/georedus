@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.8.7
+
+### Patch Changes
+
+- fix share button bar and add questions & suggestions button
+
 ## 0.8.6
 
 ### Patch Changes
