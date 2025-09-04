@@ -6,6 +6,7 @@ import queryString from 'query-string'
 import Map, { Layer, Source } from 'react-map-gl/maplibre'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import memoize from 'memoizee'
 
 import MaplibreInspect from '@maplibre/maplibre-gl-inspect'
 import { useControl } from 'react-map-gl/maplibre'
@@ -81,11 +82,11 @@ export default {
 }
 
 const { protocolHandler, memoFetchData } = dataMergeProtocol({
-  memoFetchData: async (query) => {
+  memoFetchData: memoize(async (query) => {
     const result = await duckQuery(atob(query))
 
     return result
-  },
+  }),
 })
 
 maplibregl.addProtocol('ducktiles', protocolHandler)
@@ -152,15 +153,35 @@ QUERY_PRESETS.densidade = `WITH base AS (
   JOIN
     'http://localhost:6006/censo/2022_tracts_Basico_v0.5.0.parquet' AS b
   ON m.code_tract = b.code_tract
-  WHERE b.code_muni = 3550308
+  WHERE m.code_muni = 3550308
 )
 SELECT
   *,
   NTILE(5) OVER (ORDER BY hab_km2)::INT AS map_color_value
 FROM base;`
 
+QUERY_PRESETS.google_sheets = `
+  SELECT
+    m.code_tract,
+    m.geom,
+    g.valor_teste_1::INT AS map_color_value
+  FROM
+    'http://localhost:6006/censo/35census_tract_2020_simplified.parquet'
+    AS m
+  JOIN
+    read_csv(
+      'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYNpj0ZG30ghpkrssr4uUUMh0G9JnbTusqH6CEE4kkZwROFJ7sni9PN6Jt9AqkQO6yODAgAR7uY2Pv/pub?gid=1681333778&single=true&output=csv',
+      header = true,
+      delim = ',',
+      columns = {'cod_setor': 'VARCHAR', 'valor_teste_1': 'DOUBLE', 'valor_teste_2': 'DOUBLE'}
+    )
+    AS g
+  ON m.code_tract = g.cod_setor
+  WHERE m.code_muni = 3550308
+`
+
 export const Basic = () => {
-  const [liveSqlQuery, setLiveSqlQuery] = useState(QUERY_PRESETS.densidade)
+  const [liveSqlQuery, setLiveSqlQuery] = useState(QUERY_PRESETS.google_sheets)
 
   const [appliedSqlQuery, setAppliedSqlQuery] = useState(liveSqlQuery)
 
@@ -203,7 +224,7 @@ export const Basic = () => {
 
       const min = Math.min(...nonEmptyValues)
       const max = Math.max(...nonEmptyValues)
-      console.log('values', { min, max }, values, nonEmptyValues)
+      // console.log('values', { min, max }, values, nonEmptyValues)
 
       // Build MapLibre 'fill-color' expression
       const fillColorExpr = [
@@ -251,21 +272,21 @@ export const Basic = () => {
             source-layer="dvt"
             paint={{
               'fill-color': colorScale || '#efefef',
-              'fill-opacity': 1,
-              // 'fill-opacity': [
-              //   'step',
-              //   ['zoom'],
-              //   0.8, // default (zoom < 14)
-              //   14,
-              //   0.2, // at zoom ≥ 14
-              // ],
+              // 'fill-opacity': 1,
+              'fill-opacity': [
+                'step',
+                ['zoom'],
+                0.8, // default (zoom < 14)
+                14,
+                0.2, // at zoom ≥ 14
+              ],
             }}
           />
         </Source>
         <Source
           type="vector"
           tiles={[
-            `ducktiles://{t:'${buildingsTileUrl}',d:[['setor_${year}_id:cd_setor', '${dataUrl}']]}`,
+            `ducktiles://{t:'${buildingsTileUrl}',d:[['setor_${year}_id:code_tract', '${dataUrl}']]}`,
           ]}
           bounds={SP_BOUNDS}
           minzoom={14}
