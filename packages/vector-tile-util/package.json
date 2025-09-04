@@ -24,6 +24,7 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@duckdb/duckdb-wasm": "1.29.1-dev132.0",
     "@maplibre/maplibre-gl-inspect": "^1.7.1",
     "@orioro/dev": "^0.0.5",
     "jest": "^29.7.0",
