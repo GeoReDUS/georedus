@@ -58,7 +58,7 @@
     "@orioro/resolve": "^0.1.2",
     "@orioro/scale-util": "^0.0.2",
     "@orioro/tree-model": "^0.0.2",
-    "@orioro/util": "^0.13.0",
+    "@orioro/util": "^0.14.0",
     "@orioro/validate": "^0.0.2",
     "@orioro/vector-tile-util": "workspace:^",
     "@radix-ui/react-collapsible": "^1.1.3",

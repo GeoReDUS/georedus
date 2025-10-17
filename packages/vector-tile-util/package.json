@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@mapbox/vector-tile": "^2.0.3",
-    "@orioro/util": "^0.13.0",
+    "@orioro/util": "^0.14.0",
     "@types/memoizee": "^0.4.12",
     "@types/vt-pbf": "^3.1.0",
     "lodash-es": "^4.17.21",
