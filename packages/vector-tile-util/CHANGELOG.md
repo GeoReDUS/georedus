@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.2.1
+
+### Patch Changes
+
+- fix issue related to impossibility of loading localhost layers due to synthetic json inability to handle colons (:)
+
 ## 0.2.0
 
 ### Minor Changes

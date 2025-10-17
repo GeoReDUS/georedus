@@ -1,5 +1,13 @@
 # @orioro/template-react
 
+## 0.8.9
+
+### Patch Changes
+
+- fix issue related to impossibility of loading localhost layers due to synthetic json inability to handle colons (:)
+- Updated dependencies
+  - @orioro/vector-tile-util@0.2.1
+
 ## 0.8.8
 
 ### Patch Changes
