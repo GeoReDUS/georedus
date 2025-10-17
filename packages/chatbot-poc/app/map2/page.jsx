@@ -29,20 +29,23 @@ import { dataMergeProtocol, makeMemoFetch } from "@orioro/vector-tile-util";
 import { duckQuery } from "./duckdb";
 import { z } from "zod";
 import { PROMPT } from "./prompt";
+import memoizee from "memoizee";
+import { ducktilesProtocolHandler } from "./ducktiles";
 
 const MAP_STYLE = `https://api.maptiler.com/maps/streets/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`;
 
 const { protocolHandler, memoFetchData } = dataMergeProtocol({
-  memoFetchData: async (query) => {
+  memoFetchData: memoizee(async (query) => {
     // return []
 
     const result = await duckQuery(atob(query));
 
     return result;
-  },
+  }),
 });
 
-maplibregl.addProtocol("ducktiles", protocolHandler);
+// maplibregl.addProtocol("ducktiles", protocolHandler);
+maplibregl.addProtocol("ducktiles", ducktilesProtocolHandler);
 
 function _searchParams(params) {
   return queryString.stringify(
