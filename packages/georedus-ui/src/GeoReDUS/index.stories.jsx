@@ -3,6 +3,10 @@ import { GeoReDUS } from './GeoReDUS'
 import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
+import { overture_places_poc } from '../viewSpecs/development/overture_places_poc'
+import { br_divisao_territorial_views } from '../viewSpecs/development/br_divisao_territorial'
+import { ana_br_bacias_hidrograficas } from '../viewSpecs/development/ana_br_bacias_hidrograficas'
+
 export default {
   title: 'GeoReDUS / GeoReDUS',
   parameters: {
@@ -30,6 +34,12 @@ const useVersionedSearchParamsState = versionedSearchParamsStateHook(
   useSearchParams,
 )
 
+const API = {
+  METADATA_API_ENDPOINT: process.env.STORYBOOK_GEO_METADATA_API_ENDPOINT,
+  VECTOR_TILE_SERVER_ENDPOINT:
+    process.env.STORYBOOK_GEO_VECTOR_TILE_SERVER_ENDPOINT,
+}
+
 const GOOGLE_CEM_CENSO_2010 =
   'https://docs.google.com/spreadsheets/d/e/' +
   '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
@@ -56,6 +66,12 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
     GOOGLE_CEM_CENSO_2010,
     GOOGLE_CEM_ESCOLAS_2022,
     GOOGLE_CEM_SAUDE_2024,
+
+    [
+      overture_places_poc(API),
+      ...br_divisao_territorial_views(API),
+      ...ana_br_bacias_hidrograficas(API),
+    ],
   ],
   censo_only: [GOOGLE_CEM_CENSO_2022, GOOGLE_CEM_CENSO_2010],
 }
@@ -78,11 +94,7 @@ export const Basic = () => {
       state={stateStorage}
       onSetState={setStateStorage}
       viewSpecs={GOOGLE_SHEETS_VIEW_SPECS}
-      api={{
-        METADATA_API_ENDPOINT: process.env.STORYBOOK_GEO_METADATA_API_ENDPOINT,
-        VECTOR_TILE_SERVER_ENDPOINT:
-          process.env.STORYBOOK_GEO_VECTOR_TILE_SERVER_ENDPOINT,
-      }}
+      api={API}
     />
   )
 }
