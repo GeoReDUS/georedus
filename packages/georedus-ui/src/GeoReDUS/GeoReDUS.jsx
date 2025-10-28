@@ -284,6 +284,8 @@ function GeoReDUSInner({
     viewConfReducerInitialState,
   )
 
+  const [zoomLevel, setZoomLevel] = useState('intrabr')
+
   //
   // Sync viewConfState to external globalState
   //
@@ -355,6 +357,11 @@ function GeoReDUSInner({
     app: {
       municipioId,
       baseMapStyle,
+      //
+      // Pass only zoomLevel instead of zoom itself
+      // in order for views not recompute on every zoom change
+      //
+      zoomLevel,
     },
   })
 
@@ -607,6 +614,14 @@ function GeoReDUSInner({
       {mapStyle && (
         <SyncedMaps
           maxPitch={80}
+          onZoomEnd={(e) => {
+            const zoom = e.viewState?.zoom
+            const nextZoomLevel =
+              zoom > 8 ? 'intramun' : zoom > 5 ? 'intrauf' : 'intrabr'
+            console.log('onZoomEnd - zoom:', zoom, nextZoomLevel)
+
+            setZoomLevel(nextZoomLevel)
+          }}
           onDrag={() => {
             if (resolvedLayout.length > 1 && leftPanelOpen) {
               //

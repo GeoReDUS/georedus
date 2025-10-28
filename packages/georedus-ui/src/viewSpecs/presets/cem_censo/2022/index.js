@@ -12,6 +12,8 @@ import { setor_censitario } from '../2010_2022/setor_censitario'
 import { buildings } from '../2010_2022/buildings'
 import { download } from '../2010_2022/download'
 
+import { choropleth } from './choropleth'
+
 export function cem_censo_2022(viewSpec, allViewSpecs, context) {
   const PARSED_SCHEMA = parseSchema(viewSpec, allViewSpecs, context)
 
@@ -47,6 +49,11 @@ export function cem_censo_2022(viewSpec, allViewSpecs, context) {
     PARSED_SCHEMA,
   })
 
+  const CHOROPLETH = choropleth({
+    GLOBAL_CONTEXT: context,
+    PARSED_SCHEMA,
+  })
+
   return {
     // debug: true,
     id: PARSED_SCHEMA.viewId,
@@ -61,32 +68,37 @@ export function cem_censo_2022(viewSpec, allViewSpecs, context) {
       PARSED_SCHEMA,
     }),
 
-    metadata: metadata(viewSpec, allViewSpecs, context, {
-      PARSED_SCHEMA,
-      CHART_UTIL,
-      DATA_UTIL,
-    }),
+    metadata: {
+      ...CHOROPLETH.metadata,
+    },
+
+    // metadata: metadata(viewSpec, allViewSpecs, context, {
+    //   PARSED_SCHEMA,
+    //   CHART_UTIL,
+    //   DATA_UTIL,
+    // }),
 
     sources: {
-      ...Object.fromEntries(
-        Object.entries(GLOBAL.sources).map(([key, spec]) => [
-          key,
-          {
-            ...spec,
-            bounds: _resolveSourceBounds,
-          },
-        ]),
-      ),
-
-      ...CUSTOM_GEO_JSON.sources,
-      ...SETOR_CENSITARIO.sources,
-      ...BUILDINGS.sources,
+      ...CHOROPLETH.sources,
+      // ...Object.fromEntries(
+      //   Object.entries(GLOBAL.sources).map(([key, spec]) => [
+      //     key,
+      //     {
+      //       ...spec,
+      //       bounds: _resolveSourceBounds,
+      //     },
+      //   ]),
+      // ),
+      // ...CUSTOM_GEO_JSON.sources,
+      // ...SETOR_CENSITARIO.sources,
+      // ...BUILDINGS.sources,
     },
     layers: {
       ...GLOBAL.layers,
-      ...CUSTOM_GEO_JSON.layers,
-      ...SETOR_CENSITARIO.layers,
-      ...BUILDINGS.layers,
+      ...CHOROPLETH.layers,
+      // ...CUSTOM_GEO_JSON.layers,
+      // ...SETOR_CENSITARIO.layers,
+      // ...BUILDINGS.layers,
     },
     download: DOWNLOAD,
   }
