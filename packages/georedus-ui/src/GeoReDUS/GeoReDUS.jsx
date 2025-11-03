@@ -57,6 +57,8 @@ import { overture_places_poc } from '../viewSpecs/development/overture_places_po
 
 import { vtxSetup } from '../vtxProtocol'
 
+import { baseViews } from '../viewSpecs/baseViews'
+
 //
 // Sets up vtx:// protocol
 //
@@ -315,6 +317,15 @@ function GeoReDUSInner({
       }),
   )
 
+  const [regional, setRegional] = useLocalState(
+    Boolean(globalState.regional),
+    (nextRegional) =>
+      onSetGlobalState({
+        ...globalState,
+        regional: nextRegional,
+      }),
+  )
+
   const [baseMapStyle, setBaseMapStyle] = useLocalState(
     globalState.baseMapStyle || 'dataviz',
     (nextBaseMapStyle) =>
@@ -351,10 +362,8 @@ function GeoReDUSInner({
     throwOnError: process.env.NODE_ENV !== 'production',
   })
 
-  const { resolvedViews, resolvedViewSpecs, isLoading } = useViews({
-    viewSpecs: viewSpecsQuery.data,
-    viewConfState: viewConfState,
-    app: {
+  const APP_CONTEXT = useMemo(
+    () => ({
       municipioId,
       baseMapStyle,
       //
@@ -362,7 +371,15 @@ function GeoReDUSInner({
       // in order for views not recompute on every zoom change
       //
       zoomLevel,
-    },
+      regional,
+    }),
+    [municipioId, baseMapStyle, zoomLevel, regional],
+  )
+
+  const { resolvedViews, resolvedViewSpecs, isLoading } = useViews({
+    viewSpecs: viewSpecsQuery.data,
+    viewConfState: viewConfState,
+    app: APP_CONTEXT,
   })
 
   //
@@ -573,6 +590,15 @@ function GeoReDUSInner({
     },
   )
 
+  const BASE_VIEWS = useMemo(
+    () =>
+      baseViews({
+        api,
+        app: APP_CONTEXT,
+      }),
+    [api, APP_CONTEXT],
+  )
+
   return (
     <Flex>
       <LeftPanel
@@ -602,11 +628,30 @@ function GeoReDUSInner({
           viewConfDispatch={viewConfDispatch}
         />
 
-        <Flex alignItems="strecth" width="400px" maxWidth="30vw">
+        <Flex
+          alignItems="strecth"
+          width="400px"
+          direction="column"
+          maxWidth="30vw"
+          gap="3"
+        >
           <Input
             schema={MUNICIPIO_ID_SELECTOR_SCHEMA}
             value={municipioId}
             onSetValue={setMunicipioId}
+          />
+
+          <Input
+            style={{
+              alignSelf: 'flex-end',
+            }}
+            schema={{
+              type: 'booleanCheckbox',
+              description: 'Visualizar dados regionais',
+            }}
+            size="1"
+            value={regional}
+            onSetValue={setRegional}
           />
         </Flex>
       </Flex>
@@ -654,7 +699,10 @@ function GeoReDUSInner({
           tooltip={getTooltip}
           maps={resolvedLayout.map(({ id, views, legends }, index) => ({
             id,
-            views,
+            views: [
+              ...views,
+              ...BASE_VIEWS
+            ],
 
             //
             // Required for exporting map:

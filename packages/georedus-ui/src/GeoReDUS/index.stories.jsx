@@ -83,6 +83,7 @@ export const Basic = () => {
       schema: {
         baseMapStyle: 'string',
         municipioId: 'string',
+        regional: 'boolean',
         viewConf: 'object',
         env: 'string',
       },

@@ -43,6 +43,9 @@ export function metadata({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
       // Review if this is actually needed, as now we are loading
       // data per tile
       //
+      //
+      labels: PARSED_SCHEMA.labels,
+      measureUnits: PARSED_SCHEMA.measureUnits,
       rawDataCacheUrl,
       rawData,
       colorScheme,

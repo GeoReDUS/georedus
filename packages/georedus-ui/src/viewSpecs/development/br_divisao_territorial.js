@@ -1,4 +1,4 @@
-function br_divisao_territorial({
+export function br_divisao_territorial({
   VECTOR_TILE_SERVER_ENDPOINT,
   id,
   label = id,
