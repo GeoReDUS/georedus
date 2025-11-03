@@ -284,7 +284,7 @@ function GeoReDUSInner({
     viewConfReducerInitialState,
   )
 
-  const [zoomLevel, setZoomLevel] = useState('intrabr')
+  const [zoomLevel, setZoomLevel] = useState(null)
 
   //
   // Sync viewConfState to external globalState
@@ -617,7 +617,13 @@ function GeoReDUSInner({
           onZoomEnd={(e) => {
             const zoom = e.viewState?.zoom
             const nextZoomLevel =
-              zoom > 8 ? 'intramun' : zoom > 5 ? 'intrauf' : 'intrabr'
+              zoom > 8
+                ? 'intramun'
+                : zoom > 5
+                  ? 'intrauf'
+                  : zoom > 3
+                    ? 'intrabr'
+                    : null
             console.log('onZoomEnd - zoom:', zoom, nextZoomLevel)
 
             setZoomLevel(nextZoomLevel)

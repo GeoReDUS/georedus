@@ -13,19 +13,6 @@ export function metadata({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
     // Load data on the municipio
     const municipioId = context.app.municipioId
 
-    const [municipioData] = await fetch(
-      `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?${$urlSearch([
-        {
-          select: ['cd_mun', 'group_cd_mun_list', 'group_bbox'].join(','),
-          cd_mun: `eq.${context.app.municipioId}`,
-        },
-      ])}`,
-    ).then((res) => res.json())
-
-    if (!municipioData) {
-      throw new Error(`Municipio not found: ${municipioId}`)
-    }
-
     const variableId = get(context, 'view.conf.data.variableId')
     const variant = PARSED_SCHEMA.variantsByVariableId[variableId]
 
@@ -37,7 +24,7 @@ export function metadata({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
       [
         {
           select: ['id', 'cd_mun', variableId, `${variableId}_src`].join(','),
-          cd_mun: `in.(${(municipioData.group_cd_mun_list || []).join(',')})`,
+          cd_mun: `eq.${municipioId}`,
         },
       ],
     )}`
@@ -45,21 +32,17 @@ export function metadata({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
     // Explicitly call vtx.memoFetchData, so that cache is persisted
     //
     const rawData = await vtx.memoFetchData(rawDataCacheUrl)
-
-    //
-    // Use values for the focusMunicipio to build the scale
-    //
-    const scaleValues = get(
-      rawData.filter((entry) => entry.cd_mun === municipioId),
-      `[].${variableId}`,
-    )
+    const scaleValues = get(rawData, `[].${variableId}`)
 
     const colorScheme = variant.colorScheme
       ? COLOR_SCHEMES[variant.colorScheme] || DEFAULT_COLOR_SCHEME
       : DEFAULT_COLOR_SCHEME
 
     return {
-      municipioData,
+      //
+      // Review if this is actually needed, as now we are loading
+      // data per tile
+      //
       rawDataCacheUrl,
       rawData,
       colorScheme,
