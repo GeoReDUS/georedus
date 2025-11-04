@@ -52,14 +52,13 @@ export function sortLayers(
         // Layers that come after are rendered on top of previous layers
         //
         zIndex: typeof layer.zIndex === 'number' ? layer.zIndex : index,
-        _order: index,
       }))
       //
       // Order layers in ascending zIndex order, so that
       // layers with higher zIndex are rendered later and on top of
       // previous ones
       //
-      .sort((a, b) => a.zIndex - b.zIndex || a._order - b._order)
+      .sort((layerA, layerB) => (layerA.zIndex >= layerB.zIndex ? 1 : -1))
       .map((layer, index, sortedLayers) => {
         if (index === sortedLayers.length - 1) {
           // is last layer

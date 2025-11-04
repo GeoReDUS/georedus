@@ -12,7 +12,7 @@ export function br_divisao_territorial({
     indicator_id: id,
     id: id,
     label,
-    path: `Divisão política / ${year} / ${label}`,
+    path: `Divisões territoriais / _ / ${label}`,
     metadata: {},
 
     sources: {

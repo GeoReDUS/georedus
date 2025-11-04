@@ -6,7 +6,7 @@ function _util_bacia({ VECTOR_TILE_SERVER_ENDPOINT, id, label = id, year, paint 
     indicator_id: id,
     id: id,
     label,
-    path: `Bacias Hidrográficas / 2017`,
+    path: `Divisões territoriais / _ / Bacias Hidrográficas`,
     metadata: {},
 
     sources: {

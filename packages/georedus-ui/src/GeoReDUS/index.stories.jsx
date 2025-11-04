@@ -6,6 +6,10 @@ import { useSearchParams, BrowserRouter } from 'react-router-dom'
 import { overture_places_poc } from '../viewSpecs/development/overture_places_poc'
 import { br_divisao_territorial_views } from '../viewSpecs/development/br_divisao_territorial'
 import { ana_br_bacias_hidrograficas } from '../viewSpecs/development/ana_br_bacias_hidrograficas'
+import { hand } from '../viewSpecs/development/hand'
+import { declividade } from '../viewSpecs/development/declividade'
+import { temperatura_superficie } from '../viewSpecs/development/temperatura_superficie'
+import { curvatura } from '../viewSpecs/development/curvatura'
 
 export default {
   title: 'GeoReDUS / GeoReDUS',
@@ -34,10 +38,17 @@ const useVersionedSearchParamsState = versionedSearchParamsStateHook(
   useSearchParams,
 )
 
+const RASTER_TILE_ROOT_PATH = (
+  process.env.STORYBOOK_RASTER_TILE_ROOT_PATH ||
+  `file:///devtools-data/raster-server`
+).replace(/\/$/, '')
+
 const API = {
-  METADATA_API_ENDPOINT: process.env.STORYBOOK_GEO_METADATA_API_ENDPOINT,
+  METADATA_API_ENDPOINT: process.env.STORYBOOK_METADATA_API_ENDPOINT,
   VECTOR_TILE_SERVER_ENDPOINT:
-    process.env.STORYBOOK_GEO_VECTOR_TILE_SERVER_ENDPOINT,
+    process.env.STORYBOOK_VECTOR_TILE_SERVER_ENDPOINT,
+  RASTER_TILE_SERVER_ENDPOINT:
+    process.env.STORYBOOK_RASTER_TILE_SERVER_ENDPOINT,
 }
 
 const GOOGLE_CEM_CENSO_2010 =
@@ -68,6 +79,22 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
     GOOGLE_CEM_SAUDE_2024,
 
     [
+      hand({
+        ...API,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2025/mosaic.json`,
+      }),
+      declividade({
+        ...API,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2025/mosaic.json`,
+      }),
+      temperatura_superficie({
+        ...API,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2025/mosaic.json`,
+      }),
+      curvatura({
+        ...API,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2025/mosaic.json`,
+      }),
       overture_places_poc(API),
       ...br_divisao_territorial_views(API),
       ...ana_br_bacias_hidrograficas(API),
