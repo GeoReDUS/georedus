@@ -54,6 +54,7 @@ export function temperatura_superficie({
 
     sources: {
       [TEMPERATURA_SUPERFICIE_ID]: {
+        minzoom: 9,
         type: 'raster',
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -94,6 +95,7 @@ export function temperatura_superficie({
     },
     layers: {
       [`${TEMPERATURA_SUPERFICIE_ID}`]: {
+        minzoom: 9,
         zIndex: 10,
         type: 'raster',
         source: TEMPERATURA_SUPERFICIE_ID,

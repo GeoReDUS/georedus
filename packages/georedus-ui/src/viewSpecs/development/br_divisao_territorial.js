@@ -5,8 +5,6 @@ export function br_divisao_territorial({
   year,
   paint,
 }) {
-  VECTOR_TILE_SERVER_ENDPOINT = 'http://localhost:8002'
-
   return {
     collection_id: 'br_divisao_territorial',
     indicator_id: id,

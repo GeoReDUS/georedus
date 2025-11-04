@@ -54,6 +54,7 @@ export function curvatura({
 
     sources: {
       [CURVATURA_ID]: {
+        minzoom: 9,
         type: 'raster',
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -83,6 +84,7 @@ export function curvatura({
     },
     layers: {
       [`${CURVATURA_ID}`]: {
+        minzoom: 9,
         zIndex: 10,
         type: 'raster',
         source: CURVATURA_ID,

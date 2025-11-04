@@ -26,7 +26,7 @@ export function br_municipios({ api, app }) {
         filter: [
           'all',
           // Matches
-          ['==', ['get', 'cd_mun'], app.municipioId],
+          ['==', ['get', 'cd_mun'], app.municipioId || null],
         ],
         paint: {
           'line-color': '#888888',
@@ -42,7 +42,7 @@ export function br_municipios({ api, app }) {
         filter: [
           'all',
           // Matches
-          ['!', ['==', ['get', 'cd_mun'], app.municipioId]],
+          ['!', ['==', ['get', 'cd_mun'], app.municipioId || null]],
         ],
         paint: {
           'line-color': '#888888',

@@ -1,6 +1,10 @@
-function _util_bacia({ VECTOR_TILE_SERVER_ENDPOINT, id, label = id, year, paint }) {
-  VECTOR_TILE_SERVER_ENDPOINT = 'http://localhost:8002'
-
+function _util_bacia({
+  VECTOR_TILE_SERVER_ENDPOINT,
+  id,
+  label = id,
+  year,
+  paint,
+}) {
   return {
     collection_id: 'ana_br_bacias_hidrograficas',
     indicator_id: id,
@@ -12,12 +16,14 @@ function _util_bacia({ VECTOR_TILE_SERVER_ENDPOINT, id, label = id, year, paint 
     sources: {
       [id]: {
         type: 'vector',
+        minzoom: 9,
         tiles: [`${VECTOR_TILE_SERVER_ENDPOINT}/${id}/{z}/{x}/{y}`],
       },
     },
     layers: {
       [`${id}_bounds`]: {
         source: id,
+        minzoom: 9,
         'source-layer': id,
         type: 'line',
         paint: paint,
