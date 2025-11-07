@@ -89,7 +89,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
       }),
       declividade({
         ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2025/mosaic.json`,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2018/mosaic.json`,
       }),
       temperatura_superficie({
         ...API,
@@ -97,7 +97,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
       }),
       curvatura({
         ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2025/mosaic.json`,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2018/mosaic.json`,
       }),
       overture_places_poc(API),
       ...br_divisao_territorial_views(API),
