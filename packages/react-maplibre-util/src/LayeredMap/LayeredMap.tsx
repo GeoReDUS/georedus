@@ -5,6 +5,7 @@ import React, {
   useRef,
   createContext,
   useContext,
+  useEffect,
 } from 'react'
 import { Map, Layer, Source, MapInstance } from 'react-map-gl/maplibre'
 import { LayeredMapProps } from '../types'
@@ -15,6 +16,7 @@ import {
   getSrcViewByLayerId,
   parseMapViews,
 } from './parseMapViews'
+import { syncLayerOrder } from './syncLayerOrder'
 // import { mergeRefs } from 'react-merge-refs'
 
 //
@@ -127,6 +129,25 @@ export const LayeredMap = forwardRef<
   )
 
   useImperativeHandle(layeredMapRef, () => imperativeHandle, [imperativeHandle])
+
+  //
+  // Force sync layer order
+  // https://github.com/visgl/react-map-gl/issues/939#issuecomment-1515395161
+  //
+  useEffect(() => {
+    if (!parsed?.layers || !mapRef.current) {
+      return
+    }
+
+    // Timeout ensures layers are added to map before moving
+    setTimeout(() => {
+      const expectedLayerOrderId = parsed.layers.map((layer) => layer.id)
+      syncLayerOrder({
+        expectedLayerOrderId,
+        map: mapRef.current,
+      })
+    }, 0)
+  }, [parsed?.layers])
 
   return (
     <Map
