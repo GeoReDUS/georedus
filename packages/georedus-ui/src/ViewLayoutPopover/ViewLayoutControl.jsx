@@ -165,8 +165,6 @@ export function ViewLayoutControl({
   viewConfState,
   viewConfDispatch,
 }) {
-  console.log('ViewLayoutControl', viewConfState.layout)
-
   return (
     <ViewLayoutControlContext.Provider
       value={{

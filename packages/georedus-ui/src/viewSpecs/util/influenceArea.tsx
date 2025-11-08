@@ -147,7 +147,7 @@ export function influenceAreaSources({
 
 type InfluenceAreaLayersProps = {
   dataPath?: string
-  zIndex?: number
+  // zIndex?: number
 
   fillPaint?: Record<string, any>
   boundaryPaint?: Record<string, any>
@@ -155,13 +155,13 @@ type InfluenceAreaLayersProps = {
 
 export function influenceAreaLayers({
   dataPath = 'view.metadata.influenceArea',
-  zIndex = ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
+  // zIndex = ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
   fillPaint = {},
   boundaryPaint = {},
 }: InfluenceAreaLayersProps = {}) {
   return {
     influenceArea_fill: {
-      zIndex,
+      // zIndex,
       hidden: ['$empty', ['$get', dataPath]],
       source: 'influenceArea',
       type: 'fill',
@@ -173,7 +173,7 @@ export function influenceAreaLayers({
       },
     },
     influenceArea_boundaries: {
-      zIndex,
+      // zIndex,
       hidden: ['$empty', ['$get', dataPath]],
       source: 'influenceArea',
       type: 'line',

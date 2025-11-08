@@ -61,7 +61,7 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     layers: {
       [`${HAND_ID}`]: {
         minzoom: 7,
-        zIndex: 10,
+        // zIndex: 10,
         type: 'raster',
         source: HAND_ID,
         paint: {

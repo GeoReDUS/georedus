@@ -17,7 +17,7 @@ export const intramun = {
   layers(opts) {
     return {
       ...setor_censitario_layers(opts),
-      ...baseMapLayers(opts),
+      // ...baseMapLayers(opts),
     }
   },
 }

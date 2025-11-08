@@ -1,5 +1,12 @@
 # @orioro/template-react
 
+## 0.8.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.5.3
+
 ## 0.8.9
 
 ### Patch Changes

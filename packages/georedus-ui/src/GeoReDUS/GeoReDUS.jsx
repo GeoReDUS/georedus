@@ -474,10 +474,6 @@ function GeoReDUSInner({
         `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
       ).then((response) => response.json())
 
-      // const municipios = await fetch(
-      //   'https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado',
-      // ).then((response) => response.json())
-
       return municipios.map((mun) => ({
         label: `${mun['nome']} (${mun['uf_sigla']})`,
         value: mun['id'] + '',
@@ -599,6 +595,14 @@ function GeoReDUSInner({
     [api, APP_CONTEXT],
   )
 
+  console.log('resolvedLayout', resolvedLayout.map((map) => map.views).flat(1))
+  console.log(
+    'layers',
+    resolvedLayout
+      .map((map) => map.views.map((view) => Object.values(view.layers)).flat(1))
+      .flat(1),
+  )
+
   return (
     <Flex>
       <LeftPanel
@@ -669,7 +673,6 @@ function GeoReDUSInner({
                   : zoom > 3
                     ? 'intrabr'
                     : null
-            console.log('onZoomEnd - zoom:', zoom, nextZoomLevel)
 
             setZoomLevel(nextZoomLevel)
           }}
@@ -699,10 +702,7 @@ function GeoReDUSInner({
           tooltip={getTooltip}
           maps={resolvedLayout.map(({ id, views, legends }, index) => ({
             id,
-            views: [
-              ...views,
-              ...BASE_VIEWS
-            ],
+            views: [...views.concat([]).reverse(), ...BASE_VIEWS],
 
             //
             // Required for exporting map:

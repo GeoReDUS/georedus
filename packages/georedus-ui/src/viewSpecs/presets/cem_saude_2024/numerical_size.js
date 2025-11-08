@@ -30,7 +30,7 @@ export function numerical_size(
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
+        // zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
         type: 'circle',
 
         legends: [

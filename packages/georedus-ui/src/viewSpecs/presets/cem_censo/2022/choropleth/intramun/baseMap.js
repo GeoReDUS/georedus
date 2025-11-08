@@ -18,7 +18,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Landcover: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
 
         id: 'Landcover',
         type: 'fill',
@@ -47,7 +47,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Forest: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
 
         id: 'Forest',
         type: 'fill',
@@ -68,7 +68,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Road_Network: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 3,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 3,
 
         id: 'Road_Network',
         type: 'line',
@@ -201,7 +201,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Road_labels: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 4,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 4,
 
         id: 'Road labels',
         type: 'symbol',
@@ -305,7 +305,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Place_labels: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 5,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 5,
 
         id: 'Place_labels',
         type: 'symbol',
@@ -393,7 +393,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Village_labels: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 6,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 6,
 
         id: 'Village labels',
         type: 'symbol',
@@ -437,7 +437,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     Town_labels: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 7,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 7,
         id: 'Town labels',
         type: 'symbol',
         source: 'maptiler_planet',
@@ -478,7 +478,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     State_labels: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 7,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 7,
 
 
         id: 'State labels',
@@ -519,7 +519,7 @@ export function baseMapLayers({ GLOBAL_CONTEXT }) {
     City_labels: resolve.fn(({ app }) =>
       resolve.literal({
         hidden: app?.baseMapStyle === 'satellite',
-        zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 7,
+        // zIndex: BASE_MAP_LAYERS_Z_INDEX_BASE + 7,
 
         id: 'City labels',
         type: 'symbol',

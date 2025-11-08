@@ -95,7 +95,7 @@ export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     layers: {
       [`${DECLIVIDADE_ID}`]: {
         minzoom: 9,
-        zIndex: 10,
+        // zIndex: 10,
         type: 'raster',
         source: DECLIVIDADE_ID,
         paint: {

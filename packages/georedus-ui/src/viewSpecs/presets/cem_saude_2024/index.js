@@ -199,7 +199,7 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
       ...influenceAreaSources(),
     },
     layers: {
-      ...globalRes.layers,
+      // ...globalRes.layers,
 
       // icon: vectorLayer(VECTOR_SOURCE_ID, {
       //   zIndex: 1000000000,

@@ -85,7 +85,7 @@ export function curvatura({
     layers: {
       [`${CURVATURA_ID}`]: {
         minzoom: 9,
-        zIndex: 10,
+        // zIndex: 10,
         type: 'raster',
         source: CURVATURA_ID,
         paint: {

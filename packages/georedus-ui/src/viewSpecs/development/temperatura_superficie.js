@@ -96,7 +96,7 @@ export function temperatura_superficie({
     layers: {
       [`${TEMPERATURA_SUPERFICIE_ID}`]: {
         minzoom: 7,
-        zIndex: 10,
+        // zIndex: 10,
         type: 'raster',
         source: TEMPERATURA_SUPERFICIE_ID,
         paint: {
