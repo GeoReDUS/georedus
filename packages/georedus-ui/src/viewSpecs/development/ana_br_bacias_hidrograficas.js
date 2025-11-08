@@ -16,14 +16,14 @@ function _util_bacia({
     sources: {
       [id]: {
         type: 'vector',
-        minzoom: 9,
+        minzoom: 3,
         tiles: [`${VECTOR_TILE_SERVER_ENDPOINT}/${id}/{z}/{x}/{y}`],
       },
     },
     layers: {
       [`${id}_bounds`]: {
         source: id,
-        minzoom: 9,
+        minzoom: 3,
         'source-layer': id,
         type: 'line',
         paint: paint,
