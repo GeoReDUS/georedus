@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.5.3
+
+### Patch Changes
+
+- fix layer ordering sync issue
+
 ## 0.5.2
 
 ### Patch Changes
