@@ -5,6 +5,7 @@ import { range } from 'lodash-es'
 import { useMemo } from 'react'
 import { LegendLayout, LegendLayoutProps } from '../LegendLayout'
 import styled from 'styled-components'
+import { fmtNumber } from '../util'
 
 export type ProportionalSymbolLegendProps = Omit<
   LegendLayoutProps,
@@ -116,30 +117,18 @@ export function ProportionalSymbolLegendItems({
     [min, max, steps],
   )
 
-  const formatNumber = useCallback(
-    (number: number) => {
-      if (numberFormat) {
-        return new Intl.NumberFormat(numberFormat[0], numberFormat[1]).format(
-          number,
-        )
-      } else {
-        return new Intl.NumberFormat().format(number)
-      }
-    },
-    [numberFormat],
-  )
-
   const items = useMemo(() => {
     return range(0, steps)
       .reverse()
       .map((step) => ({
         size: sizeScale(step),
         value: valueScale(step),
-        label: [formatNumber(valueScale(step)), labelUnit]
-          .filter(Boolean)
-          .join(' '),
+        label: fmtNumber(valueScale(step), {
+          fmt: numberFormat,
+          suffix: labelUnit ? ` ${labelUnit}` : '',
+        }),
       }))
-  }, [steps, formatNumber, valueScale, sizeScale])
+  }, [steps, numberFormat, valueScale, sizeScale])
 
   return (
     <Container

@@ -1,5 +1,5 @@
 import { chunk } from 'lodash-es'
-import { ColorLegend, ColorLegendProps } from './ColorLegend'
+import { CategoricalLegend, CategoricalLegendProps } from './CategoricalLegend'
 import { interpolate } from '@orioro/util'
 import React, { useMemo } from 'react'
 import { cast, CastNumberToStrOptions } from '@orioro/cast'
@@ -28,7 +28,7 @@ type StepEventHandlers = {
   onClickStep?: (info: StepEventInfo) => any
 }
 
-type ThresholdColorLegendProps = Omit<ColorLegendProps, 'items'> &
+type ThresholdColorLegendProps = Omit<CategoricalLegendProps, 'items'> &
   StepEventHandlers & {
     steps: StepsInput
     format?: Partial<FormatOptions>
@@ -152,7 +152,7 @@ export function SequentialColorLegend({
     [steps, format, onMouseEnterStep, onMouseLeaveStep, onClickStep],
   )
 
-  return <ColorLegend items={items} {...props} />
+  return <CategoricalLegend items={items} {...props} />
 }
 
 export function ThresholdColorLegend({
@@ -192,5 +192,5 @@ export function ThresholdColorLegend({
     )
   }, [steps, format, onMouseEnterStep, onMouseLeaveStep, onClickStep])
 
-  return <ColorLegend items={items} {...props} />
+  return <CategoricalLegend items={items} {...props} />
 }

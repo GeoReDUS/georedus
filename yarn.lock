@@ -4080,11 +4080,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@orioro/react-chart-util@workspace:packages/react-chart-util"
   dependencies:
+    "@mdi/js": "npm:^7.4.47"
+    "@mdi/react": "npm:^1.6.1"
     "@orioro/cast": "npm:^0.0.2"
     "@orioro/dev": "npm:^0.0.5"
+    "@orioro/react-maplibre-util": "workspace:^"
     "@orioro/react-ui-core": "npm:^0.0.6"
-    "@orioro/util": "npm:^0.11.2"
+    "@orioro/util": "npm:^0.15.0"
     d3-scale: "npm:^4.0.2"
+    d3-scale-chromatic: "npm:^3.1.0"
     lodash-es: "npm:^4.17.21"
     next: "npm:14.1.0"
     react: "npm:^18.2.0"
@@ -4178,7 +4182,7 @@ __metadata:
     "@orioro/react-ui-core": "npm:^0.0.6"
     "@orioro/resolve": "npm:^0.1.2"
     "@orioro/scale-util": "npm:^0.0.2"
-    "@orioro/util": "npm:^0.13.0"
+    "@orioro/util": "npm:^0.15.0"
     "@radix-ui/themes": "npm:^3.0.1"
     "@tanstack/react-query": "npm:^5.66.0"
     "@turf/turf": "npm:^7.2.0"
@@ -4399,23 +4403,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/util@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "@orioro/util@npm:0.13.0"
-  dependencies:
-    eventemitter3: "npm:^5.0.1"
-    exponential-backoff: "npm:^3.1.1"
-    fast-copy: "npm:^3.0.2"
-    is-plain-object: "npm:^5.0.0"
-    lodash-es: "npm:^4.17.21"
-    memoize-one: "npm:^6.0.0"
-    query-string: "npm:^9.1.1"
-    traverse: "npm:^0.6.9"
-    type-fest: "npm:^4.18.1"
-  checksum: e57fc93d36f7d51b6861be4a226fae6920ea38b4fcfeba94b6db7ab2e77dae41da13f4e56e2e7bd005f0679714fa72fac3ad6cdf1545459bce3fb7b7f5d23558
-  languageName: node
-  linkType: hard
-
 "@orioro/util@npm:^0.14.0":
   version: 0.14.0
   resolution: "@orioro/util@npm:0.14.0"
@@ -4430,6 +4417,23 @@ __metadata:
     traverse: "npm:^0.6.9"
     type-fest: "npm:^4.18.1"
   checksum: 96abd76ae9640f77bd13826a95733410ace129aa90d12234385a601bf47e1b69274cfffb26df4d44b7c3a0dfa437bcf90bccf51234406f10f6604da605b6fe4d
+  languageName: node
+  linkType: hard
+
+"@orioro/util@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@orioro/util@npm:0.15.0"
+  dependencies:
+    eventemitter3: "npm:^5.0.1"
+    exponential-backoff: "npm:^3.1.1"
+    fast-copy: "npm:^3.0.2"
+    is-plain-object: "npm:^5.0.0"
+    lodash-es: "npm:^4.17.21"
+    memoize-one: "npm:^6.0.0"
+    query-string: "npm:^9.1.1"
+    traverse: "npm:^0.6.9"
+    type-fest: "npm:^4.18.1"
+  checksum: 895ef8279d418a749ced64d8716c0b9ad8fe0fee24deeb4a5422928da5c074685848e757c3ff932d2807749fa03fb2657608df3fecec043b587a538af157fe16
   languageName: node
   linkType: hard
 

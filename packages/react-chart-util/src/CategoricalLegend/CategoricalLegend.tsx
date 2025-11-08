@@ -1,34 +1,48 @@
 import React from 'react'
-import { Flex, FlexProps } from '@orioro/react-ui-core'
+import { Flex, FlexProps, mergeRender } from '@orioro/react-ui-core'
 import styled from 'styled-components'
 import { LegendLayout, LegendLayoutProps } from '../LegendLayout'
 
-export type ColorLegendItem = {
+export type CategoricalLegendItem = {
   id: string | number
   color: string
   label: React.ReactNode
   style?: React.CSSProperties
+  box?: Record<string, any>
   boxStyle?: React.CSSProperties
+  boxChildren?: React.ReactNode
   labelStyle?: React.CSSProperties
   [key: string]: any
 }
 
-export type ColorLegendProps = FlexProps &
+export type CategoricalLegendProps = FlexProps &
   Omit<LegendLayoutProps, 'children'> & {
     description?: React.ReactNode
-    items: ColorLegendItem[]
+    items: CategoricalLegendItem[]
     size?: '1' | '2'
   }
 
-const ColorDisplay = styled.div`
-  background-color: var(--background-color);
+const ItemBox = styled.div<{
+  $color?: string
+}>`
+  background-color: ${({ $color }) => $color || 'transparent'};
   height: var(--color-legend-square-size, 20px);
   width: var(--color-legend-square-size, 20px);
+
+  border: ${({ $color }) =>
+    $color === 'transparent'
+      ? `1px dashed #555555`
+      : `1px solid ${$color || 'transparent'}`};
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 `
 
 const ItemLabel = styled.div`
   font-size: var(--color-legend-item-font-size, 0.9rem);
-  line-height: 1.2;
+  // line-height: 1.2;
   display: flex;
   align-items: center;
   cursor: default;
@@ -45,25 +59,25 @@ const STYLES_BY_SIZE = {
   },
 }
 
-const ColorLegendItem = styled(Flex)`
+const CategoricalLegendItem = styled(Flex)`
   ${({ onMouseEnter, onClick, color }) => {
     return typeof onMouseEnter === 'function' || typeof onClick === 'function'
       ? `&:hover {
           text-decoration: underline;
 
           > div:first-child {
-            outline: 1px solid var(--background-color);
+            outline: 1px solid var(--color-legend-item-color);
           }
         `
       : ''
   }}
 `
 
-export function ColorLegendItems({
+export function CategoricalLegendItems({
   items,
   size = '2',
   ...props
-}: Omit<ColorLegendProps, 'title'>) {
+}: Omit<CategoricalLegendProps, 'title'>) {
   return (
     <Flex direction="column" gap="2px" {...props}>
       {items.map(
@@ -73,13 +87,15 @@ export function ColorLegendItems({
             id,
             color,
             style = {},
+            box = {},
             boxStyle = {},
+            boxChildren = null,
             labelStyle = {},
             ...props
           },
           index,
         ) => (
-          <ColorLegendItem
+          <CategoricalLegendItem
             {...props}
             key={id || index}
             direction="row"
@@ -88,37 +104,35 @@ export function ColorLegendItems({
             style={{
               ...STYLES_BY_SIZE[size],
               ...(style || {}),
-              '--background-color': color,
+              '--color-legend-item-color': color,
             }}
           >
-            <ColorDisplay
-              style={{
-                border:
-                  color === 'transparent'
-                    ? '1px dotted #555555'
-                    : '1px solid var(--background-color)',
-                ...(boxStyle || {}),
-              }}
-            />
+            {mergeRender(
+              ItemBox,
+              {
+                $color: color,
+              },
+              box,
+            )}
 
-            <ItemLabel style={labelStyle}>{label}</ItemLabel>
-          </ColorLegendItem>
+            {mergeRender(ItemLabel, {}, label)}
+          </CategoricalLegendItem>
         ),
       )}
     </Flex>
   )
 }
 
-export function ColorLegend({
+export function CategoricalLegend({
   title,
   unit,
   items,
   size,
   ...props
-}: ColorLegendProps) {
+}: CategoricalLegendProps) {
   return (
     <LegendLayout title={title} unit={unit} {...props}>
-      <ColorLegendItems items={items} size={size} />
+      <CategoricalLegendItems items={items} size={size} />
     </LegendLayout>
   )
 }

@@ -1,103 +1,8 @@
-import { strExpr } from '@orioro/util'
-import { StyleImageMetadata } from 'maplibre-gl'
-
-type IconPathToSvgOptions = {
-  size?: number
-  fill?: string
-  stroke?: string
-  strokeWidth?: string | number
-  viewBox?: string
-  style?: string
-}
-
-export function iconPathToSvg(
-  path: string,
-  {
-    size = 24,
-    fill = 'black',
-    stroke,
-    strokeWidth,
-    viewBox = '0 0 24 24',
-    style,
-  }: IconPathToSvgOptions = {},
-): string {
-  if (path.startsWith('<svg')) {
-    return path
-  }
-
-  const svgAttrs = [
-    `xmlns="http://www.w3.org/2000/svg"`,
-    `width="${size}"`,
-    `height="${size}"`,
-    `viewBox="${viewBox}"`,
-    stroke ? `stroke="${stroke}"` : '',
-    strokeWidth ? `stroke-width="${strokeWidth}"` : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  const pathAttrs = [`fill="${fill}"`, style ? `style="${style}"` : '']
-    .filter(Boolean)
-    .join(' ')
-
-  return `<svg ${svgAttrs}><path ${pathAttrs} d="${path}" /></svg>`
-}
-/**
- * Renders an SVG string onto a canvas and returns an object compatible with maplibre `addImage`.
- *
- * @param svgString - The SVG markup as a string
- * @param pixelRatio - (Optional) device pixel ratio, defaults to window.devicePixelRatio
- * @returns Promise resolving to { width, height, data, pixelRatio }
- */
-export async function svgToMaplibreImage(
-  svgString: string,
-  pixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio : 1,
-): Promise<
-  [
-    {
-      width: number
-      height: number
-      data: Uint8ClampedArray
-    },
-    Partial<StyleImageMetadata>,
-  ]
-> {
-  return new Promise((resolve, reject) => {
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml' })
-    const url = URL.createObjectURL(svgBlob)
-    const img = new Image()
-    img.onload = () => {
-      const width = img.width * pixelRatio
-      const height = img.height * pixelRatio
-
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-
-      const ctx = canvas.getContext('2d')!
-      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
-      ctx.drawImage(img, 0, 0)
-
-      const imageData = ctx.getImageData(0, 0, width, height)
-      URL.revokeObjectURL(url)
-      resolve([
-        {
-          width,
-          height,
-          data: imageData.data,
-        },
-        {
-          pixelRatio,
-        },
-      ])
-    }
-    img.onerror = () => {
-      URL.revokeObjectURL(url)
-      reject(new Error('Failed to load SVG as image'))
-    }
-    img.src = url
-  })
-}
+import { mdiCloseCircleOutline } from '@mdi/js'
+import { interpolate, strExpr } from '@orioro/util'
+import { iconPathToSvg, type IconPathToSvgOptions } from './iconPathToSvg'
+import { svgToMaplibreImage } from './svgToMaplibreImage'
+import type { StyleImageMetadata } from 'maplibre-gl'
 
 export function svgIconId(
   iconId: string,
@@ -106,7 +11,12 @@ export function svgIconId(
   return options ? `${iconId}(${JSON.stringify(options)})` : iconId
 }
 
-type SvgIconGeneratorReturn<T extends Record<string, string>> = {
+type SvgIconSpecsById = Record<
+  string,
+  string | ((options: Record<string, any>) => string)
+>
+
+type SvgIconGeneratorReturn<T extends SvgIconSpecsById> = {
   (imageId: string): Promise<
     | [
         {
@@ -122,16 +32,54 @@ type SvgIconGeneratorReturn<T extends Record<string, string>> = {
   [K in keyof T]: (options?: IconPathToSvgOptions) => string
 }
 
-export function svgIconGenerator<T extends Record<string, string>>(
-  iconPathsById: T,
+const ERROR_ICON_EXPR =
+  (options = {}) =>
+  () =>
+    iconPathToSvg(mdiCloseCircleOutline, {
+      fill: 'red',
+      ...options,
+    })
+
+export function svgIconGenerator<T extends SvgIconSpecsById>(
+  svgIconSpecsById: T,
 ): SvgIconGeneratorReturn<T> {
   const fns = Object.fromEntries(
-    Object.entries(iconPathsById).map(([iconId, iconPath]) => [
-      iconId,
-      (options = {}) =>
-        () =>
-          iconPathToSvg(iconPath, options),
-    ]),
+    Object.entries(svgIconSpecsById).map(([iconId, iconSpec]) => {
+      if (typeof iconSpec === 'string' && iconSpec.startsWith('<svg')) {
+        //
+        // Full svg
+        //
+        return [
+          iconId,
+          (options = {}) =>
+            () =>
+              interpolate(iconSpec, options),
+        ]
+      } else if (typeof iconSpec === 'string') {
+        //
+        // Its a string, assume it is an svg path
+        //
+        return [
+          iconId,
+          (options = {}) =>
+            () =>
+              iconPathToSvg(iconSpec, options),
+        ]
+      } else if (typeof iconSpec === 'function') {
+        //
+        // Function that returns custom svg
+        //
+        return [
+          iconId,
+          (options = {}) =>
+            () =>
+              iconSpec(options),
+        ]
+      } else {
+        console.warn(`Invalid icon spec for ${iconId}, will ignore`, iconSpec)
+        return [iconId, ERROR_ICON_EXPR]
+      }
+    }),
   )
 
   const expr = strExpr({
@@ -151,10 +99,13 @@ export function svgIconGenerator<T extends Record<string, string>>(
     }
   }
 
+  //
+  // Expose generator fns
+  //
   Object.assign(
     onGenerateSvgImage,
     Object.fromEntries(
-      Object.keys(iconPathsById).map((iconId) => [
+      Object.keys(svgIconSpecsById).map((iconId) => [
         iconId,
         (options?: IconPathToSvgOptions) => svgIconId(iconId, options),
       ]),
