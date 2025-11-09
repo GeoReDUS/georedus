@@ -38,6 +38,8 @@ const ItemBox = styled.div<{
   flex-direction: row;
   justify-content: center;
   align-items: center;
+
+  flex-shrink: 0;
 `
 
 const ItemLabel = styled.div`

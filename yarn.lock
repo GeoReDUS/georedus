@@ -4019,6 +4019,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@orioro/cast@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@orioro/cast@npm:0.0.9"
+  dependencies:
+    "@orioro/util": "npm:^0.15.1"
+    date-fns: "npm:^4.1.0"
+    tslib: "npm:^2.8.1"
+  checksum: 5ac9118ba0906aa248d3a4abaa4e7327295c949fa3d04997a9abd052bb6be23bbb9be57ee6ea311d6c7c9590750149b476b9cbebe26087246b63ea669372dfc6
+  languageName: node
+  linkType: hard
+
 "@orioro/dev@npm:^0.0.5":
   version: 0.0.5
   resolution: "@orioro/dev@npm:0.0.5"
@@ -4066,6 +4077,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@orioro/get@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@orioro/get@npm:0.0.9"
+  dependencies:
+    "@orioro/cast": "npm:^0.0.9"
+    fast-copy: "npm:^3.0.2"
+    is-plain-object: "npm:^5.0.0"
+    lodash-es: "npm:^4.17.21"
+    traverse: "npm:^0.6.11"
+    type-fest: "npm:^4.33.0"
+  checksum: c19a8343407fa3749a0b9217ebb4d08a2d9601c8088ed018acdef7daac76d3f260ed82ae36dbd1022922ebcc344b3ede3709e33121d4ab63f72365c8d5f89d0c
+  languageName: node
+  linkType: hard
+
 "@orioro/memo-state-query@npm:^0.0.2":
   version: 0.0.2
   resolution: "@orioro/memo-state-query@npm:0.0.2"
@@ -4085,7 +4110,7 @@ __metadata:
     "@orioro/cast": "npm:^0.0.2"
     "@orioro/dev": "npm:^0.0.5"
     "@orioro/react-maplibre-util": "workspace:^"
-    "@orioro/react-ui-core": "npm:^0.0.6"
+    "@orioro/react-ui-core": "npm:^0.0.14"
     "@orioro/util": "npm:^0.15.0"
     d3-scale: "npm:^4.0.2"
     d3-scale-chromatic: "npm:^3.1.0"
@@ -4098,9 +4123,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@orioro/react-csv@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@orioro/react-csv@npm:0.0.2"
+"@orioro/react-csv@npm:^0.0.11":
+  version: 0.0.11
+  resolution: "@orioro/react-csv@npm:0.0.11"
   dependencies:
     "@ag-grid-community/client-side-row-model": "npm:^31.2.1"
     "@ag-grid-community/core": "npm:^31.2.1"
@@ -4109,9 +4134,9 @@ __metadata:
     "@ag-grid-community/styles": "npm:^31.2.1"
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
-    "@orioro/cast": "npm:^0.0.2"
-    "@orioro/react-ui-core": "npm:^0.0.6"
-    "@orioro/util": "npm:^0.11.2"
+    "@orioro/cast": "npm:^0.0.9"
+    "@orioro/react-ui-core": "npm:^0.0.14"
+    "@orioro/util": "npm:^0.15.1"
     "@radix-ui/themes": "npm:^3.0.1"
     "@sindresorhus/slugify": "npm:^2.2.1"
     "@types/papaparse": "npm:^5.3.14"
@@ -4124,24 +4149,25 @@ __metadata:
     nanoid: "npm:^5.1.5"
     papaparse: "npm:^5.4.1"
     react: "npm:^18.2.0"
+    react-merge-refs: "npm:^3.0.1"
     styled-components: "npm:^6.1.8"
-  checksum: 4c0e449307d45ba3c482bb6854e444aa716920a29d589a6ff05fd76cee93e64abd705c3052e8048c1ea7320586755abf17d68e0cf6b98fb1c2c6bb462b4b3abb
+  checksum: d4182551126547e6e9851a687b1db64b07d9903436cc50a2f2994cc123abd25bfc1ed1292148e7eb1f056d24ee8858caf70b1158323e976fcd23e5c428885178
   languageName: node
   linkType: hard
 
-"@orioro/react-dialogs@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@orioro/react-dialogs@npm:0.0.2"
+"@orioro/react-dialogs@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "@orioro/react-dialogs@npm:0.0.10"
   dependencies:
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
-    "@orioro/react-ui-core": "npm:^0.0.6"
-    "@orioro/util": "npm:^0.11.2"
+    "@orioro/react-ui-core": "npm:^0.0.14"
+    "@orioro/util": "npm:^0.15.1"
     "@radix-ui/themes": "npm:^3.0.1"
     react: "npm:^18.2.0"
     styled-components: "npm:^6.1.8"
     type-fest: "npm:^4.31.0"
-  checksum: 4cdaf1909c8bb233458d88573f7eabe4e28ba4d0e74e11554b1a12011659b2d1fbcb01abff63786dd5fb20bbfa89d8489da540514b415f46faaf9cbf0a461da3
+  checksum: 896c0122fecfa8d8fd7db27c740ca78c053c01252d85e00ac42a04c12ba04657f533c57eab54b7f76013a9964a76126862133ac400e5feec11824c5338ccbccb
   languageName: node
   linkType: hard
 
@@ -4154,7 +4180,7 @@ __metadata:
     "@orioro/dev": "npm:^0.0.5"
     "@orioro/react-select": "npm:^3.0.2"
     "@orioro/react-tree": "npm:^0.0.2"
-    "@orioro/react-ui-core": "npm:^0.0.6"
+    "@orioro/react-ui-core": "npm:^0.0.14"
     "@orioro/tree-model": "npm:^0.0.2"
     "@radix-ui/react-collapsible": "npm:^1.1.3"
     "@radix-ui/react-tabs": "npm:^1.1.2"
@@ -4179,10 +4205,10 @@ __metadata:
     "@orioro/dev": "npm:^0.0.5"
     "@orioro/react-chart-util": "workspace:^"
     "@orioro/react-select": "npm:^3.0.2"
-    "@orioro/react-ui-core": "npm:^0.0.6"
-    "@orioro/resolve": "npm:^0.1.2"
+    "@orioro/react-ui-core": "npm:^0.0.14"
+    "@orioro/resolve": "npm:^0.1.9"
     "@orioro/scale-util": "npm:^0.0.2"
-    "@orioro/util": "npm:^0.15.0"
+    "@orioro/util": "npm:^0.15.1"
     "@radix-ui/themes": "npm:^3.0.1"
     "@tanstack/react-query": "npm:^5.66.0"
     "@turf/turf": "npm:^7.2.0"
@@ -4239,19 +4265,39 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/react-sortable@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@orioro/react-sortable@npm:0.0.2"
+"@orioro/react-select@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "@orioro/react-select@npm:3.0.3"
+  dependencies:
+    "@emotion/css": "npm:^11.1.3"
+    "@isaacs/ttlcache": "npm:^1.4.1"
+    "@radix-ui/react-popover": "npm:^1.0.7"
+    "@sindresorhus/slugify": "npm:^2.2.1"
+    "@tanstack/react-virtual": "npm:^3.8.3"
+    downshift: "npm:^9.0.6"
+    fast-deep-equal: "npm:^3.1.3"
+    lodash: "npm:^4.17.21"
+    mem: "npm:^8.1.1"
+    react: "npm:^18.2.0"
+    react-use: "npm:^17.3.1"
+    styled-components: "npm:^6.1.8"
+  checksum: 8762626b866f6be7162e12f453a46760e5aab17ffd05ff629c11406b314fdc8035120b4b192d091ad3b5e680efd960e786ea018130253f3a9b9a319c607783cf
+  languageName: node
+  linkType: hard
+
+"@orioro/react-sortable@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "@orioro/react-sortable@npm:0.0.10"
   dependencies:
     "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/sortable": "npm:^10.0.0"
-    "@orioro/react-ui-core": "npm:^0.0.6"
+    "@orioro/react-ui-core": "npm:^0.0.14"
     "@radix-ui/react-portal": "npm:^1.1.4"
     lodash-es: "npm:^4.17.21"
     react: "npm:^18.2.0"
     styled-components: "npm:^6.1.8"
     type-fest: "npm:^4.37.0"
-  checksum: d1c229b01c7cfa37659c10d65872fa8ef5b0a31168b91f059ba3a022b5b13a9d1924d3ade549c5a87fdfcf638d34126603f40975a9e39eeef29ed0c1196ad73b
+  checksum: cd3ea742f77b81b4e74b9b5a5134bb904d8e23671c9a2dfb5786b32cee956f7559032d5fd959b2cd0d719c7c87a8e7ba7eb72206d3fbbe878d3b3545993366cb
   languageName: node
   linkType: hard
 
@@ -4268,9 +4314,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/react-ui-core@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@orioro/react-ui-core@npm:0.0.6"
+"@orioro/react-tree@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@orioro/react-tree@npm:0.0.9"
+  dependencies:
+    "@orioro/tree-model": "npm:^0.0.9"
+    fast-deep-equal: "npm:^3.1.3"
+    lodash-es: "npm:^4.17.21"
+    react: "npm:^18.2.0"
+    styled-components: "npm:^6.1.8"
+  checksum: 03d3a1d108cf1fa3cb806b13432c27cce5113eb4e21f50ce75bbee70701361b1119cdd062c6ac12429766c0e3dc790a692439fcfa50f21fe9ded528d44dab378
+  languageName: node
+  linkType: hard
+
+"@orioro/react-ui-core@npm:^0.0.14":
+  version: 0.0.14
+  resolution: "@orioro/react-ui-core@npm:0.0.14"
   dependencies:
     "@blocknote/core": "npm:^0.12.1"
     "@blocknote/react": "npm:^0.12.2"
@@ -4278,12 +4337,12 @@ __metadata:
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
     "@mui/base": "npm:^5.0.0-beta.40"
-    "@orioro/react-select": "npm:^3.0.2"
-    "@orioro/react-tree": "npm:^0.0.2"
-    "@orioro/resolve": "npm:^0.1.2"
-    "@orioro/tree-model": "npm:^0.0.2"
-    "@orioro/util": "npm:^0.11.2"
-    "@orioro/validate": "npm:^0.0.2"
+    "@orioro/react-select": "npm:^3.0.3"
+    "@orioro/react-tree": "npm:^0.0.9"
+    "@orioro/resolve": "npm:^0.1.9"
+    "@orioro/tree-model": "npm:^0.0.9"
+    "@orioro/util": "npm:^0.15.1"
+    "@orioro/validate": "npm:^0.0.9"
     "@radix-ui/react-collapsible": "npm:^1.1.0"
     "@radix-ui/react-dialog": "npm:^1.0.5"
     "@radix-ui/react-icons": "npm:^1.3.0"
@@ -4324,7 +4383,7 @@ __metadata:
     stable-hash: "npm:^0.0.4"
     styled-components: "npm:^6.1.8"
     type-fest: "npm:^4.12.0"
-  checksum: a34d38bb34a4dd314f1dc9510098366a50e6a2ac10db85df4358f68ede5bcc2644469b3ff4f5fe57a0f2e9b4b5b13c16ba5497839542fcbef675426fa2b1fe05
+  checksum: b65432b50c1a2ffdbc4f8010aed60fa286faba9a804f0a6eb27f01714e20e4311be5848b97ffa4472aefbbf523de4a9704ca2b5a9163994f15789f2933247c6b
   languageName: node
   linkType: hard
 
@@ -4362,6 +4421,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@orioro/resolve@npm:^0.1.9":
+  version: 0.1.9
+  resolution: "@orioro/resolve@npm:0.1.9"
+  dependencies:
+    "@orioro/cast": "npm:^0.0.9"
+    "@orioro/get": "npm:^0.0.9"
+    "@orioro/util": "npm:^0.15.1"
+    "@types/isomorphic-fetch": "npm:^0.0.39"
+    "@types/kind-of": "npm:^6.0.3"
+    fast-copy: "npm:^3.0.2"
+    fast-deep-equal: "npm:^3.1.3"
+    is-plain-object: "npm:^5.0.0"
+    isomorphic-fetch: "npm:^3.0.0"
+    kind-of: "npm:^6.0.3"
+    lodash-es: "npm:^4.17.21"
+    traverse: "npm:^0.6.9"
+    type-fest: "npm:^4.18.2"
+  checksum: 2d91f1159b59f5148de5c699087c4cd08a99b7405430f439f1cccbcf3e54fc9ca13ccb3f46f069673b3ceb26bd015709763980a3390bab232dd788efe1672f69
+  languageName: node
+  linkType: hard
+
 "@orioro/scale-util@npm:^0.0.2":
   version: 0.0.2
   resolution: "@orioro/scale-util@npm:0.0.2"
@@ -4375,6 +4455,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@orioro/scale-util@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@orioro/scale-util@npm:0.0.9"
+  dependencies:
+    "@orioro/resolve": "npm:^0.1.9"
+    d3-array: "npm:^3.2.4"
+    d3-scale-chromatic: "npm:^3.1.0"
+    lodash-es: "npm:^4.17.21"
+    simple-statistics: "npm:^7.8.7"
+  checksum: d40a225e1fc07f43ce1365588b9838305abdb1c31efb5ba70f9dfdc05e8e31bfbc8e6d8d7ec6b0dfa7fe0439e8533cc84452baf6265897671f0ff2b034061e2d
+  languageName: node
+  linkType: hard
+
 "@orioro/tree-model@npm:^0.0.2":
   version: 0.0.2
   resolution: "@orioro/tree-model@npm:0.0.2"
@@ -4383,6 +4476,17 @@ __metadata:
     "@orioro/util": "npm:^0.11.2"
     type-fest: "npm:^4.34.1"
   checksum: 8a007f638e8b987ec1c9b88fb88874437637444f11f96363ff51a093dc1fd9ce3650dd2aa787cebea6c2bbcbf1c8d8e93b556fc5b306494d868ddb86de7a5d9b
+  languageName: node
+  linkType: hard
+
+"@orioro/tree-model@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@orioro/tree-model@npm:0.0.9"
+  dependencies:
+    "@orioro/memo-state-query": "npm:^0.0.2"
+    "@orioro/util": "npm:^0.15.1"
+    type-fest: "npm:^4.34.1"
+  checksum: b1c4c83e13faf6788053b5f27721d2d846e22ea5897eb2cff891b8c1b8818559bcec5051a657500689a4bf93c4db2d4a243478b2a9a7302f46c0181629303872
   languageName: node
   linkType: hard
 
@@ -4437,6 +4541,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@orioro/util@npm:^0.15.1":
+  version: 0.15.1
+  resolution: "@orioro/util@npm:0.15.1"
+  dependencies:
+    eventemitter3: "npm:^5.0.1"
+    exponential-backoff: "npm:^3.1.1"
+    fast-copy: "npm:^3.0.2"
+    is-plain-object: "npm:^5.0.0"
+    lodash-es: "npm:^4.17.21"
+    memoize-one: "npm:^6.0.0"
+    query-string: "npm:^9.1.1"
+    traverse: "npm:^0.6.9"
+    type-fest: "npm:^4.18.1"
+  checksum: b373fee6672bf3e84acfd92009138997dc80bd2d0350cc5b27003254e557972314c775f1d7159918627159d28c3899c1ac364e49f7e44722b8729d789321a853
+  languageName: node
+  linkType: hard
+
 "@orioro/validate@npm:^0.0.2":
   version: 0.0.2
   resolution: "@orioro/validate@npm:0.0.2"
@@ -4444,6 +4565,16 @@ __metadata:
     "@orioro/util": "npm:^0.11.2"
     lodash-es: "npm:^4.17.21"
   checksum: 4afc9c386378e52d30161e37e5c866f4f83b4b0ec4a76f240b313e68f1ec4d088597c8fdf226d13208615f9e4c649435f996791d833508b6686c64071676ecb8
+  languageName: node
+  linkType: hard
+
+"@orioro/validate@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@orioro/validate@npm:0.0.9"
+  dependencies:
+    "@orioro/util": "npm:^0.15.1"
+    lodash-es: "npm:^4.17.21"
+  checksum: bf4c1e1b9b7800d072bbfc2a3b2f8ab3f0ecb4de8106dfeecf44ada4b8db607e0e5503a8f03d15d3b13c4d2dea36977e14bada93a9bd1ba465dee725cc06a3ff
   languageName: node
   linkType: hard
 
@@ -6255,15 +6386,15 @@ __metadata:
     "@orioro/dev": "npm:^0.0.5"
     "@orioro/get": "npm:^0.0.2"
     "@orioro/react-chart-util": "workspace:^"
-    "@orioro/react-csv": "npm:^0.0.2"
-    "@orioro/react-dialogs": "npm:^0.0.2"
+    "@orioro/react-csv": "npm:^0.0.11"
+    "@orioro/react-dialogs": "npm:^0.0.10"
     "@orioro/react-dir-nav": "workspace:^"
     "@orioro/react-maplibre-util": "workspace:^"
-    "@orioro/react-sortable": "npm:^0.0.2"
-    "@orioro/react-ui-core": "npm:^0.0.6"
+    "@orioro/react-sortable": "npm:^0.0.10"
+    "@orioro/react-ui-core": "npm:^0.0.14"
     "@orioro/react-versioned-state": "npm:^0.0.2"
-    "@orioro/resolve": "npm:^0.1.2"
-    "@orioro/scale-util": "npm:^0.0.2"
+    "@orioro/resolve": "npm:^0.1.9"
+    "@orioro/scale-util": "npm:^0.0.9"
     "@orioro/tree-model": "npm:^0.0.2"
     "@orioro/util": "npm:^0.14.0"
     "@orioro/validate": "npm:^0.0.2"
@@ -6273,8 +6404,10 @@ __metadata:
     "@tanstack/react-query": "npm:^5.18.0"
     "@turf/turf": "npm:^7.1.0"
     "@types/geojson": "npm:^7946.0.16"
+    colord: "npm:^2.9.3"
     comlink: "npm:^4.4.2"
     d3-dsv: "npm:^3.0.1"
+    d3-interpolate: "npm:^3.0.1"
     d3-scale-chromatic: "npm:^3.1.0"
     file-saver: "npm:^2.0.5"
     gdal3.js: "npm:^2.8.1"
@@ -12054,6 +12187,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"colord@npm:^2.9.3":
+  version: 2.9.3
+  resolution: "colord@npm:2.9.3"
+  checksum: 9699e956894d8996b28c686afe8988720785f476f59335c80ce852ded76ab3ebe252703aec53d9bef54f6219aea6b960fb3d9a8300058a1d0c0d4026460cd110
+  languageName: node
+  linkType: hard
+
 "colorette@npm:^2.0.10":
   version: 2.0.20
   resolution: "colorette@npm:2.0.20"
@@ -12645,7 +12785,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-interpolate@npm:1 - 3, d3-interpolate@npm:1.2.0 - 3, d3-interpolate@npm:3":
+"d3-interpolate@npm:1 - 3, d3-interpolate@npm:1.2.0 - 3, d3-interpolate@npm:3, d3-interpolate@npm:^3.0.1":
   version: 3.0.1
   resolution: "d3-interpolate@npm:3.0.1"
   dependencies:
@@ -21684,6 +21824,18 @@ __metadata:
   version: 2.1.1
   resolution: "react-merge-refs@npm:2.1.1"
   checksum: b68cbc4ea51fd96f77247733388738630769d928f32958e63262ce43dff10c6b20f18a0483c6a640a1ffba48f32be26059d4ee9711881cacc63297b01311c8f6
+  languageName: node
+  linkType: hard
+
+"react-merge-refs@npm:^3.0.1":
+  version: 3.0.2
+  resolution: "react-merge-refs@npm:3.0.2"
+  peerDependencies:
+    react: ">=16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+  checksum: 520911aa7269cd2feab7dde8189d0b6a640765c1ee279b1712891ad871c2e90284578e23cdef32ba07f6e44df206ba12e998fd1634dc37358d1563d49f50eb93
   languageName: node
   linkType: hard
 

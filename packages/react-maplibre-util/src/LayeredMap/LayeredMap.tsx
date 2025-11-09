@@ -140,13 +140,18 @@ export const LayeredMap = forwardRef<
     }
 
     // Timeout ensures layers are added to map before moving
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const expectedLayerOrderId = parsed.layers.map((layer) => layer.id)
+
       syncLayerOrder({
         expectedLayerOrderId,
         map: mapRef.current,
       })
     }, 0)
+
+    return () => {
+      clearTimeout(timeoutId)
+    }
   }, [parsed?.layers])
 
   return (

@@ -1,6 +1,7 @@
 const DECLIVIDADE_ID = 'declividade'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
 
 const DEFAULT_DECLIVIDADE_RANGE = [0, 45]
 const TRANSPARENT = [0, 0, 0, 0]
@@ -14,16 +15,72 @@ function _declividadeRange(candidate) {
     : DEFAULT_DECLIVIDADE_RANGE
 }
 
+const PRECISION = 0.00000001
+
+const CLASSES_DECLIVIDADE = [
+  {
+    color: '#2B83BA',
+    label: '0º',
+    range: [0, 0 + PRECISION - PRECISION / 10],
+  },
+  {
+    color: '#6BB0AF',
+    label: '0 a 2º',
+    range: [0 + PRECISION, 2],
+  },
+  {
+    color: '#ABDDA4',
+    label: '2 a 5º',
+    range: [2 + PRECISION, 5],
+  },
+  {
+    color: '#D5EEB1',
+    label: '5 a 10º',
+    range: [5 + PRECISION, 10],
+  },
+  {
+    color: '#FFFFBF',
+    label: '10 a 17º',
+    range: [10 + PRECISION, 17],
+  },
+  {
+    color: '#FED690',
+    label: '17 a 20º',
+    range: [17 + PRECISION, 20],
+  },
+  {
+    color: '#FDAE61',
+    label: '20 a 25º',
+    range: [20 + PRECISION, 25],
+  },
+  {
+    color: '#EA633E',
+    label: '25 a 30º',
+    range: [25 + PRECISION, 30],
+  },
+  {
+    color: '#D7191C',
+    label: '30 a 45º',
+    range: [30 + PRECISION, 45],
+  },
+  {
+    color: '#860003',
+    label: 'Acima de 45º',
+    range: [45 + PRECISION, 999999],
+  },
+]
+
 export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
   const DEVICE_PIXEL_RATIO_SUFFIX =
     typeof window !== 'undefined' && window.devicePixelRatio > 1 ? '@2x' : ''
 
   return {
+    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
     collection_id: DECLIVIDADE_ID,
     indicator_id: DECLIVIDADE_ID,
     id: DECLIVIDADE_ID,
     label: 'Declividade',
-    path: `Emergências climáticas / / Terreno`,
+    path: `Emergências climáticas / / Suscetibilidade a deslizamentos`,
 
     confSchema: {
       data: {
@@ -63,18 +120,10 @@ export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
 
             const baseUrl = `${RASTER_TILE_SERVER_ENDPOINT}/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}${DEVICE_PIXEL_RATIO_SUFFIX}`
 
-            const COLOR_MAP = [
-              [[0, 0], '#2B83BA'],
-              [[0.001, 2], '#6BB0AF'],
-              [[2.001, 5], '#ABDDA4'],
-              [[5.001, 10], '#D5EEB1'],
-              [[10.001, 17], '#FFFFBF'],
-              [[17.001, 20], '#FED690'],
-              [[20.001, 25], '#FDAE61'],
-              [[25.001, 30], '#EA633E'],
-              [[30.001, 45], '#D7191C'],
-              [[45.001, 999999], '#860003'],
-            ]
+            const COLOR_MAP = CLASSES_DECLIVIDADE.map((cl) => [
+              cl.range,
+              cl.color,
+            ])
 
             return `${baseUrl}?${$urlSearch([
               {
@@ -101,6 +150,13 @@ export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
         paint: {
           'raster-opacity': 0.85,
         },
+        legends: [
+          {
+            type: 'CategoricalLegend',
+            title: 'Classes de Declividade',
+            items: CLASSES_DECLIVIDADE,
+          },
+        ],
       },
     },
   }

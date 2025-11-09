@@ -2,7 +2,7 @@ import { get } from '@orioro/get'
 import { resolve, resolveAsync } from '@orioro/resolve'
 import { GeoReDUSWorker } from '../../GeoReDUSWorker'
 import { omit } from 'lodash'
-import { ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE } from '.'
+import { Z_OVERLAY_MIDDLE_2000 } from '../zIndexes'
 
 type InfluenceAreaConfProps = {
   defaultBufferSize?: number
@@ -147,7 +147,7 @@ export function influenceAreaSources({
 
 type InfluenceAreaLayersProps = {
   dataPath?: string
-  // zIndex?: number
+  zIndex?: number
 
   fillPaint?: Record<string, any>
   boundaryPaint?: Record<string, any>
@@ -155,13 +155,13 @@ type InfluenceAreaLayersProps = {
 
 export function influenceAreaLayers({
   dataPath = 'view.metadata.influenceArea',
-  // zIndex = ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 1,
+  zIndex = Z_OVERLAY_MIDDLE_2000,
   fillPaint = {},
   boundaryPaint = {},
 }: InfluenceAreaLayersProps = {}) {
   return {
     influenceArea_fill: {
-      // zIndex,
+      zIndex,
       hidden: ['$empty', ['$get', dataPath]],
       source: 'influenceArea',
       type: 'fill',
@@ -173,7 +173,7 @@ export function influenceAreaLayers({
       },
     },
     influenceArea_boundaries: {
-      // zIndex,
+      zIndex,
       hidden: ['$empty', ['$get', dataPath]],
       source: 'influenceArea',
       type: 'line',

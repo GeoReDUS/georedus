@@ -11,7 +11,7 @@ import {
   mdiSchool,
   mdiHomeCity,
   mdiHospitalBox,
-  mdiForest,
+  mdiEarth,
   mdiMap,
 } from '@mdi/js'
 import { ViewControl } from '../ViewControl'
@@ -24,7 +24,7 @@ const STATIC_NODE_ICONS = {
   educacao: <Icon path={mdiSchool} />,
   'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
   saude: <Icon path={mdiHospitalBox} />,
-  'emergencias-climaticas': <Icon path={mdiForest} />,
+  'emergencias-climaticas': <Icon path={mdiEarth} />,
   'divisoes-territoriais': <Icon path={mdiMap} />,
 }
 

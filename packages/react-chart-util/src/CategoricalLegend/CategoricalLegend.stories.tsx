@@ -8,8 +8,6 @@ import { Icon } from '@mdi/react'
 import { mdiHospitalBox } from '@mdi/js'
 import { interpolate } from '@orioro/util'
 
-console.log('diamonds_1', diamonds_1)
-
 const meta: Meta<typeof CategoricalLegend> = {
   title: 'CategoricalLegend',
   decorators: [

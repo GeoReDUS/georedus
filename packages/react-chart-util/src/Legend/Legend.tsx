@@ -1,13 +1,15 @@
 import React from 'react'
 import {
-  ColorLegend,
+  CategoricalLegend,
   ThresholdColorLegend,
   SequentialColorLegend,
-} from '../ColorLegend'
+} from '../CategoricalLegend'
 import { ProportionalSymbolLegend } from '../ProportionalSymbolLegend'
+import { ContinuousColorLegend } from '../ContinuousColorLegend/ContinuousColorLegend'
 
 const LEGENDS = {
-  ColorLegend,
+  CategoricalLegend,
+  ContinuousColorLegend,
   ThresholdColorLegend,
   SequentialColorLegend,
   ProportionalSymbolLegend,

@@ -1,8 +1,13 @@
 const TEMPERATURA_SUPERFICIE_ID = 'temperatura_superficie'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
+import { interpolateSpectral } from 'd3-scale-chromatic'
+import { colord } from 'colord'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
 
-const DEFAULT_DECLIVIDADE_RANGE = [0, 70]
+const TEMPERATURA_MIN = 20
+const TEMPERATURA_MAX = 60
+const DEFAULT_TEMPERATURA_RANGE = [TEMPERATURA_MIN, TEMPERATURA_MAX]
 const TRANSPARENT = [0, 0, 0, 0]
 
 function _temperaturaRange(candidate) {
@@ -11,7 +16,48 @@ function _temperaturaRange(candidate) {
     typeof candidate[0] === 'number' &&
     typeof candidate[1] === 'number'
     ? candidate
-    : DEFAULT_DECLIVIDADE_RANGE
+    : DEFAULT_TEMPERATURA_RANGE
+}
+
+const COLOR_STEPS = TEMPERATURA_MAX - TEMPERATURA_MIN + 1
+const PRECISION = 0.00000001
+const COLOR_MAP = Array.from({ length: COLOR_STEPS }, (_, idx) => {
+  const progress = idx / (COLOR_STEPS - 1)
+  const rangeStart = TEMPERATURA_MIN + idx
+  const rangeEnd =
+    idx === COLOR_STEPS - 1 ? 9999999 : rangeStart + 1 - PRECISION
+
+  return [
+    [rangeStart, rangeEnd],
+    colord(interpolateSpectral(1 - progress)).toHex(),
+  ]
+})
+
+function temperatura_legends() {
+  return [
+    {
+      type: 'ContinuousColorLegend',
+      title: 'Temperatura máxima de superfície (ºC)',
+      unit: 'Valor médio em º Celsiu da temperatur máxima no período de 2021 - 2025',
+      numberUnit: 'º',
+      colors: resolve.fn(({ view: { conf } }) => {
+        const temperaturaRange = _temperaturaRange(conf?.data?.temperaturaRange)
+
+        return COLOR_MAP.filter(
+          ([range]) =>
+            range[0] <= temperaturaRange[1] && range[1] >= temperaturaRange[0],
+        ).map(([_, color]) => color)
+      }),
+      domain: resolve.fn(({ view: { conf } }) => {
+        const temperaturaRange = _temperaturaRange(conf?.data?.temperaturaRange)
+
+        return temperaturaRange
+      }),
+      barDirection: 'to right',
+      barWidth: '100%',
+      barHeight: 15,
+    },
+  ]
 }
 
 export function temperatura_superficie({
@@ -22,27 +68,29 @@ export function temperatura_superficie({
     typeof window !== 'undefined' && window.devicePixelRatio > 1 ? '@2x' : ''
 
   return {
+    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
     collection_id: TEMPERATURA_SUPERFICIE_ID,
     indicator_id: TEMPERATURA_SUPERFICIE_ID,
     id: TEMPERATURA_SUPERFICIE_ID,
-    label: 'Temperatura de superfície',
-    path: `Emergências climáticas / / Clima`,
+    label: 'Temperatura máxima de superfície (ºC)',
+    year: '2021 - 2025',
+    path: `Emergências climáticas / / Extremos de temperatura`,
 
     confSchema: {
       data: {
         temperaturaRange: {
           type: 'range',
-          defaultValue: DEFAULT_DECLIVIDADE_RANGE,
+          defaultValue: DEFAULT_TEMPERATURA_RANGE,
           step: 1,
-          min: DEFAULT_DECLIVIDADE_RANGE[0],
-          max: DEFAULT_DECLIVIDADE_RANGE[1],
+          min: DEFAULT_TEMPERATURA_RANGE[0],
+          max: DEFAULT_TEMPERATURA_RANGE[1],
           label: resolve.literal(
             resolve.fn((context) => {
               const temperaturaRange = _temperaturaRange(
                 context.value?.temperaturaRange,
               )
               const minLabel = `${temperaturaRange[0]}°`
-              const maxLabel = `${temperaturaRange[1]}°${temperaturaRange[1] === DEFAULT_DECLIVIDADE_RANGE[1] ? '+' : ''}`
+              const maxLabel = `${temperaturaRange[1]}°${temperaturaRange[1] === DEFAULT_TEMPERATURA_RANGE[1] ? '+' : ''}`
               return `Intervalo de temperatura (${minLabel} - ${maxLabel})`
             }),
           ),
@@ -54,7 +102,8 @@ export function temperatura_superficie({
 
     sources: {
       [TEMPERATURA_SUPERFICIE_ID]: {
-        minzoom: 7,
+        minzoom: 8,
+        maxzoom: 14,
         type: 'raster',
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -63,19 +112,6 @@ export function temperatura_superficie({
             )
 
             const baseUrl = `${RASTER_TILE_SERVER_ENDPOINT}/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}${DEVICE_PIXEL_RATIO_SUFFIX}`
-
-            const COLOR_MAP = [
-              [[0, 0], '#2B83BA'],
-              [[0.001, 20], '#6BB0AF'],
-              [[20.001, 25], '#ABDDA4'],
-              [[25.001, 30], '#D5EEB1'],
-              [[30.001, 35], '#FFFFBF'],
-              [[35.001, 40], '#FED690'],
-              [[40.001, 45], '#FDAE61'],
-              [[45.001, 50], '#EA633E'],
-              [[50.001, 55], '#D7191C'],
-              [[55.001, 999999], '#860003'],
-            ]
 
             return `${baseUrl}?${$urlSearch([
               {
@@ -95,13 +131,14 @@ export function temperatura_superficie({
     },
     layers: {
       [`${TEMPERATURA_SUPERFICIE_ID}`]: {
-        minzoom: 7,
+        minzoom: 8,
         // zIndex: 10,
         type: 'raster',
         source: TEMPERATURA_SUPERFICIE_ID,
         paint: {
           'raster-opacity': 0.85,
         },
+        legends: temperatura_legends(),
       },
     },
   }

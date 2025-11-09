@@ -62,6 +62,10 @@ const EntriesList = styled.ul`
   }
 `
 
+function _notEmpty(value: any) {
+  return typeof value !== 'undefined' && value !== null && value !== ''
+}
+
 function DataSection({ title, entries, ...props }: DataSectionProps) {
   return (
     Array.isArray(entries) &&
@@ -72,7 +76,11 @@ function DataSection({ title, entries, ...props }: DataSectionProps) {
           <EntriesList>
             {entries.map(([label, value], index) => (
               <li key={index}>
-                {typeof label === 'string' ? <span>{label}: </span> : label}
+                {typeof label === 'string' ? (
+                  <span>{`${label}${_notEmpty(value) ? ': ' : ''}`}</span>
+                ) : (
+                  label
+                )}
                 {typeof value === 'string' ? (
                   <span
                     style={{

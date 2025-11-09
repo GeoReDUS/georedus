@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react'
 import { LegendLayout, type LegendLayoutProps } from '../LegendLayout'
-import {
-  colorsFromInterpolator,
-  gradientFromColors,
-  gradientFromInterpolator,
-} from './util'
+import { colorsFromInterpolator, gradientFromColors } from './util'
 import { Flex } from '@orioro/react-ui-core'
 import { fmtNumber } from '../util'
 
@@ -21,7 +17,14 @@ export type ContinuousColorLegendProps = LegendLayoutProps & {
   barHeight?: number
   barWidth?: number
   numberFormat?: [string, Intl.NumberFormatOptions]
-  unit?: string
+  numberUnit?: string
+}
+
+const LEGEND_DIRECTION = {
+  'to top': 'column-reverse',
+  'to bottom': 'column',
+  'to right': 'row',
+  'to left': 'row-reverse',
 }
 
 export function ContinuousColorLegend({
@@ -32,7 +35,7 @@ export function ContinuousColorLegend({
   barWidth = 15,
 
   numberFormat,
-  unit,
+  numberUnit,
 
   ...layoutProps
 }: ContinuousColorLegendProps) {
@@ -43,7 +46,7 @@ export function ContinuousColorLegend({
         : barWidth
 
     const [valueAtStart, valueAtEnd] =
-      barDirection === 'to right' || barDirection === 'to bottom'
+      barDirection === 'to top' || barDirection === 'to right'
         ? domain
         : [domain[1], domain[0]]
 
@@ -71,7 +74,13 @@ export function ContinuousColorLegend({
 
   return (
     <LegendLayout {...layoutProps}>
-      <Flex direction="row" gap="6px">
+      <Flex
+        direction={
+          { 'to top': 'row', 'to right': 'column-reverse' }[barDirection]
+        }
+        gap="6px"
+        alignItems="strecth"
+      >
         <div
           style={{
             height: barHeight,
@@ -79,7 +88,10 @@ export function ContinuousColorLegend({
             background: gradient,
           }}
         />
-        <Flex justifyContent="space-between">
+        <Flex
+          justifyContent="space-between"
+          direction={LEGEND_DIRECTION[barDirection]}
+        >
           <div
             style={{
               fontSize: '.8rem',
@@ -88,7 +100,7 @@ export function ContinuousColorLegend({
           >
             {fmtNumber(valueAtStart, {
               fmt: numberFormat,
-              suffix: unit ? `${unit}` : '',
+              suffix: numberUnit ? `${numberUnit}` : '',
             })}
           </div>
           <div
@@ -99,7 +111,7 @@ export function ContinuousColorLegend({
           >
             {fmtNumber(valueAtEnd, {
               fmt: numberFormat,
-              suffix: unit ? `${unit}` : '',
+              suffix: numberUnit ? `${numberUnit}` : '',
             })}
           </div>
         </Flex>

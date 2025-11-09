@@ -9,7 +9,7 @@ import type { StyleImageMetadata } from 'maplibre-gl'
  */
 export async function svgToMaplibreImage(
   svgString: string,
-  pixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio : 1,
+  inputPixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio : 1,
 ): Promise<
   [
     {
@@ -25,6 +25,9 @@ export async function svgToMaplibreImage(
     const url = URL.createObjectURL(svgBlob)
     const img = new Image()
     img.onload = () => {
+      // Normalize pixel ratio: integer and at least 1
+      const pixelRatio = Math.max(1, Math.round(inputPixelRatio || 1))
+
       const width = img.width * pixelRatio
       const height = img.height * pixelRatio
 

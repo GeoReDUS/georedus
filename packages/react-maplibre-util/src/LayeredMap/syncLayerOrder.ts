@@ -61,7 +61,11 @@ export function syncLayerOrder({
         return
       }
 
-      map.moveLayer(layerId, beneathLayerId)
+      try {
+        map.moveLayer(layerId, beneathLayerId)
+      } catch (err) {
+        console.warn(`failed to move ${layerId} beneath ${beneathLayerId}`)
+      }
     }
   })
 }

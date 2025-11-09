@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@orioro/cast": "^0.0.2",
-    "@orioro/react-ui-core": "^0.0.6",
+    "@orioro/react-ui-core": "^0.0.14",
     "@orioro/util": "^0.15.0",
     "d3-scale": "^4.0.2",
     "lodash-es": "^4.17.21",

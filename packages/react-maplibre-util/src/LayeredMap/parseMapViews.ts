@@ -25,6 +25,16 @@ type ParseMapViewsOptions = {
   existingLayers?: AnyLayer[]
 }
 
+function _validZIndex(zIndex: any) {
+  return typeof zIndex === 'number' && !Number.isNaN(zIndex)
+}
+
+// Return 1 makes layerB come first in array order
+// and layerA later, so it will be
+// rendered on top of layerB
+const LAYER_A_ON_TOP_OF_B = 1
+const LAYER_B_ON_TOP_OF_A = -1
+
 export function sortLayers(
   layers: MapViewLayer[],
   { existingLayers }: ParseMapViewsOptions,
@@ -42,6 +52,26 @@ export function sortLayers(
   //
   return (
     layers
+      //
+      // PREVIOUS SORT:
+      // .map((layer, index) => ({
+      //   ...layer,
+      //   //
+      //   // Allow for zIndex overriding
+      //   // In case no zIndex is set, respect the order in which
+      //   // layers were provided.
+      //   //
+      //   // Layers that come after are rendered on top of previous layers
+      //   //
+      //   zIndex: typeof layer.zIndex === 'number' ? layer.zIndex : index,
+      // }))
+      // //
+      // // Order layers in ascending zIndex order, so that
+      // // layers with higher zIndex are rendered later and on top of
+      // // previous ones
+      // //
+      // .sort((layerA, layerB) => (layerA.zIndex >= layerB.zIndex ? 1 : -1))
+
       .map((layer, index) => ({
         ...layer,
         //
@@ -51,14 +81,51 @@ export function sortLayers(
         //
         // Layers that come after are rendered on top of previous layers
         //
-        zIndex: typeof layer.zIndex === 'number' ? layer.zIndex : index,
+        _inputOrderIndex: index,
+        zIndex: typeof layer.zIndex === 'number' ? layer.zIndex : null,
       }))
       //
       // Order layers in ascending zIndex order, so that
       // layers with higher zIndex are rendered later and on top of
       // previous ones
       //
-      .sort((layerA, layerB) => (layerA.zIndex >= layerB.zIndex ? 1 : -1))
+      // Layers without zIndex are always rendered beneath
+      // those with zIndex
+      //
+      // Layers with the same zIndex are compared using _inputOrderIndex
+      //
+      .sort((layerA, layerB) => {
+        const aValid = _validZIndex(layerA.zIndex)
+        const bValid = _validZIndex(layerB.zIndex)
+        const aZIndex = layerA.zIndex
+        const bZIndex = layerB.zIndex
+
+        if (aValid && !bValid) {
+          return LAYER_A_ON_TOP_OF_B
+        } else if (!aValid && bValid) {
+          return LAYER_B_ON_TOP_OF_A
+        } else if ((!aValid && !bValid) || aZIndex === bZIndex) {
+          return layerA._inputOrderIndex >= layerB._inputOrderIndex
+            ? LAYER_A_ON_TOP_OF_B
+            : LAYER_B_ON_TOP_OF_A
+        } else {
+          return (aZIndex as number) > (bZIndex as number)
+            ? LAYER_A_ON_TOP_OF_B
+            : LAYER_B_ON_TOP_OF_A
+        }
+      })
+
+      //
+      // This was a strategy to use beforeId to
+      // sync map order. We've faced some pitfalls:
+      // - Some layers do not exist when multiple layers
+      //   are created at once, thus maplibre fails to
+      //   apply beforeId (and throws errors)
+      // - There are issues related to layer dynamic ordering,
+      //   see: https://github.com/visgl/react-map-gl/issues/939#issuecomment-1515395161
+      // - We've opted for manually syncing layer orders when
+      //   layers update
+      //
       .map((layer, index, sortedLayers) => {
         if (index === sortedLayers.length - 1) {
           // is last layer

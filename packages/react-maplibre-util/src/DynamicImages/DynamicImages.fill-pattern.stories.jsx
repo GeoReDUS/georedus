@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { useHover } from '../useHover'
 
 import { DynamicImages } from './DynamicImages'
-import { svgIconGenerator } from './svgImages'
+import { svgImageGenerator } from './svgImages'
 import * as svgPatterns from './svgPatterns'
 
 export default {
@@ -17,7 +17,7 @@ export default {
 
 const MAP_STYLE = `https://api.maptiler.com/maps/streets-v2/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`
 
-const MAP_PATTERNS = svgIconGenerator(svgPatterns)
+const MAP_PATTERNS = svgImageGenerator(svgPatterns)
 
 export const Basic = () => {
   //

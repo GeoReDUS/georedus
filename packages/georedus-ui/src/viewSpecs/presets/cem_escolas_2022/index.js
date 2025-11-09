@@ -3,7 +3,6 @@ import {
   downloadResolver,
   fmtMaplibreGlFilterExp,
   fmtMetadataApiFilterExp,
-  globalResources,
   influenceAreaConf,
   influenceAreaLayers,
   influenceAreaMetadata,
@@ -20,6 +19,7 @@ import { categorical } from './categorical'
 import { get, isPlainObject, omit, uniqBy } from 'lodash'
 import { resolve } from '@orioro/resolve'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
+import { Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -60,8 +60,6 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
 
   const viewId = `${collection_id}.${indicator_id}`
 
-  const globalRes = globalResources(context)
-
   const sizing_variable_view = sizing_variable_id
     ? allViewSpecs.find((view) => view.variable_id === sizing_variable_id)
     : null
@@ -88,6 +86,22 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
   ]
 
   const $sourceLabel = 'INEP (Censo Escolar 2022)'
+
+  //
+  // Specify some utilities connected to the base setup
+  // but that will need specific placement at the indicator_type
+  // preset
+  //
+  const $layerFilter = resolve.fn((context) => {
+    const variantId = context.view?.conf?.data?.variantId
+    const variantSpec = loadVariant(variantId)
+    const filter = variantId ? variantSpec.filter : null
+    return [
+      'all',
+      ['==', ['get', 'id_municipio'], ['$get', 'municipioId']],
+      ...(isPlainObject(filter) ? fmtMaplibreGlFilterExp(filter) : []),
+    ]
+  })
 
   const base = {
     id: viewId,
@@ -198,7 +212,6 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     },
 
     sources: {
-      ...globalRes.sources,
       [VECTOR_SOURCE_ID]: tableVectorSource(context, collection_id, {
         attribution: $sourceLabel,
         promoteId: 'id_escola',
@@ -212,8 +225,8 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
       }),
     },
     layers: {
-      ...globalRes.layers,
       ...influenceAreaLayers({
+        zIndex: Z_OVERLAY_MIDDLE_2000,
         dataPath: 'view.metadata.influenceArea',
         fillPaint: {
           'fill-color': get(COLOR_SCHEMES, 'schemeSet1.colors[1]'),
@@ -226,6 +239,18 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
           'line-dasharray': [2, 2],
         },
       }),
+
+      [`${VECTOR_SOURCE_ID}_symbol`]: {
+        source: VECTOR_SOURCE_ID,
+        'source-layer': VECTOR_SOURCE_ID,
+        zIndex: Z_OVERLAY_MIDDLE_2000 + 2,
+        filter: $layerFilter,
+        type: 'symbol',
+        layout: {
+          'icon-image': ['literal', 'mdiSchool'],
+          'icon-size': 0.6,
+        },
+      },
     },
 
     download: downloadResolver({
@@ -279,22 +304,6 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
   const SIZE_DEFAULT = 10
   const SIZE_MAX = 25
   const SIZE_MIN = 6
-
-  //
-  // Specify some utilities connected to the base setup
-  // but that will need specific placement at the indicator_type
-  // preset
-  //
-  const $layerFilter = resolve.fn((context) => {
-    const variantId = context.view?.conf?.data?.variantId
-    const variantSpec = loadVariant(variantId)
-    const filter = variantId ? variantSpec.filter : null
-    return [
-      'all',
-      ['==', ['get', 'id_municipio'], ['$get', 'municipioId']],
-      ...(isPlainObject(filter) ? fmtMaplibreGlFilterExp(filter) : []),
-    ]
-  })
 
   const $circleRadius = sizing_variable_id
     ? [

@@ -1,6 +1,7 @@
 const CURVATURA_ID = 'curvatura'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
 
 const DEFAULT_DECLIVIDADE_RANGE = [0, 70]
 const TRANSPARENT = [0, 0, 0, 0]
@@ -14,19 +15,18 @@ function _temperaturaRange(candidate) {
     : DEFAULT_DECLIVIDADE_RANGE
 }
 
-export function curvatura({
-  RASTER_TILE_SERVER_ENDPOINT,
-  mosaicJsonUrl,
-}) {
+export function curvatura({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
   const DEVICE_PIXEL_RATIO_SUFFIX =
     typeof window !== 'undefined' && window.devicePixelRatio > 1 ? '@2x' : ''
 
   return {
+    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
+
     collection_id: CURVATURA_ID,
     indicator_id: CURVATURA_ID,
     id: CURVATURA_ID,
-    label: 'Perfil de curvatura',
-    path: `Emergências climáticas / / Terreno`,
+    label: 'Forma da encosta - Em perfil',
+    path: `Emergências climáticas / / Suscetibilidade a deslizamentos`,
 
     confSchema: {
       data: {

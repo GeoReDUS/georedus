@@ -53,7 +53,3 @@ export function br_municipios({ api, app }) {
     },
   }
 }
-
-export function baseViews(opts) {
-  return [br_municipios(opts)]
-}

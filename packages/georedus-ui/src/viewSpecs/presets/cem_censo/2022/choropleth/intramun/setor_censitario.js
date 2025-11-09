@@ -146,7 +146,14 @@ export function setor_censitario_layers(opts) {
       legends: setor_censitario_legends(opts),
 
       tooltip: {
-        title: null,
+        title: [
+          '$literal',
+          [
+            '$template',
+            'Setor censitário ${0}',
+            ['$get', 'feature.properties.id'],
+          ],
+        ],
         entries: [
           [
             [
@@ -173,13 +180,13 @@ export function setor_censitario_layers(opts) {
             ],
           ],
           ...[
-            'v0001',
-            'v0002',
-            'v0003',
-            'v0004',
-            'v0005',
-            'v0006',
-            'v0007',
+            // 'v0001',
+            // 'v0002',
+            // 'v0003',
+            // 'v0004',
+            // 'v0005',
+            // 'v0006',
+            // 'v0007',
           ].map((v) => [
             v,
 
@@ -242,10 +249,10 @@ export function setor_censitario_layers(opts) {
           //
           app.regional ? null : ['==', ['get', 'cd_mun'], app.municipioId],
 
-          // 
+          //
           // Not all values from basico are empty.
           // TODO: move to backend
-          // 
+          //
           [
             '!',
             [

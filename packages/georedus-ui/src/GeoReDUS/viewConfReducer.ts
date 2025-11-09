@@ -47,10 +47,14 @@ export function viewConfReducer(
             listIndex === layoutIndex
               ? uniqBy(
                   [
-                    ...list.items,
+                    //
+                    // Add new view on top of existing
+                    // views
+                    //
                     {
                       id: viewConf.id,
                     },
+                    ...list.items,
                   ],
                   (item) => item.id,
                 )

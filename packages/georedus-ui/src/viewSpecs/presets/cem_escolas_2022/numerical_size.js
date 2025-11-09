@@ -1,10 +1,10 @@
 import { get } from 'lodash'
 import {
-  ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE,
   COLOR_SCHEMES,
   vectorLayer,
   zoomSensitiveLinearSizes,
 } from '../../util'
+import { Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
 
 export function numerical_size(
   base,
@@ -29,7 +29,7 @@ export function numerical_size(
     layers: {
       ...base.layers,
       [`${VECTOR_SOURCE_ID}_circle`]: vectorLayer(VECTOR_SOURCE_ID, {
-        zIndex: ABOVE_BASE_MAP_LAYERS_Z_INDEX_BASE + 2,
+        zIndex: Z_OVERLAY_MIDDLE_2000 + 1,
         type: 'circle',
 
         legends: [

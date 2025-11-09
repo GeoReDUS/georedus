@@ -4,11 +4,11 @@ import { iconPathToSvg, type IconPathToSvgOptions } from './iconPathToSvg'
 import { svgToMaplibreImage } from './svgToMaplibreImage'
 import type { StyleImageMetadata } from 'maplibre-gl'
 
-export function svgIconId(
-  iconId: string,
+export function svgImageId(
+  imageId: string,
   options?: IconPathToSvgOptions,
 ): string {
-  return options ? `${iconId}(${JSON.stringify(options)})` : iconId
+  return options ? `${imageId}(${JSON.stringify(options)})` : imageId
 }
 
 type SvgIconSpecsById = Record<
@@ -40,17 +40,17 @@ const ERROR_ICON_EXPR =
       ...options,
     })
 
-export function svgIconGenerator<T extends SvgIconSpecsById>(
-  svgIconSpecsById: T,
+export function svgImageGenerator<T extends SvgIconSpecsById>(
+  svgImageSpecsById: T,
 ): SvgIconGeneratorReturn<T> {
   const fns = Object.fromEntries(
-    Object.entries(svgIconSpecsById).map(([iconId, iconSpec]) => {
+    Object.entries(svgImageSpecsById).map(([imageId, iconSpec]) => {
       if (typeof iconSpec === 'string' && iconSpec.startsWith('<svg')) {
         //
         // Full svg
         //
         return [
-          iconId,
+          imageId,
           (options = {}) =>
             () =>
               interpolate(iconSpec, options),
@@ -60,7 +60,7 @@ export function svgIconGenerator<T extends SvgIconSpecsById>(
         // Its a string, assume it is an svg path
         //
         return [
-          iconId,
+          imageId,
           (options = {}) =>
             () =>
               iconPathToSvg(iconSpec, options),
@@ -70,14 +70,14 @@ export function svgIconGenerator<T extends SvgIconSpecsById>(
         // Function that returns custom svg
         //
         return [
-          iconId,
+          imageId,
           (options = {}) =>
             () =>
               iconSpec(options),
         ]
       } else {
-        console.warn(`Invalid icon spec for ${iconId}, will ignore`, iconSpec)
-        return [iconId, ERROR_ICON_EXPR]
+        console.warn(`Invalid icon spec for ${imageId}, will ignore`, iconSpec)
+        return [imageId, ERROR_ICON_EXPR]
       }
     }),
   )
@@ -105,12 +105,18 @@ export function svgIconGenerator<T extends SvgIconSpecsById>(
   Object.assign(
     onGenerateSvgImage,
     Object.fromEntries(
-      Object.keys(svgIconSpecsById).map((iconId) => [
-        iconId,
-        (options?: IconPathToSvgOptions) => svgIconId(iconId, options),
+      Object.keys(svgImageSpecsById).map((imageId) => [
+        imageId,
+        (options?: IconPathToSvgOptions) => svgImageId(imageId, options),
       ]),
     ),
   )
 
   return onGenerateSvgImage as SvgIconGeneratorReturn<T>
+}
+
+export function svgIconGenerator(...args) {
+  console.warn('svgIconGenerator is deprecated, migrate to svgImageGenerator')
+
+  return svgImageGenerator(...args)
 }

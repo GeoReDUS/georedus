@@ -11,7 +11,6 @@ import {
   influenceAreaSources,
   setupVariants,
   tableVectorSource,
-  vectorLayer,
   zoomSensitiveLinearSizes,
 } from '../../util'
 
@@ -22,7 +21,8 @@ import { numerical_size } from './numerical_size'
 import { boolean_categorical } from './boolean_categorical'
 import { categorical } from './categorical'
 import { resolve } from '@orioro/resolve'
-import { get, isPlainObject, uniqBy } from 'lodash'
+import { isPlainObject, uniqBy } from 'lodash'
+import { Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
 
 const BY_TYPE = {
   // numerical_choropleth,
@@ -199,27 +199,17 @@ export function cem_saude_2024(viewSpec, allViewSpecs, context) {
       ...influenceAreaSources(),
     },
     layers: {
-      // ...globalRes.layers,
-
-      // icon: vectorLayer(VECTOR_SOURCE_ID, {
-      //   zIndex: 1000000000,
-      //   type: 'symbol',
-      //   filter: $layerFilter,
-      //   layout: {
-      //     'icon-image': 'hospital', // Maki-style icon
-      //     'icon-size': 1,
-      //     'icon-allow-overlap': true,
-      //     // 'text-field': ['get', 'str_nome_fantasia'],
-      //     // 'text-field': 'TEST',
-      //     'text-font': ['Open Sans Regular'],
-      //     'text-size': 12,
-      //     'text-offset': [0, 1.5],
-      //     'text-anchor': 'top',
-      //   },
-      //   paint: {
-      //     'text-color': '#333333',
-      //   },
-      // }),
+      [`${VECTOR_SOURCE_ID}_symbol`]: {
+        source: VECTOR_SOURCE_ID,
+        'source-layer': VECTOR_SOURCE_ID,
+        zIndex: Z_OVERLAY_MIDDLE_2000 + 2,
+        filter: $layerFilter,
+        type: 'symbol',
+        layout: {
+          'icon-image': ['literal', 'mdiHospital'],
+          'icon-size': 0.6,
+        },
+      },
 
       ...influenceAreaLayers({
         fillPaint: {

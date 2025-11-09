@@ -144,25 +144,32 @@ export const Basic = () => {
               source: 'test',
               type: 'symbol',
               layout: {
-                'icon-image': [
-                  'match',
-                  ['get', 'category'],
-                  'forest',
-                  MAP_ICONS.mdiForest({
-                    fill: 'white',
-                  }),
-                  'hospital',
-                  MAP_ICONS.mdiHospital({
-                    fill: 'white',
-                  }),
-                  'parking',
-                  'mdiParking({fill:"white"})',
-                  'bus',
-                  'mdiBusSign({fill:"white"})',
-                  'school',
-                  'mdiSchool({fill:"white"})',
-                  'mdiMapMarkerCircle({fill:"white"})', // fallback
-                ],
+                // 'icon-image': [
+                //   'match',
+                //   ['get', 'category'],
+                //   'forest',
+                //   MAP_ICONS.mdiForest({
+                //     fill: 'white',
+                //   }),
+                //   'hospital',
+                //   MAP_ICONS.mdiHospital({
+                //     fill: 'white',
+                //   }),
+                //   'parking',
+                //   'mdiParking({fill:"white"})',
+                //   'bus',
+                //   'mdiBusSign({fill:"white"})',
+                //   'school',
+                //   'mdiSchool({fill:"white"})',
+                //   'mdiMapMarkerCircle({fill:"white"})', // fallback
+                // ],
+
+                // By default, MapLibre parses `{}` inside strings as legacy token expressions.
+                // That behavior would cause parts of our icon name to be stripped when using dynamic SVG names.
+                // Using an expression with `["literal", value]` disables token parsing entirely,
+                // ensuring the icon-image string is used exactly as provided.
+                'icon-image': ['literal', 'mdiSchool({"fill":"white"})'],
+
                 'icon-size': 0.8,
               },
             },

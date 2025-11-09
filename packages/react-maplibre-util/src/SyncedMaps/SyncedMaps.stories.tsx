@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { makeSyncedMaps } from './SyncedMaps'
 import { LayeredMap } from '../LayeredMap'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { HoverTooltip } from '../HoverTooltip'
 import { ControlContainer } from '../Controls'
+import { useMapRegistry } from './useMapRegistry'
+import { useTilesLoading } from './useTilesLoading'
 
 export default {
   title: 'SyncedMaps',
@@ -59,119 +61,145 @@ function layeredMapTooltip(hoverInfo, layeredMap) {
 }
 
 export const Basic = () => {
+  const ref = useRef(null)
+
+  const registry = useMapRegistry()
+
+  const tilesLoading = useTilesLoading(registry.maps)
+
   return (
-    <SyncedMaps
-      style={{
-        width: '100vw',
-        height: '100vh',
-        fontFamily: 'sans-serif',
-      }}
-      initialViewState={{
-        latitude: -1.455833,
-        longitude: -48.503887,
-        zoom: 10,
-      }}
-      mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`}
-      tooltip={layeredMapTooltip}
-      maps={useMemo(
-        () => [
-          {
-            id: 'left',
-            views: [
-              {
-                id: 'test',
-                sources: {
-                  municipios: {
-                    type: 'geojson',
-                    promoteId: 'codarea',
-                    data: `https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR?intrarregiao=municipio&formato=application/vnd.geo+json&qualidade=minima`,
-                  },
-                },
-                layers: {
-                  municipios_fill: {
-                    interactive: true,
-                    type: 'fill',
-                    source: 'municipios',
-                    paint: {
-                      'fill-color': 'red',
-                      // 'fill-opacity': 0.6,
-                      'fill-opacity': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        1,
-                        0.3,
-                      ],
-                    },
-                  },
-                  municipios_bounds: {
-                    type: 'line',
-                    source: 'municipios',
-                    paint: {
-                      'line-color': 'red',
-                      'line-opacity': 1,
-                      'line-width': 2,
-                    },
-                  },
-                },
-              },
-            ],
-            children: (
-              <ControlContainer.Unstyled position="bottom-right">
-                <div
-                  style={{
-                    width: 200,
-                    height: 300,
-                    background: 'white',
-                  }}
-                >
-                  Some legend placeholder
-                </div>
-              </ControlContainer.Unstyled>
-            ),
-          },
-          {
-            id: 'right',
-            views: [
-              {
-                id: 'test',
-                sources: {
-                  municipios: {
-                    type: 'geojson',
-                    data: `https://servicodados.ibge.gov.br/api/v4/malhas/municipios/1501402?formato=application/vnd.geo+json`,
-                  },
-                },
-                layers: {
-                  municipios: {
-                    type: 'fill',
-                    source: 'municipios',
-                    paint: {
-                      'fill-color': 'red',
-                      'fill-opacity': 0.6,
-                    },
-                  },
-                },
-              },
-            ],
-            children: (
-              <ControlContainer.Unstyled position="bottom-right">
-                <div
-                  style={{
-                    width: 200,
-                    height: 300,
-                    background: 'white',
-                  }}
-                >
-                  Some legend placeholder
-                </div>
-              </ControlContainer.Unstyled>
-            ),
-          },
-          // {
-          //   id: 'other',
-          // },
-        ],
-        [],
+    <>
+      {tilesLoading && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 30,
+            right: 30,
+            zIndex: 20,
+            background: 'yellow',
+            fontFamily: 'sans-serif',
+            padding: 30,
+          }}
+        >
+          Loading
+        </div>
       )}
-    />
+      <SyncedMaps
+        ref={ref}
+        style={{
+          width: '100vw',
+          height: '100vh',
+          fontFamily: 'sans-serif',
+        }}
+        onLoad={(evt) => registry.onLoad(evt)}
+        onRemove={(evt) => registry.onLoad(evt)}
+        initialViewState={{
+          latitude: -1.455833,
+          longitude: -48.503887,
+          zoom: 10,
+        }}
+        mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.STORYBOOK_MAP_TILER_API_KEY}`}
+        tooltip={layeredMapTooltip}
+        maps={useMemo(
+          () => [
+            {
+              id: 'left',
+              views: [
+                {
+                  id: 'test',
+                  sources: {
+                    municipios: {
+                      type: 'geojson',
+                      promoteId: 'codarea',
+                      data: `https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR?intrarregiao=municipio&formato=application/vnd.geo+json&qualidade=minima`,
+                    },
+                  },
+                  layers: {
+                    municipios_fill: {
+                      interactive: true,
+                      type: 'fill',
+                      source: 'municipios',
+                      paint: {
+                        'fill-color': 'red',
+                        // 'fill-opacity': 0.6,
+                        'fill-opacity': [
+                          'case',
+                          ['boolean', ['feature-state', 'hover'], false],
+                          1,
+                          0.3,
+                        ],
+                      },
+                    },
+                    municipios_bounds: {
+                      type: 'line',
+                      source: 'municipios',
+                      paint: {
+                        'line-color': 'red',
+                        'line-opacity': 1,
+                        'line-width': 2,
+                      },
+                    },
+                  },
+                },
+              ],
+              children: (
+                <ControlContainer.Unstyled position="bottom-right">
+                  <div
+                    style={{
+                      width: 200,
+                      height: 300,
+                      background: 'white',
+                    }}
+                  >
+                    Some legend placeholder
+                  </div>
+                </ControlContainer.Unstyled>
+              ),
+            },
+            {
+              id: 'right',
+              views: [
+                {
+                  id: 'test',
+                  sources: {
+                    municipios: {
+                      type: 'geojson',
+                      data: `https://servicodados.ibge.gov.br/api/v4/malhas/municipios/1501402?formato=application/vnd.geo+json`,
+                    },
+                  },
+                  layers: {
+                    municipios: {
+                      type: 'fill',
+                      source: 'municipios',
+                      paint: {
+                        'fill-color': 'red',
+                        'fill-opacity': 0.6,
+                      },
+                    },
+                  },
+                },
+              ],
+              children: (
+                <ControlContainer.Unstyled position="bottom-right">
+                  <div
+                    style={{
+                      width: 200,
+                      height: 300,
+                      background: 'white',
+                    }}
+                  >
+                    Some legend placeholder
+                  </div>
+                </ControlContainer.Unstyled>
+              ),
+            },
+            // {
+            //   id: 'other',
+            // },
+          ],
+          [],
+        )}
+      />
+    </>
   )
 }
