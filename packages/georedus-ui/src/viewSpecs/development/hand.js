@@ -93,7 +93,7 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     sources: {
       [HAND_ID]: {
         type: 'raster',
-        minzoom: 8,
+        minzoom: 7,
         maxzoom: 14,
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -116,7 +116,7 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     },
     layers: {
       [`${HAND_ID}`]: {
-        minzoom: 8,
+        minzoom: 7,
         // zIndex: 10,
         type: 'raster',
         source: HAND_ID,

@@ -110,7 +110,8 @@ export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
 
     sources: {
       [DECLIVIDADE_ID]: {
-        minzoom: 9,
+        minzoom: 7,
+        maxzoom: 14,
         type: 'raster',
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -143,7 +144,7 @@ export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     },
     layers: {
       [`${DECLIVIDADE_ID}`]: {
-        minzoom: 9,
+        minzoom: 7,
         // zIndex: 10,
         type: 'raster',
         source: DECLIVIDADE_ID,

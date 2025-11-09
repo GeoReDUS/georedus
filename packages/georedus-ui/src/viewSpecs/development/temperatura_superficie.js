@@ -102,7 +102,7 @@ export function temperatura_superficie({
 
     sources: {
       [TEMPERATURA_SUPERFICIE_ID]: {
-        minzoom: 8,
+        minzoom: 7,
         maxzoom: 14,
         type: 'raster',
         tiles: [
@@ -131,7 +131,7 @@ export function temperatura_superficie({
     },
     layers: {
       [`${TEMPERATURA_SUPERFICIE_ID}`]: {
-        minzoom: 8,
+        minzoom: 7,
         // zIndex: 10,
         type: 'raster',
         source: TEMPERATURA_SUPERFICIE_ID,

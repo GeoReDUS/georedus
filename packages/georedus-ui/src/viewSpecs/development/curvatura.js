@@ -54,7 +54,8 @@ export function curvatura({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
 
     sources: {
       [CURVATURA_ID]: {
-        minzoom: 9,
+        minzoom: 7,
+        maxzoom: 14,
         type: 'raster',
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -84,7 +85,7 @@ export function curvatura({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     },
     layers: {
       [`${CURVATURA_ID}`]: {
-        minzoom: 9,
+        minzoom: 7,
         // zIndex: 10,
         type: 'raster',
         source: CURVATURA_ID,
