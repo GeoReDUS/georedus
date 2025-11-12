@@ -76,6 +76,7 @@
     "katex": "^0.16.22",
     "lodash": "^4.17.21",
     "query-string": "^9.1.1",
+    "react-confetti": "^6.1.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-highlight-words": "^0.21.0",
     "react-share": "^5.1.0",

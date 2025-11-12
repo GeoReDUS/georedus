@@ -74,7 +74,7 @@ function DataSection({ title, entries, ...props }: DataSectionProps) {
         {title && <DataSectionHeading>{title}</DataSectionHeading>}
         <div>
           <EntriesList>
-            {entries.map(([label, value], index) => (
+            {entries.filter(Boolean).map(([label, value], index) => (
               <li key={index}>
                 {typeof label === 'string' ? (
                   <span>{`${label}${_notEmpty(value) ? ': ' : ''}`}</span>

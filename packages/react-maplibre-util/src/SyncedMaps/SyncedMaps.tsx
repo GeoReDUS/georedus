@@ -2,6 +2,7 @@ import React, {
   forwardRef,
   useCallback,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -149,6 +150,21 @@ export function makeSyncedMaps({
       [mapInstanceRefs],
     )
 
+    // Let's review, this might have performance impact
+    const cursor = useMemo(
+      () =>
+        isDragging
+          ? 'grabbing'
+          : (hoverInfo?.features?.length || 0) > 0
+            ? hoverInfo.features.some(
+                (feat) => typeof feat.layer?.onClick === 'function',
+              )
+              ? 'pointer'
+              : 'default'
+            : 'default',
+      [isDragging, hoverInfo],
+    )
+
     return (
       <Flex
         ref={containerRef}
@@ -183,7 +199,9 @@ export function makeSyncedMaps({
               {Array.isArray(tooltips) && tooltips[index]}
               <MapComponent
                 ref={setMapInstanceRef(index)}
-                cursor={isDragging ? 'grabbing' : 'default'}
+                // cursor={isDragging ? 'grabbing' : 'default'}
+                // Let's review, this might have performance impact
+                cursor={cursor}
                 {...baseMapProps}
                 {...mapProps}
                 //

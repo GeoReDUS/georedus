@@ -25,6 +25,7 @@ import {
   InspectControl,
   useMapRegistry,
   useTilesLoading,
+  layeredMapOnClickHandler,
 } from '@orioro/react-maplibre-util'
 import '@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css'
 import { Legend } from '@orioro/react-chart-util'
@@ -47,7 +48,16 @@ import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
 import { get } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
-import { mdiClose, mdiSchool, mdiHospital } from '@mdi/js'
+import {
+  mdiClose,
+  mdiSchool,
+  mdiHospital,
+  mdiTree,
+  mdiSprout,
+  mdiCurrencyUsd,
+  mdiScaleBalance,
+  mdiAccountMultipleOutline,
+} from '@mdi/js'
 import { resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
@@ -71,6 +81,11 @@ import {
 vtxSetup()
 
 const MAP_SVG_IMAGE_GENERATOR = svgImageGenerator({
+  mdiTree,
+  mdiSprout,
+  mdiCurrencyUsd,
+  mdiScaleBalance,
+  mdiAccountMultipleOutline,
   mdiSchool,
   mdiHospital,
   ...SVG_PATTERNS,
@@ -601,6 +616,16 @@ function GeoReDUSInner({
     [baseMapStyle, api, APP_CONTEXT],
   )
 
+  const onClick = useMemo(
+    () =>
+      layeredMapOnClickHandler({
+        context: {
+          dialogs,
+        },
+      }),
+    [],
+  )
+
   return (
     <Flex>
       <LeftPanel
@@ -642,19 +667,23 @@ function GeoReDUSInner({
             value={municipioId}
             onSetValue={setMunicipioId}
           />
-
-          <Input
+          <div
             style={{
               alignSelf: 'flex-end',
+              position: 'absolute',
+              top: '100%',
             }}
-            schema={{
-              type: 'booleanCheckbox',
-              description: 'Visualizar dados regionais',
-            }}
-            size="1"
-            value={regional}
-            onSetValue={setRegional}
-          />
+          >
+            <Input
+              schema={{
+                type: 'booleanCheckbox',
+                description: 'Visualizar dados regionais',
+              }}
+              size="1"
+              value={regional}
+              onSetValue={setRegional}
+            />
+          </div>
         </Flex>
       </Flex>
 
@@ -690,6 +719,7 @@ function GeoReDUSInner({
         onRemove={(evt) => {
           mapRegistry.onRemove(evt)
         }}
+        onClick={onClick}
         attributionControl={false}
         initialViewState={DEFAULT_INITIAL_VIEW_STATE}
         style={{

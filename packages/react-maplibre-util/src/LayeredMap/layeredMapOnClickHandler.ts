@@ -6,7 +6,11 @@ type ClickableFeature = Merge<
   {
     layer: {
       id: string
-      onClick: (feature: MapGeoJSONFeature, event: AugmentedMouseEvent) => any
+      onClick: (
+        feature: MapGeoJSONFeature,
+        event: AugmentedMouseEvent,
+        context: Record<string, any>,
+      ) => any
     }
   }
 >
@@ -23,6 +27,7 @@ type LayeredMapOnClickHandlerProps = {
     features: AugmentedMouseEvent['features'],
     event: AugmentedMouseEvent,
   ) => ClickableFeature | Promise<ClickableFeature>
+  context?: Record<string, any>
 }
 
 function selectFirstClickableFeature(
@@ -33,6 +38,7 @@ function selectFirstClickableFeature(
 
 export function layeredMapOnClickHandler({
   resolveTargetFeature = selectFirstClickableFeature,
+  context = {},
 }: LayeredMapOnClickHandlerProps = {}) {
   return async function onClick(e: AugmentedMouseEvent) {
     const features = e.features || []
@@ -47,7 +53,7 @@ export function layeredMapOnClickHandler({
           ? clickableFeatures[0]
           : await resolveTargetFeature(clickableFeatures, e)
 
-      targetFeature.layer.onClick(targetFeature, e)
+      targetFeature.layer.onClick(targetFeature, e, context)
     }
   }
 }

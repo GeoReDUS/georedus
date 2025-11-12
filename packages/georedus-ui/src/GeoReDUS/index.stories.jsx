@@ -10,6 +10,7 @@ import { hand } from '../viewSpecs/development/hand'
 import { declividade } from '../viewSpecs/development/declividade'
 import { temperatura_superficie } from '../viewSpecs/development/temperatura_superficie'
 import { curvatura } from '../viewSpecs/development/curvatura'
+import { redus_mutirao_cop_2025 } from '../viewSpecs/development/redus_mutirao_cop_2025'
 
 export default {
   title: 'GeoReDUS / GeoReDUS',
@@ -100,6 +101,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
         mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2018/mosaic.json`,
       }),
       overture_places_poc(API),
+      redus_mutirao_cop_2025(API),
       ...br_divisao_territorial_views(API),
       ...ana_br_bacias_hidrograficas(API),
     ],
