@@ -1,6 +1,8 @@
 import { resolve } from '@orioro/resolve'
 import { get } from '@orioro/get'
 import { BUILDINGS_MIN_ZOOM } from './buildings'
+import { _censoColorScheme } from './metadata'
+import { Z_OVERLAY_BASE_1000 } from '../../../../../zIndexes'
 
 const SETOR_CENSITARIO_SOURCE_ID = 'ibge_malha_br_setor_censitario_2022.geom'
 
@@ -97,7 +99,6 @@ export function setor_censitario_sources({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
             '$vtxUrl',
             {
               tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/${SETOR_CENSITARIO_SOURCE_ID}/{z}/{x}/{y}`,
-              // data: [['id', ['$get', 'view.metadata.rawDataCacheUrl']]],
               data: [
                 [
                   'id',
@@ -116,6 +117,8 @@ export function setor_censitario_sources({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
 }
 
 export function setor_censitario_layers(opts) {
+  const { PARSED_SCHEMA } = opts
+
   //
   // Fill color expression for data loaded from
   // vector source
@@ -123,14 +126,45 @@ export function setor_censitario_layers(opts) {
   const _vectorSourceFillColor = [
     '$flat',
     [
-      [
-        'step',
-        // ['coalesce', ['get', ['$get', 'view.conf.data.variableId']], -1],
-        ['coalesce', ['get', 'value'], -1],
-      ],
+      ['step', ['coalesce', ['get', 'value'], -1]],
       ['$get', 'view.metadata.colorScaleStops'],
     ],
   ]
+
+  const _filter = resolve.fn(({ app }) => {
+    return [
+      'all',
+      //
+      // cd_situacao = '9' -> Massas de água,
+      // Não possui população nem domicílios
+      //
+      ['!', ['in', ['get', 'cd_situacao'], ['literal', ['9']]]],
+
+      //
+      // If regional is not active, only show data
+      // on the municipio
+      //
+      app.regional ? null : ['==', ['get', 'cd_mun'], app.municipioId],
+
+      //
+      // Not all values from basico are empty.
+      // TODO: move to backend
+      //
+      [
+        '!',
+        [
+          'all',
+          ['==', ['get', 'v0001'], 0],
+          ['==', ['get', 'v0002'], 0],
+          ['==', ['get', 'v0003'], 0],
+          ['==', ['get', 'v0004'], 0],
+          ['==', ['get', 'v0005'], 0],
+          ['==', ['get', 'v0006'], 0],
+          ['==', ['get', 'v0007'], 0],
+        ],
+      ],
+    ].filter(Boolean)
+  })
 
   return {
     //
@@ -143,6 +177,9 @@ export function setor_censitario_layers(opts) {
         ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
       ],
       interactive: true,
+      source: SETOR_CENSITARIO_SOURCE_ID,
+      'source-layer': SETOR_CENSITARIO_SOURCE_ID,
+      type: 'fill',
       legends: setor_censitario_legends(opts),
 
       tooltip: {
@@ -223,51 +260,8 @@ export function setor_censitario_layers(opts) {
         ],
         // entries: [CHART_UTIL._variableValueTooltipEntry],
       },
-      source: SETOR_CENSITARIO_SOURCE_ID,
-      'source-layer': SETOR_CENSITARIO_SOURCE_ID,
-      type: 'fill',
-      // //
-      // // Do not render tiles that do not match the focused municipios list
-      // //
-      // filter: [
-      //   'in',
-      //   ['get', 'cd_mun'],
-      //   ['literal', ['$get', 'view.metadata.municipioData.group_cd_mun_list']],
-      // ],
-      filter: resolve.fn(({ app }) => {
-        return [
-          'all',
-          //
-          // cd_situacao = '9' -> Massas de água,
-          // Não possui população nem domicílios
-          //
-          ['!', ['in', ['get', 'cd_situacao'], ['literal', ['9']]]],
 
-          //
-          // If regional is not active, only show data
-          // on the municipio
-          //
-          app.regional ? null : ['==', ['get', 'cd_mun'], app.municipioId],
-
-          //
-          // Not all values from basico are empty.
-          // TODO: move to backend
-          //
-          [
-            '!',
-            [
-              'all',
-              ['==', ['get', 'v0001'], 0],
-              ['==', ['get', 'v0002'], 0],
-              ['==', ['get', 'v0003'], 0],
-              ['==', ['get', 'v0004'], 0],
-              ['==', ['get', 'v0005'], 0],
-              ['==', ['get', 'v0006'], 0],
-              ['==', ['get', 'v0007'], 0],
-            ],
-          ],
-        ].filter(Boolean)
-      }),
+      filter: _filter,
       // maxzoom: 14,
       paint: {
         'fill-color': _vectorSourceFillColor,
@@ -291,6 +285,46 @@ export function setor_censitario_layers(opts) {
           ['case', ['boolean', ['feature-state', 'hover'], false], 0.2, 0.1],
         ],
         'fill-outline-color': 'transparent',
+      },
+    },
+
+    //
+    // Boundary lines from the vector source layer
+    // (setor censitario)
+    //
+    [`${SETOR_CENSITARIO_SOURCE_ID}_bounds`]: {
+      zIndex: Z_OVERLAY_BASE_1000,
+      hidden: [
+        '$not',
+        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+      ],
+      interactive: true,
+      type: 'line',
+      source: SETOR_CENSITARIO_SOURCE_ID,
+      'source-layer': SETOR_CENSITARIO_SOURCE_ID,
+      filter: _filter,
+      paint: {
+        'line-color': resolve.fn((context) => {
+          const variableId = get(context, 'view.conf.data.variableId')
+          const variant = PARSED_SCHEMA.variantsByVariableId[variableId]
+
+          return _censoColorScheme(variant.colorScheme).scalesByK[3][2]
+        }),
+        'line-width': [
+          'step',
+          ['zoom'],
+          // default: zoom < 14 → thin lines
+          ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0],
+          BUILDINGS_MIN_ZOOM,
+          // zoom ≥ 14 → larger lines
+          ['case', ['boolean', ['feature-state', 'hover'], false], 4, 0],
+        ],
+        'line-opacity': [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false],
+          1,
+          ['$get', 'view.conf.style.layerOpacity'],
+        ],
       },
     },
   }

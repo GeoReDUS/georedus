@@ -6,6 +6,14 @@ import { vtx } from '../../../../../../vtxProtocol'
 
 const DEFAULT_COLOR_SCHEME = COLOR_SCHEMES.schemeOranges
 
+export function _censoColorScheme(colorSchemeName) {
+  const colorScheme = colorSchemeName
+    ? COLOR_SCHEMES[colorSchemeName] || DEFAULT_COLOR_SCHEME
+    : DEFAULT_COLOR_SCHEME
+
+  return colorScheme
+}
+
 export function metadata({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
   const { METADATA_API_ENDPOINT } = GLOBAL_CONTEXT
 
@@ -34,9 +42,7 @@ export function metadata({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
     const rawData = await vtx.memoFetchData(rawDataCacheUrl)
     const scaleValues = get(rawData, `[].${variableId}`)
 
-    const colorScheme = variant.colorScheme
-      ? COLOR_SCHEMES[variant.colorScheme] || DEFAULT_COLOR_SCHEME
-      : DEFAULT_COLOR_SCHEME
+    const colorScheme = _censoColorScheme(variant.colorScheme)
 
     return {
       //
