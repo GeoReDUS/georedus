@@ -6,18 +6,22 @@ import {
 
 import { buildings_sources, buildings_layers } from './buildings'
 
+import { customGeoJson_sources, customGeoJson_layers } from './customGeoJson'
+
 export const intramun = {
   metadata,
   sources(opts) {
     return {
       ...setor_censitario_sources(opts),
       ...buildings_sources(opts),
+      ...customGeoJson_sources(opts),
     }
   },
   layers(opts) {
     return {
       ...setor_censitario_layers(opts),
       ...buildings_layers(opts),
+      ...customGeoJson_layers(opts),
     }
   },
 }

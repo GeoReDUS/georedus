@@ -89,7 +89,7 @@ export function dataMergeProtocol({
       ? dataSourcesInput
       : [dataSourcesInput]
 
-    const settled = await Promise.allSettled(
+    const resolved = await Promise.all(
       dataSources.map(async (source) => {
         if (typeof source === 'string') {
           const data = await _memoFetchData(source, {
@@ -116,20 +116,24 @@ export function dataMergeProtocol({
       }),
     )
 
-    const resolved = settled
-      .filter(
-        (result): result is PromiseFulfilledResult<[string, any[], string]> =>
-          result.status === 'fulfilled',
-      )
-      .map((result) => result.value)
+    // Previous behavior prevented errors from being propagated
+    // up to the map instance, thus resulting in the map
+    // instance caching incorrectly aborted responses
 
-    const rejected = settled.filter((r) => r.status === 'rejected')
-    if (rejected.length) {
-      console.warn(
-        `[dataMergeProtocol] ${rejected.length} data sources failed`,
-        rejected,
-      )
-    }
+    // const resolved = settled
+    //   .filter(
+    //     (result): result is PromiseFulfilledResult<[string, any[], string]> =>
+    //       result.status === 'fulfilled',
+    //   )
+    //   .map((result) => result.value)
+
+    // const rejected = settled.filter((r) => r.status === 'rejected')
+    // if (rejected.length) {
+    //   console.warn(
+    //     `[dataMergeProtocol] ${rejected.length} data sources failed`,
+    //     rejected,
+    //   )
+    // }
 
     return resolved
   }

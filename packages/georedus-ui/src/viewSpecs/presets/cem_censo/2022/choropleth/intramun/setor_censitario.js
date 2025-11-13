@@ -3,6 +3,7 @@ import { get } from '@orioro/get'
 import { BUILDINGS_MIN_ZOOM } from './buildings'
 import { _censoColorScheme } from './metadata'
 import { Z_OVERLAY_BASE_1000 } from '../../../../../zIndexes'
+import { INSUFFICIENT_DATA_COLOR } from '../constants'
 
 const SETOR_CENSITARIO_SOURCE_ID = 'ibge_malha_br_setor_censitario_2022.geom'
 
@@ -12,8 +13,6 @@ const NUMBER_FMT = [
   ['pt-BR', { style: 'percent' }],
   ['pt-BR', {}],
 ]
-
-export const INSUFFICIENT_DATA_COLOR = 'red'
 
 export function setor_censitario_legends({ PARSED_SCHEMA }) {
   return [
@@ -66,12 +65,6 @@ export function setor_censitario_legends({ PARSED_SCHEMA }) {
           )
         })
       },
-
-      // format: {
-      //   number: NUMBER_FMT,
-      //   below: 'Sem dados',
-      // },
-      // steps: ['$get', 'view.metadata.colorScaleStops'],
     },
   ]
 }
@@ -174,7 +167,7 @@ export function setor_censitario_layers(opts) {
     [`${SETOR_CENSITARIO_SOURCE_ID}_fill`]: {
       hidden: [
         '$not',
-        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS_GEOJSON']],
       ],
       interactive: true,
       source: SETOR_CENSITARIO_SOURCE_ID,
@@ -296,7 +289,7 @@ export function setor_censitario_layers(opts) {
       zIndex: Z_OVERLAY_BASE_1000,
       hidden: [
         '$not',
-        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS_GEOJSON']],
       ],
       interactive: true,
       type: 'line',

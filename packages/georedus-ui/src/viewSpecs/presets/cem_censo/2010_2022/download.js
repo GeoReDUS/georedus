@@ -5,11 +5,17 @@ import { downloadResolver } from '../../../util'
 import { resolveExprAsync } from '../../../resolveView/resolveExpr'
 
 export function download(viewSpec, allViewSpecs, context, { PARSED_SCHEMA }) {
+  const { METADATA_API_ENDPOINT } = context
+
   return downloadResolver({
     fileNameBase: [
       '$template',
       '${0}_${1}_georedus_censo_${2}',
-      [['$get', 'view.conf.data.variableId'], ['$get', 'municipioId'], PARSED_SCHEMA.year],
+      [
+        ['$get', 'view.conf.data.variableId'],
+        ['$get', 'municipioId'],
+        PARSED_SCHEMA.year,
+      ],
     ],
     mainVariableId: ['$get', 'view.conf.data.variableId'],
     availableVariableIds: [],

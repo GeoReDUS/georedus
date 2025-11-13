@@ -95,7 +95,7 @@ export function buildings_layers({ PARSED_SCHEMA }) {
     [`${BUILDINGS_SOURCE_ID}_fill`]: {
       hidden: [
         '$not',
-        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS_GEOJSON']],
       ],
       interactive: false,
       source: BUILDINGS_SOURCE_ID,
@@ -114,7 +114,7 @@ export function buildings_layers({ PARSED_SCHEMA }) {
     [`${BUILDINGS_SOURCE_ID}_fill_extrusion`]: {
       hidden: [
         '$not',
-        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS']],
+        ['$empty', ['$get', 'view.metadata.customGeoJSON.AREAS_GEOJSON']],
       ],
       interactive: false,
       source: BUILDINGS_SOURCE_ID,

@@ -99,6 +99,18 @@ const LegendContainer = styled(Flex)`
   border-radius: 4px;
 `
 
+//
+// This is a hotfix for overriding font-size: .875rem
+// from @orioro/react-select
+//
+// Font-size < 16px makes mobile zoom in
+//
+const HotfixSelectLargeFont = styled.div`
+  input {
+    font-size: 1rem;
+  }
+`
+
 const SyncedMaps = makeSyncedMaps({
   components: {
     Map: LayeredMap,
@@ -662,11 +674,13 @@ function GeoReDUSInner({
           maxWidth="30vw"
           gap="3"
         >
-          <Input
-            schema={MUNICIPIO_ID_SELECTOR_SCHEMA}
-            value={municipioId}
-            onSetValue={setMunicipioId}
-          />
+          <HotfixSelectLargeFont>
+            <Input
+              schema={MUNICIPIO_ID_SELECTOR_SCHEMA}
+              value={municipioId}
+              onSetValue={setMunicipioId}
+            />
+          </HotfixSelectLargeFont>
           <div
             style={{
               alignSelf: 'flex-end',
