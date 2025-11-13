@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.12.0
+
+### Minor Changes
+
+- add bacias hidrograficas and fix import issues
+
 ## 0.11.0
 
 ### Minor Changes
