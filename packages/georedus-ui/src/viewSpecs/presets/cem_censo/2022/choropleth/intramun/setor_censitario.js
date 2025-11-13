@@ -78,6 +78,10 @@ export function setor_censitario_sources({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
       attribution: PARSED_SCHEMA.sourceLabel,
       minzoom: 8,
       //
+      // TODO: review
+      //
+      bounds: resolve.fn(({ app }) => app.mapBounds),
+      //
       // Prevent system from fetching data beyond necessary detail
       //
       maxzoom: BUILDINGS_MIN_ZOOM,

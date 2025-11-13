@@ -46,6 +46,7 @@
     "storybook": "^8.0.0"
   },
   "dependencies": {
+    "@mapbox/tilebelt": "2.0.0",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "@orioro/cast": "^0.0.2",

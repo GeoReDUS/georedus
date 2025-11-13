@@ -4,6 +4,7 @@ import { $urlSearch } from '../resolveView/customExpr'
 import { interpolateSpectral } from 'd3-scale-chromatic'
 import { colord } from 'colord'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
+import { DocumentIframe } from '../../DocumentIframe'
 
 const TEMPERATURA_MIN = 20
 const TEMPERATURA_MAX = 60
@@ -38,7 +39,7 @@ function temperatura_legends() {
     {
       type: 'ContinuousColorLegend',
       title: 'Temperatura máxima de superfície (ºC)',
-      unit: 'Valor médio em º Celsiu da temperatur máxima no período de 2021 - 2025',
+      unit: 'Valor médio em º Celsius da temperatura máxima no período de 2021 - 2025',
       numberUnit: 'º',
       colors: resolve.fn(({ view: { conf } }) => {
         const temperaturaRange = _temperaturaRange(conf?.data?.temperaturaRange)
@@ -72,7 +73,14 @@ export function temperatura_superficie({
     collection_id: TEMPERATURA_SUPERFICIE_ID,
     indicator_id: TEMPERATURA_SUPERFICIE_ID,
     id: TEMPERATURA_SUPERFICIE_ID,
+    sourceLabel: 'Landsat-8 e Landsat-9',
+    shortDescription: 'Refere-se à',
+    metodology: (
+      <DocumentIframe src="/georedus/metodologia/maximas-de-temperatura.pdf" />
+    ),
     label: 'Temperatura máxima de superfície (ºC)',
+    shortDescription:
+      'Valores máximos anuais de temperatura de superfície do período de 2021 a 2025',
     year: '2021 - 2025',
     path: `Emergências climáticas / / Extremos de temperatura`,
 
@@ -102,7 +110,7 @@ export function temperatura_superficie({
 
     sources: {
       [TEMPERATURA_SUPERFICIE_ID]: {
-        minzoom: 7,
+        minzoom: 9,
         maxzoom: 14,
         type: 'raster',
         tiles: [
@@ -131,7 +139,7 @@ export function temperatura_superficie({
     },
     layers: {
       [`${TEMPERATURA_SUPERFICIE_ID}`]: {
-        minzoom: 7,
+        minzoom: 9,
         // zIndex: 10,
         type: 'raster',
         source: TEMPERATURA_SUPERFICIE_ID,

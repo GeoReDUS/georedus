@@ -52,7 +52,7 @@ const MAP_TILER = mapTilerSpecFromStyleJson({
   ],
 })
 
-export function fullMapStyle() {
+function fullMapStyle() {
   return MAP_TILER.fullMapStyle
 }
 
@@ -61,7 +61,7 @@ export function fullMapStyle() {
 // They are added via mapStyle, not through layered view system
 // thus the format is different
 //
-export function baseMapStyle(opts) {
+function baseMapStyle(opts) {
   return {
     version: 8,
     sources: MAP_TILER.sources,
@@ -71,7 +71,7 @@ export function baseMapStyle(opts) {
   }
 }
 
-export function topViews(opts) {
+function topViews(opts) {
   return [
     {
       id: 'maptiler_top_layers',

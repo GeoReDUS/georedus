@@ -3,6 +3,7 @@ import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
 import { colord } from 'colord'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
+import { DocumentIframe } from '../../DocumentIframe'
 
 const DEFAULT_HAND_VALUE = 2
 const MAX_HAND_VALUE = 6
@@ -38,8 +39,8 @@ function hand_legends() {
   return [
     {
       type: 'ContinuousColorLegend',
-      title: 'Altura da drenagem mais próxima',
-      unit: 'Metros',
+      title: 'Altura acima da drenagem mais próxima',
+      unit: 'metros',
       numberUnit: 'm',
       colors: resolve.fn(({ view: { conf } }) => {
         const handValue = _handValue(conf)
@@ -67,9 +68,13 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     collection_id: HAND_ID,
     indicator_id: HAND_ID,
     id: HAND_ID,
-    label: 'Suscetibilidade à inundação',
-    path: `Emergências climáticas / / Riscos hidrológicos`,
-
+    sourceLabel: 'ANADEM (ANA)',
+    label: 'Altura acima da drenagem mais próxima',
+    shortDescription: 'Áreas suscetíveis à inundação calculadas por meio da distância vertical em relação ao canal de drenagem mais próximo',
+    path: `Emergências climáticas / / Suscetibilidade à inundação`,
+    metodology: (
+      <DocumentIframe src="/georedus/metodologia/inundacao-hand.pdf" />
+    ),
     confSchema: {
       data: {
         handValue: {
@@ -93,7 +98,7 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     sources: {
       [HAND_ID]: {
         type: 'raster',
-        minzoom: 7,
+        minzoom: 9,
         maxzoom: 14,
         tiles: [
           resolve.fn(({ view: { conf } }) => {
@@ -116,7 +121,7 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     },
     layers: {
       [`${HAND_ID}`]: {
-        minzoom: 7,
+        minzoom: 9,
         // zIndex: 10,
         type: 'raster',
         source: HAND_ID,

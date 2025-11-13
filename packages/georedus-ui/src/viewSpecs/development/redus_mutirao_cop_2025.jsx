@@ -158,8 +158,11 @@ export function redus_mutirao_cop_2025(conf) {
     collection_id: REDUS_MUTIRAO_COP_2025_ID,
     indicator_id: REDUS_MUTIRAO_COP_2025_ID,
     id: REDUS_MUTIRAO_COP_2025_ID,
+    sourceLabel: 'ReDUS',
+    path: `Emergências Climáticas / _ / Mutirão COP30 - Belém`,
     label: 'Mutirão ReDUS COP30',
-    path: `Emergências Climáticas / _ / COP30`,
+    shortDescription:
+      'Ações concretas de Desenvolvimento Urbano Sustentável mapeadas no Mutirão ReDUS rumo à COP30',
     metadata: {},
 
     sources: {
@@ -248,6 +251,7 @@ export function redus_mutirao_cop_2025(conf) {
                       top: 0,
                       left: 0,
                       zIndex: 9999,
+                      width: '100vw',
                     }}
                     recycle={false}
                     numberOfPieces={700}

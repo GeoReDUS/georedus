@@ -58,7 +58,7 @@ import {
   mdiScaleBalance,
   mdiAccountMultipleOutline,
 } from '@mdi/js'
-import { resolveInitialMunicipioId } from './util'
+import { getSurroundingTilesBbox, resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
 import { useViews } from '../viewSpecs/useViews'
@@ -128,12 +128,22 @@ async function _flyToMunicipio(
   options,
 ) {
   const [mun] = await fetch(
-    `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=bbox&id=eq.${municipioId}`,
+    `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?select=area_urbana_bbox_geom&id=eq.${municipioId}`,
   ).then((res) => res.json())
 
-  if (mun && mun.bbox) {
-    fitGeometry(map, mun.bbox, options)
+  if (mun && mun.area_urbana_bbox_geom) {
+    fitGeometry(map, mun.area_urbana_bbox_geom, options)
   }
+
+  // const [mun] = await fetch(
+  //   `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=bbox&id=eq.${municipioId}`,
+  // ).then((res) => res.json())
+
+  // if (mun && mun.bbox) {
+  //   console.log('mun.bbox', mun.bbox)
+
+  //   fitGeometry(map, mun.bbox, options)
+  // }
 }
 
 //
@@ -246,6 +256,18 @@ const FULL_MAP_STYLE = {
   satellite: BASEMAPS.satellite.fullMapStyle(),
 }
 
+export function _bboxContains(a, b) {
+  const [aMinLng, aMinLat, aMaxLng, aMaxLat] = a
+  const [bMinLng, bMinLat, bMaxLng, bMaxLat] = b
+
+  return (
+    bMinLng >= aMinLng &&
+    bMinLat >= aMinLat &&
+    bMaxLng <= aMaxLng &&
+    bMaxLat <= aMaxLat
+  )
+}
+
 //
 // TODO: review, this is clearly not a structured way
 // of doing this
@@ -349,6 +371,7 @@ function GeoReDUSInner({
   const syncedMapsRef = useRef(null)
   const mapRegistry = useMapRegistry()
   const tilesLoading = useTilesLoading(mapRegistry.maps)
+  const [mapBounds, setMapBounds] = useState(null)
 
   const [municipioId, setMunicipioId] = useLocalState(
     globalState.municipioId,
@@ -414,8 +437,9 @@ function GeoReDUSInner({
       //
       zoomLevel,
       regional,
+      mapBounds,
     }),
-    [municipioId, baseMapStyle, zoomLevel, regional],
+    [municipioId, baseMapStyle, zoomLevel, regional, mapBounds],
   )
 
   const {
@@ -716,6 +740,23 @@ function GeoReDUSInner({
 
           setZoomLevel(nextZoomLevel)
         }}
+        //
+        // TODO: review mapBounds calculation
+        //
+        onMoveEnd={(e) => {
+          const { latitude, longitude } = e.viewState
+          const bounds = e.target.getBounds()
+          const minLng = bounds.getWest()
+          const maxLng = bounds.getEast()
+          const minLat = bounds.getSouth()
+          const maxLat = bounds.getNorth()
+
+          const viewBounds = [minLng, minLat, maxLng, maxLat]
+
+          if (!mapBounds || !_bboxContains(mapBounds, viewBounds)) {
+            setMapBounds(getSurroundingTilesBbox(longitude, latitude, 7))
+          }
+        }}
         onDrag={() => {
           if (resolvedLayout.length > 1 && leftPanelOpen) {
             //
@@ -728,6 +769,10 @@ function GeoReDUSInner({
         ref={syncedMapsRef}
         onLoad={(evt) => {
           _refocus(evt.target)
+
+          // For debugging:
+          // evt.target.showTileBoundaries = true
+
           mapRegistry.onLoad(evt)
         }}
         onRemove={(evt) => {

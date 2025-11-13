@@ -10,6 +10,7 @@ function _util_bacia({
     indicator_id: id,
     id: id,
     label,
+    sourceLabel: 'ANA',
     path: `Divisões territoriais / _ / Bacias Hidrográficas`,
     metadata: {},
 

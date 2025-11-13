@@ -3587,6 +3587,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mapbox/tilebelt@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@mapbox/tilebelt@npm:2.0.0"
+  checksum: b64e9196bcc80ab6de9db78a36a2fce986f43bfc24cbe78b1cc83cf9ce73de439f2967ad90db82b142025371eba9b42e4de7148dd680a723af1c3ee4100d8dd1
+  languageName: node
+  linkType: hard
+
 "@mapbox/tiny-sdf@npm:^2.0.6":
   version: 2.0.6
   resolution: "@mapbox/tiny-sdf@npm:2.0.6"
@@ -6380,6 +6387,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@redus/georedus-ui@workspace:packages/georedus-ui"
   dependencies:
+    "@mapbox/tilebelt": "npm:2.0.0"
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
     "@orioro/cast": "npm:^0.0.2"

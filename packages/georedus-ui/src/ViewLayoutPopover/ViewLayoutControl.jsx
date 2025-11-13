@@ -8,6 +8,7 @@ import { Icon } from '@mdi/react'
 import { mdiDragVertical } from '@mdi/js'
 import { Text } from '@radix-ui/themes'
 import { Portal, Theme } from '@radix-ui/themes'
+import { omit } from 'lodash'
 
 const ViewLayoutControlContext = createContext(null)
 
@@ -32,91 +33,95 @@ const ViewLayoutSortable = makeSortableMultiList({
         ViewLayoutControlContext,
       )
 
+      const viewSpec = viewSpecs?.find((spec) => spec.id === item.id)
+
       // const boxShadow = isDragOverlay
       //   ? 'rgba(0, 0, 0, 0.35) 0px 5px 15px;'
       //   : 'none'
 
       return (
-        <Flex
-          direction="row"
-          alignItems="center"
-          gap="0"
-          style={{
-            // TODO: review drag overlay issue
-            opacity: isDragging && !isDragOverlay ? 0.5 : 1,
-            transform: isDragOverlay ? 'scale(1.05)' : '',
-            zIndex: isDragOverlay ? 999 : 0,
-          }}
-        >
-          <div
-            {...dragHandleProps}
-            style={{
-              cursor: isDragging ? 'grabbing' : 'grab',
-              background: 'white',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              borderTopLeftRadius: DRAG_HANDLE_BORDER_RADIUS,
-              borderBottomLeftRadius: DRAG_HANDLE_BORDER_RADIUS,
-              height: CONTROL_HEIGHT,
-            }}
-          >
-            <Icon path={mdiDragVertical} size="24px" />
-          </div>
-
+        viewSpec && (
           <Flex
-            direction="column"
+            direction="row"
+            alignItems="center"
+            gap="0"
             style={{
-              flexGrow: 1,
+              // TODO: review drag overlay issue
+              opacity: isDragging && !isDragOverlay ? 0.5 : 1,
+              transform: isDragOverlay ? 'scale(1.05)' : '',
+              zIndex: isDragOverlay ? 999 : 0,
             }}
           >
-            <ViewControl
+            <div
+              {...dragHandleProps}
               style={{
+                cursor: isDragging ? 'grabbing' : 'grab',
+                background: 'white',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                borderTopLeftRadius: DRAG_HANDLE_BORDER_RADIUS,
+                borderBottomLeftRadius: DRAG_HANDLE_BORDER_RADIUS,
                 height: CONTROL_HEIGHT,
               }}
-              path
-              viewSpec={viewSpecs.find((spec) => spec.id === item.id)}
-              viewConf={viewConfState.byId[item.id]}
-              viewConfState={viewConfState}
-              configurable={false}
-              onActivateView={(initialConf) =>
-                viewConfDispatch({
-                  type: 'ADD_ENTRY',
-                  payload: {
-                    ...initialConf,
-                    id: item.id,
-                  },
-                })
-              }
-              onSetView={(viewConf, layoutIndex) => {
-                viewConfDispatch({
-                  type: 'SET_VIEW',
-                  payload: {
-                    viewConf,
-                    layoutIndex,
-                  },
-                })
-              }}
-              onDeactivateView={() => {
-                viewConfDispatch({
-                  type: 'DEACTIVATE_VIEW',
-                  payload: item.id,
-                })
-              }}
+            >
+              <Icon path={mdiDragVertical} size="24px" />
+            </div>
 
-              // onDeactivateView={() => onDeactivateView(item.id)}
-              // onSetView={(initialConf, layoutIndex) =>
-              //   onSetView(
-              //     {
-              //       ...initialConf,
-              //       id: node.id,
-              //     },
-              //     layoutIndex,
-              //   )
-              // }
-            />
+            <Flex
+              direction="column"
+              style={{
+                flexGrow: 1,
+              }}
+            >
+              <ViewControl
+                style={{
+                  height: CONTROL_HEIGHT,
+                }}
+                path
+                viewSpec={omit(viewSpec, ['shortDescription'])}
+                viewConf={viewConfState.byId[item.id]}
+                viewConfState={viewConfState}
+                configurable={false}
+                onActivateView={(initialConf) =>
+                  viewConfDispatch({
+                    type: 'ADD_ENTRY',
+                    payload: {
+                      ...initialConf,
+                      id: item.id,
+                    },
+                  })
+                }
+                onSetView={(viewConf, layoutIndex) => {
+                  viewConfDispatch({
+                    type: 'SET_VIEW',
+                    payload: {
+                      viewConf,
+                      layoutIndex,
+                    },
+                  })
+                }}
+                onDeactivateView={() => {
+                  viewConfDispatch({
+                    type: 'DEACTIVATE_VIEW',
+                    payload: item.id,
+                  })
+                }}
+
+                // onDeactivateView={() => onDeactivateView(item.id)}
+                // onSetView={(initialConf, layoutIndex) =>
+                //   onSetView(
+                //     {
+                //       ...initialConf,
+                //       id: node.id,
+                //     },
+                //     layoutIndex,
+                //   )
+                // }
+              />
+            </Flex>
           </Flex>
-        </Flex>
+        )
       )
     },
     List: function List({ children, dragHandleProps, item }) {

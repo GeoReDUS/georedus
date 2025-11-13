@@ -263,5 +263,20 @@ export function br_divisao_territorial_views(conf) {
       },
       ...conf,
     }),
+
+    // TEST
+    // br_divisao_territorial({
+    //   path: 'ANA',
+    //   label: 'Trechos de drenagem',
+    //   id: 'ana_malha_br_bho_trechos_de_drenagem_2017.geom',
+    //   line: {
+    //     paint: {
+    //       'line-color': 'magenta',
+    //       'line-width': 2,
+    //       'line-opacity': 0.5,
+    //     },
+    //   },
+    //   ...conf,
+    // }),
   ]
 }

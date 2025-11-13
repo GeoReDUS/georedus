@@ -9,6 +9,8 @@ import { ViewConfTabs } from './ViewConfTabs'
 import { useCallback } from 'react'
 
 import Highlighter from 'react-highlight-words'
+import Icon from '@mdi/react'
+import { mdiBookOpenVariant } from '@mdi/js'
 
 const Container = styled(Box)`
   --view-control-base-padding: 12px;
@@ -185,6 +187,28 @@ export function ViewControl({
                 >
                   {viewSpec.sourceLabel}
                 </Text>
+
+                {viewSpec.shortDescription && (
+                  <Flex direction="row" gap="2">
+                    <Icon
+                      style={{
+                        flexShrink: 0,
+                        color: 'var(--gray-9)',
+                      }}
+                      path={mdiBookOpenVariant}
+                      size="20px"
+                    />
+                    <Text
+                      color="gray"
+                      style={{
+                        color: 'var(--gray-9)',
+                      }}
+                      size="1"
+                    >
+                      {viewSpec.shortDescription}
+                    </Text>
+                  </Flex>
+                )}
               </Flex>
 
               <SwitchInput

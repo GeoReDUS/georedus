@@ -32,6 +32,12 @@ const CONF_TABS = {
 
 const CONF_TAB_ORDER = ['data', 'style']
 
+function _isMarkdownUrl(str) {
+  return (
+    typeof str === 'string' && str.startsWith('https://') && str.endsWith('.md')
+  )
+}
+
 export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
   const CONF_SCHEMA = viewSpec.confSchema
 
@@ -85,7 +91,7 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
               variant="ghost"
               size="1"
               onClick={async () => {
-                const markdown = await dialogs.loading(async () => {
+                const contents = await dialogs.loading(async () => {
                   if (typeof viewSpec.metodology === 'function') {
                     return viewSpec.metodology(viewSpec)
                   } else if (typeof viewSpec.metodology === 'string') {
@@ -93,23 +99,28 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
                       ? fetch(viewSpec.metodology).then((res) => res.text())
                       : viewSpec.metodology
                   } else {
-                    return null
+                    return viewSpec.metodology
                   }
                 })
 
-                if (typeof markdown === 'string') {
-                  await dialogs.view({
-                    maxHeight: '90vh',
-                    children: (
-                      <>
-                        <Heading as="h1">
-                          {viewSpec.label} - Notas metodológicas
-                        </Heading>
-                        <Markdown children={markdown.trim()} />
-                      </>
-                    ),
-                  })
-                }
+                const metodologyBody =
+                  typeof contents === 'string' ? (
+                    <Markdown children={contents.trim()} />
+                  ) : (
+                    contents
+                  )
+
+                await dialogs.view({
+                  maxHeight: '90vh',
+                  children: (
+                    <>
+                      <Heading as="h1">
+                        {viewSpec.label} - Notas metodológicas
+                      </Heading>
+                      {metodologyBody}
+                    </>
+                  ),
+                })
               }}
             >
               <Tooltip content="Notas metodológicas">
