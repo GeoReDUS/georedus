@@ -1,3 +1,4 @@
+import React from 'react'
 import { resolve } from '@orioro/resolve'
 import { Z_OVERLAY_MIDDLE_2000 } from '../zIndexes'
 import { schemeCategory10 } from 'd3-scale-chromatic'
