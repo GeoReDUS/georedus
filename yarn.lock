@@ -6408,6 +6408,7 @@ __metadata:
     comlink: "npm:^4.4.2"
     d3-dsv: "npm:^3.0.1"
     d3-interpolate: "npm:^3.0.1"
+    d3-scale: "npm:^4.0.2"
     d3-scale-chromatic: "npm:^3.1.0"
     file-saver: "npm:^2.0.5"
     gdal3.js: "npm:^2.8.1"

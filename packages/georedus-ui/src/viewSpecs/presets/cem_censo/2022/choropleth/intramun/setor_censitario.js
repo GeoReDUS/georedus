@@ -193,20 +193,37 @@ export function setor_censitario_layers(opts) {
             ],
             [
               '$literal',
-              [
-                '$fmt',
-                [
-                  '$get',
-                  'feature.properties.value',
-                  // [
-                  //   '$template',
-                  //   'feature.properties.${0}',
-                  //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                  //   ['$get', 'view.conf.data.variableId'],
-                  // ],
-                ],
-                { number: NUMBER_FMT },
-              ],
+              resolve.fn((context) => {
+                const variableId = get(context, 'view.conf.data.variableId')
+
+                if (variableId === 'total_pessoas_por_hectare') {
+                  try {
+                    const value_src = JSON.parse(
+                      context.feature.properties.value_src,
+                    )
+                    return value_src['bas.v0001']
+                  } catch (err) {
+                    console.error(err)
+                    return null
+                  }
+                } else {
+                  return [
+                    '$fmt',
+                    ['$get', 'feature.properties.value'],
+                    { number: NUMBER_FMT },
+                  ]
+                }
+              }),
+
+              //
+              // TODO: refactor
+              // THIS IS THE ACTUAL:
+              //
+              // [
+              //   '$fmt',
+              //   ['$get', 'feature.properties.value'],
+              //   { number: NUMBER_FMT },
+              // ],
             ],
           ],
           ...[
@@ -251,7 +268,6 @@ export function setor_censitario_layers(opts) {
             ],
           ],
         ],
-        // entries: [CHART_UTIL._variableValueTooltipEntry],
       },
 
       filter: _filter,
