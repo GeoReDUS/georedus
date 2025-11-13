@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.13.0
+
+### Minor Changes
+
+- add cop logo to mutirao
+
 ## 0.12.0
 
 ### Minor Changes
