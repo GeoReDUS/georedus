@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.10.1
+
+### Patch Changes
+
+- fix missing react global import at redus_mutirao_cop_2025.jsx
+
 ## 0.10.0
 
 ### Minor Changes
