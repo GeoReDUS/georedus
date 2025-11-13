@@ -3,14 +3,16 @@ import { GeoReDUS } from './GeoReDUS'
 import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
-import { overture_places_poc } from '../viewSpecs/development/overture_places_poc'
-import { br_divisao_territorial_views } from '../viewSpecs/development/br_divisao_territorial'
-import { ana_br_bacias_hidrograficas } from '../viewSpecs/development/ana_br_bacias_hidrograficas'
-import { hand } from '../viewSpecs/development/hand'
-import { declividade } from '../viewSpecs/development/declividade'
-import { temperatura_superficie } from '../viewSpecs/development/temperatura_superficie'
-import { curvatura } from '../viewSpecs/development/curvatura'
-import { redus_mutirao_cop_2025 } from '../viewSpecs/development/redus_mutirao_cop_2025'
+import {
+  overture_places_poc,
+  br_divisao_territorial_views,
+  ana_br_bacias_hidrograficas,
+  hand,
+  declividade,
+  temperatura_superficie,
+  curvatura,
+  redus_mutirao_cop_2025,
+} from '../viewSpecs'
 
 export default {
   title: 'GeoReDUS / GeoReDUS',

@@ -99,6 +99,63 @@ export function br_divisao_territorial_views(conf) {
         },
       },
     }),
+
+    // Favelas e Comunidades Urbanas
+    br_divisao_territorial({
+      year: '2022',
+      path: 'Favelas e Comunidades Urbanas',
+      label: 'Favelas e Comunidades Urbanas',
+      id: 'ibge_malha_br_fcu_2022.geom',
+      line: {
+        paint: {
+          'line-color': 'brown',
+          'line-width': 1,
+          'line-opacity': 1,
+        },
+      },
+      fill: {
+        paint: {
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1,
+            0.6,
+          ],
+          'fill-pattern': 'waves_1({ stroke: "brown", scale: 0.25 })',
+        },
+        interactive: true,
+        tooltip: {
+          title: ['$literal', ['$get', 'feature.properties.name']],
+          entries: [['Favela ou Comunidade Urbana', null]],
+        },
+        legends: [
+          {
+            type: 'CategoricalLegend',
+            items: [
+              {
+                label: 'Favelas e Comunidades Urbanas',
+                box: {
+                  style: {
+                    borderColor: 'brown',
+                    borderStyle: 'solid',
+                    borderWidth: '1px',
+                    backgroundImage: svgBgImage(
+                      waves_1({
+                        stroke: 'brown',
+                        scale: '0.25',
+                      }),
+                    ),
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      ...conf,
+    }),
+
+    // Censo 2022
     br_divisao_territorial({
       path: 'Censo 2022',
       id: 'ibge_malha_br_regiao_intermediaria_2024.geom',
@@ -173,59 +230,6 @@ export function br_divisao_territorial_views(conf) {
           'line-opacity': 0.5,
         },
       },
-    }),
-    br_divisao_territorial({
-      year: '2022',
-      path: 'Favelas e Comunidades Urbanas',
-      label: 'Favelas e Comunidades Urbanas',
-      id: 'ibge_malha_br_fcu_2022.geom',
-      line: {
-        paint: {
-          'line-color': 'brown',
-          'line-width': 1,
-          'line-opacity': 1,
-        },
-      },
-      fill: {
-        paint: {
-          'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            1,
-            0.6,
-          ],
-          'fill-pattern': 'waves_1({ stroke: "brown", scale: 0.25 })',
-        },
-        interactive: true,
-        tooltip: {
-          title: ['$literal', ['$get', 'feature.properties.name']],
-          entries: [['Favela ou Comunidade Urbana', null]],
-        },
-        legends: [
-          {
-            type: 'CategoricalLegend',
-            items: [
-              {
-                label: 'Favelas e Comunidades Urbanas',
-                box: {
-                  style: {
-                    borderColor: 'brown',
-                    borderStyle: 'solid',
-                    borderWidth: '1px',
-                    backgroundImage: svgBgImage(
-                      waves_1({
-                        stroke: 'brown',
-                        scale: '0.25',
-                      }),
-                    ),
-                  },
-                },
-              },
-            ],
-          },
-        ],
-      },
-      ...conf,
     }),
 
     //
