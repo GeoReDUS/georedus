@@ -9,7 +9,7 @@ import { ViewConfTabs } from './ViewConfTabs'
 import { useCallback } from 'react'
 
 import Highlighter from 'react-highlight-words'
-import Icon from '@mdi/react'
+import { Icon } from '@mdi/react'
 import { mdiBookOpenVariant } from '@mdi/js'
 
 const Container = styled(Box)`
