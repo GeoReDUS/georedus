@@ -1,10 +1,12 @@
-const TEMPERATURA_SUPERFICIE_ID = 'temperatura_superficie'
+import React from 'react'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
 import { interpolateSpectral } from 'd3-scale-chromatic'
 import { colord } from 'colord'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
 import { DocumentIframe } from '../../DocumentIframe'
+
+const TEMPERATURA_SUPERFICIE_ID = 'temperatura_superficie'
 
 const TEMPERATURA_MIN = 20
 const TEMPERATURA_MAX = 60

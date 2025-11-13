@@ -1,8 +1,10 @@
-const CURVATURA_ID = 'curvatura'
+import React from 'react'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
 import { DocumentIframe } from '../../DocumentIframe'
+
+const CURVATURA_ID = 'curvatura'
 
 const TRANSPARENT = [0, 0, 0, 0]
 

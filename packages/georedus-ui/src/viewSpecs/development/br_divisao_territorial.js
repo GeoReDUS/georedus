@@ -108,7 +108,7 @@ export function br_divisao_territorial_views(conf) {
       id: 'ibge_malha_br_fcu_2022.geom',
       line: {
         paint: {
-          'line-color': 'brown',
+          'line-color': '#2A0001',
           'line-width': 1,
           'line-opacity': 1,
         },
@@ -121,7 +121,7 @@ export function br_divisao_territorial_views(conf) {
             1,
             0.6,
           ],
-          'fill-pattern': 'waves_1({ stroke: "brown", scale: 0.25 })',
+          'fill-pattern': 'waves_1({ stroke: "#2A0001", scale: 0.25 })',
         },
         interactive: true,
         tooltip: {
@@ -136,12 +136,12 @@ export function br_divisao_territorial_views(conf) {
                 label: 'Favelas e Comunidades Urbanas',
                 box: {
                   style: {
-                    borderColor: 'brown',
+                    borderColor: '#2A0001',
                     borderStyle: 'solid',
                     borderWidth: '1px',
                     backgroundImage: svgBgImage(
                       waves_1({
-                        stroke: 'brown',
+                        stroke: '#2A0001',
                         scale: '0.25',
                       }),
                     ),

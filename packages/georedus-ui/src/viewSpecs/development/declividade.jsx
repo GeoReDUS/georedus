@@ -1,3 +1,5 @@
+import React from 'react'
+
 const DECLIVIDADE_ID = 'declividade'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'

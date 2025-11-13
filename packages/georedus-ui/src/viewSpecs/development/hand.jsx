@@ -1,12 +1,17 @@
-const HAND_ID = 'hand'
+import React from 'react'
 import { resolve } from '@orioro/resolve'
 import { $urlSearch } from '../resolveView/customExpr'
 import { colord } from 'colord'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../constants'
 import { DocumentIframe } from '../../DocumentIframe'
+import { schemeCategory10 } from 'd3-scale-chromatic'
+
+const HAND_ID = 'hand'
 
 const DEFAULT_HAND_VALUE = 2
 const MAX_HAND_VALUE = 6
+
+const OTTO_3 = 'ana_malha_br_bacias_hidrograficas_2017_otto_3.geom'
 
 function _handValue(conf) {
   return typeof conf?.data?.handValue === 'number'
@@ -59,7 +64,11 @@ function hand_legends() {
   ]
 }
 
-export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
+export function hand({
+  RASTER_TILE_SERVER_ENDPOINT,
+  VECTOR_TILE_SERVER_ENDPOINT,
+  mosaicJsonUrl,
+}) {
   const DEVICE_PIXEL_RATIO_SUFFIX =
     typeof window !== 'undefined' && window.devicePixelRatio > 1 ? '@2x' : ''
 
@@ -70,7 +79,8 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     id: HAND_ID,
     sourceLabel: 'ANADEM (ANA)',
     label: 'Altura acima da drenagem mais próxima',
-    shortDescription: 'Áreas suscetíveis à inundação calculadas por meio da distância vertical em relação ao canal de drenagem mais próximo',
+    shortDescription:
+      'Áreas suscetíveis à inundação calculadas por meio da distância vertical em relação ao canal de drenagem mais próximo',
     path: `Emergências climáticas / / Suscetibilidade à inundação`,
     metodology: (
       <DocumentIframe src="/georedus/metodologia/inundacao-hand.pdf" />
@@ -118,6 +128,11 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
           }),
         ],
       },
+      [OTTO_3]: {
+        type: 'vector',
+        minzoom: 7,
+        tiles: [`${VECTOR_TILE_SERVER_ENDPOINT}/${OTTO_3}/{z}/{x}/{y}`],
+      },
     },
     layers: {
       [`${HAND_ID}`]: {
@@ -129,6 +144,18 @@ export function hand({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
           'raster-opacity': 0.85,
         },
         legends: hand_legends(),
+      },
+      [`${OTTO_3}_bounds`]: {
+        source: OTTO_3,
+        'source-layer': OTTO_3,
+        minzoom: 7,
+        type: 'line',
+        paint: {
+          'line-color': schemeCategory10[2],
+          'line-width': 6,
+          'line-dasharray': [4, 4],
+          'line-opacity': 0.5,
+        },
       },
     },
   }
