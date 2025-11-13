@@ -1,5 +1,19 @@
 # @orioro/template-react
 
+## 0.9.0
+
+### Minor Changes
+
+- update all dependencies and multiple internal deps
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.6.0
+  - @orioro/react-chart-util@0.3.0
+  - @orioro/vector-tile-util@0.3.0
+  - @orioro/react-dir-nav@0.2.0
+
 ## 0.8.10
 
 ### Patch Changes

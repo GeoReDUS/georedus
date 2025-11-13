@@ -1,5 +1,16 @@
 # @orioro/react-maplibre-util
 
+## 0.6.0
+
+### Minor Changes
+
+- update all dependencies and multiple internal deps
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-chart-util@0.3.0
+
 ## 0.5.3
 
 ### Patch Changes

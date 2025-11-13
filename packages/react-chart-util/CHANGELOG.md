@@ -1,5 +1,11 @@
 # @orioro/react-chart-util
 
+## 0.3.0
+
+### Minor Changes
+
+- update all dependencies and multiple internal deps
+
 ## 0.2.0
 
 ### Minor Changes
