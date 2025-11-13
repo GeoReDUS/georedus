@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.11.0
+
+### Minor Changes
+
+- implement detailed legends for climate datasets
+
 ## 0.10.1
 
 ### Patch Changes
