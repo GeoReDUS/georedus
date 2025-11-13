@@ -240,9 +240,22 @@ export function redus_mutirao_cop_2025(conf) {
           await context.dialogs.view(
             <Flex direction="column" gap="4">
               <Flex direction="column" gap="2">
-                <Heading as="h1" size="6">
-                  {properties.name}
-                </Heading>
+                <Box pr="120px" style={{ position: 'relative' }}>
+                  <Heading as="h1" size="6">
+                    {properties.name}
+                  </Heading>
+                  <img
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '100px',
+                      height: 'auto',
+                    }}
+                    alt="Logo COP30 Belém"
+                    src="/georedus/mutirao-cop30/COP30_Official_Logo.svg"
+                  />
+                </Box>
 
                 <Portal>
                   <Confetti
@@ -433,7 +446,7 @@ export function redus_mutirao_cop_2025(conf) {
                     display: 'inline-flex',
                   }}
                 >
-                  {eixo && (
+                  {eixo && eixo.iconPath && (
                     <Icon
                       path={eixo.iconPath}
                       size="18px"
