@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.13.1
+
+### Patch Changes
+
+- fix icon import issue
+
 ## 0.13.0
 
 ### Minor Changes
