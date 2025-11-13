@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.10.0
+
+### Minor Changes
+
+- expose viewSpecs api (unstable)
+
 ## 0.9.0
 
 ### Minor Changes
