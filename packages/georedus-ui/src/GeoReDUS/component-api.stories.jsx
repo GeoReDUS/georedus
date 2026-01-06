@@ -15,6 +15,8 @@ import {
   Z_OVERLAY_MIDDLE_2000,
 } from '../viewSpecs'
 import { Debug } from '@orioro/react-ui-core'
+import { useState } from 'react'
+import { Marker } from 'react-map-gl/maplibre'
 
 export default {
   title: 'GeoReDUS / Component API',
@@ -159,7 +161,6 @@ function mapi_test_view() {
           // ],
         },
         onClick: async (feature, e, context) => {
-
           const evaluation = await context.dialogs.prompt({
             type: 'object',
             properties: {
@@ -173,10 +174,10 @@ function mapi_test_view() {
                   {
                     value: 2,
                     label: '2',
-                  }
-                ]
-              }
-            }
+                  },
+                ],
+              },
+            },
           })
 
           console.log(evaluation.grade)
@@ -202,7 +203,7 @@ const VIEW_SPECS = {
     //   ...API,
     //   mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
     // }),
-    // redus_mutirao_cop_2025(API),
+    redus_mutirao_cop_2025(API),
     mapi_test_view(),
   ],
 }
@@ -221,12 +222,53 @@ export const Basic = () => {
     },
   )
 
+  const [pointPickerActive, setPointPickerActive] = useState(false)
+
   return (
     <GeoReDUS
       state={stateStorage}
       onSetState={setStateStorage}
       viewSpecs={VIEW_SPECS}
       api={API}
-    />
+      mapProps={
+        pointPickerActive
+          ? {
+              onClick: (e) => {
+                alert(`pick point at ${JSON.stringify(e.point)}`)
+
+                setPointPickerActive(false)
+                // esse evento é o evento padrão
+              },
+              children: (
+                <Marker longitude={-46.3336} latitude={-23.9608}>
+                  <div
+                    style={{
+                      background: 'red',
+                      width: 30,
+                      height: 30,
+                    }}
+                  >
+                    X
+                  </div>
+                </Marker>
+              ),
+            }
+          : {}
+      }
+    >
+      <button
+        style={{
+          position: 'absolute',
+          zIndex: 10,
+          top: 10,
+          left: 10,
+        }}
+        onClick={(e) => {
+          setPointPickerActive(!pointPickerActive)
+        }}
+      >
+        turn point picker {pointPickerActive ? 'off' : 'on'}
+      </button>
+    </GeoReDUS>
   )
 }

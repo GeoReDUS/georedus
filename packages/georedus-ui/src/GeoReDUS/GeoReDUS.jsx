@@ -336,6 +336,10 @@ function GeoReDUSInner({
   onSetState: onSetGlobalState,
   api,
   viewSpecs,
+
+  children = null,
+
+  mapProps = {},
 }) {
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
@@ -792,6 +796,7 @@ function GeoReDUSInner({
         mapStyle={BASE_MAP_STYLE[baseMapStyle]}
         sky={SKY_STYLE}
         tooltip={getTooltip}
+        {...mapProps}
         maps={resolvedLayout.map(({ id, views, legends }, index) => ({
           id,
           views: [...views.concat([]).reverse(), ...TOP_VIEWS],
@@ -919,6 +924,8 @@ function GeoReDUSInner({
                 demSourceUrl={DEM_SOURCE_URL}
                 demSourceEncoding={DEM_SOURCE_ENCODING}
               />
+
+              {mapProps.children || null}
             </>
           ),
         }))}
@@ -936,6 +943,7 @@ function GeoReDUSInner({
           />
         )}
       </SyncedMaps>
+      {children}
     </Flex>
   )
 }
