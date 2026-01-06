@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.14.0
+
+### Minor Changes
+
+- expose children and mapProps
+
 ## 0.13.1
 
 ### Patch Changes
