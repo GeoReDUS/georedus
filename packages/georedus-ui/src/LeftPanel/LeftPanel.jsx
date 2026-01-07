@@ -38,6 +38,7 @@ function LeftPanelInner({
   syncedMapsRef,
   mapContainerRef,
 
+  categoryIcons = undefined,
   header: customHeader = undefined,
   footer: customFooter = undefined,
 }) {
@@ -184,6 +185,7 @@ function LeftPanelInner({
               flexGrow: 1,
               height: '1px',
             }}
+            categoryIcons={categoryIcons}
             viewSpecs={viewSpecs}
             viewConfState={viewConfState}
             resolvedViews={resolvedViews}

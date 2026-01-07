@@ -19,7 +19,7 @@ import styled from 'styled-components'
 import { createContext, useContext, useMemo } from 'react'
 import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../viewSpecs/constants'
 
-const STATIC_NODE_ICONS = {
+const CATEGORY_ICONS = {
   'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
   educacao: <Icon path={mdiSchool} />,
   'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
@@ -201,6 +201,7 @@ export function ViewMenu({
   onSetView,
   onDeactivateView,
   style,
+  categoryIcons = CATEGORY_ICONS,
   ...props
 }) {
   const viewSpecsById = useMemo(
@@ -241,7 +242,7 @@ export function ViewMenu({
                   position: 'relative',
                 }}
               >
-                {STATIC_NODE_ICONS[node.id]}
+                {categoryIcons[node.id] || node.id}
                 {activeViewsCount > 0 && (
                   <ActiveCounter>{activeViewsCount}</ActiveCounter>
                 )}
