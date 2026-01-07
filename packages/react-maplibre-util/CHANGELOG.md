@@ -1,5 +1,15 @@
 # @orioro/react-maplibre-util
 
+## 0.7.0
+
+### Minor Changes
+
+- expose SyncedMaps mouse event handlers and add svgImages to GeoReDUS
+
+### Patch Changes
+
+- @orioro/react-chart-util@0.3.0
+
 ## 0.6.0
 
 ### Minor Changes
