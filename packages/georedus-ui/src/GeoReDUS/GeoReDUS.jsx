@@ -322,6 +322,7 @@ function HoverLegend({ layerId, __filterFeaturesForStep, ...legendProps }) {
 
 const DEFAULT_MAP_PROPS = {}
 const DEFAULT_SVG_IMAGES = {}
+const DEFAULT_LEFT_PANEL_PROPS = {}
 
 function GeoReDUSInner({
   state: globalState,
@@ -333,6 +334,8 @@ function GeoReDUSInner({
 
   mapProps = DEFAULT_MAP_PROPS,
   svgImages = DEFAULT_SVG_IMAGES,
+
+  leftPanel: leftPanelProps = DEFAULT_LEFT_PANEL_PROPS,
 }) {
   const MAP_SVG_IMAGE_GENERATOR = useMemo(
     () =>
@@ -685,6 +688,7 @@ function GeoReDUSInner({
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         syncedMapsRef={syncedMapsRef}
+        {...leftPanelProps}
       />
 
       <Flex

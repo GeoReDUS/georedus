@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 import { Flex, LoadingOverlay } from '@orioro/react-ui-core'
 import { ViewMenu } from '../ViewMenu'
@@ -28,7 +28,7 @@ const LogoContainer = styled(Flex)`
   }
 `
 
-export function LeftPanel({
+function LeftPanelInner({
   viewConfState,
   viewConfDispatch,
   viewSpecs,
@@ -37,8 +37,72 @@ export function LeftPanel({
   onSetOpen,
   syncedMapsRef,
   mapContainerRef,
+
+  header: customHeader = undefined,
+  footer: customFooter = undefined,
 }) {
   const dialogs = useDialogs()
+
+  const header =
+    typeof customHeader !== 'undefined' ? (
+      customHeader
+    ) : (
+      <Flex
+        px="12px"
+        py="10px"
+        height={HEADER_HEIGHT}
+        alignItems="center"
+        direction="row"
+        style={{
+          backgroundColor: 'var(--accent-9)',
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+          flexGrow: 0,
+        }}
+      >
+        <LogoContainer direction="row" gap="8px">
+          <GeoReDUSLogoSymbol />
+
+          <div
+            style={{
+              transition: open
+                ? 'opacity .7s ease-out'
+                : 'opacity .1s ease-out',
+              opacity: open ? 1 : 0,
+            }}
+          >
+            <GeoReDUSLogoText />
+          </div>
+        </LogoContainer>
+      </Flex>
+    )
+
+  const footer =
+    typeof customFooter !== 'undefined' ? (
+      customFooter
+    ) : (
+      <Flex
+        p="2"
+        style={{
+          backgroundColor: 'white',
+        }}
+        direction="row"
+        justifyContent="center"
+      >
+        <img
+          style={{
+            transition: 'opacity .1s ease-out',
+            opacity: open ? 1 : 0,
+            height: 48,
+            width: 'auto',
+
+            // height: 'auto',
+            // width: '100%',
+          }}
+          src="/georedus/assets/parcerias.png"
+        />
+      </Flex>
+    )
 
   return (
     <div
@@ -113,44 +177,7 @@ export function LeftPanel({
         }}
         onClick={(e) => onSetOpen(true)}
       >
-        <Flex
-          px="12px"
-          py="10px"
-          height={HEADER_HEIGHT}
-          alignItems="center"
-          direction="row"
-          style={{
-            backgroundColor: 'var(--accent-9)',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            flexGrow: 0,
-          }}
-        >
-          <LogoContainer direction="row" gap="8px">
-            <GeoReDUSLogoSymbol />
-
-            <div
-              style={{
-                transition: open
-                  ? 'opacity .7s ease-out'
-                  : 'opacity .1s ease-out',
-                opacity: open ? 1 : 0,
-              }}
-            >
-              <GeoReDUSLogoText />
-            </div>
-          </LogoContainer>
-
-          {/*{open ? (
-            <LogoContainer>
-              <GeoReDUSLogo />
-            </LogoContainer>
-          ) : (
-            <LogoContainer>
-              <GeoReDUSLogoSymbol />
-            </LogoContainer>
-          )}*/}
-        </Flex>
+        {header}
         {Array.isArray(viewSpecs) ? (
           <ViewMenu
             style={{
@@ -235,28 +262,10 @@ export function LeftPanel({
             <LoadingOverlay message={null} />
           </div>
         )}
-        <Flex
-          p="2"
-          style={{
-            backgroundColor: 'white',
-          }}
-          direction="row"
-          justifyContent="center"
-        >
-          <img
-            style={{
-              transition: 'opacity .1s ease-out',
-              opacity: open ? 1 : 0,
-              height: 48,
-              width: 'auto',
-
-              // height: 'auto',
-              // width: '100%',
-            }}
-            src="/georedus/assets/parcerias.png"
-          />
-        </Flex>
+        {footer}
       </Flex>
     </div>
   )
 }
+
+export const LeftPanel = memo(LeftPanelInner)

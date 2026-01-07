@@ -223,6 +223,8 @@ export const Basic = () => {
     },
   )
 
+  const [currentPoint, setCurrentPoint] = useState(null)
+
   const [pointPickerActive, setPointPickerActive] = useState(false)
 
   return (
@@ -242,6 +244,8 @@ export const Basic = () => {
               },
               onMouseMove: (e) => {
                 console.log('onMouseMove', e)
+
+                setCurrentPoint(e.point)
               },
               children: (
                 <Marker longitude={-46.3336} latitude={-23.9608}>
