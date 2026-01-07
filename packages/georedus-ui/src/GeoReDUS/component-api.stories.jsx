@@ -14,10 +14,20 @@ import {
   redus_mutirao_cop_2025,
   Z_OVERLAY_MIDDLE_2000,
 } from '../viewSpecs'
-import { Debug } from '@orioro/react-ui-core'
-import { useState } from 'react'
+import { Debug, Flex } from '@orioro/react-ui-core'
+import { useMemo, useRef, useState } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
 import { mdiScanHelper } from '@mdi/js'
+import { useQueryClient } from '@tanstack/react-query'
+import { Icon } from '@mdi/react'
+import {
+  mdiAccountGroup,
+  mdiSchool,
+  mdiHomeCity,
+  mdiHospitalBox,
+  mdiEarth,
+  mdiMap,
+} from '@mdi/js'
 
 export default {
   title: 'GeoReDUS / Component API',
@@ -31,6 +41,24 @@ export default {
       </BrowserRouter>
     ),
   ],
+}
+
+const CATEGORY_ICONS = {
+  'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
+  educacao: <Icon path={mdiSchool} />,
+  'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
+  saude: <Icon path={mdiHospitalBox} />,
+  'emergencias-climaticas': <Icon path={mdiEarth} />,
+  'divisoes-territoriais': <Icon path={mdiMap} />,
+  mapi: (
+    <img
+      src="/mapi/mapi_favicon.ico"
+      style={{
+        width: 36,
+        height: 36,
+      }}
+    />
+  ),
 }
 
 const VERSION_SPECS = [
@@ -63,65 +91,37 @@ const API = {
   ).replace(/\/$/, ''),
 }
 
-// const GOOGLE_CEM_CENSO_2010 =
-//   'https://docs.google.com/spreadsheets/d/e/' +
-//   '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
-//   '/pub?gid=' +
-//   '2016686120' +
-//   '&single=true&output=csv'
+const GOOGLE_CEM_CENSO_2010 =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
+  '/pub?gid=' +
+  '2016686120' +
+  '&single=true&output=csv'
 
-// const GOOGLE_CEM_CENSO_2022 =
-//   'https://docs.google.com/spreadsheets/d/e/' +
-//   '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
-//   '/pub?gid=' +
-//   '1523585495' +
-//   '&single=true&output=csv'
+const GOOGLE_CEM_CENSO_2022 =
+  'https://docs.google.com/spreadsheets/d/e/' +
+  '2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J' +
+  '/pub?gid=' +
+  '1523585495' +
+  '&single=true&output=csv'
 
-// const GOOGLE_CEM_ESCOLAS_2022 =
-//   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
+const GOOGLE_CEM_ESCOLAS_2022 =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1942442229&single=true&output=csv'
 
-// const GOOGLE_CEM_SAUDE_2024 =
-//   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
+const GOOGLE_CEM_SAUDE_2024 =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
 
-// const VIEW_SPECS = {
-//   all: [
-//     hand({
-//       ...API,
-//       mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
-//     }),
-//     // GOOGLE_CEM_CENSO_2022,
-//     // GOOGLE_CEM_CENSO_2010,
-//     // GOOGLE_CEM_ESCOLAS_2022,
-//     // GOOGLE_CEM_SAUDE_2024,
-
-//     // [
-//     //   // declividade({
-//     //   //   ...API,
-//     //   //   mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2018/mosaic.json`,
-//     //   // }),
-//     //   // temperatura_superficie({
-//     //   //   ...API,
-//     //   //   mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
-//     //   // }),
-//     //   // curvatura({
-//     //   //   ...API,
-//     //   //   mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2018/mosaic.json`,
-//     //   // }),
-//     //   // overture_places_poc(API),
-//     //   //
-//     //   // ...br_divisao_territorial_views(API),
-//     //   // ...ana_br_bacias_hidrograficas(API),
-//     // ],
-//   ],
-// }
-
-function mapi_test_view() {
+function mapi_test_view({ mapiDataSrc }) {
   return {
     collection_id: 'MAPI',
     indicator_id: 'MAPI',
-    id: 'mapi',
+    //
+    // ATENÇÃO: ID da view não pode ser MAPI porque gera conflito
+    // com o id do diretório ("Mapi" vira "mapi" depois de slugificação)
+    //
+    id: 'mapi_view',
     sourceLabel: 'MAPI',
-    path: `Emergências Climáticas / _ / Mapi`,
+    path: `Mapi / _ / Mapi`,
     label: 'Mapi',
     shortDescription:
       'Ações concretas de Desenvolvimento Urbano Sustentável mapeadas no Mutirão ReDUS rumo à COP30',
@@ -130,7 +130,7 @@ function mapi_test_view() {
     sources: {
       mapi: {
         type: 'geojson',
-        data: `/mapi/test-data-sp.geojson`,
+        data: mapiDataSrc,
       },
     },
     layers: {
@@ -162,27 +162,6 @@ function mapi_test_view() {
           // ],
         },
         onClick: async (feature, e, context) => {
-          const evaluation = await context.dialogs.prompt({
-            type: 'object',
-            properties: {
-              grade: {
-                type: 'radio',
-                options: [
-                  {
-                    value: 1,
-                    label: '1',
-                  },
-                  {
-                    value: 2,
-                    label: '2',
-                  },
-                ],
-              },
-            },
-          })
-
-          console.log(evaluation.grade)
-
           await context.dialogs.view(
             <div>
               <div>Hello</div>
@@ -198,20 +177,98 @@ function mapi_test_view() {
   }
 }
 
-const VIEW_SPECS = {
-  all: [
-    // hand({
-    //   ...API,
-    //   mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
-    // }),
-    redus_mutirao_cop_2025(API),
-    mapi_test_view(),
-  ],
+//
+// Para recarregar as visualizações de dados
+// - A função toma um bom tempo, é uma boa manter dialog de loading enquanto
+//   recarrega
+//
+async function forceRefetchRenderedViews({ queryClient }) {
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
+      try {
+        await queryClient.refetchQueries({
+          queryKey: ['ViewSpecs'],
+        })
+        console.log('did refetch ViewSpecs')
+
+        setTimeout(async () => {
+          try {
+            await queryClient.refetchQueries({
+              queryKey: ['ViewStage'],
+            })
+
+            resolve()
+
+            console.log('did refetch ViewStage')
+          } catch (err) {
+            reject(err)
+          }
+        }, 0)
+      } catch (err) {
+        reject(err)
+      }
+    }, 0)
+  })
 }
 
 export const Basic = () => {
+  const queryClient = useQueryClient()
+
+  const geoReDUSRef = useRef(null)
+
+  const [mapiDataSrc, setMapiDataSrc] = useState('/mapi/test-data-sp-2.geojson')
+
+  const VIEW_SPECS = useMemo(() => {
+    return {
+      all: [
+        [
+          mapi_test_view({
+            mapiDataSrc: mapiDataSrc,
+          }),
+        ],
+        GOOGLE_CEM_CENSO_2022,
+        GOOGLE_CEM_CENSO_2010,
+        GOOGLE_CEM_ESCOLAS_2022,
+        GOOGLE_CEM_SAUDE_2024,
+        [
+          hand({
+            ...API,
+            mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
+          }),
+          declividade({
+            ...API,
+            mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2018/mosaic.json`,
+          }),
+          temperatura_superficie({
+            ...API,
+            mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
+          }),
+          curvatura({
+            ...API,
+            mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2018/mosaic.json`,
+          }),
+          overture_places_poc(API),
+
+          ...br_divisao_territorial_views(API),
+          ...ana_br_bacias_hidrograficas(API),
+          redus_mutirao_cop_2025(API),
+        ],
+      ],
+    }
+  }, [mapiDataSrc])
+
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
-    {},
+    {
+      //
+      // É possível configurar a visualização inicial:
+      //
+      viewConf: {
+        byId: {
+          mapi_view: {},
+        },
+        layout: [{ id: 'left', items: [{ id: 'mapi_view' }] }],
+      },
+    },
     {
       schema: {
         baseMapStyle: 'string',
@@ -229,6 +286,7 @@ export const Basic = () => {
 
   return (
     <GeoReDUS
+      ref={geoReDUSRef}
       state={stateStorage}
       onSetState={setStateStorage}
       viewSpecs={VIEW_SPECS}
@@ -266,19 +324,70 @@ export const Basic = () => {
       svgImages={{
         mdiTree: mdiScanHelper,
       }}
+      leftPanel={{
+        categoryIcons: CATEGORY_ICONS,
+        header: (
+          <Flex
+            px="12px"
+            py="10px"
+            height={60}
+            alignItems="center"
+            direction="row"
+            style={{
+              backgroundColor: 'var(--accent-9)',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              flexGrow: 0,
+            }}
+          >
+            <div>custom header</div>
+          </Flex>
+        ),
+        footer: (
+          <Flex
+            p="2"
+            style={{
+              backgroundColor: 'white',
+            }}
+            direction="row"
+            justifyContent="center"
+          >
+            <div>custom footer</div>
+          </Flex>
+        ),
+      }}
     >
       <button
         style={{
           position: 'absolute',
           zIndex: 10,
           top: 10,
-          left: 10,
+          right: 10,
         }}
         onClick={(e) => {
           setPointPickerActive(!pointPickerActive)
         }}
       >
         turn point picker {pointPickerActive ? 'off' : 'on'}
+      </button>
+      <button
+        style={{
+          position: 'absolute',
+          zIndex: 10,
+          top: 10,
+          right: 100,
+        }}
+        onClick={async (e) => {
+          setMapiDataSrc((currMapiDataSrc) =>
+            currMapiDataSrc === '/mapi/test-data-sp.geojson'
+              ? '/mapi/test-data-sp-2.geojson'
+              : '/mapi/test-data-sp.geojson',
+          )
+
+          await forceRefetchRenderedViews({ queryClient })
+        }}
+      >
+        toggle: {mapiDataSrc}
       </button>
     </GeoReDUS>
   )

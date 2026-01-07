@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.17.0
+
+### Minor Changes
+
+- expose leftPanel.categoryIcons
+
 ## 0.16.0
 
 ### Minor Changes
