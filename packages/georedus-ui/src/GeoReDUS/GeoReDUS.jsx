@@ -80,17 +80,6 @@ import {
 //
 vtxSetup()
 
-const MAP_SVG_IMAGE_GENERATOR = svgImageGenerator({
-  mdiTree,
-  mdiSprout,
-  mdiCurrencyUsd,
-  mdiScaleBalance,
-  mdiAccountMultipleOutline,
-  mdiSchool,
-  mdiHospital,
-  ...SVG_PATTERNS,
-})
-
 const LegendContainer = styled(Flex)`
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
@@ -331,6 +320,9 @@ function HoverLegend({ layerId, __filterFeaturesForStep, ...legendProps }) {
   )
 }
 
+const DEFAULT_MAP_PROPS = {}
+const DEFAULT_SVG_IMAGES = {}
+
 function GeoReDUSInner({
   state: globalState,
   onSetState: onSetGlobalState,
@@ -339,8 +331,25 @@ function GeoReDUSInner({
 
   children = null,
 
-  mapProps = {},
+  mapProps = DEFAULT_MAP_PROPS,
+  svgImages = DEFAULT_SVG_IMAGES,
 }) {
+  const MAP_SVG_IMAGE_GENERATOR = useMemo(
+    () =>
+      svgImageGenerator({
+        mdiTree,
+        mdiSprout,
+        mdiCurrencyUsd,
+        mdiScaleBalance,
+        mdiAccountMultipleOutline,
+        mdiSchool,
+        mdiHospital,
+        ...SVG_PATTERNS,
+        ...svgImages,
+      }),
+    [svgImages],
+  )
+
   const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = api
 
   //

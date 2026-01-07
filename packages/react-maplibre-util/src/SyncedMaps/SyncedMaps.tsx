@@ -68,20 +68,44 @@ export function makeSyncedMaps({
     const containerRef = useRef(null)
     const [viewState, setViewState] = useState(initialViewState)
 
-    const onSyncMove = useCallback((evt) => setViewState(evt.viewState), [])
+    const syncedOnMove = useCallback(
+      (evt) => {
+        setViewState(evt.viewState)
+        if (typeof baseMapProps.onMove === 'function') {
+          baseMapProps.onMove(evt)
+        }
+      },
+      [baseMapProps.onMove],
+    )
 
     const [isDragging, setIsDragging] = useState(false)
-    const onDragEnd = useCallback(() => setIsDragging(false), [setIsDragging])
+    const syncedOnDragEnd = useCallback(
+      (e) => {
+        setIsDragging(false)
+
+        if (typeof baseMapProps.onDragEnd === 'function') {
+          baseMapProps.onDragEnd(e)
+        }
+      },
+      [setIsDragging, baseMapProps.onDragEnd],
+    )
 
     const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null)
     const [tooltips, setTooltips] = useState<React.ReactNode[] | null>(null)
-    const onDragStart = useCallback(() => {
-      setIsDragging(true)
-      setTooltips(null)
-    }, [])
+    const syncedOnDragStart = useCallback(
+      (e) => {
+        setIsDragging(true)
+        setTooltips(null)
 
-    const onMouseMove = useCallback(
-      (index: number, event: MapMouseEvent) => {
+        if (typeof baseMapProps.onDragStart === 'function') {
+          baseMapProps.onDragStart(e)
+        }
+      },
+      [baseMapProps.onDragStart],
+    )
+
+    const syncedOnMouseMove = useCallback(
+      (event: MapMouseEvent, index: number) => {
         const nextHoverInfo = parseHoverInfo(index, event)
 
         setHoverInfo((prevHoverInfo) => {
@@ -112,8 +136,15 @@ export function makeSyncedMaps({
               })
             : null,
         )
+
+        if (typeof baseMapProps.onMouseMove === 'function') {
+          //
+          // Allow onMouseMove to be composed with base
+          //
+          baseMapProps.onMouseMove(event)
+        }
       },
-      [maps],
+      [maps, baseMapProps.onMouseMove],
     )
 
     //
@@ -125,7 +156,7 @@ export function makeSyncedMaps({
     // https://github.com/mapbox/mapbox-gl-js/issues/10594
     // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
     //
-    const onMouseOut = useCallback(
+    const syncedOnMouseOut = useCallback(
       (event) => {
         setHoverInfo(null)
         setTooltips(null)
@@ -135,8 +166,12 @@ export function makeSyncedMaps({
             hover: false,
           })
         }
+
+        if (typeof baseMapProps.onMouseOut === 'function') {
+          baseMapProps.onMouseOut(event)
+        }
       },
-      [setHoverInfo, setTooltips, hoverInfo],
+      [setHoverInfo, setTooltips, hoverInfo, baseMapProps.onMouseOut],
     )
 
     //
@@ -222,10 +257,10 @@ export function makeSyncedMaps({
                   width: '100%',
                   height: '100%',
                 }}
-                onMove={onSyncMove}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-                onMouseMove={(event) => onMouseMove(index, event)}
+                onMove={syncedOnMove}
+                onDragStart={syncedOnDragStart}
+                onDragEnd={syncedOnDragEnd}
+                onMouseMove={(event) => syncedOnMouseMove(event, index)}
                 //
                 // There is no notion of mouseenter/mouseleave
                 // in maplibre.gl.
@@ -235,7 +270,7 @@ export function makeSyncedMaps({
                 // https://github.com/mapbox/mapbox-gl-js/issues/10594
                 // https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapEventType/#mouseout
                 //
-                onMouseOut={onMouseOut}
+                onMouseOut={syncedOnMouseOut}
               />
             </SingleMapContainer>
           )

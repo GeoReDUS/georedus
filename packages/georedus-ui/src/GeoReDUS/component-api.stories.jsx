@@ -17,6 +17,7 @@ import {
 import { Debug } from '@orioro/react-ui-core'
 import { useState } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
+import { mdiScanHelper } from '@mdi/js'
 
 export default {
   title: 'GeoReDUS / Component API',
@@ -239,6 +240,9 @@ export const Basic = () => {
                 setPointPickerActive(false)
                 // esse evento é o evento padrão
               },
+              onMouseMove: (e) => {
+                console.log('onMouseMove', e)
+              },
               children: (
                 <Marker longitude={-46.3336} latitude={-23.9608}>
                   <div
@@ -255,6 +259,9 @@ export const Basic = () => {
             }
           : {}
       }
+      svgImages={{
+        mdiTree: mdiScanHelper,
+      }}
     >
       <button
         style={{
