@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.16.0
+
+### Minor Changes
+
+- expose leftPanel props
+
 ## 0.15.0
 
 ### Minor Changes
