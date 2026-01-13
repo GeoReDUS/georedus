@@ -1,37 +1,42 @@
+//
+// Este script exemplifica como é construída uma viewSpec
+// que renderiza um indicador do censo 2022.
+//
+// No código para produção, as diversas etapas do script
+// - confSchema
+// - metadata
+// - sources
+// - layers
+// - download
+//
+// Estão definidas em arquivos próprios para diferentes níveis
+// de zoom e para diferentes tipos de malha (municípios, setores, buildings),
+// o que torna a leitura e entendimento mais complexos.
+//
+// Este script exemplo serve como simplificação, ao reunir todas as etapas,
+// permitindo uma compreensão global do sistema.
+//
+// A viewSpec está definida dentro da função `censo_2022_example_view`
+// O código fora desta função é apenas código de setup do storybook
+//
+
+//
+// Storybook dependencies
+//
 import { GeoReDUS } from './GeoReDUS'
 import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
+//
+// View spec dependencies
+//
 import { resolve, resolveAsync } from '@orioro/resolve'
-import { COLOR_SCHEMES } from '../viewSpecs/util'
+import { COLOR_SCHEMES, downloadResolver } from '../viewSpecs/util'
+import { dataJoin } from '@orioro/util'
 
-export default {
-  title: 'GeoReDUS / censo_2022_example_view',
-  parameters: {
-    layout: 'fullscreen',
-  },
-  decorators: [
-    (Story) => (
-      <BrowserRouter>
-        <Story />
-      </BrowserRouter>
-    ),
-  ],
-}
-
-const VERSION_SPECS = [
-  {
-    id: 'v0',
-    fromPrev: (prev) => ({ baseMapStyle: 'dataviz', ...(prev || {}) }),
-    fromNext: (next) => next || {},
-  },
-]
-
-const useVersionedSearchParamsState = versionedSearchParamsStateHook(
-  VERSION_SPECS,
-  useSearchParams,
-)
-
+//
+// View spec definition
+//
 function censo_2022_example_view({
   VECTOR_TILE_SERVER_ENDPOINT,
   METADATA_API_ENDPOINT,
@@ -150,6 +155,10 @@ function censo_2022_example_view({
         // - ${variavel}_src
         `select=id,${variableId},${variableId}_src`
 
+      //
+      // Pode ser acessado de maneira independente, abra
+      // o link no navegador para visualizar:
+      //
       console.log('dataUrl', dataUrl)
 
       //
@@ -210,7 +219,20 @@ function censo_2022_example_view({
             return [
               '$vtxUrl',
               {
+                //
+                // Link é definido para cada tile z/x/y.
+                // Para acessar e visualizar conteúdo, substitua
+                // variáveis z/x/y pelas coordenadas dos
+                // tiles correspondentes
+                //
                 tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ibge_malha_br_setor_censitario_2022.geom/{z}/{x}/{y}`,
+
+                //
+                // Link é definido para cada tile z/x/y.
+                // Para acessar e visualizar conteúdo, substitua
+                // variáveis z/x/y pelas coordenadas dos
+                // tiles correspondentes
+                //
                 data: [
                   [
                     'id',
@@ -340,7 +362,98 @@ function censo_2022_example_view({
         },
       },
     },
+
+    //
+    // Define a função de download de dados
+    //
+    download: downloadResolver({
+      //
+      // Nome do arquivo
+      //
+      fileNameBase: [
+        '$template',
+        '${0}_${1}_georedus_censo_${2}',
+        [
+          ['$get', 'view.conf.data.variableId'],
+          ['$get', 'municipioId'],
+          '2022',
+        ],
+      ],
+
+      //
+      // Nome da variável
+      //
+      mainVariableId: ['$get', 'view.conf.data.variableId'],
+
+      //
+      // Variáveis disponíveis para download
+      //
+      availableVariableIds: [],
+
+      //
+      // Função para carregamento de dados
+      //
+      fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
+        const variableId = ctx.view.conf.data.variableId
+
+        //
+        // Monta a URL para carregar os dados referente à variável
+        // de todo o município
+        //
+        const dataUrl =
+          // Monta a URL base para chamar a METADATA_API
+          `${METADATA_API_ENDPOINT}/cem_censo_2022_pessoas?` +
+          // Solicita carregar apenas dados do município selecionado
+          `cd_mun=eq.${ctx.app.municipioId}&` +
+          // Seleciona as colunas a serem carregadas para cada setor
+          // censitário:
+          // - id do setor
+          // - variável
+          // - ${variavel}_src
+          `select=id,${variableId},${variableId}_src`
+
+        const data = await fetch(dataUrl).then((res) => res.json())
+
+        if (options.format === 'CSV') {
+          //
+          // No need to load geometries
+          //
+          return data
+        }
+
+        const geometriesUrl =
+          // Monta a URL base para chamar a METADATA_API
+          `${METADATA_API_ENDPOINT}/ibge_malha_br_setor_censitario_2022?` +
+          // Solicita carregar apenas dados do município selecionado
+          `cd_mun=eq.${ctx.app.municipioId}&` +
+          // Seleciona id (do setor) e geometria
+          `select=id,geom`
+
+        const geometries = await fetch(geometriesUrl).then((res) => res.json())
+
+        return dataJoin([geometries, data], {
+          key: 'id',
+        })
+      }),
+    }),
   }
+}
+
+//
+// Storybook export
+//
+export default {
+  title: 'GeoReDUS / censo_2022_example_view',
+  parameters: {
+    layout: 'fullscreen',
+  },
+  decorators: [
+    (Story) => (
+      <BrowserRouter>
+        <Story />
+      </BrowserRouter>
+    ),
+  ],
 }
 
 const API = {
@@ -362,6 +475,19 @@ const VIEW_SPECS = {
   ],
 }
 
+const VERSION_SPECS = [
+  {
+    id: 'v0',
+    fromPrev: (prev) => ({ baseMapStyle: 'dataviz', ...(prev || {}) }),
+    fromNext: (next) => next || {},
+  },
+]
+
+const useVersionedSearchParamsState = versionedSearchParamsStateHook(
+  VERSION_SPECS,
+  useSearchParams,
+)
+
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
     {},
@@ -382,6 +508,11 @@ export const Basic = () => {
       onSetState={setStateStorage}
       viewSpecs={VIEW_SPECS}
       api={API}
+      mapProps={{
+        onStyleData: (evt) => {
+          evt.target.showTileBoundaries = true
+        },
+      }}
     />
   )
 }
