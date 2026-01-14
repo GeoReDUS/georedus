@@ -230,15 +230,7 @@ export function setor_censitario_layers(opts) {
               // ],
             ],
           ],
-          ...[
-            // 'v0001',
-            // 'v0002',
-            // 'v0003',
-            // 'v0004',
-            // 'v0005',
-            // 'v0006',
-            // 'v0007',
-          ].map((v) => [
+          ...[].map((v) => [
             v,
 
             [
@@ -259,16 +251,27 @@ export function setor_censitario_layers(opts) {
             'Variáveis originais',
             [
               '$literal',
-              [
-                '$get',
-                'feature.properties.value_src',
+              resolve.fn((context) => {
+                try {
+                  const value_src = JSON.parse(context.feature.properties.value_src)
+
+                  return Object.entries(value_src).map(([key, value]) => {
+                    const formattedValue = typeof value === 'number' 
+                      ? value.toLocaleString('pt-BR') 
+                      : value
+                    return `${key}: ${formattedValue} | `
+                  })
+                } catch (err) {
+                  console.err(err)
+                  return ['Dados indisponíveis']
+                }
+              }),
                 // [
                 //   '$template',
                 //   'feature.properties.${0}',
                 //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
                 //   ['$get', 'view.conf.data.variableId'],
                 // ],
-              ],
             ],
           ],
         ],
