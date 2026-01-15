@@ -51,7 +51,6 @@
     "@maplibre/maplibre-gl-inspect": "^1.7.1",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
-    "@orioro/react-chart-util": "workspace:^",
     "@orioro/react-select": "^3.0.2",
     "@orioro/react-ui-core": "^0.0.14",
     "@orioro/resolve": "^0.1.9",

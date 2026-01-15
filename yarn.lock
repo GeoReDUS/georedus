@@ -4210,7 +4210,6 @@ __metadata:
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
     "@orioro/dev": "npm:^0.0.5"
-    "@orioro/react-chart-util": "workspace:^"
     "@orioro/react-select": "npm:^3.0.2"
     "@orioro/react-ui-core": "npm:^0.0.14"
     "@orioro/resolve": "npm:^0.1.9"
