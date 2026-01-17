@@ -100,9 +100,9 @@ export function setor_censitario_sources({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
                 [
                   'id',
                   `${METADATA_API_ENDPOINT}/rpc/cem_censo_2022_data_tile?` +
-                    `table_id=${variant.source_table_id}&` +
-                    `variable_id=${variableId}&` +
-                    `z={z}&x={x}&y={y}`,
+                  `table_id=${variant.source_table_id}&` +
+                  `variable_id=${variableId}&` +
+                  `z={z}&x={x}&y={y}`,
                 ],
               ],
             },
@@ -188,93 +188,149 @@ export function setor_censitario_layers(opts) {
             ['$get', 'feature.properties.id'],
           ],
         ],
+
         entries: [
-          [
-            [
-              '$get',
-              ['$get', 'view.conf.data.variableId'],
-              ['$get', 'view.metadata.labels'],
-            ],
-            [
-              '$literal',
-              resolve.fn((context) => {
-                const variableId = get(context, 'view.conf.data.variableId')
+          '$literal',
+          resolve.fn((context) => {
+            const variableId = get(context, 'view.conf.data.variableId')
+            const variableLabel = get(
+              context,
+              `view.metadata.labels.${variableId}`
+            )
 
-                if (variableId === 'total_pessoas_por_hectare') {
-                  try {
-                    const value_src = JSON.parse(
-                      context.feature.properties.value_src,
-                    )
-                    return value_src['bas.v0001']
-                  } catch (err) {
-                    console.error(err)
-                    return null
-                  }
-                } else {
-                  return [
-                    '$fmt',
-                    ['$get', 'feature.properties.value'],
-                    { number: NUMBER_FMT },
-                  ]
-                }
-              }),
+            let displayValue1
 
-              //
-              // TODO: refactor
-              // THIS IS THE ACTUAL:
-              //
-              // [
-              //   '$fmt',
-              //   ['$get', 'feature.properties.value'],
-              //   { number: NUMBER_FMT },
-              // ],
-            ],
-          ],
-          ...[].map((v) => [
-            v,
+            if (variableId === 'total_pessoas_por_hectare') {
+              try {
+                const value_src = JSON.parse(
+                  context.feature.properties.value_src,
+                )
+                displayValue1 = value_src['bas.v0001']
+              } catch (err) {
+                console.error(err)
+                displayValue1 = null
+              }
+            } else {
+              const value = get(context, 'feature.properties.value')
+              const isPercentage = variableId.endsWith('_pct')
+              const format = isPercentage
+                ? { style: 'percent' }
+                : {}
+              displayValue1 = typeof value === 'number'
+                ? value.toLocaleString('pt-BR', format)
+                : value
+            }
 
-            [
-              '$literal',
-              [
-                '$get',
-                `feature.properties.${v}`,
-                // [
-                //   '$template',
-                //   'feature.properties.${0}',
-                //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                //   ['$get', 'view.conf.data.variableId'],
-                // ],
-              ],
-            ],
-          ]),
-          [
-            'Variáveis originais',
-            [
-              '$literal',
-              resolve.fn((context) => {
-                try {
-                  const value_src = JSON.parse(context.feature.properties.value_src)
+            let displayValue2
+            let originalVariablesDisplay
+            try {
+              const value_src = JSON.parse(context.feature.properties.value_src)
 
-                  return Object.entries(value_src).map(([key, value]) => {
-                    const formattedValue = typeof value === 'number' 
-                      ? value.toLocaleString('pt-BR') 
-                      : value
-                    return `${key}: ${formattedValue} | `
-                  })
-                } catch (err) {
-                  console.err(err)
-                  return ['Dados indisponíveis']
-                }
-              }),
-                // [
-                //   '$template',
-                //   'feature.properties.${0}',
-                //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                //   ['$get', 'view.conf.data.variableId'],
-                // ],
-            ],
-          ],
-        ],
+              displayValue2 = ' '
+              originalVariablesDisplay = Object.entries(value_src).map(([key, value]) => {
+                const formattedValue = typeof value === 'number' 
+                  ? value.toLocaleString('pt-BR') 
+                  : value
+                // return [` - ${key}`, formattedValue]
+                return [`- ${key}: ${formattedValue}`, '']
+              })
+            } catch (err) {
+              console.err(err)
+              displayValue2 = 'Dados indisponíveis'
+              originalVariablesDisplay = [[]]
+            }
+
+            return [
+              [variableLabel, displayValue1],
+              ['Variáveis originais', displayValue2],
+              ...originalVariablesDisplay
+            ]
+          }),
+        ]
+
+        // entries: [
+        //   [
+        //     [
+        //       '$get',
+        //       ['$get', 'view.conf.data.variableId'],
+        //       ['$get', 'view.metadata.labels'],
+        //     ],
+        //     [
+        //       '$literal',
+        //       resolve.fn((context) => {
+
+        //         const variableId = get(context, 'view.conf.data.variableId')
+
+        //         if (variableId === 'total_pessoas_por_hectare') {
+        //           try {
+        //             const value_src = JSON.parse(
+        //               context.feature.properties.value_src,
+        //             )
+        //             return value_src['bas.v0001']
+        //           } catch (err) {
+        //             console.error(err)
+        //             return null
+        //           }
+        //         } else {
+        //           return [
+        //             '$fmt',
+        //             ['$get', 'feature.properties.value'],
+        //             { number: NUMBER_FMT },
+        //           ]
+        //         }
+        //       }),
+        //     ],
+
+            //       //
+            //       // TODO: refactor
+            //       // THIS IS THE ACTUAL:
+            //       //
+            //       // [
+            //       //   '$fmt',
+            //       //   ['$get', 'feature.properties.value'],
+            //       //   { number: NUMBER_FMT },
+            //       // ],
+            //     ],
+            //   ],
+            //   // ...[].map((v) => [
+            //   //   v,
+
+            //   //   [
+            //   //     '$literal',
+            //   //     [
+            //   //       '$get',
+            //   //       `feature.properties.${v}`,
+            //   //       // [
+            //   //       //   '$template',
+            //   //       //   'feature.properties.${0}',
+            //   //       //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
+            //   //       //   ['$get', 'view.conf.data.variableId'],
+            //   //       // ],
+            //   //     ],
+            //   //   ],
+            //   // ]),
+            //     [
+            //       'Variáveis originais',
+            //       ''
+            //     ],
+            //     resolve.fn((ctx) => {
+            //       return resolve.spread([
+            //         [
+            //           "- bas.v0001",
+            //           895,
+            //         ],
+            //         [
+            //           "- bas.area_km2",
+            //           0,241,
+            //         ],
+            //         [
+            //           "- total_pessoas",
+            //           895
+            //         ]
+            //       ])
+            //     })
+        //   ]
+        // ],
       },
 
       filter: _filter,
