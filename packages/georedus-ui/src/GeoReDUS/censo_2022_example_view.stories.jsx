@@ -395,7 +395,8 @@ function censo_2022_example_view({
       //
       fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
         const variableId = ctx.view.conf.data.variableId
-
+        // const value_src = ctx.feature.properties.value_src
+        console.log(ctx)
         //
         // Monta a URL para carregar os dados referente à variável
         // de todo o município
