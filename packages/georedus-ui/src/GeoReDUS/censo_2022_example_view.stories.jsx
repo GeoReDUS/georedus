@@ -396,7 +396,6 @@ function censo_2022_example_view({
       fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
         const variableId = ctx.view.conf.data.variableId
         // const value_src = ctx.feature.properties.value_src
-        console.log(ctx)
         //
         // Monta a URL para carregar os dados referente à variável
         // de todo o município
@@ -413,7 +412,19 @@ function censo_2022_example_view({
           // - ${variavel}_src
           `select=id,${variableId},${variableId}_src`
 
-        const data = await fetch(dataUrl).then((res) => res.json())
+        const data = (await fetch(dataUrl).then((res) => res.json())).map(
+          (entry) => {
+            //Extrai as variáveis origianis em `${variableId}_src` para a raiz do objeto
+            const newEntry = {
+              ...entry,
+              ...entry[`${variableId}_src`],
+            }
+            delete newEntry[`${variableId}_src`]
+            return newEntry
+          },
+        )
+
+        console.log(data)
 
         if (options.format === 'CSV') {
           //
