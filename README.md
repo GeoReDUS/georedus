@@ -293,9 +293,9 @@ Exemplo para dados de moradores de 0 a 4 anos em Belém:
 ```jsx
 import { resolveAsync } from '@orioro/resolve'
 
-metadata: resolveAsync.fn(async () => {
-  // Lê a variante a partir do objeto resultante da etapa de configurações
-  const variableId = 'pop_bas_mor_tot_0_4_pct'
+metadata: resolveAsync.fn(async (ctx) => {
+  // Lê a variante selecionada pelo usuário nas opções do confSchema
+  const variableId = ctx.view.conf.data.variantId
   const municipioId = '1501402'
 
   // Monta a URL para carregar os dados referente à variável de todo o município
@@ -323,6 +323,28 @@ metadata: resolveAsync.fn(async () => {
 
   return { min, max }
 })
+```
+
+No exemplo acima é retornado apenas o valor mínimo e o valor máximo na escala de dados. Porém outra solução seria usar o `colorScaleStops` juntamente com o `naturalBreaks` a fim de ter uma distribuição mais homogênea dos dados no mapa (explicações mais detalhadas sobre isso serão dadas no tópico de *layers*).
+
+```jsx
+import { COLOR_SCHEMES} from '../viewSpecs/util'
+
+//Usa a escala de cores azuk do COLOR_SCHEME
+const colorScheme = COLOR_SCHEMES.schemeBlues
+
+      return {
+        // Retorna a computação da escala de cores usando algoritmo de quebras naturais
+        colorScaleStops: [
+          // Passa os valores, o esquema de cores e a quantidade de grupos para a função `natural_breaks`
+          '$naturalBreaks',
+          values,
+          {
+            ...colorScheme,
+            minK: 5,
+          },
+        ],
+      }
 ```
 
 #### **3 - Sources**
@@ -417,4 +439,101 @@ layers: {
 }
 ```
 
+No exemplo anterior, foi utilizada uma **interpolação linear**, abordagem que nem sempre é adequada para todos os conjuntos de dados.
+
+Considere um conjunto de valores variando de **0 a 0,3** (0% a 30%). Em uma interpolação linear, a escala de cores é distribuída de forma uniforme ao longo do intervalo de valores. Por exemplo, ao dividir esse intervalo em três partes, obtêm-se as faixas **0–10%, 10–20% e 20–30%**.
+
+No entanto, quando a distribuição dos dados é desigual — por exemplo, quando **80% dos valores estão concentrados abaixo de 10%** — a interpolação linear tende a produzir uma visualização pouco informativa. Nesse cenário, grande parte do mapa é renderizada com a mesma cor (considerando a escala utilizada), dificultando a distinção entre valores próximos dentro do intervalo de **0 a 0,1**.
+
+Para lidar com esse tipo de distribuição, pode-se utilizar a estratégia de classificação naturalBreaks. Essa abordagem segmenta os dados em grupos com **quantidades semelhantes de elementos**, levando em consideração a distribuição real dos valores (foi feito um exemplo de uso do `naturalBreaks` no metadata).
+
+Dessa forma, em vez de concentrar a maior parte dos dados em um único intervalo (0–10%), os valores passam a ser distribuídos em faixas mais representativas, por exemplo **0–3%, 3–5%, 5–30%**. O resultado é uma escala de cores mais equilibrada, que melhora a legibilidade e a capacidade de distinção entre os diferentes valores apresentados na visualização.
+
+Pra isso é utilizado o `colorScaleStops` gerado no metadata (segundo exemplo de retorno feito na *sessão do metabase*).
+
+```jsx
+layers: {
+
+  //[...]
+
+    paint: {
+      // Usa as cores definidas na etapa de metadata para pintar o mapa
+      'fill-color': resolve.fn((ctx) => {
+        const colorExp = [
+          // 'step' = escala fixa de cores
+          'step',
+          ['get', 'value'],
+          ...ctx.view.metadata.colorScaleStops,
+        ]
+
+        return colorExp
+      }),
+      'fill-opacity': ['$get', 'view.conf.style.layerOpacity'],
+      'fill-outline-color': 'transparent',
+    }
+}
+```
+**Legenda:**
+
+As legendas do mapa são definidas aqui na camada de `layers`. 
+
+Utilizando a variavel `variantId` no `title` e o return do metabase em  `steps` (neste exemplo é utilizado o `colorScaleStops`), a legenda irá sempre refletir os dados e cores representados no mapa. 
+
+```jsx
+legends: [
+  {
+    type: 'SequentialColorLegend',
+    title: [
+      // Usa o nome da variável como título da legenda
+      title: resolve.fn((ctx) => ctx.view.conf.data.variantId),
+      unit: 'Unidade dos dados',
+      // Usa as cores definidas na etapa de metadata como cores da legenda
+      steps: resolve.fn((ctx) => {
+        return ctx.view.metadata.colorScaleStops
+      })
+    ]
+  }
+]
+
+```
+
+**Tooltip:**
+
+O tooltip também é definido dentro da camada de `layers`.
+
+```jsx
+tooltip: {
+  title: [
+    // $literal é obrigatório pois previne a resolução antecipada da expressão.
+    // Para ser possível ler dados da feature em que o cursor está sobre, é preciso que a resolução da expressão aguarde a conclusão da renderização do mapa (diferentemente das outras expressões definidas na view)
+    '$literal',
+    [
+      '$template',
+      'Setor censitário ${0}',
+      resolve.fn((ctx) => {
+        return ctx.feature?.properties?.id
+      })
+    ],
+  ],
+  entries: [
+    '$literal',
+    resolve.fn((ctx) => {
+      return [
+        [
+          'Valor',
+          [
+            '$literal', 
+            resolve.fn((ctx) => {
+              return ctx.feature?.properties?.id
+            })
+          ]
+        ]
+      ]
+    }),
+  ],
+
+}
+```
+
 #### **5 - Download**
+
