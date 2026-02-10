@@ -233,7 +233,7 @@ Observação: Os eixos x e y serão diferentes para cada nível de zoom, uma vez
 
 ## 📌 Aplicação Prática
 
-### 🗺️ Criando um mapa
+<!-- ### 🗺️ Criando um mapa A FAZER -->
 
 ### ✨ Criando uma view
 
@@ -333,18 +333,23 @@ import { COLOR_SCHEMES} from '../viewSpecs/util'
 //Usa a escala de cores azuk do COLOR_SCHEME
 const colorScheme = COLOR_SCHEMES.schemeBlues
 
-      return {
-        // Retorna a computação da escala de cores usando algoritmo de quebras naturais
-        colorScaleStops: [
-          // Passa os valores, o esquema de cores e a quantidade de grupos para a função `natural_breaks`
-          '$naturalBreaks',
-          values,
-          {
-            ...colorScheme,
-            minK: 5,
-          },
-        ],
-      }
+metadata: resolveAsync.fn(async (ctx) => {
+
+  //...
+
+  return {
+    // Retorna a computação da escala de cores usando algoritmo de quebras naturais
+    colorScaleStops: [
+      // Passa os valores, o esquema de cores e a quantidade de grupos para a função `natural_breaks`
+      '$naturalBreaks',
+      values,
+      {
+        ...colorScheme,
+        minK: 5,
+      },
+    ],
+  }
+})
 ```
 
 #### **3 - Sources**
@@ -499,13 +504,14 @@ legends: [
 
 **Tooltip:**
 
-O tooltip também é definido dentro da camada de `layers`.
+O tooltip também é definido dentro da camada de `layers`. É o último a ser renderizado, pois para ser possível ler dados da feature em que o cursor está sobre, é preciso que a resolução da expressão aguarde a conclusão da renderização do mapa (diferentemente das outras expressões definidas na view).
+
+Existem 2 valores a serem preenchidos na tooltio: *title* e *entries*. Que correspondem ao título do tooltip e às informações respectivamente. O entries consiste em um array de arrays onde o primeiro valor seria a etiqueta (`key`), ou seja, e o segundo valor ao que virá depois dos dois pontos (`value`).
 
 ```jsx
 tooltip: {
   title: [
     // $literal é obrigatório pois previne a resolução antecipada da expressão.
-    // Para ser possível ler dados da feature em que o cursor está sobre, é preciso que a resolução da expressão aguarde a conclusão da renderização do mapa (diferentemente das outras expressões definidas na view)
     '$literal',
     [
       '$template',
@@ -527,7 +533,7 @@ tooltip: {
               return ctx.feature?.properties?.id
             })
           ]
-        ]
+        ],
       ]
     }),
   ],
@@ -536,4 +542,79 @@ tooltip: {
 ```
 
 #### **5 - Download**
+
+ A etapa de download permite exportar dados ou visualizações do mapa para uso externo, de forma flexível e interativa. O sistema utiliza a função `downloadResolver`, que abre um diálogo para o usuário escolher:
+ 
+ - O formato do arquivo (CSV, GeoJSON, GPKG, KML)
+ - As variáveis de dados a serem exportadas
+ 
+ **Fluxo do download:**
+ 
+ 1. O usuário clica para baixar dados.
+ 2. Um diálogo é exibido, permitindo selecionar o formato e as variáveis desejadas.
+ 3. O sistema busca os dados conforme a seleção:
+    - Para CSV, apenas dados tabulares são exportados.
+    - Para formatos geoespaciais, as geometrias dos setores são incluídas.
+ 4. Os dados são processados e convertidos para o formato escolhido usando a biblioteca GDAL (via ogr2ogr).
+ 5. O arquivo é baixado automaticamente, com nome gerado dinamicamente.
+ 
+ **Formatos suportados:**
+ - CSV: dados tabulares, sem geometria
+ - GeoJSON: dados geoespaciais em JSON
+ - GPKG: banco de dados geoespacial compacto
+ - KML: mapas em XML
+ 
+ **Exemplo de configuração:**
+ 
+ ```jsx
+ download: downloadResolver({
+   fileNameBase: [
+     '$template',
+     '${0}_${1}_georedus_censo_${2}',
+     [
+       ['$get', 'view.conf.data.variableId'],
+       ['$get', 'municipioId'],
+       '2022',
+     ],
+   ],
+   mainVariableId: ['$get', 'view.conf.data.variableId'],
+   availableVariableIds: [],
+   fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
+     const variableId = ctx.view.conf.data.variableId
+     // Monta a URL para buscar os dados tabulares
+     const dataUrl =
+       `${METADATA_API_ENDPOINT}/cem_censo_2022_pessoas?` +
+       `cd_mun=eq.${ctx.app.municipioId}&` +
+       `select=id,${variableId},${variableId}_src`
+     const data = await fetch(dataUrl).then((res) => res.json())
+ 
+     if (options.format === 'CSV') {
+       // Exporta apenas dados tabulares
+       return data
+     }
+ 
+     // Para formatos geoespaciais, busca geometria
+     const geometriesUrl =
+       `${METADATA_API_ENDPOINT}/ibge_malha_br_setor_censitario_2022?` +
+       `cd_mun=eq.${ctx.app.municipioId}&` +
+       `select=id,geom`
+     const geometries = await fetch(geometriesUrl).then((res) => res.json())
+ 
+     // Junta dados e geometria pelo campo 'id'
+     return dataJoin([geometries, data], { key: 'id' })
+   }),
+ })
+ ```
+ 
+ **Como funciona o código:**
+ - O usuário escolhe o formato e as variáveis no diálogo.
+ - Para CSV, retorna apenas os dados.
+ - Para GeoJSON, GPKG ou KML, busca também as geometrias e faz o join.
+ - O arquivo é convertido e baixado automaticamente.
+ - O nome do arquivo é gerado conforme a configuração (`fileNameBase`).
+ 
+ **Dica:**
+ Se quiser personalizar as variáveis disponíveis para download, basta preencher o campo `availableVariableIds`.
+ 
+ Esse sistema permite exportar dados de forma prática, garantindo compatibilidade com diferentes ferramentas de análise geoespacial.
 
