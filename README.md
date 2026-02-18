@@ -231,13 +231,9 @@ Observação: Os eixos x e y serão diferentes para cada nível de zoom, uma vez
 - Protocol Handlers
 - DuckDB (integração)
 
-## 📌 Aplicação Prática
-
-<!-- ### 🗺️ Criando um mapa A FAZER -->
+## 📌 Exemplo Prático
 
 ### ✨ Criando uma view
-
-<!-- Adicionar sobre configurações iniciais de uma view -->
 
 Uma view é criada em 5 etapas:
 
@@ -248,6 +244,26 @@ Uma view é criada em 5 etapas:
 - Download
 
 Cada etapa disponibiliza para as seguintes os dados que foram resolvidos anteriormente. Por fim, o **Tooltip** é carregado em tempo real, ou seja, conforme a movimentação do mouse (pode ser considerado uma sexta etapa).
+
+Porém, Antes do confSchema, cada view deve definir algumas propriedades básicas que identificam e descrevem o indicador apresentado. Essas propriedades são:
+
+- collection_id: Identificador da coleção à qual a view pertence.
+- indicator_id: Identificador único do indicador.
+- id: Identificador único da view.
+- label: Nome legível da view, exibido na interface.
+- path: Caminho de navegação para organizar a view no menu.
+
+Exemplo:
+
+```jsx
+{
+  collection_id: 'censo_2022_example_view',
+  indicator_id: 'censo_2022_example_view',
+  id: 'censo_2022_example_view',
+  label: 'População por faixa etária',
+  path: 'População e domicílios',
+}
+```
 
 #### **1 - Conf Schema**
 
