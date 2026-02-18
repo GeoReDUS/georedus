@@ -7,9 +7,10 @@ Este repositório representa a biblioteca de componentes frontend desenvolvida e
 ## ⚙️ Configuração de ambiente e Instalação do Projeto
 
 Este projeto utiliza Yarn Workspaces para gerenciar múltiplos pacotes em um único repositório.
+
 Siga o mesmo passo a passo de **configuração de ambiente** e **instalação do projeto** do repositório `redus-web-ui` neste [link](https://github.com/orioro/redus-web-ui). Após a instalação correta do projeto continue no passo a passo abaixo.
 
-**Obs:** No comando `yarn build` provavelmente vai aparecer alguns erros de chatbot e typescript, pode ignorar, o importante é o `dist` estar sendo criado no diretório de casa componente.
+**Obs:** No comando `yarn build` provavelmente vão aparecer alguns erros de chatbot e typescript, pode ignorar, o importante é o `dist` estar sendo criado no diretório de cada componente.
 
 ## 🚀 Desenvolvimento
 
@@ -59,7 +60,7 @@ yarn workspace @redus/georedus-ui dev
 
 Acesse o storybook em: http://localhost:6006
 
-Explore a bilioteca através dos arquivos: `packages/georedus-ui/src/[componente]/*.stories.jsx`
+Explore a biblioteca através dos arquivos: `packages/georedus-ui/src/[componente]/*.stories.jsx`
 
 ### Aplicação para o pacote `react-maplibre-util`:
 
@@ -79,7 +80,7 @@ yarn workspace @orioro/react-maplibre-util dev
 
 Acesse o storybook em: http://localhost:6006
 
-Explore a bilioteca através dos arquivos: `packages/react-maplibre-util/src/[componente]/*.stories.jsx`
+Explore a biblioteca através dos arquivos: `packages/react-maplibre-util/src/[componente]/*.stories.jsx`
 
 ## 📁 Estrutura do Projeto
 
@@ -187,14 +188,14 @@ Biblioteca de componentes para visualização de dados e legendas.
 
 ### **5 - `react-dir-nav`**
 
-Biblioteca que contrói o sistema de navegação hierárquica em árvore para organização de conteúdo:
+Biblioteca que constrói o sistema de navegação hierárquica em árvore para organização de conteúdo:
 
 - Estrutura de diretórios com suporte a níveis aninhados, ou seja, pasta com subpasta
 - Busca e filtros por conteúdo
 - Seções expansíveis (Dir, DirSection, NavSection)
 - Componentes customizáveis de itens e navegação
 
-**Casos de uso:** Menu de visualizações, organização de camadas temáticas, catálogo de dados
+**Casos de uso:** Menu de visualizações, organização de camadas temáticas e catálogo de dados
 
 ### **6 - `vector-tile-util`**
 
@@ -245,7 +246,7 @@ Uma view é criada em 5 etapas:
 
 Cada etapa disponibiliza para as seguintes os dados que foram resolvidos anteriormente. Por fim, o **Tooltip** é carregado em tempo real, ou seja, conforme a movimentação do mouse (pode ser considerado uma sexta etapa).
 
-Porém, Antes do confSchema, cada view deve definir algumas propriedades básicas que identificam e descrevem o indicador apresentado. Essas propriedades são:
+Porém, antes do confSchema, cada view deve definir algumas propriedades básicas que identificam e descrevem o indicador apresentado. Essas propriedades são:
 
 - collection_id: Identificador da coleção à qual a view pertence.
 - indicator_id: Identificador único do indicador.
@@ -346,7 +347,7 @@ No exemplo acima é retornado apenas o valor mínimo e o valor máximo na escala
 ```jsx
 import { COLOR_SCHEMES} from '../viewSpecs/util'
 
-//Usa a escala de cores azuk do COLOR_SCHEME
+// Usa a escala de cores azul do COLOR_SCHEME
 const colorScheme = COLOR_SCHEMES.schemeBlues
 
 metadata: resolveAsync.fn(async (ctx) => {
@@ -470,7 +471,7 @@ Para lidar com esse tipo de distribuição, pode-se utilizar a estratégia de cl
 
 Dessa forma, em vez de concentrar a maior parte dos dados em um único intervalo (0–10%), os valores passam a ser distribuídos em faixas mais representativas, por exemplo **0–3%, 3–5%, 5–30%**. O resultado é uma escala de cores mais equilibrada, que melhora a legibilidade e a capacidade de distinção entre os diferentes valores apresentados na visualização.
 
-Pra isso é utilizado o `colorScaleStops` gerado no metadata (segundo exemplo de retorno feito na *sessão do metabase*).
+Para isso é utilizado o `colorScaleStops` gerado no metadata (segundo exemplo de retorno feito na *sessão de metadata*).
 
 ```jsx
 layers: {
@@ -498,7 +499,7 @@ layers: {
 
 As legendas do mapa são definidas aqui na camada de `layers`. 
 
-Utilizando a variavel `variantId` no `title` e o return do metabase em  `steps` (neste exemplo é utilizado o `colorScaleStops`), a legenda irá sempre refletir os dados e cores representados no mapa. 
+Utilizando a variável `variantId` no `title` e o retorno do metadata em `steps` (neste exemplo é utilizado o `colorScaleStops`), a legenda irá sempre refletir os dados e as cores representados no mapa. 
 
 ```jsx
 legends: [
@@ -522,7 +523,7 @@ legends: [
 
 O tooltip também é definido dentro da camada de `layers`. É o último a ser renderizado, pois para ser possível ler dados da feature em que o cursor está sobre, é preciso que a resolução da expressão aguarde a conclusão da renderização do mapa (diferentemente das outras expressões definidas na view).
 
-Existem 2 valores a serem preenchidos na tooltio: *title* e *entries*. Que correspondem ao título do tooltip e às informações respectivamente. O entries consiste em um array de arrays onde o primeiro valor seria a etiqueta (`key`), ou seja, e o segundo valor ao que virá depois dos dois pontos (`value`).
+Existem 2 valores a serem preenchidos no tooltip: *title* e *entries*, que correspondem, respectivamente, ao título do tooltip e às informações. O entries consiste em um array de arrays onde o primeiro valor seria a etiqueta (`key`), ou seja, e o segundo valor ao que virá depois dos dois pontos (`value`).
 
 ```jsx
 tooltip: {
