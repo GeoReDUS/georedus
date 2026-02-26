@@ -88,7 +88,8 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
     [
       hand({
         ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
+        // mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/ana/hand_2018/mosaic.json`,
       }),
       declividade({
         ...API,
