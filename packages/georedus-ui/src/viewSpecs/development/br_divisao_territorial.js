@@ -61,7 +61,7 @@ export function br_divisao_territorial_views(conf) {
       year: '2022',
       path: 'Municípios',
       label: 'Municípios',
-      id: 'ibge_malha_br_municipio_2024.geom',
+      id: 'ibge_malha_br_municipio.geom',
       line: {
         paint: {
           'line-color': schemeCategory10[0],

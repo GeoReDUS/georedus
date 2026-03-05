@@ -117,7 +117,7 @@ async function _flyToMunicipio(
   options,
 ) {
   const [mun] = await fetch(
-    `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?select=area_urbana_bbox_geom&id=eq.${municipioId}`,
+    `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=area_urbana_bbox_geom&id=eq.${municipioId}`,
   ).then((res) => res.json())
 
   if (mun && mun.area_urbana_bbox_geom) {

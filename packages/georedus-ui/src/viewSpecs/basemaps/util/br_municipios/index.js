@@ -1,4 +1,4 @@
-export const BR_MUNICIPIOS_ID = 'ibge_malha_br_municipio_2024.geom'
+export const BR_MUNICIPIOS_ID = 'ibge_malha_br_municipio.geom'
 
 export function br_municipios({ api, app }) {
   const { VECTOR_TILE_SERVER_ENDPOINT } = api

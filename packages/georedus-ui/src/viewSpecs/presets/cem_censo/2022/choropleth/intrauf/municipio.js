@@ -1,7 +1,7 @@
 import { resolve } from '@orioro/resolve'
 import { get } from '@orioro/get'
 
-const MUNICIPIO_SOURCE_ID = 'ibge_malha_br_municipio_2024.geom'
+const MUNICIPIO_SOURCE_ID = 'ibge_malha_br_municipio.geom'
 
 export function municipio_sources({ GLOBAL_CONTEXT, PARSED_SCHEMA }) {
   const { VECTOR_TILE_SERVER_ENDPOINT } = GLOBAL_CONTEXT
