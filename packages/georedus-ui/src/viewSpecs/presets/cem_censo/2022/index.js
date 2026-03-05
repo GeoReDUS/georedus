@@ -3,7 +3,7 @@ import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../../constants'
 import { parseSchema } from '../2010_2022/parseSchema'
 import { confSchema } from '../2010_2022/confSchema'
 // import { _resolveSourceBounds } from '../2010_2022/metadata'
-import { download } from '../2010_2022/download'
+import { download } from '../2022/download'
 
 import { choropleth } from './choropleth'
 import { omit } from 'lodash'
@@ -15,10 +15,7 @@ export function cem_censo_2022(viewSpec, allViewSpecs, context) {
     return null
   }
 
-  const DOWNLOAD = download(viewSpec, allViewSpecs, context, {
-    PARSED_SCHEMA,
-    GLOBAL_CONTEXT: context,
-  })
+  const DOWNLOAD = download(context)
 
   const CHOROPLETH = choropleth({
     GLOBAL_CONTEXT: context,
