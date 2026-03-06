@@ -198,52 +198,52 @@ export function setor_censitario_layers(opts) {
               `view.metadata.labels.${variableId}`,
             )
 
-            let displayValue1
+            let mainValueDisplay
 
             if (variableId === 'total_pessoas_por_hectare') {
               try {
                 const value_src = JSON.parse(
                   context.feature.properties.value_src,
                 )
-                displayValue1 = value_src['bas.v0001']
+                mainValueDisplay = value_src['bas.v0001']
               } catch (err) {
                 console.error(err)
-                displayValue1 = null
+                mainValueDisplay = null
               }
             } else {
               const value = get(context, 'feature.properties.value')
               const isPercentage = variableId.endsWith('_pct')
               const format = isPercentage ? { style: 'percent' } : {}
-              displayValue1 =
+              mainValueDisplay =
                 typeof value === 'number'
                   ? value.toLocaleString('pt-BR', format)
                   : value
             }
 
-            let displayValue2
+            let originalVariablesUnavailableMessage
             let originalVariablesDisplay
             try {
               const value_src = JSON.parse(context.feature.properties.value_src)
 
-              displayValue2 = ' '
+              originalVariablesUnavailableMessage = ' '
               originalVariablesDisplay = Object.entries(value_src).map(
                 ([key, value]) => {
                   const formattedValue =
                     typeof value === 'number'
                       ? value.toLocaleString('pt-BR')
                       : value
-                  return [`- ${key}: ${formattedValue}`, '']
+                  return [`- ${key}`, formattedValue]
                 },
               )
             } catch (err) {
               console.err(err)
-              displayValue2 = 'Dados indisponíveis'
-              originalVariablesDisplay = [[]]
+              originalVariablesUnavailableMessage = 'Dados indisponíveis'
+              originalVariablesDisplay = [['Dados indisponíveis']]
             }
 
             return [
-              [variableLabel, displayValue1],
-              ['Variáveis originais', displayValue2],
+              [variableLabel, mainValueDisplay],
+              ['Variáveis originais', ' '],
               ...originalVariablesDisplay,
             ]
           }),
