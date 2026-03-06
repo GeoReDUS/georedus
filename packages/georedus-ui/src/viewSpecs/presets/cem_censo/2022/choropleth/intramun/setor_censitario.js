@@ -243,7 +243,7 @@ export function setor_censitario_layers(opts) {
 
             return [
               [variableLabel, mainValueDisplay],
-              ['Variáveis originais', ' '],
+              ['Variáveis originais', originalVariablesUnavailableMessage],
               ...originalVariablesDisplay,
             ]
           }),
