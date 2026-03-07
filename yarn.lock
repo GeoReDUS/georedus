@@ -4015,6 +4015,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@orioro/cast@npm:^0.0.11":
+  version: 0.0.11
+  resolution: "@orioro/cast@npm:0.0.11"
+  dependencies:
+    "@orioro/util": "npm:^0.15.1"
+    date-fns: "npm:^4.1.0"
+    tslib: "npm:^2.8.1"
+  checksum: 21aef86a777b86ffaca1a7c2e7ea38c9549b7cc28a37bdeea1bf2b1fbc255547933b8f5cd4ba2e1d30b624f5a28f7aa0c1fba3e92e78b384ab3a2711c76d89d0
+  languageName: node
+  linkType: hard
+
 "@orioro/cast@npm:^0.0.2":
   version: 0.0.2
   resolution: "@orioro/cast@npm:0.0.2"
@@ -6389,7 +6400,7 @@ __metadata:
     "@mapbox/tilebelt": "npm:2.0.0"
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
-    "@orioro/cast": "npm:^0.0.2"
+    "@orioro/cast": "npm:^0.0.11"
     "@orioro/dev": "npm:^0.0.5"
     "@orioro/get": "npm:^0.0.2"
     "@orioro/react-chart-util": "workspace:^"

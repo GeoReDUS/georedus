@@ -3,6 +3,16 @@ import { GeoReDUS } from './GeoReDUS'
 import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
+import { Icon } from '@mdi/react'
+import {
+  mdiAccountGroup,
+  mdiSchool,
+  mdiHomeCity,
+  mdiHospitalBox,
+  mdiEarth,
+  mdiMap,
+} from '@mdi/js'
+
 import {
   overture_places_poc,
   br_divisao_territorial_views,
@@ -78,8 +88,12 @@ const GOOGLE_CEM_ESCOLAS_2022 =
 const GOOGLE_CEM_SAUDE_2024 =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1332018097&single=true&output=csv'
 
+const GOOGLE_MUN_MACEIO =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=845075805&single=true&output=csv'
+
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
+    GOOGLE_MUN_MACEIO,
     GOOGLE_CEM_CENSO_2022,
     GOOGLE_CEM_CENSO_2010,
     GOOGLE_CEM_ESCOLAS_2022,
@@ -112,6 +126,24 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
   censo_only: [GOOGLE_CEM_CENSO_2022, GOOGLE_CEM_CENSO_2010],
 }
 
+const CATEGORY_ICONS = {
+  'populacao-e-domicilios': <Icon path={mdiAccountGroup} />,
+  educacao: <Icon path={mdiSchool} />,
+  'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
+  saude: <Icon path={mdiHospitalBox} />,
+  'emergencias-climaticas': <Icon path={mdiEarth} />,
+  'divisoes-territoriais': <Icon path={mdiMap} />,
+  maceio: (
+    <img
+      src="/pilotos/maceio/logo-prefeitura.svg"
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+}
+
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
     {},
@@ -132,6 +164,9 @@ export const Basic = () => {
       onSetState={setStateStorage}
       viewSpecs={GOOGLE_SHEETS_VIEW_SPECS}
       api={API}
+      leftPanel={{
+        categoryIcons: CATEGORY_ICONS,
+      }}
     />
   )
 }
