@@ -555,13 +555,13 @@ function GeoReDUSInner({
     clearable: false,
     placeholder: 'Selecione um município',
     options: useCallback(async () => {
-      // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=nome,id
+      // https://dev-geoapi-metadata.orioro.design/ibge_malha_br_municipio?select=name,id
       const municipios = await fetch(
-        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla`,
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=name,id,sigla_uf`,
       ).then((response) => response.json())
 
       return municipios.map((mun) => ({
-        label: `${mun['nome']} (${mun['uf_sigla']})`,
+        label: `${mun['name']} (${mun['sigla_uf']})`,
         value: mun['id'] + '',
       }))
     }, []),
