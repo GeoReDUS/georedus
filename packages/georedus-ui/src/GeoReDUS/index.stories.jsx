@@ -143,7 +143,7 @@ const CATEGORY_ICONS = {
   'divisoes-territoriais': <Icon path={mdiMap} />,
   maceio: (
     <img
-      src="/pilotos/maceio/logo-prefeitura.svg"
+      src="/georedus/pilotos/maceio/logo-prefeitura.svg"
       style={{
         width: 45,
         height: 45,
