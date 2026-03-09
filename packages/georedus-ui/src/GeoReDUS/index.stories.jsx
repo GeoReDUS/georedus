@@ -91,10 +91,12 @@ const GOOGLE_CEM_SAUDE_2024 =
 const GOOGLE_MUN_MACEIO =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=845075805&single=true&output=csv'
 
-const BUILT_IN_CEM_CENSO_2010 = '/georedus/data/cem_censo_2010.csv'
-const BUILT_IN_CEM_CENSO_2022 = '/georedus/data/cem_censo_2022.csv'
-const BUILT_IN_CEM_ESCOLAS_2022 = '/georedus/data/cem_escolas_2022.csv'
-const BUILT_IN_CEM_SAUDE_2024 = '/georedus/data/cem_saude_2024.csv'
+const ASSETS_BASE = process.env.NODE_ENV === 'development' ? '/' : '/georedus/'
+
+const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
+const BUILT_IN_CEM_CENSO_2022 = `${ASSETS_BASE}georedus/data/cem_censo_2022.csv`
+const BUILT_IN_CEM_ESCOLAS_2022 = `${ASSETS_BASE}georedus/data/cem_escolas_2022.csv`
+const BUILT_IN_CEM_SAUDE_2024 = `${ASSETS_BASE}georedus/data/cem_saude_2024.csv`
 
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
@@ -143,7 +145,7 @@ const CATEGORY_ICONS = {
   'divisoes-territoriais': <Icon path={mdiMap} />,
   maceio: (
     <img
-      src="/georedus/pilotos/maceio/logo-prefeitura.svg"
+      src={`${ASSETS_BASE}pilotos/maceio/logo-prefeitura.svg`}
       style={{
         width: 45,
         height: 45,
