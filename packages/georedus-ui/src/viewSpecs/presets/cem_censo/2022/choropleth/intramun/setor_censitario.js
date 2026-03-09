@@ -188,89 +188,65 @@ export function setor_censitario_layers(opts) {
             ['$get', 'feature.properties.id'],
           ],
         ],
+
         entries: [
-          [
-            [
-              '$get',
-              ['$get', 'view.conf.data.variableId'],
-              ['$get', 'view.metadata.labels'],
-            ],
-            [
-              '$literal',
-              resolve.fn((context) => {
-                const variableId = get(context, 'view.conf.data.variableId')
+          '$literal',
+          resolve.fn((context) => {
+            const variableId = get(context, 'view.conf.data.variableId')
+            const variableLabel = get(
+              context,
+              `view.metadata.labels.${variableId}`,
+            )
 
-                if (variableId === 'total_pessoas_por_hectare') {
-                  try {
-                    const value_src = JSON.parse(
-                      context.feature.properties.value_src,
-                    )
-                    return value_src['bas.v0001']
-                  } catch (err) {
-                    console.error(err)
-                    return null
-                  }
-                } else {
-                  return [
-                    '$fmt',
-                    ['$get', 'feature.properties.value'],
-                    { number: NUMBER_FMT },
-                  ]
-                }
-              }),
+            let mainValueDisplay
 
-              //
-              // TODO: refactor
-              // THIS IS THE ACTUAL:
-              //
-              // [
-              //   '$fmt',
-              //   ['$get', 'feature.properties.value'],
-              //   { number: NUMBER_FMT },
-              // ],
-            ],
-          ],
-          ...[
-            // 'v0001',
-            // 'v0002',
-            // 'v0003',
-            // 'v0004',
-            // 'v0005',
-            // 'v0006',
-            // 'v0007',
-          ].map((v) => [
-            v,
+            if (variableId === 'total_pessoas_por_hectare') {
+              try {
+                const value_src = JSON.parse(
+                  context.feature.properties.value_src,
+                )
+                mainValueDisplay = value_src['bas.v0001']
+              } catch (err) {
+                console.error(err)
+                mainValueDisplay = null
+              }
+            } else {
+              const value = get(context, 'feature.properties.value')
+              const isPercentage = variableId.endsWith('_pct')
+              const format = isPercentage ? { style: 'percent' } : {}
+              mainValueDisplay =
+                typeof value === 'number'
+                  ? value.toLocaleString('pt-BR', format)
+                  : value
+            }
 
-            [
-              '$literal',
-              [
-                '$get',
-                `feature.properties.${v}`,
-                // [
-                //   '$template',
-                //   'feature.properties.${0}',
-                //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                //   ['$get', 'view.conf.data.variableId'],
-                // ],
-              ],
-            ],
-          ]),
-          [
-            'Variáveis originais',
-            [
-              '$literal',
-              [
-                '$get',
-                'feature.properties.value_src',
-                // [
-                //   '$template',
-                //   'feature.properties.${0}',
-                //   // `::string({ "number": ${JSON.stringify(NUMBER_FMT)} })`,
-                //   ['$get', 'view.conf.data.variableId'],
-                // ],
-              ],
-            ],
-          ],
+            let originalVariablesUnavailableMessage
+            let originalVariablesDisplay
+            try {
+              const value_src = JSON.parse(context.feature.properties.value_src)
+
+              originalVariablesUnavailableMessage = ' '
+              originalVariablesDisplay = Object.entries(value_src).map(
+                ([key, value]) => {
+                  const formattedValue =
+                    typeof value === 'number'
+                      ? value.toLocaleString('pt-BR')
+                      : value
+                  return [`- ${key}`, formattedValue]
+                },
+              )
+            } catch (err) {
+              console.err(err)
+              originalVariablesUnavailableMessage = 'Dados indisponíveis'
+              originalVariablesDisplay = [['Dados indisponíveis']]
+            }
+
+            return [
+              [variableLabel, mainValueDisplay],
+              ['Variáveis originais', originalVariablesUnavailableMessage],
+              ...originalVariablesDisplay,
+            ]
+          }),
         ],
       },
 
