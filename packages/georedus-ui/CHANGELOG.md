@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.18.0
+
+### Minor Changes
+
+- integrate maceio data + source variable features
+
 ## 0.17.0
 
 ### Minor Changes
