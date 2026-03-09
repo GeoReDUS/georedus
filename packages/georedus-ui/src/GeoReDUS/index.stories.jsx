@@ -91,11 +91,19 @@ const GOOGLE_CEM_SAUDE_2024 =
 const GOOGLE_MUN_MACEIO =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=845075805&single=true&output=csv'
 
+const BUILT_IN_CEM_CENSO_2010 = '/georedus/data/cem_censo_2010.csv'
+const BUILT_IN_CEM_CENSO_2022 = '/georedus/data/cem_censo_2022.csv'
+const BUILT_IN_CEM_ESCOLAS_2022 = '/georedus/data/cem_escolas_2022.csv'
+const BUILT_IN_CEM_SAUDE_2024 = '/georedus/data/cem_saude_2024.csv'
+
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
-    GOOGLE_CEM_CENSO_2022,
-    GOOGLE_CEM_CENSO_2010,
+    BUILT_IN_CEM_CENSO_2022,
+    BUILT_IN_CEM_CENSO_2010,
+
+    // GOOGLE_CEM_CENSO_2022,
+    // GOOGLE_CEM_CENSO_2010,
     GOOGLE_CEM_ESCOLAS_2022,
     GOOGLE_CEM_SAUDE_2024,
 
