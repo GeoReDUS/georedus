@@ -4,6 +4,7 @@ import { parseViewSpec } from './parseViewSpec'
 import { groupBy, isPlainObject, uniqBy } from 'lodash'
 import { fileReadAs } from '@orioro/react-ui-core'
 import { strAutoCast } from '@orioro/cast'
+import { resolveExpr } from './resolveView/resolveExpr'
 
 type ViewSource = string | File
 
@@ -74,7 +75,7 @@ export function resolveViewSpecs(
       specInput.collection_id.trim() &&
       specInput.indicator_id &&
       specInput.indicator_id.trim() &&
-      !specInput.skip,
+      !resolveExpr(specInput.skip, context),
   )
 
   //
