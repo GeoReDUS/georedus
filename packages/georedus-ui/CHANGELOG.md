@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.19.1
+
+### Patch Changes
+
+- fix source label
+
 ## 0.19.0
 
 ### Minor Changes
