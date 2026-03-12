@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.19.0
+
+### Minor Changes
+
+- add source variables to view and download
+
 ## 0.18.0
 
 ### Minor Changes
