@@ -91,6 +91,9 @@ const GOOGLE_CEM_SAUDE_2024 =
 const GOOGLE_MUN_MACEIO =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=845075805&single=true&output=csv'
 
+const GOOGLE_MUN_SAO_LUIS =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2087614392&single=true&output=csv'
+
 const ASSETS_BASE = process.env.NODE_ENV === 'development' ? '/' : '/georedus/'
 
 const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
@@ -101,6 +104,7 @@ const BUILT_IN_CEM_SAUDE_2024 = `${ASSETS_BASE}georedus/data/cem_saude_2024.csv`
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
+    GOOGLE_MUN_SAO_LUIS,
     BUILT_IN_CEM_CENSO_2022,
     BUILT_IN_CEM_CENSO_2010,
 
@@ -146,6 +150,15 @@ const CATEGORY_ICONS = {
   maceio: (
     <img
       src={`${ASSETS_BASE}pilotos/maceio/logo-prefeitura.svg`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  'sao-luis': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-luis/logo-prefeitura.png`}
       style={{
         width: 45,
         height: 45,

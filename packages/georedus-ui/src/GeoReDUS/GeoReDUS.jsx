@@ -426,6 +426,7 @@ function GeoReDUSInner({
 
       return [
         ...resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
+          municipioId,
           METADATA_API_ENDPOINT,
           VECTOR_TILE_SERVER_ENDPOINT,
           MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
