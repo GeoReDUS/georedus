@@ -85,7 +85,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     ['$get', 'municipioId'],
   ]
 
-  const $sourceLabel = 'INEP (Censo Escolar 2022)'
+  const $sourceLabel = 'INEP'
 
   //
   // Specify some utilities connected to the base setup
