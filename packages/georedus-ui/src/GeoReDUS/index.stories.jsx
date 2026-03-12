@@ -94,6 +94,9 @@ const GOOGLE_MUN_MACEIO =
 const GOOGLE_MUN_SAO_LUIS =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2087614392&single=true&output=csv'
 
+const GOOGLE_MUN_CURITIBA =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=871920015&single=true&output=csv'
+
 const ASSETS_BASE = process.env.NODE_ENV === 'development' ? '/' : '/georedus/'
 
 const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
@@ -105,6 +108,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
     GOOGLE_MUN_SAO_LUIS,
+    GOOGLE_MUN_CURITIBA,
     BUILT_IN_CEM_CENSO_2022,
     BUILT_IN_CEM_CENSO_2010,
 
@@ -159,6 +163,15 @@ const CATEGORY_ICONS = {
   'sao-luis': (
     <img
       src={`${ASSETS_BASE}pilotos/sao-luis/logo-prefeitura.png`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  curitiba: (
+    <img
+      src={`${ASSETS_BASE}pilotos/curitiba/logo-prefeitura.png`}
       style={{
         width: 45,
         height: 45,
