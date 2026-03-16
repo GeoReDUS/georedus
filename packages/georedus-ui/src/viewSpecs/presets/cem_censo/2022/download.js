@@ -3,7 +3,7 @@ import { dataJoin } from '@orioro/util'
 
 import { downloadResolver } from '../../../util'
 
-export function download(context) {
+export function download(context, { PARSED_SCHEMA }) {
   const { METADATA_API_ENDPOINT } = context
 
   return downloadResolver({
@@ -17,12 +17,14 @@ export function download(context) {
     availableVariableIds: [],
 
     fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
-      const variableId = ctx.view.conf.data.variableId
 
+      const variableId = ctx.view.conf.data.variableId
+      const source_table_id = PARSED_SCHEMA.variantsByVariableId[variableId].source_table_id
+      
       const dataUrl =
-        `${METADATA_API_ENDPOINT}/cem_censo_2022_pessoas?` +
-        `cd_mun=eq.${ctx.app.municipioId}&` +
-        `select=id,${variableId},${variableId}_src`
+      `${METADATA_API_ENDPOINT}/${source_table_id}?` +
+      `cd_mun=eq.${ctx.app.municipioId}&` +
+      `select=id,${variableId},${variableId}_src`
 
       const data = (await fetch(dataUrl).then((res) => res.json())).map(
         (entry) => {

@@ -15,7 +15,7 @@ export function cem_censo_2022(viewSpec, allViewSpecs, context) {
     return null
   }
 
-  const DOWNLOAD = download(context)
+  const DOWNLOAD = download(context, {PARSED_SCHEMA})
 
   const CHOROPLETH = choropleth({
     GLOBAL_CONTEXT: context,
