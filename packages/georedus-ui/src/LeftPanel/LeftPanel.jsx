@@ -33,6 +33,7 @@ function LeftPanelInner({
   viewConfDispatch,
   viewSpecs,
   resolvedViews,
+  resolvedLayout,
   open,
   onSetOpen,
   syncedMapsRef,
@@ -59,8 +60,7 @@ function LeftPanelInner({
           whiteSpace: 'nowrap',
           flexShrink: 0,
           flexGrow: 0,
-        }}
-      >
+        }}>
         <LogoContainer direction="row" gap="8px">
           <GeoReDUSLogoSymbol />
 
@@ -70,8 +70,7 @@ function LeftPanelInner({
                 ? 'opacity .7s ease-out'
                 : 'opacity .1s ease-out',
               opacity: open ? 1 : 0,
-            }}
-          >
+            }}>
             <GeoReDUSLogoText />
           </div>
         </LogoContainer>
@@ -88,8 +87,7 @@ function LeftPanelInner({
           backgroundColor: 'white',
         }}
         direction="row"
-        justifyContent="center"
-      >
+        justifyContent="center">
         <img
           style={{
             transition: 'opacity .1s ease-out',
@@ -133,8 +131,7 @@ function LeftPanelInner({
 
           height: { xs: '40px', md: '20px' },
           width: { xs: '40px', md: '20px' },
-        }}
-      >
+        }}>
         <IconButton
           size={{
             xs: '3',
@@ -176,8 +173,7 @@ function LeftPanelInner({
             'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
             'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
         }}
-        onClick={(e) => onSetOpen(true)}
-      >
+        onClick={(e) => onSetOpen(true)}>
         {header}
         {Array.isArray(viewSpecs) ? (
           <ViewMenu
@@ -222,8 +218,7 @@ function LeftPanelInner({
                 direction="column"
                 gap="3"
                 justifyContent="flex-end"
-                alignItems="center"
-              >
+                alignItems="center">
                 <IconButton
                   variant="soft"
                   size="3"
@@ -231,11 +226,11 @@ function LeftPanelInner({
                     await dialogs.view(
                       <SharePanel
                         mapContainerRef={mapContainerRef}
+                        resolvedLayout={resolvedLayout}
                         syncedMapsRef={syncedMapsRef}
                       />,
                     )
-                  }}
-                >
+                  }}>
                   <Tooltip content="Compartilhar">
                     <Icon path={mdiShareVariantOutline} size="24px" />
                   </Tooltip>
@@ -244,8 +239,7 @@ function LeftPanelInner({
                   <a
                     href="https://www.redus.org.br/georedus-rede-de-dados-urbanos/formularios/cbf766bb-9a74-4bc5-897a-70b9151afbdb"
                     target="_blank"
-                    rel="noreferrer nofollow"
-                  >
+                    rel="noreferrer nofollow">
                     <Tooltip content="Dúvidas e sugestões">
                       <Icon path={mdiForumOutline} size="24px" />
                     </Tooltip>
@@ -259,8 +253,7 @@ function LeftPanelInner({
             style={{
               flexGrow: 1,
               position: 'relative',
-            }}
-          >
+            }}>
             <LoadingOverlay message={null} />
           </div>
         )}
