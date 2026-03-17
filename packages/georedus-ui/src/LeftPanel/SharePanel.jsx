@@ -20,7 +20,6 @@ import { useQuery } from '@tanstack/react-query'
 
 export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
   // Experimental image exporting
-  console.log({ resolvedLayout })
   const viewState = {
     //está chumbado
     longitude: -48.48524076449485,
@@ -160,7 +159,6 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
                 })
               })
               setExportImgSource(URL.createObjectURL(blobMap))
-              console.log('Map exported successfully')
               if (legendMapRef.current) {
                 try {
                   toBlob(legendMapRef.current, {
@@ -169,7 +167,6 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
                     fontEmbedCSS: false,
                   }).then((blobLegend) => {
                     setLegendImage(URL.createObjectURL(blobLegend))
-                    console.log('Legend exported successfully')
                   })
                 } catch (err) {
                   console.error('Failed to export legend:', err)
