@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Button, Flex } from '@orioro/react-ui-core'
+import { Button, Flex, Spinner } from '@orioro/react-ui-core'
 import { ShareButtonBar } from '../ShareButtonBar'
 import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
 import { toBlob } from 'html-to-image'
@@ -78,21 +78,23 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
 
   const layeredMapRef = useRef(null)
 
-  const [exportImgSource, setExportImgSource] = useState(null)
-
+  
   const legends = resolvedLayout?.[0]?.legends || []
-
+  
   const LegendContainer = styled(Flex)`
-    box-shadow:
-      rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
-      rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
-    background-color: white;
-    border-radius: 4px;
+  box-shadow:
+  rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+  rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  background-color: white;
+  border-radius: 4px;
   `
-
+  
   const legendMapRef = useRef(null)
-
-  const [legendImage, setLegendImage] = useState(null)
+  
+  // const [exportImgSource, setExportImgSource] = useState(null)
+  // const [legendImage, setLegendImage] = useState(null)
+  const [imageIsLoading, setImageIsLoading] = useState(false)
+  const [combinedImage, setCombinedImage] = useState(null)
 
   return (
     <>
@@ -106,38 +108,17 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
             mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`}
             views={resolvedLayout?.[0]?.views}
             viewState={viewState}
+            onLoad={() => alert('map loaded')}
             style={{
               height: '500px',
               width: '500px',
             }}
             canvasContextAttributes={{
               preserveDrawingBuffer: true,
-            }}>
-            {/* <ControlContainer
-              style={{
-                width: 'auto',
-                height: 'auto',
-                boxShadow: 'none',
-              }}
-              position="bottom-right">
-              <LegendContainer
-                direction="row"
-                gap="3"
-                p={resolvedLayout.length > 1 ? '3' : '4'}>
-                {legends
-                  .filter((legend) => legend?.type)
-                  .map((legend, i) => (
-                    <Legend
-                      key={legend.id || `${legend.type}-${i}`}
-                      {...legend}
-                    />
-                  ))}
-              </LegendContainer>
-            </ControlContainer> */}
-          </LayeredMap>
+            }}></LayeredMap>
           <LegendContainer
             ref={legendMapRef}
-            direction="row"
+            direction="column"
             gap="3"
             p={resolvedLayout.length > 1 ? '3' : '4'}>
             {legends
@@ -148,38 +129,58 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
           </LegendContainer>
           <Button
             onClick={async () => {
-              const canvas = layeredMapRef.current?.map.getCanvas()
-              const blobMap = await new Promise((resolve, reject) => {
-                canvas.toBlob((blob) => {
-                  if (blob) {
-                    resolve(blob)
-                  } else {
-                    reject()
-                  }
-                })
-              })
-              setExportImgSource(URL.createObjectURL(blobMap))
-              if (legendMapRef.current) {
-                try {
-                  toBlob(legendMapRef.current, {
-                    cacheBust: true,
-                    pixelRatio: 2,
-                    fontEmbedCSS: false,
-                  }).then((blobLegend) => {
-                    setLegendImage(URL.createObjectURL(blobLegend))
-                  })
-                } catch (err) {
-                  console.error('Failed to export legend:', err)
-                }
+              // Wait for map to be available
+              setImageIsLoading(true)
+
+              let mapCanvas
+              while (!mapCanvas) {
+                await new Promise((r) => setTimeout(r, 1000))
+                mapCanvas = layeredMapRef.current?.map?.getCanvas()
               }
+
+              const blobLegend = await toBlob(legendMapRef.current, {
+                cacheBust: true,
+                pixelRatio: 2,
+                fontEmbedCSS: false,
+              })
+
+              // Convert legend blob to image (only time we need to convert)
+              const legendImg = await new Promise((resolve) => {
+                const img = new Image()
+                img.onload = () => resolve(img)
+                img.src = URL.createObjectURL(blobLegend)
+              })
+
+              // Create combined canvas and draw directly
+              const combinedCanvas = document.createElement('canvas')
+
+              // Set internal resolution
+              combinedCanvas.width = 3508
+              combinedCanvas.height = 2480
+
+              const ctx = combinedCanvas.getContext('2d')
+
+              ctx.drawImage(mapCanvas, 100, 100, 2280, 2280)
+              ctx.drawImage(legendImg, 2480, 70, 928, 928 * (legendImg.height / legendImg.width))
+
+              // Convert combined result to blob once
+              combinedCanvas.toBlob((blob) => {
+                setCombinedImage(URL.createObjectURL(blob))
+              })
+
+              setImageIsLoading(false)
             }}>
             Exportar Mapa
           </Button>
-          {exportImgSource && (
+          {imageIsLoading && <Spinner />}
+          {/* {exportImgSource && (
             <img style={{ maxWidth: '100%' }} src={exportImgSource} />
           )}
           {legendImage && (
             <img style={{ maxWidth: '100%' }} src={legendImage} />
+          )} */}
+          {combinedImage && (
+            <img style={{ maxWidth: '100%' }} src={combinedImage} />
           )}
         </Flex>
         <ShareButtonBar />
