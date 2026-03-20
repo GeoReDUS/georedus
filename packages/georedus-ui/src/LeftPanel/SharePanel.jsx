@@ -55,26 +55,26 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
     ],
   }
 
-  const imageBlobQuery = useQuery({
-    queryKey: ['aaaa'],
-    queryFn: async () => {
-      // const canvas = await html2canvas(mapContainerRef.current)
-      // const canvas = document.querySelector('canvas.maplibregl-canvas')
-      const canvas = syncedMapsRef.current?.mapInstances?.[0].map.getCanvas()
+  // const imageBlobQuery = useQuery({
+  //   queryKey: ['aaaa'],
+  //   queryFn: async () => {
+  //     // const canvas = await html2canvas(mapContainerRef.current)
+  //     // const canvas = document.querySelector('canvas.maplibregl-canvas')
+  //     const canvas = syncedMapsRef.current?.mapInstances?.[0].map.getCanvas()
 
-      return new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob)
-          } else {
-            reject()
-          }
-        })
-      })
-    },
-    retry: false,
-    throwOnError: process.env.NODE_ENV !== 'production',
-  })
+  //     return new Promise((resolve, reject) => {
+  //       canvas.toBlob((blob) => {
+  //         if (blob) {
+  //           resolve(blob)
+  //         } else {
+  //           reject()
+  //         }
+  //       })
+  //     })
+  //   },
+  //   retry: false,
+  //   throwOnError: process.env.NODE_ENV !== 'production',
+  // })
 
   const layeredMapRef = useRef(null)
 
