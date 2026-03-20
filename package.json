@@ -8,8 +8,10 @@
     "?publish": "changeset does not support yarn@3+. Track: https://github.com/changesets/changesets/issues/432",
     "publish": "yarn workspaces foreach --no-private --since=HEAD npm publish",
     "dev": "yarn workspace @redus/georedus-ui dev",
-    "build": "yarn workspaces foreach --exclude @redus/chatbot-poc --all --parallel --interlaced --topological-dev run build",
-    "deploy-storybook": "yarn workspace @redus/georedus-ui deploy-storybook"
+    "_build": "yarn workspaces foreach --exclude @redus/chatbot-poc --all --parallel --interlaced --topological-dev run build",
+    "deploy-storybook": "yarn workspace @redus/georedus-ui deploy-storybook",
+    "build": "yarn workspace @orioro/vector-tile-util build && yarn workspace @redus/chatbot-poc build",
+    "start": "yarn workspace @redus/chatbot-poc start"
   },
   "workspaces": [
     "packages/*"
