@@ -276,7 +276,7 @@ export default function Page() {
   const cd_mun = FINAL_CONFIG.munCode;
   // const variable_id = 'V0001'
 
-  const buildingsTileUrl = `https://dev-geoapi-vector-tile.orioro.design/dvt/{z}/{x}/{y}?${_searchParams(
+  const buildingsTileUrl = `https://staging-geo-vector-tile-server-de3cacd0424b.herokuapp.com/dvt/{z}/{x}/{y}?${_searchParams(
     {
       view: "overture_br_buildings",
       select: [`setor_${year}_id`],
@@ -286,7 +286,7 @@ export default function Page() {
     },
   )}`;
 
-  const sectorsTileUrl = `https://dev-geoapi-vector-tile.orioro.design/dvt/{z}/{x}/{y}?${_searchParams(
+  const sectorsTileUrl = `https://staging-geo-vector-tile-server-de3cacd0424b.herokuapp.com/dvt/{z}/{x}/{y}?${_searchParams(
     {
       select: ["cd_setor"],
       view: `ibge_malha_br_setor_censitario_${year}`,
