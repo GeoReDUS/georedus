@@ -1,2 +1,5 @@
 *.parquet
+!salvador_2022_tracts_Basico.parquet
+!salvador_2022_tracts_Pessoas.parquet
+!salvador_census_tract_2020_geom.parquet
 *.gpkg

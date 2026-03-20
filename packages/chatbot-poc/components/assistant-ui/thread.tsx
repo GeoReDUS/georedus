@@ -112,6 +112,12 @@ const ThreadWelcomeSuggestions: FC = () => {
     <div className="aui-thread-welcome-suggestions grid w-full gap-2 @md:grid-cols-2">
       {[
         {
+          title: "SQL: mulheres idosas sem alfabetização",
+          // label: "usa V01032+V01033 sobre V0001",
+          action:
+            "Gere um SQL no modelo indicado que calcule quantidade de mulheres idosas sem alfabetização",
+        },
+        {
           title: "SQL: mapa % de 5–14 anos",
           label: "usa V01032+V01033 sobre V0001",
           action:
