@@ -22,6 +22,7 @@ import {
   temperatura_superficie,
   curvatura,
   redus_mutirao_cop_2025,
+  piloto_mobilidade_stops,
 } from '../viewSpecs'
 
 export default {
@@ -108,6 +109,22 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
     GOOGLE_MUN_SAO_LUIS,
+    [
+      piloto_mobilidade_stops({
+        ...API,
+        id: 'cittamobi_gtfs_curitiba_2026_stops_with_routes.geom',
+        collection_id: 'mun_curitiba_test',
+        indicator_id: 'mun_curitiba_test',
+        tiles: [
+          `${API.VECTOR_TILE_SERVER_ENDPOINT}/cittamobi_gtfs_curitiba_2026_stops_with_routes.geom/{z}/{x}/{y}`,
+        ],
+        source_layer: 'cittamobi_gtfs_curitiba_2026_stops_with_routes.geom',
+        path: 'Curitiba / 2026 / Mobilidade',
+        label: 'Pontos de ônibus',
+        color: '#1f77b4',
+        skip: ['$not', ['$eq', '4106902', ['$get', 'municipioId']]],
+      }),
+    ],
     GOOGLE_MUN_CURITIBA,
     BUILT_IN_CEM_CENSO_2022,
     BUILT_IN_CEM_CENSO_2010,
