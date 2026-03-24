@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.19.2
+
+### Patch Changes
+
+- fix etapa de ensino
+
 ## 0.19.1
 
 ### Patch Changes
