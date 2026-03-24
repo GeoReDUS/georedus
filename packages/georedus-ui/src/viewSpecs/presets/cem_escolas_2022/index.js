@@ -367,21 +367,30 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
         [
           '$literal',
           resolve.fn((context) => {
-            const ETAPAS = {
-              in_inf_cre: 'Infantil / Creche',
-              in_inf_pre: 'Infantil / Pré-escola',
-              in_fund_ai: 'Fundamental I',
-              in_fund_af: 'Fundamental II',
-              in_med: 'Ensino Médio',
-            }
+            const properties = context?.feature?.properties || {}
 
-            return Object.entries(ETAPAS)
-              .filter(
-                ([key, label]) =>
-                  context?.feature?.properties &&
-                  context?.feature?.properties[key],
-              )
-              .map(([key, label]) => label)
+            // Mapeamos os rótulos aos possíveis finais de string (sufixos)
+            // que essa coluna pode ter na base de 2022 ou nas bases >= 2023
+            // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
+            // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
+            const ETAPAS = [
+              { label: 'Infantil / Creche',     sufixos: ['in_inf_cre', 'edu02_etp_cre_0'] },
+              { label: 'Infantil / Pré-escola', sufixos: ['in_inf_pre', 'edu02_etp_pre_0'] },
+              { label: 'Fundamental I',         sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'] },
+              { label: 'Fundamental II',        sufixos: ['in_fund_af', 'edu02_etp_fn2_0'] },
+              { label: 'Ensino Médio',          sufixos: ['in_med', 'edu02_etp_em_0'] },
+            ]
+
+            return ETAPAS
+              .filter(({ sufixos }) => {
+                // Percorre todas as propriedades da feature atual
+                return Object.entries(properties).some(([key, value]) => 
+                  // Verifica se o nome da coluna termina com algum dos sufixos mapeados 
+                  // E se o valor da coluna é "truthy" (maior que 0, true, etc)
+                  sufixos.some(sufixo => key.endsWith(sufixo)) && value
+                )
+              })
+              .map(({ label }) => label)
               .join(', ')
           }),
         ],
