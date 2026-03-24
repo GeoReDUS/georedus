@@ -371,6 +371,8 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
 
             // Mapeamos os rótulos aos possíveis finais de string (sufixos)
             // que essa coluna pode ter na base de 2022 ou nas bases >= 2023
+            // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
+            // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
             const ETAPAS = [
               { label: 'Infantil / Creche',     sufixos: ['in_inf_cre', 'edu02_etp_cre_0'] },
               { label: 'Infantil / Pré-escola', sufixos: ['in_inf_pre', 'edu02_etp_pre_0'] },
