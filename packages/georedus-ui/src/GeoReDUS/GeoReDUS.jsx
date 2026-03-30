@@ -687,7 +687,7 @@ function GeoReDUSInner({
     [],
   )
 
-  const [viewState, setViewState] = useState(null)
+  const [commitedViewState, setCommitedViewState] = useState(null)
 
   return (
     <Flex>
@@ -699,6 +699,7 @@ function GeoReDUSInner({
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         resolvedLayout={resolvedLayout}
+        commitedViewState={commitedViewState}
         syncedMapsRef={syncedMapsRef}
         {...leftPanelProps}
       />
@@ -774,7 +775,7 @@ function GeoReDUSInner({
         //
         onMoveEnd={(e) => {
   
-          setViewState(e.viewState)
+          setCommitedViewState(e.viewState)
           const { latitude, longitude } = e.viewState
           const bounds = e.target.getBounds()
           const minLng = bounds.getWest()

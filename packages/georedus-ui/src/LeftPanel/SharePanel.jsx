@@ -10,6 +10,11 @@ import { Legend } from '@orioro/react-chart-util'
 
 import styled from 'styled-components'
 
+import {
+  ScaleControl,
+  AttributionControl,
+} from 'react-map-gl/maplibre'
+
 // html2canvas does not support color functions
 // radix uses: oklch and color(...)
 
@@ -107,7 +112,7 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
             maxPitch={80}
             mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`}
             views={resolvedLayout?.[0]?.views}
-            viewState={viewState}
+            initialViewState={viewState}
             onLoad={() => alert('map loaded')}
             style={{
               height: '500px',
@@ -115,7 +120,10 @@ export function SharePanel({ syncedMapsRef, resolvedLayout, mapContainerRef }) {
             }}
             canvasContextAttributes={{
               preserveDrawingBuffer: true,
-            }}></LayeredMap>
+            }}>
+              <ScaleControl position="bottom-right" />
+              <AttributionControl position="bottom-right" compact={false} />
+            </LayeredMap>
           <LegendContainer
             ref={legendMapRef}
             direction="column"
