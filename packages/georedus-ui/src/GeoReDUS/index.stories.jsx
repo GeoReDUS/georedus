@@ -98,6 +98,12 @@ const GOOGLE_MUN_SAO_LUIS =
 const GOOGLE_MUN_CURITIBA =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=871920015&single=true&output=csv'
 
+const GOOGLE_DIVISOES_TERRITORIAIS =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1006885047&single=true&output=csv'
+
+const GOOGLE_EMERGENCIAS_CLIMATICAS =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=874932999&single=true&output=csv'
+
 const ASSETS_BASE = process.env.NODE_ENV === 'development' ? '/' : '/georedus/'
 
 const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
@@ -128,6 +134,8 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
     GOOGLE_MUN_CURITIBA,
     BUILT_IN_CEM_CENSO_2022,
     BUILT_IN_CEM_CENSO_2010,
+    GOOGLE_DIVISOES_TERRITORIAIS,
+    GOOGLE_EMERGENCIAS_CLIMATICAS,
 
     // GOOGLE_CEM_CENSO_2022,
     // GOOGLE_CEM_CENSO_2010,
