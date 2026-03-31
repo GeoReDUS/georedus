@@ -1,5 +1,6 @@
 import { schemeCategory10 } from 'd3-scale-chromatic'
-import { waves_1 } from '@orioro/react-maplibre-util'
+import { resolveColor } from '../../util'
+import { SVG_PATTERNS } from '@orioro/react-maplibre-util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
@@ -17,6 +18,9 @@ function _parseTiles(tiles, context) {
 
   return tiles.map((tileSrcUrl) => interpolate(tileSrcUrl, context))
 }
+function svgBgImage(svg) {
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+}
 
 export function vector_polygon(
   {
@@ -28,6 +32,7 @@ export function vector_polygon(
     source_layer,
     sources = {},
     layers = {},
+    fill_pattern,
     ...props
   },
   allViewSpecs,
@@ -36,6 +41,29 @@ export function vector_polygon(
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
+
+  const _color = resolveColor(color)
+  const _fill_pattern =
+    fill_pattern && typeof SVG_PATTERNS[fill_pattern] === 'function'
+      ? {
+          legendItemProps: {
+            box: {
+              style: {
+                borderColor: _color,
+                borderStyle: 'solid',
+                borderWidth: '1px',
+                backgroundImage: svgBgImage(
+                  SVG_PATTERNS[fill_pattern]({
+                    stroke: _color,
+                    scale: '0.25',
+                  }),
+                ),
+              },
+            },
+          },
+          str: `${fill_pattern}({ stroke: "${_color}", scale: 0.5 })`,
+        }
+      : null
 
   return {
     ...props,
@@ -57,7 +85,8 @@ export function vector_polygon(
         type: 'line',
         ...line,
         paint: {
-          'line-color': color,
+          'line-color': _color,
+          ...line.paint,
         },
       },
       [`main_fill`]: {
@@ -68,18 +97,26 @@ export function vector_polygon(
         ...fill,
         paint: {
           'fill-opacity': 0.5,
-          'fill-color': color,
+          'fill-color': _color,
+          ...(_fill_pattern ? { 'fill-pattern': _fill_pattern.str } : {}),
           ...fill.paint,
         },
         legends: [
           {
             type: 'CategoricalLegend',
-            items: [
-              {
-                color,
-                label,
-              },
-            ],
+            items: _fill_pattern
+              ? [
+                  {
+                    label,
+                    ..._fill_pattern.legendItemProps
+                  },
+                ]
+              : [
+                  {
+                    color: _color,
+                    label,
+                  },
+                ],
           },
         ],
         tooltip: {
