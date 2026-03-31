@@ -448,6 +448,7 @@ function GeoReDUSInner({
     () => ({
       municipioId,
       baseMapStyle,
+      viewConfDispatch,
       //
       // Pass only zoomLevel instead of zoom itself
       // in order for views not recompute on every zoom change
@@ -456,7 +457,14 @@ function GeoReDUSInner({
       regional,
       mapBounds,
     }),
-    [municipioId, baseMapStyle, zoomLevel, regional, mapBounds],
+    [
+      municipioId,
+      baseMapStyle,
+      viewConfDispatch,
+      zoomLevel,
+      regional,
+      mapBounds,
+    ],
   )
 
   const {
@@ -952,7 +960,6 @@ function GeoReDUSInner({
               right: '20px',
               zIndex: 20,
             }}
-            spinnerProps={{ size: 20 }}
             message={null}
           />
         )}
