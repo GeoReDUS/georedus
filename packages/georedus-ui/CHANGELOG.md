@@ -1,16 +1,9 @@
 # @orioro/template-react
 
-## 0.19.4
-
-### Patch Changes
-
-- update dependencies
-
 ## 0.19.3
 
 ### Patch Changes
 
-- fix total_pessoas_por_km2 mainDisplayValue
 - update dependency versions
 - Updated dependencies
   - @orioro/react-maplibre-util@0.7.1
