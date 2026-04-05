@@ -4055,11 +4055,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/get@npm:^0.0.11":
-  version: 0.0.11
-  resolution: "@orioro/get@npm:0.0.11"
+"@orioro/get@npm:^0.0.12":
+  version: 0.0.12
+  resolution: "@orioro/get@npm:0.0.12"
   dependencies:
-    "@orioro/cast": "npm:^0.0.11"
+    "@orioro/cast": "npm:^0.0.12"
     fast-copy: "npm:^3.0.2"
     is-plain-object: "npm:^5.0.0"
     lodash-es: "npm:^4.17.21"
@@ -4294,9 +4294,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/react-sortable@npm:^0.0.10":
-  version: 0.0.10
-  resolution: "@orioro/react-sortable@npm:0.0.10"
+"@orioro/react-sortable@npm:^0.0.16":
+  version: 0.0.16
+  resolution: "@orioro/react-sortable@npm:0.0.16"
   dependencies:
     "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/sortable": "npm:^10.0.0"
@@ -4394,11 +4394,11 @@ __metadata:
     "@mdi/react": "npm:^1.6.1"
     "@mui/base": "npm:^5.0.0-beta.40"
     "@orioro/react-select": "npm:^3.1.1"
-    "@orioro/react-tree": "npm:^0.0.9"
-    "@orioro/resolve": "npm:^0.1.11"
-    "@orioro/tree-model": "npm:^0.0.9"
-    "@orioro/util": "npm:^0.15.1"
-    "@orioro/validate": "npm:^0.0.9"
+    "@orioro/react-tree": "npm:^0.0.10"
+    "@orioro/resolve": "npm:^0.1.12"
+    "@orioro/tree-model": "npm:^0.0.10"
+    "@orioro/util": "npm:^0.16.0"
+    "@orioro/validate": "npm:^0.0.10"
     "@radix-ui/react-collapsible": "npm:^1.1.0"
     "@radix-ui/react-dialog": "npm:^1.0.5"
     "@radix-ui/react-icons": "npm:^1.3.0"
@@ -4439,7 +4439,7 @@ __metadata:
     stable-hash: "npm:^0.0.4"
     styled-components: "npm:^6.1.8"
     type-fest: "npm:^4.12.0"
-  checksum: 551f8eac0408877ae51a856ac32a6644614493ca83a75da3fe0b0ca485d48c6318648bd246e70f562bcab5857a0eba09ce68de290399387d88a500067085105b
+  checksum: 2de1c68a85692518bbe1426a4a6a433de234fa3ea8d749b999f6512dad7958a141f34013ad1c546a0e2c84f84775197e5dbcba185204da5ead6d3d3682339901
   languageName: node
   linkType: hard
 
@@ -4456,13 +4456,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/resolve@npm:^0.1.11":
-  version: 0.1.11
-  resolution: "@orioro/resolve@npm:0.1.11"
+"@orioro/resolve@npm:^0.1.12":
+  version: 0.1.12
+  resolution: "@orioro/resolve@npm:0.1.12"
   dependencies:
-    "@orioro/cast": "npm:^0.0.11"
-    "@orioro/get": "npm:^0.0.11"
-    "@orioro/util": "npm:^0.15.1"
+    "@orioro/cast": "npm:^0.0.12"
+    "@orioro/get": "npm:^0.0.12"
+    "@orioro/util": "npm:^0.16.0"
     "@types/isomorphic-fetch": "npm:^0.0.39"
     "@types/kind-of": "npm:^6.0.3"
     fast-copy: "npm:^3.0.2"
@@ -4473,13 +4473,13 @@ __metadata:
     lodash-es: "npm:^4.17.21"
     traverse: "npm:^0.6.9"
     type-fest: "npm:^4.18.2"
-  checksum: 141260081714b95ec700ea19721388b1ddca4119a08cd11f995fe30d779726f297322a6049b4bdd886995f7645c69d28a00a17d9e9ce8ee721cd22d16f1dcbe5
+  checksum: dcf03fc1d9ace4b4327db8f78f3c7c52504d376ec89c600e5cac08c12781846a63a73fa8bade99868a5b9d809687d90345bfda8d27a3415ee013895e5239bf4b
   languageName: node
   linkType: hard
 
-"@orioro/resolve@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@orioro/resolve@npm:0.1.2"
+"@orioro/scale-util@npm:^0.0.12":
+  version: 0.0.12
+  resolution: "@orioro/scale-util@npm:0.0.12"
   dependencies:
     "@orioro/cast": "npm:^0.0.12"
     "@orioro/get": "npm:^0.0.12"
