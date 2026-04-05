@@ -24,7 +24,7 @@
   "devDependencies": {
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
-    "@orioro/dev": "^0.0.5",
+    "@orioro/dev": "^0.0.6",
     "@orioro/react-maplibre-util": "workspace:^",
     "d3-scale-chromatic": "^3.1.0",
     "next": "14.1.0",
@@ -32,9 +32,9 @@
     "storybook": "^8.0.0"
   },
   "dependencies": {
-    "@orioro/cast": "^0.0.2",
-    "@orioro/react-ui-core": "^0.0.14",
-    "@orioro/util": "^0.15.0",
+    "@orioro/cast": "^0.0.12",
+    "@orioro/react-ui-core": "^0.0.20",
+    "@orioro/util": "^0.16.0",
     "d3-scale": "^4.0.2",
     "lodash-es": "^4.17.21",
     "react": "^18.2.0",
