@@ -41,7 +41,7 @@ export function vector_polygon(
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
-  console.log(line);
+
   const _color = resolveColor(color)
   const _fill_pattern =
     fill_pattern && typeof SVG_PATTERNS[fill_pattern] === 'function'
