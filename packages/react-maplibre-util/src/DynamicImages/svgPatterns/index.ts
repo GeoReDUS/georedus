@@ -260,3 +260,29 @@ export const lines_1 = _pattern(`<svg
   </defs>
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
+
+// Source:
+// https://pattern.monster/herringbone-8
+export const herringbone_8 = _pattern(`<svg
+  xmlns="http://www.w3.org/2000/svg"
+  ${_svgViewBox({
+    width: 40,
+    height: 40,
+  })}>
+  <defs>
+    <pattern
+      id="a"
+      width="40"
+      height="40"
+      patternTransform="scale(\${ scale = 2 })"
+      patternUnits="userSpaceOnUse">
+      ${_bgRect()}
+      <path
+        fill="transparent"
+        stroke="\${ stroke = #000000 }"
+        d="M15 5h10v30H15zM35-5V5H5V-5zm0 40v10H5V35zm0-50h10v30H35zm20 30v10H25V15zm-40 0v10h-30V15zm20 10h10v30H35zm-40 0H5v30H-5zm0-40H5v30H-5z"
+      />
+    </pattern>
+  </defs>
+  <rect width="800%" height="800%" fill="url(#a)" />
+</svg>`)
