@@ -97,6 +97,8 @@ export const diamonds_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+https://pattern.monster/plus-1
 export const cross_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -124,6 +126,7 @@ export const cross_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
 // https://pattern.monster/cubes-1
 export const mosaic_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
@@ -150,6 +153,8 @@ export const mosaic_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/waves-1
 export const waves_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -193,6 +198,8 @@ export const waves_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/circles-1
 export const circles_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -218,6 +225,8 @@ export const circles_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/straight-lines
 export const lines_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -263,7 +272,7 @@ export const lines_1 = _pattern(`<svg
 
 // Source:
 // https://pattern.monster/herringbone-8
-export const herringbone_8 = _pattern(`<svg
+export const mosaic_2 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
     width: 40,
