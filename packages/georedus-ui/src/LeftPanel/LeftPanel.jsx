@@ -8,11 +8,13 @@ import {
   mdiChevronLeft,
   mdiForumOutline,
   mdiShareVariantOutline,
+  mdiMapMarker,
 } from '@mdi/js'
 import { GeoReDUSLogoSymbol, GeoReDUSLogoText } from '../GeoReDUSLogo'
 import { useDialogs } from '../DialogSystem'
 import styled from 'styled-components'
 import { SharePanel } from './SharePanel'
+import { GeocodeCSVUploader } from '../GeocodeCSVUploader'
 
 const OPEN_WIDTH = { xs: 'calc(100vw - 30px)', sm: '380px' }
 const CLOSED_WIDTH = '60px'
@@ -238,6 +240,24 @@ function LeftPanelInner({
                 >
                   <Tooltip content="Compartilhar">
                     <Icon path={mdiShareVariantOutline} size="24px" />
+                  </Tooltip>
+                </IconButton>
+                <IconButton
+                  variant="soft"
+                  size="3"
+                  onClick={async () => {
+                    await dialogs.view(
+                      <GeocodeCSVUploader
+                        syncedMapsRef={syncedMapsRef}
+                        geocodeApiEndpoint={
+                          process.env.NEXT_PUBLIC_GEOCODE_API_ENDPOINT
+                        }
+                      />,
+                    )
+                  }}
+                >
+                  <Tooltip content="Geocodificar CSV">
+                    <Icon path={mdiMapMarker} size="24px" />
                   </Tooltip>
                 </IconButton>
                 <IconButton variant="soft" size="3" asChild>
