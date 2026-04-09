@@ -249,9 +249,6 @@ function LeftPanelInner({
                     await dialogs.view(
                       <GeocodeCSVUploader
                         syncedMapsRef={syncedMapsRef}
-                        geocodeApiEndpoint={
-                          process.env.NEXT_PUBLIC_GEOCODE_API_ENDPOINT
-                        }
                       />,
                     )
                   }}
