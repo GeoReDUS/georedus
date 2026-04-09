@@ -6,7 +6,7 @@
   "scripts": {
     "changeset": "changeset",
     "?publish": "changeset does not support yarn@3+. Track: https://github.com/changesets/changesets/issues/432",
-    "publish": "yarn workspaces foreach --no-private --since=HEAD publish",
+    "publish": "yarn workspaces foreach --no-private --since=HEAD npm publish",
     "dev": "yarn workspace @redus/georedus-ui dev",
     "build": "yarn workspaces foreach --exclude @redus/chatbot-poc --all --parallel --interlaced --topological-dev run build",
     "deploy-storybook": "yarn workspace @redus/georedus-ui deploy-storybook"

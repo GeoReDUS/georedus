@@ -1,5 +1,11 @@
 # @orioro/react-chart-util
 
+## 0.3.1
+
+### Patch Changes
+
+- update dependency versions
+
 ## 0.3.0
 
 ### Minor Changes
