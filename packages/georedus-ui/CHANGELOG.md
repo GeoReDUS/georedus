@@ -10,6 +10,7 @@
   - @orioro/react-chart-util@0.3.1
   - @orioro/vector-tile-util@0.3.1
   - @orioro/react-dir-nav@0.2.1
+- fix total_pessoas_por_km2 mainDisplayValue
 
 ## 0.19.2
 
