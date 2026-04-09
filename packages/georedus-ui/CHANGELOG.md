@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.19.4
+
+### Patch Changes
+
+- update dependencies
+
 ## 0.19.3
 
 ### Patch Changes
