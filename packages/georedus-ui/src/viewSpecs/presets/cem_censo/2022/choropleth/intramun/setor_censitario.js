@@ -200,7 +200,7 @@ export function setor_censitario_layers(opts) {
 
             let mainValueDisplay
 
-            if (variableId === 'total_pessoas_por_hectare') {
+            if (variableId === 'total_pessoas_por_km2') {
               try {
                 const value_src = JSON.parse(
                   context.feature.properties.value_src,
