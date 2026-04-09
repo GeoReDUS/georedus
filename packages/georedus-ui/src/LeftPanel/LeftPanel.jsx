@@ -38,6 +38,7 @@ function LeftPanelInner({
   onSetOpen,
   syncedMapsRef,
   mapContainerRef,
+  commitedViewState,
 
   categoryIcons = undefined,
   header: customHeader = undefined,
@@ -223,13 +224,18 @@ function LeftPanelInner({
                   variant="soft"
                   size="3"
                   onClick={async () => {
-                    await dialogs.view(
-                      <SharePanel
-                        mapContainerRef={mapContainerRef}
-                        resolvedLayout={resolvedLayout}
-                        syncedMapsRef={syncedMapsRef}
-                      />,
-                    )
+                    await dialogs.view({
+                      maxWidth: '1500px',
+                      width: '1500px',
+                      children: (
+                        <SharePanel
+                          mapContainerRef={mapContainerRef}
+                          resolvedLayout={resolvedLayout}
+                          syncedMapsRef={syncedMapsRef}
+                          commitedViewState={commitedViewState}
+                        />
+                      ),
+                    })
                   }}>
                   <Tooltip content="Compartilhar">
                     <Icon path={mdiShareVariantOutline} size="24px" />
