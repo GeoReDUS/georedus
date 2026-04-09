@@ -1,6 +1,6 @@
 {
   "name": "@orioro/vector-tile-util",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/index.mjs",
