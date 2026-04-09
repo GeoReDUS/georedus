@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.19.3
+
+### Patch Changes
+
+- fix total_pessoas_por_km2 mainDisplayValue
+
 ## 0.19.2
 
 ### Patch Changes
