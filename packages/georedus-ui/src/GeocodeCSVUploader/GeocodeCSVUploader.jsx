@@ -150,7 +150,7 @@ const getMapInstance = (syncedMapsRef) => {
 const STORAGE_KEY = 'geocode_csv_results'
 const STORAGE_KEY_LAYERS = 'geocode_csv_layers'
 
-export function GeocodeCSVUploader({ syncedMapsRef, geocodeApiEndpoint = process.env.NEXT_PUBLIC_GEOCODE_API_ENDPOINT}) {
+export function GeocodeCSVUploader({ syncedMapsRef, geocodeApiEndpoint = process.env.STORYBOOK_GEOCODE_API_ENDPOINT }) {
   const [file, setFile] = useState(null)
   const [columns, setColumns] = useState({})
   const [isLoading, setIsLoading] = useState(false)
@@ -270,7 +270,7 @@ export function GeocodeCSVUploader({ syncedMapsRef, geocodeApiEndpoint = process
 
   const geocodeAddress = async (row, endereco, cols) => {
     try {
-      const response = await fetch(`${geocodeApiEndpoint}/v1/geocode`, {
+      const response = await fetch(`${geocodeApiEndpoint}/v2/geocode`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
