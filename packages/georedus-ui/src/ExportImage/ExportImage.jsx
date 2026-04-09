@@ -5,6 +5,7 @@ import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
 import { toBlob } from 'html-to-image'
 
 import { Legend } from '@orioro/react-chart-util'
+import QRCode from 'react-qr-code'
 
 import styled from 'styled-components'
 import { SKY_STYLE } from '../GeoReDUS/constants'
@@ -12,7 +13,7 @@ import {
   ScaleControl,
   AttributionControl,
   GeolocateControl,
-  NavigationControl
+  NavigationControl,
 } from 'react-map-gl/maplibre'
 
 import { GeoReDUSLogo } from '../GeoReDUSLogo'
@@ -35,8 +36,9 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
   const [imageIsLoading, setImageIsLoading] = useState(false)
   const [combinedImage, setCombinedImage] = useState(null)
 
+  const { href } = useLocation()
+
   function ImageDescription() {
-    const { href } = useLocation()
     return (
       <>
         <Flex direction="column">
@@ -97,7 +99,7 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
           canvasContextAttributes={{
             preserveDrawingBuffer: true,
           }}>
-          <NavigationControl position="bottom-right" showZoom={false}/>
+          <NavigationControl position="bottom-right" showZoom={false} />
           <ControlContainer position="bottom-left">
             <Flex p="2">
               <Text weight="bold">Projeção universal </Text>
@@ -108,11 +110,15 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
 
           {/* <AttributionControl position="bottom-right" compact={false} /> */}
         </LayeredMap>
-        <Flex direction="row">
+        <Flex
+          direction="row"
+          width="1296px"
+          style={{ justifyContent: 'space-between' }}>
           <ImageDescription />
           <LegendContainer
             ref={legendMapRef}
             direction="row"
+            flexGrow="1"
             gap="3"
             p={resolvedLayout.length > 1 ? '3' : '4'}>
             {legends
@@ -121,6 +127,9 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
                 <Legend key={legend.id || `${legend.type}-${i}`} {...legend} />
               ))}
           </LegendContainer>
+          <Flex style={{ alignItems: 'end' }}>
+            <QRCode value={href} />
+          </Flex>
         </Flex>
         <Button
           onClick={async () => {

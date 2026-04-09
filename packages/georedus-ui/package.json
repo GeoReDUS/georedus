@@ -83,6 +83,7 @@
     "react-confetti": "^6.1.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-highlight-words": "^0.21.0",
+    "react-qr-code": "^2.0.18",
     "react-share": "^5.1.0",
     "react-use": "^17.5.0",
     "rehype-katex": "^7.0.1",
