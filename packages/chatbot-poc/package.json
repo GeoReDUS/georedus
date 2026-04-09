@@ -16,6 +16,7 @@
     "@assistant-ui/react-ai-sdk": "^1.0.6",
     "@assistant-ui/react-markdown": "^0.10.9",
     "@duckdb/duckdb-wasm": "1.29.1-dev132.0",
+    "@orioro/scale-util": "^0.0.9",
     "@orioro/vector-tile-util": "workspace:^",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -25,11 +26,13 @@
     "ai": "^5.0.33",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "es5-ext": "^0.10.64",
     "framer-motion": "^12.23.12",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.542.0",
     "maplibre-gl": "^5.1.0",
     "memoizee": "^0.4.17",
+    "micro-memoize": "^5.1.1",
     "motion": "^12.23.12",
     "next": "15.5.2",
     "query-string": "^9.1.2",
@@ -52,6 +55,6 @@
     "eslint-config-next": "15.5.2",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }
