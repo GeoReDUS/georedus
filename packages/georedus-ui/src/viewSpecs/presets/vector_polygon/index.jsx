@@ -50,7 +50,7 @@ export function vector_polygon(
             box: {
               style: {
                 borderColor: _color,
-                borderStyle: line.paint["line-dasharray"] ? 'dashed' : 'line',
+                borderStyle: line.paint && line.paint["line-dasharray"] ? 'dashed' : 'line',
                 borderWidth: '1px',
                 backgroundImage: svgBgImage(
                   SVG_PATTERNS[fill_pattern]({
