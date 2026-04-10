@@ -4456,7 +4456,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/resolve@npm:^0.1.12":
+"@orioro/resolve@npm:^0.1.12, @orioro/resolve@npm:^0.1.9":
   version: 0.1.12
   resolution: "@orioro/resolve@npm:0.1.12"
   dependencies:
