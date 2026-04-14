@@ -3,6 +3,7 @@ import { waves_1 } from '@orioro/react-maplibre-util'
 import { Z_OVERLAY_BASE_1000, Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
+import { resolveColor } from '../../util'
 
 function _parseTiles(tiles, context) {
   tiles = Array.isArray(tiles)
@@ -20,6 +21,7 @@ function _parseTiles(tiles, context) {
 
 export function vector_line(
   {
+    label,
     line = {},
     color,
     tiles,
@@ -35,8 +37,24 @@ export function vector_line(
     throw new Error('source_layer must be defined')
   }
 
+  const _color = resolveColor(color)
+  const _line_pattern = {
+    legendItemProps: {
+      box: {
+        style: {
+          height: 0,
+          borderColor: _color,
+          borderStyle:
+            line.paint && line.paint['line-dasharray'] ? 'dashed' : 'line',
+          borderWidth: '1px',
+        },
+      },
+    },
+  }
+
   return {
     ...props,
+    label,
     metadata: {},
     sources: {
       main: {
@@ -55,9 +73,20 @@ export function vector_line(
         ...line,
         paint: {
           'line-width': 1,
-          'line-color': color,
+          'line-color': _color,
           ...(line.paint || {}),
         },
+        legends: [
+          {
+            type: 'CategoricalLegend',
+            items: [
+              {
+                label,
+                ..._line_pattern.legendItemProps,
+              },
+            ],
+          },
+        ],
         tooltip: {
           title: [
             '$literal',
