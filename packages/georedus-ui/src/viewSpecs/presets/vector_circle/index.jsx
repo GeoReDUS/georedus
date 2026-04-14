@@ -1,8 +1,9 @@
 import { schemeCategory10 } from 'd3-scale-chromatic'
-import { waves_1 } from '@orioro/react-maplibre-util'
+import { circles_1, waves_1 } from '@orioro/react-maplibre-util'
 import { Z_OVERLAY_BASE_1000, Z_OVERLAY_TOP_3000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
+import { resolveColor } from '../../util'
 
 function _parseTiles(tiles, context) {
   tiles = Array.isArray(tiles)
@@ -20,6 +21,7 @@ function _parseTiles(tiles, context) {
 
 export function vector_circle(
   {
+    label,
     circle = {},
     color,
     tiles,
@@ -35,8 +37,22 @@ export function vector_circle(
     throw new Error('source_layer must be defined')
   }
 
+  const _color = resolveColor(color)
+  const _circle_pattern = {
+    legendItemProps: {
+      box: {
+        style: {
+          backgroundColor: _color,
+          border: '1px solid black',
+          borderRadius: '30px'
+        },
+      },
+    },
+  }
+
   return {
     ...props,
+    label,
     metadata: {},
     sources: {
       main: {
@@ -55,12 +71,23 @@ export function vector_circle(
         ...circle,
         paint: {
           'circle-radius': 8,
-          'circle-color': color,
+          'circle-color': _color,
           'circle-opacity': 1,
           'circle-stroke-color': '#000000',
           'circle-stroke-width': 1,
           ...(circle.paint || {}),
         },
+        legends: [
+          {
+            type: 'CategoricalLegend',
+            items: [
+              {
+                label,
+                ..._circle_pattern.legendItemProps,
+              },
+            ],
+          },
+        ],
         tooltip: {
           title: [
             '$literal',
