@@ -709,8 +709,7 @@ function GeoReDUSInner({
         }}
         direction="row"
         gap="4"
-        alignItems="center"
-      >
+        alignItems="center">
         <ViewLayoutPopover
           viewSpecs={viewSpecsQuery.data}
           viewConfState={viewConfState}
@@ -722,8 +721,7 @@ function GeoReDUSInner({
           width="400px"
           direction="column"
           maxWidth="30vw"
-          gap="3"
-        >
+          gap="3">
           <HotfixSelectLargeFont>
             <Input
               schema={MUNICIPIO_ID_SELECTOR_SCHEMA}
@@ -736,8 +734,7 @@ function GeoReDUSInner({
               alignSelf: 'flex-end',
               position: 'absolute',
               top: '100%',
-            }}
-          >
+            }}>
             <Input
               schema={{
                 type: 'booleanCheckbox',
@@ -842,14 +839,12 @@ function GeoReDUSInner({
                   boxShadow: 'none',
                   opacity: legends.length > 0 ? 1 : 0,
                 }}
-                position="bottom-right"
-              >
+                position="bottom-right">
                 {legends.length > 0 && (
                   <LegendContainer
                     direction="row"
                     gap="3"
-                    p={resolvedLayout.length > 1 ? '3' : '4'}
-                  >
+                    p={resolvedLayout.length > 1 ? '3' : '4'}>
                     {resolvedLayout.length > 1 && (
                       <Tooltip content="Fechar visualização">
                         <IconButton
@@ -860,8 +855,7 @@ function GeoReDUSInner({
                               type: 'DEACTIVATE_VIEW',
                               payload: views[0].id,
                             })
-                          }
-                        >
+                          }>
                           <Icon path={mdiClose} size="20px" />
                         </IconButton>
                       </Tooltip>
@@ -870,18 +864,16 @@ function GeoReDUSInner({
                     <EvenSpacedList
                       columns={legends.length > 1 ? 2 : 1}
                       gap="10px"
-                    >
+                      style={{ maxWidth: '300px' }}>
                       {legends.map((legend) => (
                         <HoverLegend
                           {...(resolvedLayout.length > 1
                             ? {
                                 direction: 'row',
-                                maxWidth: '300px',
                                 size: '1',
                               }
                             : {
                                 direction: 'column',
-                                maxWidth: '150px',
                                 size: '2',
                               })}
                           key={legend.id}
@@ -906,8 +898,7 @@ function GeoReDUSInner({
                       width: 100,
                       height: 100,
                       boxShadow: 'none',
-                    }}
-                  >
+                    }}>
                     <MapStyleToggleCtrl
                       style={{
                         position: 'relative',
@@ -919,8 +910,7 @@ function GeoReDUSInner({
                         setBaseMapStyle(
                           baseMapStyle === 'dataviz' ? 'satellite' : 'dataviz',
                         )
-                      }
-                    >
+                      }>
                       <MapWindow
                         style={{
                           pointerEvents: 'none',
@@ -950,8 +940,7 @@ function GeoReDUSInner({
               {mapProps.children || null}
             </>
           ),
-        }))}
-      >
+        }))}>
         {(viewsLoading || tilesLoading) && (
           <LoadingIndicator
             style={{
