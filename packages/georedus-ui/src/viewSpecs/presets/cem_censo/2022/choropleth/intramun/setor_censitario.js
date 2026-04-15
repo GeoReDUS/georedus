@@ -212,7 +212,7 @@ export function setor_censitario_layers(opts) {
               }
             } else {
               const value = get(context, 'feature.properties.value')
-              const isPercentage = variableId.endsWith('_2')
+              const isPercentage = variableId.endsWith('_2') // _2 is the new suffix to indicate percentage variables
               const format = isPercentage ? { style: 'percent' } : {}
               mainValueDisplay =
                 typeof value === 'number'
