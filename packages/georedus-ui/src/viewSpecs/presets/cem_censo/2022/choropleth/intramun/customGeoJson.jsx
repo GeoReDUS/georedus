@@ -102,7 +102,7 @@ export async function customGeoJSON_metadata(opts, context) {
     const variant = PARSED_SCHEMA.variantsByVariableId[variableId]
 
     //
-    // Fetch variable values using rpc aggregate_by_geojson
+    // Fetch variable values using rpc aggregate_by_geojson with join
     //
     const variableValues = await fetch(
       `${GLOBAL_CONTEXT.METADATA_API_ENDPOINT}/rpc/aggregate_by_geojson`,
@@ -113,9 +113,11 @@ export async function customGeoJSON_metadata(opts, context) {
         },
         body: JSON.stringify({
           geometries: AREAS_FEATURES.map((feat) => feat.geometry),
-          view: `ibge_malha_br_setor_censitario_${PARSED_SCHEMA.year}_spatial_agg`,
+          view: `${PARSED_SCHEMA.source_table_id}`,
+          join_table: `ibge_malha_br_setor_censitario_${PARSED_SCHEMA.year}`,
+          join_col: 'cd_setor',
           agg_column: variableId,
-          agg_type: variableId.endsWith('_pct') ? 'weighted_avg' : 'sum',
+          agg_type: variableId.endsWith('_2') ? 'weighted_avg' : 'sum',
         }),
       },
     ).then((res) => res.json())
