@@ -4343,7 +4343,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/resolve@npm:^0.1.12, @orioro/resolve@npm:^0.1.9":
+"@orioro/resolve@npm:^0.1.12":
   version: 0.1.12
   resolution: "@orioro/resolve@npm:0.1.12"
   dependencies:
@@ -4374,19 +4374,6 @@ __metadata:
     lodash-es: "npm:^4.17.21"
     simple-statistics: "npm:^7.8.7"
   checksum: e4b4a948ce4c6563671cfc53cf049879de16d9aa83055d4ca04e57544b21b0cce2b7026908d8ef04d0a7ba60fa4b60707d2c9ac1ea71938f5588f42a79dce557
-  languageName: node
-  linkType: hard
-
-"@orioro/scale-util@npm:^0.0.9":
-  version: 0.0.9
-  resolution: "@orioro/scale-util@npm:0.0.9"
-  dependencies:
-    "@orioro/resolve": "npm:^0.1.9"
-    d3-array: "npm:^3.2.4"
-    d3-scale-chromatic: "npm:^3.1.0"
-    lodash-es: "npm:^4.17.21"
-    simple-statistics: "npm:^7.8.7"
-  checksum: d40a225e1fc07f43ce1365588b9838305abdb1c31efb5ba70f9dfdc05e8e31bfbc8e6d8d7ec6b0dfa7fe0439e8533cc84452baf6265897671f0ff2b034061e2d
   languageName: node
   linkType: hard
 
@@ -6188,7 +6175,7 @@ __metadata:
     "@assistant-ui/react-markdown": "npm:^0.10.9"
     "@duckdb/duckdb-wasm": "npm:1.29.1-dev132.0"
     "@eslint/eslintrc": "npm:^3"
-    "@orioro/scale-util": "npm:^0.0.9"
+    "@orioro/scale-util": "npm:^0.0.12"
     "@orioro/vector-tile-util": "workspace:^"
     "@radix-ui/react-avatar": "npm:^1.1.10"
     "@radix-ui/react-dialog": "npm:^1.1.15"

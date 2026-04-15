@@ -16,7 +16,7 @@
     "@assistant-ui/react-ai-sdk": "^1.0.6",
     "@assistant-ui/react-markdown": "^0.10.9",
     "@duckdb/duckdb-wasm": "1.29.1-dev132.0",
-    "@orioro/scale-util": "^0.0.9",
+    "@orioro/scale-util": "^0.0.12",
     "@orioro/vector-tile-util": "workspace:^",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.15",
