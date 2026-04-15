@@ -6175,7 +6175,7 @@ __metadata:
     "@assistant-ui/react-markdown": "npm:^0.10.9"
     "@duckdb/duckdb-wasm": "npm:1.29.1-dev132.0"
     "@eslint/eslintrc": "npm:^3"
-    "@orioro/scale-util": "npm:^0.0.9"
+    "@orioro/scale-util": "npm:^0.0.12"
     "@orioro/vector-tile-util": "workspace:^"
     "@radix-ui/react-avatar": "npm:^1.1.10"
     "@radix-ui/react-dialog": "npm:^1.1.15"
