@@ -40,6 +40,7 @@ No exemplo abaixo ele preenche zona urbana com a cor `#808080`, zona rural com a
 ```json
 {
     "paint":{
+        "fill-opacity":0.4,
         "fill-color":[
             "match",
             [
@@ -79,8 +80,10 @@ No exemplo abaixo estamos definindo o preenchimento e espaçamento de uma linha 
 ```json
 {
     "paint" : {
+        "line-color": "#9f846a",
         "line-width": 5,
-        "line-dasharray": [2, 4]
+        "line-dasharray": [2, 4],
+        "visible": "none"
     }
 }
 ```
