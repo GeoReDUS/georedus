@@ -76,13 +76,6 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
   return (
     <>
       <Flex direction="column">
-        <Flex
-          height="43px"
-          width="1280px"
-          p="2"
-          style={{ backgroundColor: '#384DA0', alignItems: 'start' }}>
-          <GeoReDUSLogo />
-        </Flex>
         <LayeredMap
           ref={layeredMapRef}
           sky={SKY_STYLE}
@@ -99,11 +92,29 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
           canvasContextAttributes={{
             preserveDrawingBuffer: true,
           }}>
+          
           <NavigationControl position="bottom-right" showZoom={false} />
-          <ControlContainer position="bottom-left">
+          <ControlContainer
+            position="bottom-left"
+            style={{
+              boxShadow: 'none',
+              backgroundColor: '#ffffffd9',
+              borderRadius: '10px',
+            }}>
+            <Flex width="150" p="2">
+              <GeoReDUSLogo color="#384DA0" />
+            </Flex>
+          </ControlContainer>
+          <ControlContainer
+            position="bottom-left"
+            style={{
+              boxShadow: 'none',
+              backgroundColor: '#ffffffd9',
+              borderRadius: '10px',
+            }}>
             <Flex p="2">
               <Text weight="bold">Projeção universal </Text>
-              <Text mt="0">Mercator (EPSG:3857)</Text>
+              <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
             </Flex>
           </ControlContainer>
           <ScaleControl position="bottom-right" />

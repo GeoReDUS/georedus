@@ -22,6 +22,7 @@
     "prettier": "^3.5.2"
   },
   "dependencies": {
+    "geogrid-maplibre-gl": "^0.2.4",
     "html-to-image": "^1.11.13"
   }
 }

@@ -15115,6 +15115,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"geogrid-maplibre-gl@npm:^0.2.4":
+  version: 0.2.4
+  resolution: "geogrid-maplibre-gl@npm:0.2.4"
+  peerDependencies:
+    maplibre-gl: 3.x || 4.x || 5.x
+  checksum: 6cdcc54580237bcd422735e14bbd3e2736d7ba73ee9dc748548904623e18d660c2a77f2e4c2735264f3ad24fb6b04ce187d6084139459a69a7e75cc291cae842
+  languageName: node
+  linkType: hard
+
 "geojson-equality-ts@npm:^1.0.2":
   version: 1.0.2
   resolution: "geojson-equality-ts@npm:1.0.2"
@@ -15145,6 +15154,7 @@ __metadata:
   resolution: "georedus@workspace:."
   dependencies:
     "@changesets/cli": "npm:^2.29.2"
+    geogrid-maplibre-gl: "npm:^0.2.4"
     html-to-image: "npm:^1.11.13"
     prettier: "npm:^3.5.2"
   languageName: unknown
