@@ -44,24 +44,24 @@ export function vector_polygon(
 
   const _color = resolveColor(color)
   const _fill_pattern =
-    fill_pattern && typeof SVG_PATTERNS[fill_pattern] === 'function'
+    fill_pattern || line
       ? {
           legendItemProps: {
             box: {
               style: {
-                borderColor: _color,
-                borderStyle: line.paint && line.paint["line-dasharray"] ? 'dashed' : 'line',
+                borderColor: line?.paint && line.paint["line-color"] ? line.paint["line-color"] : _color,
+                borderStyle: line?.paint && line.paint["line-dasharray"] ? 'dashed' : 'solid',
                 borderWidth: '1px',
-                backgroundImage: svgBgImage(
+                backgroundImage: fill_pattern && typeof SVG_PATTERNS[fill_pattern] === 'function' ? svgBgImage(
                   SVG_PATTERNS[fill_pattern]({
                     stroke: _color,
                     scale: '0.25',
                   }),
-                ),
+                ) : '',
               },
             },
           },
-          str: `${fill_pattern}({ stroke: "${_color}", scale: 0.5 })`,
+          str: fill_pattern ? `${fill_pattern}({ stroke: "${_color}", scale: 0.5 })` : null,
         }
       : null
 
@@ -95,11 +95,14 @@ export function vector_polygon(
         'source-layer': source_layer,
         type: 'fill',
         ...fill,
+        layout: {
+          ...fill["layout"]
+        },
         paint: {
-          'fill-opacity': 0.5,
+          ...fill["paint"],
+          'fill-opacity': fill.paint && fill.paint["fill-opacity"] ? fill.paint["fill-opacity"] : 0.5,
           'fill-color': _color,
-          ...(_fill_pattern ? { 'fill-pattern': _fill_pattern.str } : {}),
-          ...fill.paint,
+          ...(_fill_pattern?.str ? { 'fill-pattern': _fill_pattern.str } : {}),
         },
         legends: [
           {
@@ -108,6 +111,7 @@ export function vector_polygon(
               ? [
                   {
                     label,
+                    color: _color,
                     ..._fill_pattern.legendItemProps
                   },
                 ]
