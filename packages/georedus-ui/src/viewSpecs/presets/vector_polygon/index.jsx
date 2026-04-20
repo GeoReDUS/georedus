@@ -22,6 +22,28 @@ function svgBgImage(svg) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
 }
 
+// function _extractStepsFromStepExpression(stepExpr) {
+//   if (!Array.isArray(stepExpr) || stepExpr[0] !== 'step') {
+//     return null
+//   }
+
+//   const steps = []
+//   const defaultColor = stepExpr[2]
+  
+//   // Add default step (value 0)
+//   steps.push({ value: 0, color: defaultColor })
+  
+//   // Parse alternating value, color pairs starting from index 3
+//   for (let i = 3; i < stepExpr.length; i += 2) {
+//     steps.push({
+//       value: stepExpr[i],
+//       color: stepExpr[i + 1]
+//     })
+//   }
+  
+//   return steps
+// }
+
 export function vector_polygon(
   {
     label,
@@ -99,12 +121,21 @@ export function vector_polygon(
           ...fill["layout"]
         },
         paint: {
-          ...fill["paint"],
           'fill-opacity': fill.paint && fill.paint["fill-opacity"] ? fill.paint["fill-opacity"] : 0.5,
           'fill-color': _color,
+          ...fill["paint"],
           ...(_fill_pattern?.str ? { 'fill-pattern': _fill_pattern.str } : {}),
         },
-        legends: [
+        legends: 
+        // fill?.paint?.["fill-color"] && Array.isArray(fill.paint["fill-color"])
+        // ? [
+        //     {
+        //       type: 'SequentialColorLegend',
+        //       steps: _extractStepsFromStepExpression(fill.paint["fill-color"])
+        //     }
+        //   ]
+        // :
+        [
           {
             type: 'CategoricalLegend',
             items: _fill_pattern
