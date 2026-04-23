@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.19.5
+
+### Patch Changes
+
+- fix custom geojson aggregation
+
 ## 0.19.4
 
 ### Patch Changes
