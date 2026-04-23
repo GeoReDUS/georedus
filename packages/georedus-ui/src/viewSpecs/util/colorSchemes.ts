@@ -193,10 +193,5 @@ export function colorScheme(path: string) {
 }
 
 export function resolveColor(colorInput: string): string {
-  return get(COLOR_SCHEMES, colorInput) || colorInput
+  return colorInput ? get(COLOR_SCHEMES, colorInput) || colorInput : colorInput
 }
-
-// usar função para monstar o markdown
-// Object.entries(D3_CATEGORICAL).map(([id, colors]) => {
-//   console.log(id, colors)
-// })
