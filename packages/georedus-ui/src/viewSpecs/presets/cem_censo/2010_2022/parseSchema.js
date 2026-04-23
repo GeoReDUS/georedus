@@ -3,7 +3,7 @@ import { uniqBy } from 'lodash'
 export function parseSchema(viewSpec, allViewSpecs, context) {
   const {
     collection_id,
-    // source_table_id,
+    source_table_id,
     indicator_path,
     indicator_id,
     indicator_label,
@@ -60,6 +60,7 @@ export function parseSchema(viewSpec, allViewSpecs, context) {
 
   return {
     viewId,
+    source_table_id,
     path: indicator_path,
     label: indicator_label,
     metodology,

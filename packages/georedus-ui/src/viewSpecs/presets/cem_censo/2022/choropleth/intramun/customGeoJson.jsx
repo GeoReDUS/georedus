@@ -102,7 +102,7 @@ export async function customGeoJSON_metadata(opts, context) {
     const variant = PARSED_SCHEMA.variantsByVariableId[variableId]
 
     //
-    // Fetch variable values using rpc aggregate_by_geojson
+    // Fetch variable values using rpc aggregate_by_geojson with join
     //
     const variableValues = await fetch(
       `${GLOBAL_CONTEXT.METADATA_API_ENDPOINT}/rpc/aggregate_by_geojson`,
@@ -113,9 +113,10 @@ export async function customGeoJSON_metadata(opts, context) {
         },
         body: JSON.stringify({
           geometries: AREAS_FEATURES.map((feat) => feat.geometry),
-          view: `ibge_malha_br_setor_censitario_${PARSED_SCHEMA.year}_spatial_agg`,
+          view: `${PARSED_SCHEMA.source_table_id}`, // no more need to generate a single unique table with all variables, since we are now sending the source table id in the body of the request to perform the join and aggregation in the backend
+          join_table: `ibge_malha_br_setor_censitario_${PARSED_SCHEMA.year}`, // added in order to perform the join in the backend
           agg_column: variableId,
-          agg_type: variableId.endsWith('_pct') ? 'weighted_avg' : 'sum',
+          agg_type: variableId.endsWith('_2') ? 'weighted_avg' : 'sum', // _2 is the new suffix to indicate percentage variables
         }),
       },
     ).then((res) => res.json())
