@@ -98,7 +98,7 @@ export const diamonds_1 = _pattern(`<svg
 </svg>`)
 
 // Source:
-https://pattern.monster/plus-1
+// https://pattern.monster/plus-1
 export const cross_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
