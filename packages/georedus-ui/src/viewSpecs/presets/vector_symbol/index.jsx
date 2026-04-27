@@ -2,6 +2,22 @@ import { Z_OVERLAY_TOP_3000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 
+// Educacao SVG icon - stored as a full SVG string
+// Export this so consumers can pass it to GeoReDUS's svgImages prop
+export const EDUCACAO_SVG = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 73.31 66.04" width="32" height="32">
+  <g>
+    <polygon fill="#384EA0" stroke="#384EA0" stroke-width="2.5" stroke-miterlimit="10" points="10.53,28.71 10.75,48.58 36.21,62.51 62.56,47.7 62.93,28.71"/>
+    <polygon fill="#F5F5F5" stroke="#384EA0" stroke-width="2.5" points="37.1,7.3 2.44,24.05 36.21,42.13 70.87,23.16"/>
+    <line fill="none" stroke="#F5F5F5" stroke-width="3.298" x1="62.93" y1="27.44" x2="10.53" y2="27.44"/>
+    <line fill="none" stroke="#F5F5F5" stroke-width="3.298" x1="67.27" y1="23.2" x2="67.27" y2="44.26"/>
+  </g>
+</svg>`
+
+// Default svgImages that should be passed to GeoReDUS when using vector_symbol viewSpec
+export const VECTOR_SYMBOL_SVG_IMAGES = {
+  educacao: EDUCACAO_SVG,
+}
+
 function _parseTiles(tiles, context) {
   tiles = Array.isArray(tiles)
     ? tiles
@@ -72,7 +88,11 @@ export function vector_symbol(
           'icon-image': 'educacao',
           'icon-size': iconSize,
           'icon-allow-overlap': true,
+          'icon-padding': 0,
           ...(symbol.layout || {}),
+        },
+        paint: {
+          ...(symbol.paint || {}),
         },
         legends: [
           {

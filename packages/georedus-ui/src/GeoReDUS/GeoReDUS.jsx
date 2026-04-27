@@ -62,6 +62,7 @@ import { getSurroundingTilesBbox, resolveInitialMunicipioId } from './util'
 import { DialogsProvider, useDialogs } from '../DialogSystem'
 import { InputProvider } from '../InputSystem'
 import { useViews } from '../viewSpecs/useViews'
+import { EDUCACAO_SVG } from '../viewSpecs/presets/vector_symbol'
 
 import { overture_places_poc } from '../viewSpecs/development/overture_places_poc'
 
@@ -321,7 +322,9 @@ function HoverLegend({ layerId, __filterFeaturesForStep, ...legendProps }) {
 }
 
 const DEFAULT_MAP_PROPS = {}
-const DEFAULT_SVG_IMAGES = {}
+const DEFAULT_SVG_IMAGES = {
+  educacao: EDUCACAO_SVG,
+}
 const DEFAULT_LEFT_PANEL_PROPS = {}
 
 function GeoReDUSInner({
