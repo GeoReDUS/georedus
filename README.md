@@ -497,7 +497,8 @@ layers: {
 ```
 **Legenda:**
 
-As legendas do mapa são definidas aqui na camada de `layers`. 
+As legendas do mapa são definidas aqui na camada de `layers`. Exitem dois tipos de legendas:
+`CategoricalLegend` para dados categóricos e `SequentialColorLegend` para dados.
 
 Utilizando a variável `variantId` no `title` e o retorno do metadata em `steps` (neste exemplo é utilizado o `colorScaleStops`), a legenda irá sempre refletir os dados e as cores representados no mapa. 
 

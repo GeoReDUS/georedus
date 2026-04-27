@@ -53,12 +53,35 @@ function svgBgImage(svg) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
 }
 
-function parseScaleExpression(expr) {
+function parseScaleExpression(expr, label) {
   if (!expr) return null
 
   if (Array.isArray(expr)) {
     if (expr[0] === 'step') {
-      return expr.slice(2)
+      return {
+        type: 'SequentialColorLegend',
+        title: label,
+        steps: expr.slice(2),
+      }
+    }
+    if (expr[0] === 'match') {
+      const pairs = expr.slice(2)
+      const items = []
+
+      // Process value-color pairs (all except the last element which is default)
+      for (let i = 0; i < pairs.length - 1; i += 2) {
+        items.push({
+          id: pairs[i],
+          label: pairs[i],
+          color: pairs[i + 1],
+        })
+      }
+
+      return {
+        type: 'CategoricalLegend',
+        title: label,
+        items,
+      }
     }
   }
 
@@ -93,17 +116,13 @@ export function vector_polygon(
   const _legend = resolve.fn(_color, (_resolvedColor, ctx) => {
     const resolvedFillPattern =
       ctx.view?.conf?.style?.fillPattern || fill_pattern
-
+    console.log("fill", fill)
     // Check if fill color is a step expression (color scale)
-    const colorScaleStops = parseScaleExpression(fill.paint['fill-color'])
+    const colorScaleStops = parseScaleExpression(fill.paint?.['fill-color'], label)
 
     // If we have a color scale, return a SequentialColorLegend
     if (colorScaleStops) {
-      return {
-        type: 'SequentialColorLegend',
-        title: label,
-        steps: colorScaleStops,
-      }
+      return colorScaleStops
     }
 
     // Otherwise, return a CategoricalLegend with the single color
@@ -160,14 +179,14 @@ export function vector_polygon(
       resolvedFillPattern && resolvedFillPattern !== SOLID
         ? `${resolvedFillPattern}({ stroke: "${_resolvedColor}", scale: 0.5 })`
         : null
-
+    console.log("fill.paint", fill.paint)
     return {
       'fill-opacity':
         fill.paint && fill.paint['fill-opacity']
           ? fill.paint['fill-opacity']
           : DEFAULT_FILL_OPACITY,
       'fill-color': _color,
-      ...fill['paint'],
+      ...(fill.paint || {}),
       ...(resolvedFillPatternStr
         ? { 'fill-pattern': resolvedFillPatternStr }
         : {}),
