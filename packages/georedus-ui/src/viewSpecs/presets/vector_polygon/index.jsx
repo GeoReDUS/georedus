@@ -116,7 +116,7 @@ export function vector_polygon(
   const _legend = resolve.fn(_color, (_resolvedColor, ctx) => {
     const resolvedFillPattern =
       ctx.view?.conf?.style?.fillPattern || fill_pattern
-    console.log("fill", fill)
+
     // Check if fill color is a step expression (color scale)
     const colorScaleStops = parseScaleExpression(fill.paint?.['fill-color'], label)
 
@@ -179,7 +179,7 @@ export function vector_polygon(
       resolvedFillPattern && resolvedFillPattern !== SOLID
         ? `${resolvedFillPattern}({ stroke: "${_resolvedColor}", scale: 0.5 })`
         : null
-    console.log("fill.paint", fill.paint)
+
     return {
       'fill-opacity':
         fill.paint && fill.paint['fill-opacity']
