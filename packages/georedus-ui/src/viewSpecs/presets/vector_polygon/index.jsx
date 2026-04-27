@@ -54,13 +54,12 @@ function svgBgImage(svg) {
 }
 
 function parseScaleExpression(expr) {
-  if (!Array.isArray(expr) || expr[0] !== 'step' || expr.length < 4) {
-    console.log('not an array')
-    return null
-  }
+  if (!expr) return null
 
-  if (expr[0] === 'step') {
-    return expr.slice(2)
+  if (Array.isArray(expr)) {
+    if (expr[0] === 'step') {
+      return expr.slice(2)
+    }
   }
 
   return null
