@@ -53,6 +53,19 @@ function svgBgImage(svg) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
 }
 
+function parseScaleExpression(expr) {
+  if (!Array.isArray(expr) || expr[0] !== 'step' || expr.length < 4) {
+    console.log('not an array')
+    return null
+  }
+
+  if (expr[0] === 'step') {
+    return expr.slice(2)
+  }
+
+  return null
+}
+
 export function vector_polygon(
   {
     label,
@@ -82,6 +95,19 @@ export function vector_polygon(
     const resolvedFillPattern =
       ctx.view?.conf?.style?.fillPattern || fill_pattern
 
+    // Check if fill color is a step expression (color scale)
+    const colorScaleStops = parseScaleExpression(fill.paint['fill-color'])
+
+    // If we have a color scale, return a SequentialColorLegend
+    if (colorScaleStops) {
+      return {
+        type: 'SequentialColorLegend',
+        title: label,
+        steps: colorScaleStops,
+      }
+    }
+
+    // Otherwise, return a CategoricalLegend with the single color
     const legendItemProps =
       resolvedFillPattern || line
         ? {
