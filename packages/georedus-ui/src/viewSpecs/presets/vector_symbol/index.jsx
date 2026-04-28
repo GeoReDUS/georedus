@@ -52,9 +52,9 @@ export function vector_symbol(
 
   const _symbol_pattern = {
     legendItemProps: {
-      icon: {
+      box: {
         style: {
-          backgroundImage: 'url(/georedus/assets/icons/educacao.svg)',
+          backgroundImage: `url('data:image/svg+xml;utf8,${encodeURIComponent(EDUCACAO_SVG)}')`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
