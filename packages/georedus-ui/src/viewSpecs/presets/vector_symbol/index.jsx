@@ -35,8 +35,6 @@ function _parseTiles(tiles, context) {
 export function vector_symbol(
   {
     label,
-    symbol = {},
-    iconSize = 1,
     tiles,
     source_layer,
     sources = {},
@@ -83,16 +81,8 @@ export function vector_symbol(
         source: 'main',
         'source-layer': source_layer,
         type: 'symbol',
-        ...symbol,
         layout: {
           'icon-image': 'educacao',
-          'icon-size': iconSize,
-          'icon-allow-overlap': true,
-          'icon-padding': 0,
-          ...(symbol.layout || {}),
-        },
-        paint: {
-          ...(symbol.paint || {}),
         },
         legends: [
           {
