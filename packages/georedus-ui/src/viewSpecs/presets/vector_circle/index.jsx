@@ -4,8 +4,7 @@ import { Z_OVERLAY_BASE_1000, Z_OVERLAY_TOP_3000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
-import { Flex } from '@orioro/react-ui-core'
-import { COLOR_OPTIONS } from '../color_options/index'
+import { getColorOptions } from '../color_options/index'
 import { _resolveSourceBounds } from '../cem_censo/2010_2022/metadata'
 
 function _parseTiles(tiles, context) {
@@ -68,28 +67,7 @@ export function vector_circle(
     label,
     confSchema: {
       style: {
-        color: {
-          label: 'Cor',
-          helperText: 'Selecione a cor para a camada',
-          type: 'select',
-          clearable: false,
-          defaultValue: _initialColor,
-          options: COLOR_OPTIONS.map((opt) => ({
-            ...opt,
-            label: (
-              <Flex direction="row" alignItems="center" gap="2">
-                <div
-                  style={{
-                    width: '15px',
-                    height: '15px',
-                    backgroundColor: opt.value,
-                  }}
-                />
-                <div>{opt.label}</div>
-              </Flex>
-            ),
-          })),
-        },
+        color: getColorOptions(_initialColor),
       },
     },
     metadata: {},

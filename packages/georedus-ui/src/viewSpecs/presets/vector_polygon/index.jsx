@@ -4,7 +4,7 @@ import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { Flex } from '@orioro/react-ui-core'
-import { COLOR_OPTIONS } from '../color_options/index'
+import { getColorOptions } from '../color_options/index'
 
 const SOLID = 'solid'
 const DEFAULT_FILL_OPACITY = 0.5
@@ -140,28 +140,7 @@ export function vector_polygon(
     label,
     confSchema: {
       style: {
-        color: {
-          label: 'Cor',
-          helperText: 'Selecione a cor para a camada',
-          type: 'select',
-          clearable: false,
-          defaultValue: _initialColor,
-          options: COLOR_OPTIONS.map((opt) => ({
-            ...opt,
-            label: (
-              <Flex direction="row" alignItems="center" gap="2">
-                <div
-                  style={{
-                    width: '15px',
-                    height: '15px',
-                    backgroundColor: opt.value,
-                  }}
-                />
-                <div>{opt.label}</div>
-              </Flex>
-            ),
-          })),
-        },
+        color: getColorOptions(_initialColor),
         fillPattern: {
           label: 'Textura',
           type: 'select',
