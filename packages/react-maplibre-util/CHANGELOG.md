@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.7.1
+
+### Patch Changes
+
+- update dependency versions
+
 ## 0.7.0
 
 ### Minor Changes

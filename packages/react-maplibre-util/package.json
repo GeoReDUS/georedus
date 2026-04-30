@@ -1,6 +1,6 @@
 {
   "name": "@orioro/react-maplibre-util",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/index.mjs",
@@ -23,7 +23,7 @@
     "build-storybook": "storybook build"
   },
   "devDependencies": {
-    "@orioro/dev": "^0.0.5",
+    "@orioro/dev": "^0.0.6",
     "@radix-ui/themes": "^3.0.1",
     "@tanstack/react-query": "^5.66.0",
     "maplibre-gl": "^5.1.0",
@@ -51,11 +51,11 @@
     "@maplibre/maplibre-gl-inspect": "^1.7.1",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
-    "@orioro/react-select": "^3.0.2",
-    "@orioro/react-ui-core": "^0.0.14",
-    "@orioro/resolve": "^0.1.9",
-    "@orioro/scale-util": "^0.0.2",
-    "@orioro/util": "^0.15.1",
+    "@orioro/react-select": "^3.1.1",
+    "@orioro/react-ui-core": "^0.0.20",
+    "@orioro/resolve": "^0.1.12",
+    "@orioro/scale-util": "^0.0.12",
+    "@orioro/util": "^0.16.0",
     "@turf/turf": "^7.2.0",
     "d3": "^7.9.0",
     "d3-scale-chromatic": "^3.1.0",

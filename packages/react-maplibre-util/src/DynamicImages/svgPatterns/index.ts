@@ -97,6 +97,8 @@ export const diamonds_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/plus-1
 export const cross_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -124,6 +126,7 @@ export const cross_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
 // https://pattern.monster/cubes-1
 export const mosaic_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
@@ -150,6 +153,8 @@ export const mosaic_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/waves-1
 export const waves_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -193,6 +198,8 @@ export const waves_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/circles-1
 export const circles_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -218,6 +225,8 @@ export const circles_1 = _pattern(`<svg
   <rect width="800%" height="800%" fill="url(#a)" />
 </svg>`)
 
+// Source:
+// https://pattern.monster/straight-lines
 export const lines_1 = _pattern(`<svg
   xmlns="http://www.w3.org/2000/svg"
   ${_svgViewBox({
@@ -255,6 +264,32 @@ export const lines_1 = _pattern(`<svg
         stroke="\${ stroke = #000000 }"
         stroke-width="\${ strokeWidth = 2 }"
         d="M0 70h20z"
+      />
+    </pattern>
+  </defs>
+  <rect width="800%" height="800%" fill="url(#a)" />
+</svg>`)
+
+// Source:
+// https://pattern.monster/herringbone-8
+export const mosaic_2 = _pattern(`<svg
+  xmlns="http://www.w3.org/2000/svg"
+  ${_svgViewBox({
+    width: 40,
+    height: 40,
+  })}>
+  <defs>
+    <pattern
+      id="a"
+      width="40"
+      height="40"
+      patternTransform="scale(\${ scale = 2 })"
+      patternUnits="userSpaceOnUse">
+      ${_bgRect()}
+      <path
+        fill="transparent"
+        stroke="\${ stroke = #000000 }"
+        d="M15 5h10v30H15zM35-5V5H5V-5zm0 40v10H5V35zm0-50h10v30H35zm20 30v10H25V15zm-40 0v10h-30V15zm20 10h10v30H35zm-40 0H5v30H-5zm0-40H5v30H-5z"
       />
     </pattern>
   </defs>

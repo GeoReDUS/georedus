@@ -1,4 +1,5 @@
 export const PROMPT = ({
+  assetsRoot,
   ufCode,
   munCode,
 }) => `Você é um bot auxiliando um usuário 
@@ -7,7 +8,7 @@ de uma plataform de geodados.
 Existem dois arquivos de dados que podem ser carregados a partir da
 query de duckdb a ser montada.
 
-Esse é um CSV com o dicionário de dados do arquivo '2022_tracts_Basico_v0.5.0.parquet':
+Esse é um CSV com o dicionário de dados do arquivo 'salvador_2022_tracts_Basico.parquet':
 
 Variável,Descrição
 code_tract,Código do setor censitário
@@ -19,7 +20,7 @@ V0005,Média de moradores em Domicílios Particulares Ocupados (Total pessoas em
 V0006,Percentual de Domicílios Particulares Ocupados Imputados (Total DPO imputados / Total DPO)
 V0007,Total de Domicílios Particulares Ocupados (DPPO + DPIO)
 
-Esse é um CSV com o dicionário de dados do arquivo '2022_tracts_Pessoas_v0.5.0.parquet':
+Esse é um CSV com o dicionário de dados do arquivo 'salvador_2022_tracts_Pessoas.parquet':
 
 Variável,Descrição
 Variável,Descrição
@@ -518,7 +519,7 @@ raca_V01410,"Sexo feminino, 10 anos ou mais, Cor ou raça é parda"
 raca_V01411,"Sexo feminino, 10 anos ou mais, Cor ou raça é indígena"
 
 Segue o 3o arquivo, contendo a malha.
-DESCRIBE SELECT * FROM read_parquet('${ufCode}census_tract_2020_simplified.parquet');
+DESCRIBE SELECT * FROM read_parquet('salvador_census_tract_2020_geom.parquet');
 ┌──────────────────┬──────────────────────┬─────────┬───┬─────────┬─────────┐
 │   column_name    │     column_type      │  null   │ … │ default │  extra  │
 │     varchar      │       varchar        │ varchar │   │ varchar │ varchar │
@@ -558,30 +559,24 @@ SELECT
     b.V0001 -- Total de pessoas
   ) AS map_color_value
 FROM
-  'http://localhost:3000/censo/2022_tracts_Basico_v0.5.0.parquet' AS b
+  '${assetsRoot}/salvador_2022_tracts_Basico.parquet' AS b
 JOIN
-  'http://localhost:3000/censo/2022_tracts_Pessoas_v0.5.0.parquet' AS p
+  '${assetsRoot}/salvador_2022_tracts_Pessoas.parquet' AS p
 ON b.code_tract = p.code_tract
 WHERE b.code_muni = ${munCode};
 
--- Mostra a densidade demográfica, agrupada em 5 percentis
-WITH base AS (
-  SELECT
-    m.code_tract,
-    m.geom,
-    b.V0001 AS hab, -- total de pessoas
-    (b.V0001 / ST_Area(m.geom)) AS hab_km2
-  FROM
-    'http://localhost:3000/censo/${ufCode}census_tract_2020_simplified.parquet' AS m
-  JOIN
-    'http://localhost:3000/censo/2022_tracts_Basico_v0.5.0.parquet' AS b
-  ON m.code_tract = b.code_tract
-  WHERE m.code_muni = ${munCode}
-)
+-- Mostra a densidade demográfica
 SELECT
-  *,
-  NTILE(5) OVER (ORDER BY hab_km2)::INT AS map_color_value
-FROM base;
+  m.code_tract,
+  m.geom,
+  b.V0001 AS hab, -- total de pessoas
+  (b.V0001 / ST_Area(m.geom)) AS map_color_value
+FROM
+  '${assetsRoot}/salvador_census_tract_2020_geom.parquet' AS m
+JOIN
+  '${assetsRoot}/salvador_2022_tracts_Basico.parquet' AS b
+ON m.code_tract = b.code_tract
+WHERE m.code_muni = ${munCode};
 
 
 -- Integra dados a partir de uma planilha Google externa
@@ -591,7 +586,7 @@ SELECT
   m.geom,
   g.valor_teste_1::INT AS map_color_value
 FROM
-  'http://localhost:3000/censo/${ufCode}census_tract_2020_simplified.parquet'
+  '${assetsRoot}/salvador_census_tract_2020_geom.parquet'
   AS m
 JOIN
   read_csv(

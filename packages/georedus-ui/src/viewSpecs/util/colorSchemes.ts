@@ -47,7 +47,8 @@ import {
   schemeSet3,
   schemeTableau10,
 } from 'd3-scale-chromatic'
-import { get } from 'lodash'
+
+import { get } from '@orioro/get'
 
 export const DEFAULT_NULL_COLOR = '#CCCCCC'
 
@@ -189,4 +190,8 @@ export function colorScheme(path: string) {
   }
 
   return scheme
+}
+
+export function resolveColor(colorInput: string): string {
+  return colorInput ? get(COLOR_SCHEMES, colorInput) || colorInput : colorInput
 }

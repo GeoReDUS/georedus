@@ -1,5 +1,11 @@
 # @orioro/react-dir-nav
 
+## 0.2.1
+
+### Patch Changes
+
+- update dependency versions
+
 ## 0.2.0
 
 ### Minor Changes

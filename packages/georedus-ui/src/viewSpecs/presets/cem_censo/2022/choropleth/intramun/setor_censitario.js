@@ -200,7 +200,7 @@ export function setor_censitario_layers(opts) {
 
             let mainValueDisplay
 
-            if (variableId === 'total_pessoas_por_hectare') {
+            if (variableId === 'total_pessoas_por_km2') {
               try {
                 const value_src = JSON.parse(
                   context.feature.properties.value_src,
@@ -212,7 +212,7 @@ export function setor_censitario_layers(opts) {
               }
             } else {
               const value = get(context, 'feature.properties.value')
-              const isPercentage = variableId.endsWith('_pct')
+              const isPercentage = variableId.endsWith('_2') // _2 is the new suffix to indicate percentage variables
               const format = isPercentage ? { style: 'percent' } : {}
               mainValueDisplay =
                 typeof value === 'number'
