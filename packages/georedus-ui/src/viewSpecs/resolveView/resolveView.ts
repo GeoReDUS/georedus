@@ -98,10 +98,20 @@ export function resolveConfSchema(
   return resolveExpr(viewSpec.confSchema, resolveFinalContext)
 }
 
+// export const resolveMetadata = _stageResolver<
+//   Pick<ResolvedView, 'conf'>,
+//   ResolvedView['metadata']
+// >('metadata')
+//Changed resolveMetadata to get sourceLabel from viewSpec
 export const resolveMetadata = _stageResolver<
   Pick<ResolvedView, 'conf'>,
   ResolvedView['metadata']
->('metadata')
+>('metadata', (metadata, { viewSpec }) => {
+  return {
+    ...metadata,
+    sourceLabel: viewSpec.sourceLabel,
+  }
+})
 
 export const resolveSources = _stageResolver<
   Pick<ResolvedView, 'conf' | 'metadata'>,

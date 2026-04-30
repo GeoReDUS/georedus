@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-use'
 import { Button, Flex, Spinner } from '@orioro/react-ui-core'
 import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
@@ -19,9 +19,14 @@ import {
 import { GeoReDUSLogo } from '../GeoReDUSLogo'
 import { Heading, Text, Strong } from '@radix-ui/themes'
 
-export function ExportImage({ resolvedLayout, commitedViewState }) {
-  console.log('resolvedLayout', resolvedLayout)
-  console.log('commitedViewState', commitedViewState)
+import { NorthArrow } from './NorthArrow'
+
+export function ExportImage({
+  resolvedLayout,
+  commitedViewState,
+  municipioId,
+  METADATA_API_ENDPOINT,
+}) {
   const layeredMapRef = useRef(null)
 
   const legends = resolvedLayout?.[0]?.legends || []
@@ -38,13 +43,37 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
 
   const { href } = useLocation()
 
+  //Retrieve municipality data
+  const [munName, setMunName] = useState(null)
+  const [ufSigla, setUfSigla] = useState(null)
+
+  useEffect(() => {
+    const fetchMunicipalityData = async () => {
+      const [mun] = await fetch(
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio?select=nome,id,uf_sigla&id=eq.${municipioId}`,
+      ).then((res) => res.json())
+
+      setMunName(mun.nome)
+      setUfSigla(mun.uf_sigla)
+    }
+
+    fetchMunicipalityData()
+  }, [municipioId, METADATA_API_ENDPOINT])
+
+  const sourceLabels =
+    resolvedLayout?.[0]?.views
+      .map((view) =>
+        view.metadata.sourceLabel ? view.metadata.sourceLabel : '',
+      )
+      .join(' + ') || ''
+
   function ImageDescription() {
     return (
       <>
-        <Flex direction="column">
-          <Flex height="100%">
+        <Flex direction="column" width="20%">
+          <Flex height="100%" wrap="wrap" gap="2">
             <Heading size="6" color="iris">
-              São Paulo - SP/BR
+              {munName} - {ufSigla} / BR
             </Heading>
             <Heading size="3" color="iris">
               {new Date()
@@ -56,7 +85,12 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
                 .replace(/\//g, '.')}
             </Heading>
             <Text>
-              <Strong>Fonte de dados: </Strong>IBGE
+              <Strong>Fonte de dados: </Strong>
+              {sourceLabels || ''}
+            </Text>
+            <Text>
+              <Strong>Outros dados: </Strong>
+              © MapTiler | © OpenStreetMap contributors
             </Text>
           </Flex>
           <Flex>
@@ -80,10 +114,10 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
           ref={layeredMapRef}
           sky={SKY_STYLE}
           maxPitch={80}
+          attributionControl={false}
           mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`}
           views={resolvedLayout?.[0]?.views}
           initialViewState={commitedViewState}
-          onLoad={() => alert('map loaded')}
           style={{
             height: '615px',
             width: '1296px',
@@ -92,8 +126,6 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
           canvasContextAttributes={{
             preserveDrawingBuffer: true,
           }}>
-          
-          <NavigationControl position="bottom-right" showZoom={false} />
           <ControlContainer
             position="bottom-left"
             style={{
@@ -105,6 +137,7 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
               <GeoReDUSLogo color="#384DA0" />
             </Flex>
           </ControlContainer>
+          <AttributionControl position="bottom-right" compact={false} />
           <ControlContainer
             position="bottom-left"
             style={{
@@ -116,10 +149,9 @@ export function ExportImage({ resolvedLayout, commitedViewState }) {
               <Text weight="bold">Projeção universal </Text>
               <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
             </Flex>
+            <NorthArrow position="bottom-right" animationDuration={300} />
           </ControlContainer>
           <ScaleControl position="bottom-right" />
-
-          {/* <AttributionControl position="bottom-right" compact={false} /> */}
         </LayeredMap>
         <Flex
           direction="row"

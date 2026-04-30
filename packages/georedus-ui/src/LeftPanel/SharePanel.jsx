@@ -5,7 +5,7 @@ import { ExportImage } from '../ExportImage'
 
 import { Dialog } from '@radix-ui/themes'
 
-export function SharePanel({ resolvedLayout, commitedViewState }) {
+export function SharePanel({ resolvedLayout, commitedViewState, municipioId, METADATA_API_ENDPOINT }) {
   return (
     <>
       <Dialog.Title>Compartilhar</Dialog.Title>
@@ -14,6 +14,8 @@ export function SharePanel({ resolvedLayout, commitedViewState }) {
         <ExportImage
           resolvedLayout={resolvedLayout}
           commitedViewState={commitedViewState}
+          municipioId={municipioId}
+          METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
         />
       </Flex>
     </>

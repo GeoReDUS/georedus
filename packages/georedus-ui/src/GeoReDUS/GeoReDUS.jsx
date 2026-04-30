@@ -692,7 +692,9 @@ function GeoReDUSInner({
         resolvedViews={resolvedViews}
         resolvedLayout={resolvedLayout}
         commitedViewState={commitedViewState}
+        municipioId={municipioId}
         syncedMapsRef={syncedMapsRef}
+        METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
         {...leftPanelProps}
       />
 

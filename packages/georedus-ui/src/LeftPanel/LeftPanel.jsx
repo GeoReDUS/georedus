@@ -39,6 +39,8 @@ function LeftPanelInner({
   syncedMapsRef,
   mapContainerRef,
   commitedViewState,
+  municipioId,
+  METADATA_API_ENDPOINT,
 
   categoryIcons = undefined,
   header: customHeader = undefined,
@@ -229,10 +231,10 @@ function LeftPanelInner({
                       width: '1500px',
                       children: (
                         <SharePanel
-                          mapContainerRef={mapContainerRef}
                           resolvedLayout={resolvedLayout}
-                          syncedMapsRef={syncedMapsRef}
                           commitedViewState={commitedViewState}
+                          municipioId={municipioId}
+                          METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
                         />
                       ),
                     })
