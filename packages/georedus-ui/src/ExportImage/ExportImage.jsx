@@ -37,6 +37,7 @@ export function ExportImage({
   `
 
   const legendMapRef = useRef(null)
+  const descriptionRef = useRef(null)
 
   const [imageIsLoading, setImageIsLoading] = useState(false)
   const [combinedImage, setCombinedImage] = useState(null)
@@ -70,7 +71,7 @@ export function ExportImage({
   function ImageDescription() {
     return (
       <>
-        <Flex direction="column" width="20%">
+        <Flex direction="column" width="50%">
           <Flex height="100%" wrap="wrap" gap="2">
             <Heading size="6" color="iris">
               {munName} - {ufSigla} / BR
@@ -157,7 +158,9 @@ export function ExportImage({
           direction="row"
           width="1296px"
           style={{ justifyContent: 'space-between' }}>
-          <ImageDescription />
+          <div ref={descriptionRef}>
+            <ImageDescription />
+          </div>
           <LegendContainer
             ref={legendMapRef}
             direction="row"
@@ -191,11 +194,23 @@ export function ExportImage({
               fontEmbedCSS: false,
             })
 
+            const blobDescription = await toBlob(descriptionRef.current, {
+              cacheBust: true,
+              pixelRatio: 2,
+              fontEmbedCSS: false,
+            })
+
             // Convert legend blob to image (only time we need to convert)
             const legendImg = await new Promise((resolve) => {
               const img = new Image()
               img.onload = () => resolve(img)
               img.src = URL.createObjectURL(blobLegend)
+            })
+
+            const descriptionImg = await new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(img)
+              img.src = URL.createObjectURL(blobDescription)
             })
 
             // Create combined canvas and draw directly
@@ -207,13 +222,36 @@ export function ExportImage({
 
             const ctx = combinedCanvas.getContext('2d')
 
-            ctx.drawImage(mapCanvas, 100, 100, 2280, 2280)
+            // Scale map to new canvas size maintaining aspect ratio
+            // Map is 1296x615, canvas is 3508x2480
+            const mapScaleX = 3508 / 1296
+            const mapHeight = 615 * mapScaleX // ~1664px
+            ctx.drawImage(mapCanvas, 0, 0, 3508, mapHeight)
+
+            // Position legend in bottom section
+            const bottomStartY = mapHeight
+            const bottomHeight = 2480 - mapHeight // ~816px
+            const descriptionWidth = 3508 * 0.2 // 20% of canvas width
+            const qrCodeWidth = 350 // estimate for QR code scaled proportionally
+            const legendWidth = 3508 - descriptionWidth - qrCodeWidth
+            const legendHeight = legendWidth * (legendImg.height / legendImg.width)
+            
+            // Draw description on bottom left
+            const descriptionHeight = (descriptionImg.height / descriptionImg.width) * descriptionWidth
+            ctx.drawImage(
+              descriptionImg,
+              0,
+              bottomStartY,
+              descriptionWidth,
+              descriptionHeight
+            )
+
             ctx.drawImage(
               legendImg,
-              2480,
-              70,
-              928,
-              928 * (legendImg.height / legendImg.width),
+              descriptionWidth,
+              bottomStartY,
+              legendWidth,
+              legendHeight
             )
 
             // Convert combined result to blob once
