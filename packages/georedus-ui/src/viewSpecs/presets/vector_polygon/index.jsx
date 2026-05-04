@@ -4,6 +4,7 @@ import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { Flex } from '@orioro/react-ui-core'
+import { parseStyle } from './parseStyle'
 
 const SOLID = 'solid'
 const DEFAULT_FILL_OPACITY = 0.5
@@ -56,14 +57,15 @@ function svgBgImage(svg) {
 export function vector_polygon(
   {
     label,
-    color,
-    line = {},
-    fill = {},
+    // color,
+    // line = {},
+    // fill = {},
     tiles,
     source_layer,
     sources = {},
     layers = {},
-    fill_pattern,
+    // fill_pattern,
+    parse_style = {},
     ...props
   },
   allViewSpecs,
@@ -73,81 +75,94 @@ export function vector_polygon(
     throw new Error('source_layer must be defined')
   }
 
-  const _initialColor = resolveColor(color)
-  const _color = resolve.fn(
-    (ctx) => resolveColor(ctx.view?.conf?.style?.color) || _initialColor,
-  )
-
-  const _legend = resolve.fn(_color, (_resolvedColor, ctx) => {
-    const resolvedFillPattern =
-      ctx.view?.conf?.style?.fillPattern || fill_pattern
-
-    const legendItemProps =
-      resolvedFillPattern || line
-        ? {
-            box: {
-              style: {
-                borderColor:
-                  line?.paint && line.paint['line-color']
-                    ? line.paint['line-color']
-                    : _resolvedColor,
-                borderStyle:
-                  line?.paint && line.paint['line-dasharray']
-                    ? 'dashed'
-                    : 'solid',
-                borderWidth: '1px',
-                ...(resolvedFillPattern && resolvedFillPattern !== SOLID
-                  ? {
-                      backgroundColor: 'transparent',
-                      backgroundImage:
-                        resolvedFillPattern &&
-                        typeof SVG_PATTERNS[resolvedFillPattern] === 'function'
-                          ? svgBgImage(
-                              SVG_PATTERNS[resolvedFillPattern]({
-                                stroke: _resolvedColor,
-                                scale: '0.25',
-                              }),
-                            )
-                          : '',
-                    }
-                  : {}),
-              },
-            },
-          }
-        : {}
-
-    return {
-      type: 'CategoricalLegend',
-      items: [
-        {
-          label,
-          color: _color,
-          ...legendItemProps,
-        },
-      ],
-    }
+  const _parsedStyle = resolve.fn((ctx) => {
+    const styleConfig = { ...parse_style, ...ctx.view?.conf?.style }
+    console.log('parse_style', parse_style)
+    console.log('styleConfig', styleConfig)
+    return parseStyle(styleConfig, label)
   })
+  // console.log('_parsedStyle', _parsedStyle)
+  const _legend = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.legend)
+  const _fillPaint = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.main_fill)
+  const _linePaint = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.main_line)
+  // const _initialColor = resolve.fn(_fillPaint, (_fillPaint) => _fillPaint['fill-color'])
+  // const _initialPattern = resolve.fn(_fillPaint, (_fillPaint) => _fillPaint['fill-pattern'])
 
-  const _fillPaint = resolve.fn(_color, (_resolvedColor, ctx) => {
-    const resolvedFillPattern =
-      ctx.view?.conf?.style?.fillPattern || fill_pattern
-    const resolvedFillPatternStr =
-      resolvedFillPattern && resolvedFillPattern !== SOLID
-        ? `${resolvedFillPattern}({ stroke: "${_resolvedColor}", scale: 0.5 })`
-        : null
+  // const _initialColor = resolveColor(color)
+  // const _color = resolve.fn(
+  //   (ctx) => resolveColor(ctx.view?.conf?.style?.color) || _initialColor,
+  // )
 
-    return {
-      'fill-opacity':
-        fill.paint && fill.paint['fill-opacity']
-          ? fill.paint['fill-opacity']
-          : DEFAULT_FILL_OPACITY,
-      'fill-color': _color,
-      ...fill['paint'],
-      ...(resolvedFillPatternStr
-        ? { 'fill-pattern': resolvedFillPatternStr }
-        : {}),
-    }
-  })
+  // const _legend = resolve.fn(_color, (_resolvedColor, ctx) => {
+  //   const resolvedFillPattern =
+  //     ctx.view?.conf?.style?.fillPattern || fill_pattern
+
+  //   const legendItemProps =
+  //     resolvedFillPattern || line
+  //       ? {
+  //           box: {
+  //             style: {
+  //               borderColor:
+  //                 line?.paint && line.paint['line-color']
+  //                   ? line.paint['line-color']
+  //                   : _resolvedColor,
+  //               borderStyle:
+  //                 line?.paint && line.paint['line-dasharray']
+  //                   ? 'dashed'
+  //                   : 'solid',
+  //               borderWidth: '1px',
+  //               ...(resolvedFillPattern && resolvedFillPattern !== SOLID
+  //                 ? {
+  //                     backgroundColor: 'transparent',
+  //                     backgroundImage:
+  //                       resolvedFillPattern &&
+  //                       typeof SVG_PATTERNS[resolvedFillPattern] === 'function'
+  //                         ? svgBgImage(
+  //                             SVG_PATTERNS[resolvedFillPattern]({
+  //                               stroke: _resolvedColor,
+  //                               scale: '0.25',
+  //                             }),
+  //                           )
+  //                         : '',
+  //                   }
+  //                 : {}),
+  //             },
+  //           },
+  //         }
+  //       : {}
+
+  //   return {
+  //     type: 'CategoricalLegend',
+  //     items: [
+  //       {
+  //         label,
+  //         color: _color,
+  //         ...legendItemProps,
+  //       },
+  //     ],
+  //   }
+  // })
+
+  // const _fillPaint = resolve.fn(_color, (_resolvedColor, ctx) => {
+  //   const resolvedFillPattern =
+  //     ctx.view?.conf?.style?.fillPattern || fill_pattern
+  //   const resolvedFillPatternStr =
+  //     resolvedFillPattern && resolvedFillPattern !== SOLID
+  //       ? `${resolvedFillPattern}({ stroke: "${_resolvedColor}", scale: 0.5 })`
+  //       : null
+
+  //   return {
+  //     'fill-opacity':
+  //       fill.paint && fill.paint['fill-opacity']
+  //         ? fill.paint['fill-opacity']
+  //         : DEFAULT_FILL_OPACITY,
+  //     'fill-color': _color,
+  //     ...fill['paint'],
+  //     ...(resolvedFillPatternStr
+  //       ? { 'fill-pattern': resolvedFillPatternStr }
+  //       : {}),
+  //   }
+  // })
 
   return {
     ...props,
@@ -159,7 +174,7 @@ export function vector_polygon(
           helperText: 'Selecione a cor para a camada',
           type: 'select',
           clearable: false,
-          defaultValue: _initialColor,
+          defaultValue: COLOR_OPTIONS[0].value,
           options: COLOR_OPTIONS.map((opt) => ({
             ...opt,
             label: (
@@ -180,7 +195,7 @@ export function vector_polygon(
           label: 'Textura',
           type: 'select',
           clearable: false,
-          defaultValue: fill_pattern || SOLID,
+          defaultValue: SOLID,
           options: FILL_PATTERN_OPTIONS.map((opt) => {
             const pattern =
               opt.value === SOLID
@@ -226,21 +241,18 @@ export function vector_polygon(
         source: 'main',
         'source-layer': source_layer,
         type: 'line',
-        ...line,
-        paint: {
-          'line-color': _color,
-          ...line.paint,
-        },
+        // ...line,
+        paint: _linePaint,
       },
       [`main_fill`]: {
         zIndex: Z_OVERLAY_BASE_1000,
         source: 'main',
         'source-layer': source_layer,
         type: 'fill',
-        ...fill,
-        layout: {
-          ...fill['layout'],
-        },
+        // ...fill,
+        // layout: {
+        //   ...fill['layout'],
+        // },
         paint: _fillPaint,
         legends: [_legend],
         tooltip: {
