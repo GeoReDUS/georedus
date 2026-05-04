@@ -4,7 +4,7 @@ import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { Flex } from '@orioro/react-ui-core'
-import { getColorOptions } from '../color_options/index'
+import { getColorOptions } from '../util/color_options/index'
 
 const SOLID = 'solid'
 const DEFAULT_FILL_OPACITY = 0.5

@@ -5,7 +5,7 @@ import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
 import { Flex } from '@orioro/react-ui-core'
-import { getColorOptions } from '../color_options/index'
+import { getColorOptions } from '../util/color_options/index'
 
 const LINE_PATTERN_OPTIONS = [
   { label: 'Continua', value: 'line' },
