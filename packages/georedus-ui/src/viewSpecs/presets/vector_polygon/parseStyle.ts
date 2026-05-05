@@ -3,6 +3,9 @@ import type { CategoricalLegendProps } from '@orioro/react-chart-util'
 import { SVG_PATTERNS } from '@orioro/react-maplibre-util'
 import { resolveColor } from '../../util'
 
+const SOLID = 'solid'
+const DEFAULT_FILL_OPACITY = 0.5
+
 type ItemStyleSpec = {
   color?: string
   fillPattern?:
@@ -15,6 +18,7 @@ type ItemStyleSpec = {
     | 'squares_1'
     | 'triangles_1'
     | 'waves_1'
+    | 'solid'
   borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none'
 }
 
@@ -202,7 +206,7 @@ function categoricalLegendItem(
     box: {
       style: {
         borderStyle: cat.borderStyle,
-        ...(cat.fillPattern
+        ...(cat.fillPattern && cat.fillPattern !== SOLID
           ? {
               backgroundImage:
                 typeof SVG_PATTERNS[cat.fillPattern] === 'function'
@@ -256,10 +260,10 @@ function categoricalParseStyle(
     },
     main_fill: {
       'fill-color': resolvedColor,
-      'fill-opacity': 0.5,
-      ...(style.fillPattern
+      'fill-opacity': DEFAULT_FILL_OPACITY,
+      ...(style.fillPattern && style.fillPattern !== SOLID
         ? { 'fill-pattern': `${style.fillPattern}({ stroke: "${resolvedColor}", scale: 0.5 })` }
-        : {}),
+        : null),
     },
     main_line: {
       'line-color': resolvedColor,

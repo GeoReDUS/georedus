@@ -7,7 +7,7 @@ import { Flex } from '@orioro/react-ui-core'
 import { parseStyle } from './parseStyle'
 
 const SOLID = 'solid'
-const DEFAULT_FILL_OPACITY = 0.5
+// const DEFAULT_FILL_OPACITY = 0.5
 
 const COLOR_OPTIONS = [
   { label: 'Azul Claro', value: '#a6cee3' },
@@ -77,15 +77,14 @@ export function vector_polygon(
 
   const _parsedStyle = resolve.fn((ctx) => {
     const styleConfig = { ...parse_style, ...ctx.view?.conf?.style }
-    console.log('parse_style', parse_style)
-    console.log('styleConfig', styleConfig)
     return parseStyle(styleConfig, label)
   })
-  // console.log('_parsedStyle', _parsedStyle)
   const _legend = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.legend)
   const _fillPaint = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.main_fill)
   const _linePaint = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.main_line)
-  // const _initialColor = resolve.fn(_fillPaint, (_fillPaint) => _fillPaint['fill-color'])
+  // const _initialColor = '#ff7f00'
+  // const _initialColor = parseStyle(parse_style, label).main_fill['fill-color']
+  // console.log('_initialColor', _initialColor)
   // const _initialPattern = resolve.fn(_fillPaint, (_fillPaint) => _fillPaint['fill-pattern'])
 
   // const _initialColor = resolveColor(color)
