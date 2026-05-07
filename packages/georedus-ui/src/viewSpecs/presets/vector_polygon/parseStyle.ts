@@ -152,7 +152,18 @@ schemePaired.0
  */
 
 type VectorPolygonSequential = {
-  dataType: 'sequential'
+  dataType: 'sequential',
+  fillPattern?:
+    | 'circles_1'
+    | 'cross_1'
+    | 'diamonds_1'
+    | 'lines_1'
+    | 'mosaic_1'
+    | 'mosaic_2'
+    | 'squares_1'
+    | 'triangles_1'
+    | 'waves_1'
+    | 'solid'
 }
 
 type VectorPolygonCategorical =
@@ -175,8 +186,8 @@ type CategoricalParseStyleResult = {
     'fill-pattern'?: string
   }
   main_line: {
-    'line-color': string,
-    'line-dasharray'?: number[],
+    'line-color': string
+    'line-dasharray'?: number[]
   }
 }
 
@@ -198,7 +209,7 @@ function categoricalLegendItem(
     label?: string
   },
 ): CategoricalLegendProps['items'][number] {
-  const resolvedColor = cat.color ? resolveColor(cat.color) : 'transparent'
+  const resolvedColor = cat.color ? resolveColor(cat.color) : 'black'
 
   return {
     label: cat.label || cat.value,
@@ -208,6 +219,7 @@ function categoricalLegendItem(
         borderStyle: cat.borderStyle,
         ...(cat.fillPattern && cat.fillPattern !== SOLID
           ? {
+              backgroundColor: 'transparent',
               backgroundImage:
                 typeof SVG_PATTERNS[cat.fillPattern] === 'function'
                   ? svgBgImage(
@@ -232,26 +244,45 @@ function categoricalLegendItem(
 //   // parsear cores de colorScheme aqui
 // }
 
+
+// function getFillPattern(style: StyleSpec, resolvedColor: string): string {
+//   if (style?.fillPattern) {
+//     const pattern = SVG_PATTERNS[style.fillPattern as keyof typeof SVG_PATTERNS]
+//     if (typeof pattern === 'function') {
+//       return svgBgImage(
+//         pattern({
+//           stroke: resolvedColor,
+//           scale: '0.25',
+//         }),
+//       )
+//     }
+//   }
+//   return SOLID
+// }
+
 function categoricalParseStyle(
   style: VectorPolygonCategorical,
   title: string,
 ): CategoricalParseStyleResult {
-  const resolvedColor = style.color ? resolveColor(style.color) : 'transparent'
+  const resolvedColor = style.color ? resolveColor(style.color) : 'black'
+
   const legendItems =
     'categoryKey' in style && style.categories
       ? style.categories.map((cat) => ({
           ...categoricalLegendItem(cat),
         }))
-      // : 'categoryKey' in style && !style.categories
-      // ? parseCategoryKeyToLegendItems(style.categoryKey, style)
-      : [{
-          ...categoricalLegendItem({
-            value: title,
-            color: style.color,
-            fillPattern: style.fillPattern,
-            borderStyle: style.borderStyle,
-          }),
-        }]
+      : // : 'categoryKey' in style && !style.categories
+        // ? parseCategoryKeyToLegendItems(style.categoryKey, style)
+        [
+          {
+            ...categoricalLegendItem({
+              value: title,
+              color: resolvedColor,
+              fillPattern: style.fillPattern,
+              borderStyle: style.borderStyle,
+            }),
+          },
+        ]
 
   return {
     legend: {
@@ -262,14 +293,14 @@ function categoricalParseStyle(
       'fill-color': resolvedColor,
       'fill-opacity': DEFAULT_FILL_OPACITY,
       ...(style.fillPattern && style.fillPattern !== SOLID
-        ? { 'fill-pattern': `${style.fillPattern}({ stroke: "${resolvedColor}", scale: 0.5 })` }
+        ? {
+            'fill-pattern': `${style.fillPattern}({ stroke: "${resolvedColor}", scale: 0.5 })`,
+          }
         : null),
     },
     main_line: {
       'line-color': resolvedColor,
-      ...(style.borderStyle === 'dashed'
-        ? { 'line-dasharray': [2, 2] }
-        : {}),
+      ...(style.borderStyle === 'dashed' ? { 'line-dasharray': [2, 2] } : {}),
     },
   }
 }
@@ -291,6 +322,7 @@ export function parseStyle(
   styleInput: StyleSpecInput,
   title: string,
 ): ParseStyleResult {
+  console.log('parseStyle', { styleInput, title })
   const style =
     typeof styleInput === 'string'
       ? {
@@ -309,4 +341,3 @@ export function parseStyle(
     }
   }
 }
-

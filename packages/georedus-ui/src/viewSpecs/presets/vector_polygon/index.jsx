@@ -5,6 +5,7 @@ import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { Flex } from '@orioro/react-ui-core'
 import { parseStyle } from './parseStyle'
+import _ from 'lodash'
 
 const SOLID = 'solid'
 // const DEFAULT_FILL_OPACITY = 0.5
@@ -65,7 +66,7 @@ export function vector_polygon(
     sources = {},
     layers = {},
     // fill_pattern,
-    parse_style = {},
+    parse_style,
     ...props
   },
   allViewSpecs,
@@ -75,18 +76,63 @@ export function vector_polygon(
     throw new Error('source_layer must be defined')
   }
 
+  const _initialColor = getColor(parse_style)
+
+  function getColor(parse_style) {
+    if (typeof parse_style === 'string') {
+      return resolveColor(parse_style)
+    }
+    return resolveColor(parse_style?.color) || null
+  }
+
+  const _initialPattern = getFillPattern(parse_style)
+
+  function getFillPattern(parse_style) {
+    if (typeof parse_style === 'string') {
+      return SOLID
+    }
+    return parse_style?.fillPattern || SOLID
+  }
+
   const _parsedStyle = resolve.fn((ctx) => {
-    const styleConfig = { ...parse_style, ...ctx.view?.conf?.style }
-    return parseStyle(styleConfig, label)
+    let _parseStyle
+    
+    if (typeof parse_style === 'string') {
+      _parseStyle = {
+        dataType: 'categorical',
+        color: parse_style,
+        fillPattern: _initialPattern,
+      }
+    } else  {
+      _parseStyle = { ...parse_style }
+    }
+
+    if (ctx.view?.conf?.style?.color) {
+      _parseStyle.color = ctx.view.conf.style.color
+    }
+    if (ctx.view?.conf?.style?.fillPattern) {
+      _parseStyle.fillPattern = ctx.view.conf.style.fillPattern
+    }
+
+    return parseStyle(_parseStyle, label)
   })
   const _legend = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.legend)
-  const _fillPaint = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.main_fill)
-  const _linePaint = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.main_line)
+  const _fillPaint = resolve.fn(
+    _parsedStyle,
+    (parsedStyle) => parsedStyle.main_fill,
+  )
+  const _linePaint = resolve.fn(
+    _parsedStyle,
+    (parsedStyle) => parsedStyle.main_line,
+  )
+  // const _color = resolve.fn(_parsedStyle, (parsedStyle) => parsedStyle.color) || _initialColor
   // const _initialColor = '#ff7f00'
   // const _initialColor = parseStyle(parse_style, label).main_fill['fill-color']
   // console.log('_initialColor', _initialColor)
   // const _initialPattern = resolve.fn(_fillPaint, (_fillPaint) => _fillPaint['fill-pattern'])
 
+
+  // -----------------------------------------------------------------------------
   // const _initialColor = resolveColor(color)
   // const _color = resolve.fn(
   //   (ctx) => resolveColor(ctx.view?.conf?.style?.color) || _initialColor,
@@ -173,7 +219,7 @@ export function vector_polygon(
           helperText: 'Selecione a cor para a camada',
           type: 'select',
           clearable: false,
-          defaultValue: COLOR_OPTIONS[0].value,
+          defaultValue: _initialColor,
           options: COLOR_OPTIONS.map((opt) => ({
             ...opt,
             label: (
@@ -194,7 +240,7 @@ export function vector_polygon(
           label: 'Textura',
           type: 'select',
           clearable: false,
-          defaultValue: SOLID,
+          defaultValue: _initialPattern,
           options: FILL_PATTERN_OPTIONS.map((opt) => {
             const pattern =
               opt.value === SOLID
