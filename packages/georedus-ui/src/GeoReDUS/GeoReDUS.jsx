@@ -695,6 +695,8 @@ function GeoReDUSInner({
         municipioId={municipioId}
         syncedMapsRef={syncedMapsRef}
         METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
+        baseMapStyle={BASE_MAP_STYLE[baseMapStyle]}
+        
         {...leftPanelProps}
       />
 

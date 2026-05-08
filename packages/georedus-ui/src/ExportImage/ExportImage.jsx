@@ -26,6 +26,7 @@ export function ExportImage({
   commitedViewState,
   municipioId,
   METADATA_API_ENDPOINT,
+  baseMapStyle,
 }) {
   const layeredMapRef = useRef(null)
 
@@ -117,6 +118,8 @@ export function ExportImage({
     )
   }
 
+  console.log('View state to export:', resolvedLayout) // Debug log
+
   return (
     <>
       <Flex direction="column">
@@ -125,7 +128,7 @@ export function ExportImage({
           sky={SKY_STYLE}
           maxPitch={80}
           attributionControl={false}
-          mapStyle={`https://api.maptiler.com/maps/dataviz/style.json?key=${process.env.NEXT_PUBLIC_MAP_TILER_API_KEY}`}
+          mapStyle={baseMapStyle}
           views={resolvedLayout?.[0]?.views}
           initialViewState={commitedViewState}
           style={{

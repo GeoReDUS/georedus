@@ -41,6 +41,7 @@ function LeftPanelInner({
   commitedViewState,
   municipioId,
   METADATA_API_ENDPOINT,
+  baseMapStyle,
 
   categoryIcons = undefined,
   header: customHeader = undefined,
@@ -235,6 +236,7 @@ function LeftPanelInner({
                           commitedViewState={commitedViewState}
                           municipioId={municipioId}
                           METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
+                          baseMapStyle={baseMapStyle}
                         />
                       ),
                     })
