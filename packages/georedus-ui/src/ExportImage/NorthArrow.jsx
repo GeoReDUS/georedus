@@ -7,18 +7,23 @@ import { Icon } from '@mdi/react'
 import { mdiNavigation } from '@mdi/js'
 import { ControlContainer } from '@orioro/react-maplibre-util'
 
-
 const style = {
-    border: '2px solid black',
-    backgroundColor: 'transparent',
-    borderRadius: '70px',
-    padding: '4px',
-    width: '30px',
-    height: '30px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+  border: 'none',
+  borderRadius: '70px',
+
+  backgroundColor: 'transparent',
+}
+
+const circleStyle = {
+  border: '2px solid black',
+  borderRadius: '70px',
+  padding: '4px',
+  width: '30px',
+  height: '30px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 }
 
 const ArrowIcon = styled(Icon)`
@@ -27,18 +32,16 @@ const ArrowIcon = styled(Icon)`
 
 /**
  * NorthArrow Control Component
- * 
+ *
  * Displays a rotatable north arrow that syncs with the map's bearing.
  * Click to reset the map bearing to 0°.
- * 
+ *
  * @param {Object} props
  * @param {string} [props.position='bottom-right'] - Position in MapLibre control bar
  * @param {React.CSSProperties} [props.style] - Additional styles for the container
  */
 
-export function NorthArrow({
-  position = 'bottom-right',
-}) {
+export function NorthArrow({ position = 'bottom-right', northArrowRef }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const [mountPoint, setMountPoint] = useState(null)
@@ -103,15 +106,15 @@ export function NorthArrow({
           onClick={handleClick}
           title="Click to reset bearing to north"
           style={style}
-          position={position}
-        >
-          <ArrowIcon
-            path={mdiNavigation}
-            size="25px"
-            bearing={bearing}
-            style={{marginTop: '5px'}}
-          />
-
+          position={position}>
+          <div ref={northArrowRef} style={circleStyle}>
+            <ArrowIcon
+              path={mdiNavigation}
+              size="25px"
+              bearing={bearing}
+              // style={{ marginTop: '3px' }}
+            />
+          </div>
         </ControlContainer>,
         mountPoint,
       )

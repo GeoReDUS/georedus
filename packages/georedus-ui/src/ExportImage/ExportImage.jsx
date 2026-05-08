@@ -38,6 +38,10 @@ export function ExportImage({
     box-shadow: none;
   `
 
+  const logoRef = useRef(null)
+  const projectionRef = useRef(null)
+  // const scaleRef = useRef(null)
+  const northArrowRef = useRef(null)
   const legendMapRef = useRef(null)
   const descriptionRef = useRef(null)
   const qrCodeRef = useRef(null)
@@ -139,7 +143,7 @@ export function ExportImage({
               backgroundColor: '#ffffffd9',
               borderRadius: '10px',
             }}>
-            <Flex width="150" p="2">
+            <Flex width="150" p="2" ref={logoRef}>
               <GeoReDUSLogo color="#384DA0" />
             </Flex>
           </ControlContainer>
@@ -151,13 +155,19 @@ export function ExportImage({
               backgroundColor: '#ffffffd9',
               borderRadius: '10px',
             }}>
-            <Flex p="2">
+            <Flex p="2" ref={projectionRef}>
               <Text weight="bold">Projeção universal </Text>
               <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
             </Flex>
-            <NorthArrow position="bottom-right" animationDuration={300} />
+            <NorthArrow
+              position="bottom-right"
+              animationDuration={300}
+              northArrowRef={northArrowRef}
+            />
           </ControlContainer>
-          <ScaleControl position="bottom-right" />
+          {/* <div ref={scaleRef}> */}
+          <ScaleControl position="bottom-left" />
+          {/* </div> */}
         </LayeredMap>
         <Flex
           direction="row"
@@ -196,9 +206,32 @@ export function ExportImage({
             setImageIsLoading(true)
 
             let mapCanvas
+            let scaleRefCurrent
             while (!mapCanvas) {
               await new Promise((r) => setTimeout(r, 1000))
               mapCanvas = layeredMapRef.current?.map?.getCanvas()
+
+              // Get scale control reference
+              scaleRefCurrent = layeredMapRef.current?.map
+                ?.getContainer()
+                .querySelector('.maplibregl-ctrl-scale')
+
+              // scaleRefCurrent.innerHTML = 'tres km'
+              // scaleRefCurrent.style.setProperty(
+              //   'margin-left',
+              //   '10px',
+              //   'important',
+              // )
+              // scaleRefCurrent.style.setProperty(
+              //   'padding-left',
+              //   '15px',
+              //   'important',
+              // )
+              // scaleRefCurrent.style.setProperty(
+              //   'padding-right',
+              //   '15px',
+              //   'important',
+              // )
             }
 
             const blobLegend = await toBlob(legendMapRef.current, {
@@ -222,6 +255,53 @@ export function ExportImage({
               backgroundColor: '#ffffff',
             })
 
+            const blobLogo = await toBlob(logoRef.current, {
+              cacheBust: true,
+              pixelRatio: 2,
+              fontEmbedCSS: false,
+              backgroundColor: '#ffffff80',
+            })
+
+            const blobProjection = await toBlob(projectionRef.current, {
+              cacheBust: true,
+              pixelRatio: 2,
+              fontEmbedCSS: false,
+              backgroundColor: '#ffffff80',
+            })
+
+            const blobNorthArrow = await toBlob(northArrowRef.current, {
+              cacheBust: true,
+              pixelRatio: 2,
+              fontEmbedCSS: false,
+              backgroundColor: 'transparent',
+            })
+
+            const scaleWrapper = document.createElement('div')
+            scaleWrapper.style.padding = '0px'
+            scaleWrapper.style.backgroundColor = 'transparent'
+            scaleWrapper.style.display = 'block'
+            scaleWrapper.style.position = 'relative'
+            scaleWrapper.style.overflow = 'visible'
+
+            const scaleClone = scaleRefCurrent.cloneNode(true)
+            scaleClone.style.overflow = 'visible'
+            // Force the internal SVG/lines to not be clipped
+            scaleClone.style.position = 'relative'
+            scaleWrapper.appendChild(scaleClone)
+            document.body.appendChild(scaleWrapper)
+
+            // Wait a bit for render
+            await new Promise((r) => setTimeout(r, 100))
+
+            const blobScale = await toBlob(scaleWrapper, {
+              cacheBust: true,
+              pixelRatio: 3,
+              fontEmbedCSS: false,
+              backgroundColor: 'transparent',
+            })
+
+            document.body.removeChild(scaleWrapper)
+
             // Convert legend blob to image (only time we need to convert)
             const legendImg = await new Promise((resolve) => {
               const img = new Image()
@@ -239,6 +319,30 @@ export function ExportImage({
               const img = new Image()
               img.onload = () => resolve(img)
               img.src = URL.createObjectURL(blobQRCode)
+            })
+
+            const logoImg = await new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(img)
+              img.src = URL.createObjectURL(blobLogo)
+            })
+
+            const projectionImg = await new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(img)
+              img.src = URL.createObjectURL(blobProjection)
+            })
+
+            const northArrowImg = await new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(img)
+              img.src = URL.createObjectURL(blobNorthArrow)
+            })
+
+            const scaleImg = await new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(img)
+              img.src = URL.createObjectURL(blobScale)
             })
 
             // Create combined canvas and draw directly
@@ -260,14 +364,17 @@ export function ExportImage({
             // Scale map to new canvas size maintaining aspect ratio
             // Map is 1296x615, canvas is 3508x2480
             const mapScaleX = (3508 - margin * 2) / 1296
+            const mapWidth = 3508 - margin * 2
             const mapHeight = 615 * mapScaleX // ~1664px
             ctx.drawImage(
               mapCanvas,
               margin,
               margin,
-              3508 - margin * 2,
+              mapWidth,
               mapHeight,
             )
+
+            const scale = mapWidth / mapCanvas.width
 
             // Position legend in bottom section
             const bottomStartY = mapHeight + margin * 2
@@ -303,6 +410,60 @@ export function ExportImage({
               bottomStartY,
               qrCodeSize,
               qrCodeSize,
+            )
+
+            // Draw logo on bottom left of map
+            const logoHeight = 200
+            const logoPadding = 20
+            ctx.drawImage(
+              logoImg,
+              margin + logoPadding,
+              margin + mapHeight - logoHeight - logoPadding,
+              logoHeight * (logoImg.width / logoImg.height),
+              logoHeight,
+            )
+
+            // Draw projection on bottom left, below logo
+            const projectionHeight = 120
+            const projectionX = margin + logoPadding
+            const projectionY =
+              margin +
+              mapHeight -
+              logoHeight -
+              projectionHeight -
+              logoPadding * 2
+            ctx.drawImage(
+              projectionImg,
+              projectionX,
+              projectionY,
+              projectionHeight * (projectionImg.width / projectionImg.height),
+              projectionHeight,
+            )
+
+            // Draw scale on bottom left, below projection
+            const scaleHeight = 60
+            const scaleX = margin + logoPadding
+            const scaleY = projectionY - scaleHeight - logoPadding
+            const correctionFactorWidth = scale / 3 //2.59 // Scale up the scale control to make it more visible
+            const correctionFactorHeight = scale / 2
+            ctx.drawImage(
+              scaleImg,
+              scaleX,
+              scaleY,
+              scaleImg.width * correctionFactorWidth,
+              scaleImg.height * correctionFactorHeight,
+            )
+
+            // Draw north arrow on bottom left, below scale
+            const northArrowHeight = 100
+            const northArrowX = margin + logoPadding
+            const northArrowY = scaleY - northArrowHeight - logoPadding
+            ctx.drawImage(
+              northArrowImg,
+              northArrowX,
+              northArrowY,
+              northArrowHeight * (northArrowImg.width / northArrowImg.height),
+              northArrowHeight,
             )
 
             // Convert combined result to blob once
