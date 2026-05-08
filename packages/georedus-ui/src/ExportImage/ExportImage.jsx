@@ -32,12 +32,15 @@ export function ExportImage({
   const legends = resolvedLayout?.[0]?.legends || []
 
   const LegendContainer = styled(Flex)`
+    flex-wrap: wrap;
     background-color: white;
-    border-radius: 4px;
+    border: none;
+    box-shadow: none;
   `
 
   const legendMapRef = useRef(null)
   const descriptionRef = useRef(null)
+  const qrCodeRef = useRef(null)
 
   const [imageIsLoading, setImageIsLoading] = useState(false)
   const [combinedImage, setCombinedImage] = useState(null)
@@ -62,16 +65,18 @@ export function ExportImage({
   }, [municipioId, METADATA_API_ENDPOINT])
 
   const sourceLabels =
-    resolvedLayout?.[0]?.views
-      .map((view) =>
-        view.metadata.sourceLabel ? view.metadata.sourceLabel : '',
-      )
-      .join(' + ') || ''
+    Array.from(
+      new Set(
+        resolvedLayout?.[0]?.views
+          ?.map((view) => view.metadata.sourceLabel || '')
+          .filter(Boolean) || [],
+      ),
+    ).join(' + ') || ''
 
   function ImageDescription() {
     return (
       <>
-        <Flex direction="column" width="50%">
+        <Flex direction="column" width="25%" ref={descriptionRef}>
           <Flex height="100%" wrap="wrap" gap="2">
             <Heading size="6" color="iris">
               {munName} - {ufSigla} / BR
@@ -90,8 +95,8 @@ export function ExportImage({
               {sourceLabels || ''}
             </Text>
             <Text>
-              <Strong>Outros dados: </Strong>
-              © MapTiler | © OpenStreetMap contributors
+              <Strong>Outros dados: </Strong>© MapTiler | © OpenStreetMap
+              contributors
             </Text>
           </Flex>
           <Flex>
@@ -157,24 +162,32 @@ export function ExportImage({
         <Flex
           direction="row"
           width="1296px"
+          height="300px"
           style={{ justifyContent: 'space-between' }}>
-          <div ref={descriptionRef}>
-            <ImageDescription />
-          </div>
+          {/* <div ref={descriptionRef}> */}
+          <ImageDescription />
+          {/* </div> */}
           <LegendContainer
             ref={legendMapRef}
-            direction="row"
+            direction="column"
             flexGrow="1"
             gap="3"
             p={resolvedLayout.length > 1 ? '3' : '4'}>
             {legends
               .filter((legend) => legend?.type)
               .map((legend, i) => (
-                <Legend key={legend.id || `${legend.type}-${i}`} {...legend} />
+                <Legend
+                  key={legend.id || `${legend.type}-${i}`}
+                  {...legend}
+                  style={{
+                    marginTop: '0 !important',
+                    marginBottom: '10px',
+                  }}
+                />
               ))}
           </LegendContainer>
           <Flex style={{ alignItems: 'end' }}>
-            <QRCode value={href} />
+            <QRCode ref={qrCodeRef} value={href} />
           </Flex>
         </Flex>
         <Button
@@ -192,12 +205,21 @@ export function ExportImage({
               cacheBust: true,
               pixelRatio: 2,
               fontEmbedCSS: false,
+              backgroundColor: '#ffffff',
             })
 
             const blobDescription = await toBlob(descriptionRef.current, {
               cacheBust: true,
               pixelRatio: 2,
               fontEmbedCSS: false,
+              backgroundColor: '#ffffff',
+            })
+
+            const blobQRCode = await toBlob(qrCodeRef.current, {
+              cacheBust: true,
+              pixelRatio: 2,
+              fontEmbedCSS: false,
+              backgroundColor: '#ffffff',
             })
 
             // Convert legend blob to image (only time we need to convert)
@@ -213,45 +235,74 @@ export function ExportImage({
               img.src = URL.createObjectURL(blobDescription)
             })
 
+            const qrCodeImg = await new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(img)
+              img.src = URL.createObjectURL(blobQRCode)
+            })
+
             // Create combined canvas and draw directly
             const combinedCanvas = document.createElement('canvas')
 
-            // Set internal resolution
+            // Define margins (in pixels)
+            const margin = 100
+
+            // Set internal resolution with margins
             combinedCanvas.width = 3508
             combinedCanvas.height = 2480
 
             const ctx = combinedCanvas.getContext('2d')
 
+            // Fill background white
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height)
+
             // Scale map to new canvas size maintaining aspect ratio
             // Map is 1296x615, canvas is 3508x2480
-            const mapScaleX = 3508 / 1296
+            const mapScaleX = (3508 - margin * 2) / 1296
             const mapHeight = 615 * mapScaleX // ~1664px
-            ctx.drawImage(mapCanvas, 0, 0, 3508, mapHeight)
+            ctx.drawImage(
+              mapCanvas,
+              margin,
+              margin,
+              3508 - margin * 2,
+              mapHeight,
+            )
 
             // Position legend in bottom section
-            const bottomStartY = mapHeight
-            const bottomHeight = 2480 - mapHeight // ~816px
-            const descriptionWidth = 3508 * 0.2 // 20% of canvas width
-            const qrCodeWidth = 350 // estimate for QR code scaled proportionally
-            const legendWidth = 3508 - descriptionWidth - qrCodeWidth
-            const legendHeight = legendWidth * (legendImg.height / legendImg.width)
-            
+            const bottomStartY = mapHeight + margin * 2
+            const bottomHeight = 2480 - margin * 3 - mapHeight // ~816px
+            const descriptionWidth =
+              bottomHeight * (descriptionImg.width / descriptionImg.height) // 20% of canvas width
+            const legendWidth =
+              bottomHeight * (legendImg.width / legendImg.height)
+
             // Draw description on bottom left
-            const descriptionHeight = (descriptionImg.height / descriptionImg.width) * descriptionWidth
+
             ctx.drawImage(
               descriptionImg,
-              0,
+              margin,
               bottomStartY,
               descriptionWidth,
-              descriptionHeight
+              bottomHeight,
             )
 
             ctx.drawImage(
               legendImg,
-              descriptionWidth,
+              margin + descriptionWidth,
               bottomStartY,
               legendWidth,
-              legendHeight
+              bottomHeight,
+            )
+
+            // Draw QRCode on bottom right
+            const qrCodeSize = bottomHeight
+            ctx.drawImage(
+              qrCodeImg,
+              combinedCanvas.width - margin - qrCodeSize,
+              bottomStartY,
+              qrCodeSize,
+              qrCodeSize,
             )
 
             // Convert combined result to blob once
