@@ -245,21 +245,6 @@ function categoricalLegendItem(
 // }
 
 
-// function getFillPattern(style: StyleSpec, resolvedColor: string): string {
-//   if (style?.fillPattern) {
-//     const pattern = SVG_PATTERNS[style.fillPattern as keyof typeof SVG_PATTERNS]
-//     if (typeof pattern === 'function') {
-//       return svgBgImage(
-//         pattern({
-//           stroke: resolvedColor,
-//           scale: '0.25',
-//         }),
-//       )
-//     }
-//   }
-//   return SOLID
-// }
-
 function categoricalParseStyle(
   style: VectorPolygonCategorical,
   title: string,
@@ -284,6 +269,10 @@ function categoricalParseStyle(
           },
         ]
 
+  // const fillItems = 'categoryKey' in style && style.categories
+  //   ?
+  //   :
+  
   return {
     legend: {
       type: 'CategoricalLegend',
