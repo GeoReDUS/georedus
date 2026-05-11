@@ -113,58 +113,58 @@ const BUILT_IN_CEM_SAUDE_2024 = `${ASSETS_BASE}georedus/data/cem_saude_2024.csv`
 
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
-    GOOGLE_MUN_MACEIO,
-    GOOGLE_MUN_SAO_LUIS,
-    [
-      piloto_mobilidade_stops({
-        ...API,
-        id: 'cittamobi_gtfs_curitiba_2026_stops_with_routes.geom',
-        collection_id: 'mun_curitiba_test',
-        indicator_id: 'mun_curitiba_test',
-        tiles: [
-          `${API.VECTOR_TILE_SERVER_ENDPOINT}/cittamobi_gtfs_curitiba_2026_stops_with_routes.geom/{z}/{x}/{y}`,
-        ],
-        source_layer: 'cittamobi_gtfs_curitiba_2026_stops_with_routes.geom',
-        path: 'Curitiba / 2026 / Mobilidade',
-        label: 'Pontos de ônibus',
-        color: '#1f77b4',
-        skip: ['$not', ['$eq', '4106902', ['$get', 'municipioId']]],
-      }),
-    ],
-    GOOGLE_MUN_CURITIBA,
-    BUILT_IN_CEM_CENSO_2022,
-    BUILT_IN_CEM_CENSO_2010,
+    // GOOGLE_MUN_MACEIO,
+    // GOOGLE_MUN_SAO_LUIS,
+    // [
+    //   piloto_mobilidade_stops({
+    //     ...API,
+    //     id: 'cittamobi_gtfs_curitiba_2026_stops_with_routes.geom',
+    //     collection_id: 'mun_curitiba_test',
+    //     indicator_id: 'mun_curitiba_test',
+    //     tiles: [
+    //       `${API.VECTOR_TILE_SERVER_ENDPOINT}/cittamobi_gtfs_curitiba_2026_stops_with_routes.geom/{z}/{x}/{y}`,
+    //     ],
+    //     source_layer: 'cittamobi_gtfs_curitiba_2026_stops_with_routes.geom',
+    //     path: 'Curitiba / 2026 / Mobilidade',
+    //     label: 'Pontos de ônibus',
+    //     color: '#1f77b4',
+    //     skip: ['$not', ['$eq', '4106902', ['$get', 'municipioId']]],
+    //   }),
+    // ],
+    // GOOGLE_MUN_CURITIBA,
+    // BUILT_IN_CEM_CENSO_2022,
+    // BUILT_IN_CEM_CENSO_2010,
     GOOGLE_DIVISOES_TERRITORIAIS,
-    GOOGLE_EMERGENCIAS_CLIMATICAS,
+    // GOOGLE_EMERGENCIAS_CLIMATICAS,
 
     // GOOGLE_CEM_CENSO_2022,
     // GOOGLE_CEM_CENSO_2010,
-    GOOGLE_CEM_ESCOLAS_2022,
-    GOOGLE_CEM_SAUDE_2024,
+    // GOOGLE_CEM_ESCOLAS_2022,
+    // GOOGLE_CEM_SAUDE_2024,
 
-    [
-      hand({
-        ...API,
-        // mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/ana/hand_2018/mosaic.json`,
-      }),
-      declividade({
-        ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2018/mosaic.json`,
-      }),
-      temperatura_superficie({
-        ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
-      }),
-      curvatura({
-        ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2018/mosaic.json`,
-      }),
-      overture_places_poc(API),
-      redus_mutirao_cop_2025(API),
-      ...br_divisao_territorial_views(API),
-      ...ana_br_bacias_hidrograficas(API),
-    ],
+    // [
+    //   hand({
+    //     ...API,
+    //     // mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/hand_2018/mosaic.json`,
+    //     mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/ana/hand_2018/mosaic.json`,
+    //   }),
+    //   declividade({
+    //     ...API,
+    //     mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/declividade_2018/mosaic.json`,
+    //   }),
+    //   temperatura_superficie({
+    //     ...API,
+    //     mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
+    //   }),
+    //   curvatura({
+    //     ...API,
+    //     mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/curvatura_2018/mosaic.json`,
+    //   }),
+    //   overture_places_poc(API),
+    //   redus_mutirao_cop_2025(API),
+    //   ...br_divisao_territorial_views(API),
+    //   ...ana_br_bacias_hidrograficas(API),
+    // ],
   ],
   censo_only: [GOOGLE_CEM_CENSO_2022, GOOGLE_CEM_CENSO_2010],
 }
