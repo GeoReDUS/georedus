@@ -36,8 +36,8 @@ function LeftPanelInner({
   resolvedLayout,
   open,
   onSetOpen,
-  syncedMapsRef,
-  mapContainerRef,
+
+  // props required for export image, but not used here
   commitedViewState,
   municipioId,
   METADATA_API_ENDPOINT,

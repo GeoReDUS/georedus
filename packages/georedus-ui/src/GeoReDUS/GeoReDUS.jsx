@@ -691,9 +691,10 @@ function GeoReDUSInner({
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         resolvedLayout={resolvedLayout}
+        
+        // props required for export image
         commitedViewState={commitedViewState}
         municipioId={municipioId}
-        syncedMapsRef={syncedMapsRef}
         METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
         baseMapStyle={BASE_MAP_STYLE[baseMapStyle]}
         
