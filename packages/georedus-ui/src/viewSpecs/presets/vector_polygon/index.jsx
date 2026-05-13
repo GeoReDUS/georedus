@@ -185,11 +185,13 @@ export function vector_polygon(
             const pattern =
               opt.value === SOLID
                 ? null
-                : svgBgImage(
-                    SVG_PATTERNS[opt.value]({
-                      scale: '0.25',
-                    }),
-                  )
+                : typeof SVG_PATTERNS[opt.value] === 'function'
+                  ? svgBgImage(
+                      SVG_PATTERNS[opt.value]({
+                        scale: '0.25',
+                      }),
+                    )
+                  : null
             return {
               ...opt,
               label: (
