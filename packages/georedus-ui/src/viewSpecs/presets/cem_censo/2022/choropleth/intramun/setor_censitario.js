@@ -14,6 +14,24 @@ const NUMBER_FMT = [
   ['pt-BR', {}],
 ]
 
+// Helper para gerar labels customizados de salário mínimo
+function _generateSMFormat(salarioMinimo) {
+  // Define os labels de SM na mesma ordem que os breaks
+  const smLabels = ['1/2 SM', '1 SM', '2 SM', '5 SM', '10 SM']
+  let currentLabelIndex = 0
+
+  return {
+    number: NUMBER_FMT || ['pt-BR', {}],
+    below: 'Sem dados',
+    above: 'Acima de 10 SM',
+    between: (min, max) => {
+      const label = smLabels[currentLabelIndex]
+      currentLabelIndex++
+      return label
+    },
+  }
+}
+
 export function setor_censitario_legends({ PARSED_SCHEMA }) {
   return [
     {
@@ -39,16 +57,24 @@ export function setor_censitario_legends({ PARSED_SCHEMA }) {
           ['$max', ['$get', 'view.metadata.variableValues']],
         ],
       ],
-      format: {
-        number: NUMBER_FMT || ['pt-BR', {}],
-        below: 'Sem dados',
-        above: [
-          '$if',
-          ['$empty', ['$get', 'view.metadata.colorScaleStops']],
-          null,
-          'Acima de ${0}',
-        ],
-      },
+      format: resolve.fn((ctx) => {
+        // Se tem salarioMinimo, usa o formato customizado de SM
+        const salarioMinimo = ctx.view.metadata.salarioMinimo
+        if (salarioMinimo) {
+          return _generateSMFormat(salarioMinimo)
+        }
+        // Caso contrário, usa o formato padrão
+        return {
+          number: NUMBER_FMT || ['pt-BR', {}],
+          below: 'Sem dados',
+          above: [
+            '$if',
+            ['$empty', ['$get', 'view.metadata.colorScaleStops']],
+            null,
+            'Acima de ${0}',
+          ],
+        }
+      }),
 
       //
       // TODO: review! Clearly not structured manner.
