@@ -8,7 +8,45 @@ import { _censoColorScheme } from './util'
 //
 // TODO: restructure and move into maplibre util with naturalBreaks
 // Maybe move into separate lib?
-//
+function _salarioMinimoBreakpoints({
+  salarioMinimo,
+  scalesByK,
+  defaultColor = '#efefef',
+}) {
+  // Define as faixas em múltiplos de salário mínimo
+  const breaks = [
+    { value: salarioMinimo * 0.5, label: '1/2 SM' },
+    { value: salarioMinimo * 1, label: '1 SM' },
+    { value: salarioMinimo * 2, label: '2 SM' },
+    { value: salarioMinimo * 5, label: '5 SM' },
+    { value: salarioMinimo * 10, label: '10 SM' },
+  ]
+
+  const k = 6  // 6 categorias
+  const colorScale = scalesByK[k]
+  const colorScaleStops = breaks
+    .map(({ value: breakValue }, index) => {
+      const color = colorScale[index + 1]
+
+      return index === 0
+        ? [
+            // Para valores abaixo de 0.5 SM, usa defaultColor
+            defaultColor,
+            0,
+            colorScale[0],
+            breakValue,  // Retorna valor numérico para MapLibre
+            color,
+          ]
+        : [breakValue, color]  // Retorna valor numérico para MapLibre
+    })
+    .flat(1)
+
+  // Armazena os labels para uso na legenda
+  colorScaleStops._smLabels = breaks.map(b => b.label)
+
+  return colorScaleStops
+}
+
 function _quantileBreakpoints({
   k,
   values,
@@ -88,11 +126,24 @@ export async function defaultMetadata(
 
   const colorScheme = _censoColorScheme(variant.colorScheme)
 
+  // Parse salario-minimo(valor) pattern
+  const salarioMinimoMatch = variant.classificationMethod?.match(
+    /salario-minimo\((\d+(?:\.\d+)?)\)/
+  )
+  const salarioMinimo = salarioMinimoMatch
+    ? parseFloat(salarioMinimoMatch[1])
+    : null
+
   const colorScaleStops =
     variant.classificationMethod === 'quantile(5)'
       ? _quantileBreakpoints({
           k: 5,
           values: scaleValues,
+          ...colorScheme,
+        })
+      : salarioMinimo !== null
+      ? _salarioMinimoBreakpoints({
+          salarioMinimo,
           ...colorScheme,
         })
       : [
@@ -116,5 +167,7 @@ export async function defaultMetadata(
     rawData,
     colorScheme,
     colorScaleStops,
+    salarioMinimo,  // Retorna o valor do SM para ser usado na legenda
   }
 }
+
