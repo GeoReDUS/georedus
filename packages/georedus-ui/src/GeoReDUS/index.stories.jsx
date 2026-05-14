@@ -113,13 +113,16 @@ const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
 const BUILT_IN_CEM_CENSO_2022 = `${ASSETS_BASE}georedus/data/cem_censo_2022.csv`
 const BUILT_IN_CEM_ESCOLAS_2022 = `${ASSETS_BASE}georedus/data/cem_escolas_2022.csv`
 const BUILT_IN_CEM_SAUDE_2024 = `${ASSETS_BASE}georedus/data/cem_saude_2024.csv`
-const BUILT_INT_MUN_SAO_CRISTOVAO = `${ASSETS_BASE}georedus/data/mun_sao_cristovao.csv`
+const BUILT_IN_MUN_SAO_CRISTOVAO = `${ASSETS_BASE}georedus/data/mun_sao_cristovao.csv`
+
+const BUILT_IN_MUN_SAO_GONCALO = `${ASSETS_BASE}georedus/data/mun_sao_goncalo.csv`
 
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
     // GOOGLE_MUN_SAO_CRISTOVAO,
     BUILT_INT_MUN_SAO_CRISTOVAO,
+    BUILT_IN_MUN_SAO_GONCALO,
     GOOGLE_MUN_SAO_LUIS,
     [
       piloto_mobilidade_stops({
@@ -195,6 +198,15 @@ const CATEGORY_ICONS = {
     <img
       src={`${ASSETS_BASE}pilotos/sao-cristovao/logo-prefeitura.png`}
       style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  'sao-goncalo': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-goncalo/brasao.png`}
+       style={{
         width: 45,
         height: 45,
       }}
