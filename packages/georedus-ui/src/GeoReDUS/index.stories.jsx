@@ -92,6 +92,9 @@ const GOOGLE_CEM_SAUDE_2024 =
 const GOOGLE_MUN_MACEIO =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=845075805&single=true&output=csv'
 
+// const GOOGLE_MUN_SAO_CRISTOVAO =
+//   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pubhtml?gid=1293057365&single=true'
+
 const GOOGLE_MUN_SAO_LUIS =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2087614392&single=true&output=csv'
 
@@ -110,12 +113,15 @@ const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
 const BUILT_IN_CEM_CENSO_2022 = `${ASSETS_BASE}georedus/data/cem_censo_2022.csv`
 const BUILT_IN_CEM_ESCOLAS_2022 = `${ASSETS_BASE}georedus/data/cem_escolas_2022.csv`
 const BUILT_IN_CEM_SAUDE_2024 = `${ASSETS_BASE}georedus/data/cem_saude_2024.csv`
+const BUILT_IN_MUN_SAO_CRISTOVAO = `${ASSETS_BASE}georedus/data/mun_sao_cristovao.csv`
 
 const BUILT_IN_MUN_SAO_GONCALO = `${ASSETS_BASE}georedus/data/mun_sao_goncalo.csv`
 
 const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
+    // GOOGLE_MUN_SAO_CRISTOVAO,
+    BUILT_INT_MUN_SAO_CRISTOVAO,
     BUILT_IN_MUN_SAO_GONCALO,
     GOOGLE_MUN_SAO_LUIS,
     [
@@ -188,10 +194,19 @@ const CATEGORY_ICONS = {
       }}
     />
   ),
+  'sao-cristovao': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-cristovao/logo-prefeitura.png`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
   'sao-goncalo': (
     <img
       src={`${ASSETS_BASE}pilotos/sao-goncalo/brasao.png`}
-      style={{
+       style={{
         width: 45,
         height: 45,
       }}
