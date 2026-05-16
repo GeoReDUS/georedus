@@ -129,7 +129,7 @@ export async function composeMapImageCanvas(extractedBlobs) {
   const logoScale = logoImg.width / logoImg.height
   const logoPosX = MARGIN + MAPINFO_PADDING
   const logoPosY = projectionPosY - MAPINFO_PADDING - LOGO_HEIGHT
-  const logoWidth = Math.round(LOGO_HEIGHT * (logoImg.width / logoImg.height))
+  const logoWidth = Math.round(LOGO_HEIGHT * logoScale)
 
   ctx.fillStyle = '#ffffff80'
   roundRect(
