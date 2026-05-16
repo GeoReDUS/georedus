@@ -1,247 +1,189 @@
 import { toBlob } from 'html-to-image'
+import { getPaperDimensions } from './paperDimensions'
 
-export const LEGEND_CLASS_NAME = 'LegendContainer'
-export const IMAGE_DESCRIPTION_CLASS_NAME = 'ImageDescription'
-export const QR_CODE_CLASS_NAME = 'QrCode'
-export const LOGO_CLASS_NAME = 'Logo'
-export const PROJECTION_CLASS_NAME = 'Projection'
-export const NORTH_ARROW_CLASS_NAME = 'NorthArrow'
-export const SCALE_CONTROL_CLASS_NAME = 'ScaleControl'
+// Paper dimensions for final image export (PAPER_WIDTH = 1200 for preview)
+const {
+  PAPER_WIDTH,
+  PAPER_HEIGHT,
+  MARGIN,
+  PIXELRATIO,
+  MAP_WIDTH,
+  MAP_HEIGHT,
+  BOTTOM_HEIGHT,
+  DESCRIPTION_WIDTH,
+  QRCODE_SIZE,
+  LEGEND_WIDTH,
+  LOGO_HEIGHT,
+  PROJECTION_HEIGHT,
+  MAPINFO_PADDING,
+  NORTH_SIZE,
+} = getPaperDimensions(3508)
 
-const MARGIN = 100
-const CANVAS_WIDTH = 3508
-const CANVAS_HEIGHT = 2480
-
-
-export async function createMapImage({
-  map,
-  rootEl,
-}) {
-
-  const mapCanvas = map.getCanvas()
-
-  const blobLegend = await toBlob(rootEl.querySelector(`.${LEGEND_CLASS_NAME}`), {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: '#ffffff',
-  })
-
-  const blobDescription = await toBlob(rootEl.querySelector(`.${IMAGE_DESCRIPTION_CLASS_NAME}`), {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: '#ffffff',
-  })
-
-  const blobQRCode = await toBlob(rootEl.querySelector(`.${QR_CODE_CLASS_NAME}`), {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: '#ffffff',
-  })
-
-  const blobLogo = await toBlob(rootEl.querySelector(`.${LOGO_CLASS_NAME}`), {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: '#ffffff80',
-  })
-
-  const blobProjection = await toBlob(rootEl.querySelector(`.${PROJECTION_CLASS_NAME}`), {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: '#ffffff80',
-  })
-
-  const blobNorthArrow = await toBlob(rootEl.querySelector(`.${NORTH_ARROW_CLASS_NAME}`), {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: 'transparent',
-  })
-
-  const scaleElement = map.getContainer()
-    .querySelector('.maplibregl-ctrl-scale')
-
-  const scaleWrapper = document.createElement('div')
-  scaleWrapper.style.padding = '0px'
-  scaleWrapper.style.backgroundColor = 'transparent'
-  scaleWrapper.style.display = 'block'
-  scaleWrapper.style.position = 'relative'
-  scaleWrapper.style.overflow = 'visible'
-
-  const scaleClone = scaleElement.cloneNode(true)
-  scaleClone.style.overflow = 'visible'
-  // Force the internal SVG/lines to not be clipped
-  scaleClone.style.position = 'relative'
-  scaleWrapper.appendChild(scaleClone)
-  document.body.appendChild(scaleWrapper)
-
-  // Wait a bit for render
-  await new Promise((r) => setTimeout(r, 100))
-
-  const blobScale = await toBlob(scaleWrapper, {
-    cacheBust: true,
-    pixelRatio: 2,
-    fontEmbedCSS: false,
-    backgroundColor: 'transparent',
-  })
-
-  document.body.removeChild(scaleWrapper)
-
-  // Convert legend blob to image (only time we need to convert)
-  const legendImg = await new Promise((resolve) => {
+function createImg(blob) {
+  return new Promise((resolve) => {
     const img = new Image()
     img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobLegend)
+    img.src = URL.createObjectURL(blob)
   })
+}
 
-  const descriptionImg = await new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobDescription)
-  })
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.lineTo(x + width - radius, y)
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+  ctx.lineTo(x + width, y + height - radius)
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+  ctx.lineTo(x + radius, y + height)
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+  ctx.lineTo(x, y + radius)
+  ctx.quadraticCurveTo(x, y, x + radius, y)
+  ctx.closePath()
+}
 
-  const qrCodeImg = await new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobQRCode)
-  })
+// Compose canvas AFTER (using already-extracted blobs)
+export async function composeMapImageCanvas(extractedBlobs) {
+  const {
+    mapCanvas,
+    blobLegend,
+    blobDescription,
+    blobQRCode,
+    blobLogo,
+    blobProjection,
+    blobNorthArrow,
+    blobScale,
+  } = extractedBlobs
 
-  const logoImg = await new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobLogo)
-  })
-
-  const projectionImg = await new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobProjection)
-  })
-
-  const northArrowImg = await new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobNorthArrow)
-  })
-
-  const scaleImg = await new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.src = URL.createObjectURL(blobScale)
-  })
-
-  // Create combined canvas and draw directly
+  //0 - CREATE COMBINED CANVAS
   const combinedCanvas = document.createElement('canvas')
-
-  // Define margins (in pixels)
-  const margin = 100
-
-  // Set internal resolution with margins
-  combinedCanvas.width = 3508
-  combinedCanvas.height = 2480
+  combinedCanvas.width = PAPER_WIDTH
+  combinedCanvas.height = PAPER_HEIGHT
 
   const ctx = combinedCanvas.getContext('2d')
-
-  // Fill background white
   ctx.fillStyle = '#ffffff'
-  ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height)
+  ctx.fillRect(0, 0, PAPER_WIDTH, PAPER_HEIGHT)
 
-  // Scale map to new canvas size maintaining aspect ratio
-  // Map is 1296x615, canvas is 3508x2480
-  const mapScaleX = (3508 - margin * 2) / 1296
-  const mapWidth = 3508 - margin * 2
-  const mapHeight = 615 * mapScaleX // ~1664px
-  ctx.drawImage(mapCanvas, margin, margin, mapWidth, mapHeight)
+  //1 - DRAW MAP ON CANVAS
+  // Fill background white
+  ctx.drawImage(mapCanvas, MARGIN, MARGIN, MAP_WIDTH, MAP_HEIGHT)
 
-  const scale = mapWidth / mapCanvas.width
+  //2 - Draw Map Infos
+  //2.1 - Create images from blobs (to get dimensions)
+  const projectionImg = await createImg(blobProjection)
+  const northArrowImg = await createImg(blobNorthArrow)
+  const scaleImg = await createImg(blobScale)
 
-  // Position legend in bottom section
-  const bottomStartY = mapHeight + margin * 2
-  const bottomHeight = 2480 - margin * 3 - mapHeight // ~816px
-  const descriptionWidth =
-    bottomHeight * (descriptionImg.width / descriptionImg.height) // 20% of canvas width
-  const legendWidth = bottomHeight * (legendImg.width / legendImg.height)
-
-  // Draw description on bottom left
-
-  ctx.drawImage(
-    descriptionImg,
-    margin,
-    bottomStartY,
-    descriptionWidth,
-    bottomHeight,
+  //2.2 - Projection dimensions and position
+  const projectionPosX = MARGIN + MAPINFO_PADDING
+  const projectionPosY =
+    MARGIN + MAP_HEIGHT - MAPINFO_PADDING - PROJECTION_HEIGHT
+  const projectionWidth = Math.round(
+    PROJECTION_HEIGHT * (projectionImg.width / projectionImg.height),
   )
 
-  ctx.drawImage(
-    legendImg,
-    margin + descriptionWidth,
-    bottomStartY,
-    legendWidth,
-    bottomHeight,
-  )
+  //2.3 - North dimensions and position (to the right of projection)
+  const northPadding = (PROJECTION_HEIGHT - NORTH_SIZE) / 2
+  const northPosX = projectionPosX + projectionWidth + MAPINFO_PADDING
+  const northPosY = projectionPosY + northPadding
 
-  // Draw QRCode on bottom right
-  const qrCodeSize = bottomHeight
-  ctx.drawImage(
-    qrCodeImg,
-    combinedCanvas.width - margin - qrCodeSize,
-    bottomStartY,
-    qrCodeSize,
-    qrCodeSize,
-  )
+  //2.4 - Scale dimensions and position (below projection)
+  const scaleX = MAP_WIDTH / mapCanvas.width / PIXELRATIO
+  const scaleY = MAP_HEIGHT / mapCanvas.height / PIXELRATIO
+  const scalePadding = (PROJECTION_HEIGHT - scaleImg.height * scaleY) / 2
+  const scalePosX = northPosX + NORTH_SIZE + MAPINFO_PADDING
+  const scalePosY = projectionPosY + scalePadding
+  const scaleWidth = Math.round(scaleImg.width * scaleX)
+  const scaleHeight = Math.round(scaleImg.height * scaleY)
 
-  // Draw logo on bottom left of map
-  const logoHeight = 200
-  const logoPadding = 20
-  ctx.drawImage(
-    logoImg,
-    margin + logoPadding,
-    margin + mapHeight - logoHeight - logoPadding,
-    logoHeight * (logoImg.width / logoImg.height),
-    logoHeight,
-  )
+  //2.5 - Background dimensions and position
+  const backgroundX = MARGIN + MAPINFO_PADDING
+  const backgroundY = projectionPosY
+  const backgroundWidth = projectionWidth * 2 + NORTH_SIZE
+  const backgroundHeight = PROJECTION_HEIGHT
 
-  // Draw projection on bottom left, below logo
-  const projectionHeight = 120
-  const projectionX = margin + logoPadding
-  const projectionY =
-    margin + mapHeight - logoHeight - projectionHeight - logoPadding * 2
+  //2.6 - Draw Map Info background
+  ctx.fillStyle = '#ffffff80'
+  roundRect(
+    ctx,
+    backgroundX,
+    backgroundY,
+    backgroundWidth,
+    backgroundHeight,
+    MAPINFO_PADDING / 2,
+  )
+  ctx.fill()
+
+  //2.7 - Draw Map Infos
   ctx.drawImage(
     projectionImg,
-    projectionX,
-    projectionY,
-    projectionHeight * (projectionImg.width / projectionImg.height),
-    projectionHeight,
+    projectionPosX,
+    projectionPosY,
+    projectionWidth,
+    PROJECTION_HEIGHT,
+  )
+  ctx.drawImage(northArrowImg, northPosX, northPosY, NORTH_SIZE, NORTH_SIZE)
+  ctx.drawImage(scaleImg, scalePosX, scalePosY, scaleWidth, scaleHeight)
+
+  //3 - Draw logo on bottom left of map
+  const logoImg = await createImg(blobLogo)
+  const logoScale = logoImg.width / logoImg.height
+  const logoPosX = MARGIN + MAPINFO_PADDING
+  const logoPosY = projectionPosY - MAPINFO_PADDING - LOGO_HEIGHT
+  const logoWidth = Math.round(LOGO_HEIGHT * (logoImg.width / logoImg.height))
+
+  ctx.fillStyle = '#ffffff80'
+  roundRect(
+    ctx,
+    logoPosX,
+    logoPosY,
+    logoWidth,
+    LOGO_HEIGHT,
+    MAPINFO_PADDING / 2,
+  )
+  ctx.fill()
+
+  ctx.drawImage(
+    logoImg,
+    logoPosX,
+    logoPosY,
+    logoWidth,
+    LOGO_HEIGHT,
   )
 
-  // Draw scale on bottom left, below projection
-  const scaleHeight = 60
-  const scaleX = margin + logoPadding
-  const scaleY = projectionY - scaleHeight - logoPadding
-  const correctionFactorWidth = scale / 2 //2.59 // Scale up the scale control to make it more visible
-  const correctionFactorHeight = scale / 2
+  //3 - Calculate positions for bottom section elements and scale
+  const bottomStartY = MAP_HEIGHT + MARGIN * 1.5
+
+  //4 - DRAW DESCRIPTION
+  const descriptionImg = await createImg(blobDescription)
   ctx.drawImage(
-    scaleImg,
-    scaleX,
-    scaleY,
-    scaleImg.width * correctionFactorWidth,
-    scaleImg.height * correctionFactorHeight,
+    descriptionImg,
+    MARGIN,
+    bottomStartY,
+    DESCRIPTION_WIDTH,
+    BOTTOM_HEIGHT,
   )
 
-  // Draw north arrow on bottom left, below scale
-  const northArrowHeight = 100
-  const northArrowX = margin + logoPadding
-  const northArrowY = scaleY - northArrowHeight - logoPadding
+  //5 - DRAW LEGEND
+  const legendImg = await createImg(blobLegend)
+  const legendScale = legendImg.width / legendImg.height
+  const legendHeight = BOTTOM_HEIGHT
+  const legendWidth = legendHeight * legendScale
   ctx.drawImage(
-    northArrowImg,
-    northArrowX,
-    northArrowY,
-    northArrowHeight * (northArrowImg.width / northArrowImg.height),
-    northArrowHeight,
+    legendImg,
+    MARGIN * 1.5 + DESCRIPTION_WIDTH,
+    bottomStartY,
+    legendWidth,
+    legendHeight,
+  )
+
+  //6 - DRAW QR CODE
+  const qrCodeImg = await createImg(blobQRCode)
+  ctx.drawImage(
+    qrCodeImg,
+    PAPER_WIDTH - MARGIN - QRCODE_SIZE,
+    PAPER_HEIGHT - MARGIN - QRCODE_SIZE,
+    QRCODE_SIZE,
+    QRCODE_SIZE,
   )
 
   return new Promise((resolve) => {

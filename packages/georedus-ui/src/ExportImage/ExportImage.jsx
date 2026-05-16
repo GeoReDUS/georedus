@@ -28,8 +28,12 @@ import {
   PROJECTION_CLASS_NAME,
   NORTH_ARROW_CLASS_NAME,
   SCALE_CONTROL_CLASS_NAME,
-  createMapImage,
-} from './createMapImage'
+  extractMapImageBlobs,
+} from './createMapBlob'
+
+import { composeMapImageCanvas } from './createMapImage'
+
+import { getPaperDimensions } from './paperDimensions'
 
 import { useDialogs } from '../DialogSystem'
 
@@ -43,6 +47,17 @@ const LegendContainer = styled(Flex)`
   border: none;
   box-shadow: none;
 `
+
+// Paper dimensions for preview (PAPER_WIDTH = 3508 for final image export)
+const {
+  MARGIN,
+  INSIDE_WIDTH,
+  MAP_WIDTH,
+  MAP_HEIGHT,
+  BOTTOM_HEIGHT,
+  DESCRIPTION_WIDTH,
+  QRCODE_SIZE,
+} = getPaperDimensions(1200)
 
 export function ExportImage({
   resolvedLayout,
@@ -89,13 +104,13 @@ export function ExportImage({
       <>
         <Flex
           direction="column"
-          width="25%"
+          width={`${DESCRIPTION_WIDTH}px`}
           className={IMAGE_DESCRIPTION_CLASS_NAME}>
           <Flex height="100%" wrap="wrap" gap="2">
-            <Heading size="6" color="iris">
+            <Heading size="4" color="iris">
               {munName} - {ufSigla} / BR
             </Heading>
-            <Heading size="3" color="iris">
+            <Heading size="2" color="iris">
               {new Date()
                 .toLocaleDateString('pt-BR', {
                   year: 'numeric',
@@ -104,11 +119,11 @@ export function ExportImage({
                 })
                 .replace(/\//g, '.')}
             </Heading>
-            <Text>
+            <Text size="2">
               <Strong>Fonte de dados: </Strong>
               {sourceLabels || ''}
             </Text>
-            <Text>
+            <Text size="2">
               <Strong>Outros dados: </Strong>© MapTiler | © OpenStreetMap
               contributors
             </Text>
@@ -140,8 +155,8 @@ export function ExportImage({
         views={resolvedLayout?.[0]?.views}
         initialViewState={commitedViewState}
         style={{
-          height: '615px',
-          width: '1296px',
+          height: `${MAP_HEIGHT}px`,
+          width: `${MAP_WIDTH}px`,
           marginTop: '0',
         }}
         canvasContextAttributes={{
@@ -163,7 +178,7 @@ export function ExportImage({
           position="bottom-left"
           style={{
             boxShadow: 'none',
-            backgroundColor: '#ffffffd9',
+            backgroundColor: 'transparent',
             borderRadius: '10px',
           }}>
           <Flex p="2" className={PROJECTION_CLASS_NAME}>
@@ -183,16 +198,19 @@ export function ExportImage({
       </LayeredMap>
       <Flex
         direction="row"
-        width="1296px"
-        height="300px"
-        style={{ justifyContent: 'space-between' }}>
+        width={`${INSIDE_WIDTH}px`}
+        height={`${BOTTOM_HEIGHT}px`}
+        style={{
+          justifyContent: 'space-between',
+          marginTop: `${MARGIN}px !important`,
+        }}>
         <ImageDescription />
         <LegendContainer
           className={LEGEND_CLASS_NAME}
           direction="column"
-          flexGrow="1"
           gap="3"
-          p={resolvedLayout.length > 1 ? '3' : '4'}>
+          p="0"
+          style={{ margin: '0 !important' }}>
           {legends
             .filter((legend) => legend?.type)
             .map((legend, i) => (
@@ -202,21 +220,24 @@ export function ExportImage({
                 style={{
                   marginTop: '0 !important',
                   marginBottom: '10px',
+                  fontSize: '8px !important',
                 }}
               />
             ))}
         </LegendContainer>
-        <Flex style={{ alignItems: 'end' }}>
+        <Flex style={{alignItems: 'end'}}>
           <QRCode value={href} className={QR_CODE_CLASS_NAME} />
         </Flex>
       </Flex>
       <Button
         onClick={async () => {
+          const extractedBlobs = await extractMapImageBlobs({
+            map: layeredMapRef.current.map,
+            rootEl: rootRef.current,
+          })
+
           const imageBlob = await dialogs.loading(async () => {
-            return createMapImage({
-              map: layeredMapRef.current.map,
-              rootEl: rootRef.current,
-            })
+            return composeMapImageCanvas(extractedBlobs)
           })
           await dialogs.info({
             message:
