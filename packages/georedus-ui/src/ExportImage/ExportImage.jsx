@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import { useLocation } from 'react-use'
 import { Button, Flex, Spinner } from '@orioro/react-ui-core'
 import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
@@ -59,13 +59,15 @@ const {
   QRCODE_SIZE,
 } = getPaperDimensions(1200)
 
-export function ExportImage({
+export const ExportImage = forwardRef(function ExportImage({
   resolvedLayout,
   commitedViewState,
   municipioId,
   METADATA_API_ENDPOINT,
   baseMapStyle,
-}) {
+}, ref) {
+  ExportImage.displayName = 'ExportImage'
+
   const dialogs = useDialogs()
   const rootRef = useRef(null)
   const layeredMapRef = useRef(null)
@@ -98,6 +100,24 @@ export function ExportImage({
         ?.map((view) => view.metadata.sourceLabel || '')
         .filter(Boolean) || [],
     ).join(' + ') || ''
+
+  async function createImg() {
+    setIsExporting(true)
+    const extractedBlobs = await extractMapImageBlobs({
+      map: layeredMapRef.current.map,
+      rootEl: rootRef.current,
+    })
+
+    const imageBlob = await dialogs.loading(async () => {
+      return composeMapImageCanvas(extractedBlobs)
+    })
+    setIsExporting(false)
+    saveAs(imageBlob, 'georedus_map.png') //montar nome dinamicamente
+  }
+
+  useImperativeHandle(ref, () => ({
+    createImg,
+  }), [dialogs])
 
   function ImageDescription() {
     return (
@@ -141,8 +161,6 @@ export function ExportImage({
       </>
     )
   }
-
-  console.log('View state to export:', resolvedLayout) // Debug log
 
   return (
     <Flex direction="column" ref={rootRef}>
@@ -235,7 +253,7 @@ export function ExportImage({
           <QRCode value={href} className={QR_CODE_CLASS_NAME} />
         </Flex>
       </Flex>
-      <Button
+      {/* <Button
         onClick={async () => {
           setIsExporting(true)
           const extractedBlobs = await extractMapImageBlobs({
@@ -255,7 +273,7 @@ export function ExportImage({
           saveAs(imageBlob, 'georedus_map.png') //montar nome dinamicamente
         }}>
         Exportar Mapa
-      </Button>
+      </Button> */}
     </Flex>
   )
-}
+})

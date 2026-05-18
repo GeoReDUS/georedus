@@ -17,7 +17,7 @@ export function getPaperDimensions(paperWidth) {
   const MAP_HEIGHT = Math.round(INSIDE_HEIGHT * 0.7 - MARGIN / 2)
   const BOTTOM_HEIGHT = Math.round(INSIDE_HEIGHT - MAP_HEIGHT - MARGIN / 2)
   const DESCRIPTION_WIDTH = Math.round(INSIDE_WIDTH * 0.25)
-  const QRCODE_SIZE = Math.round(BOTTOM_HEIGHT) * 0.7
+  const QRCODE_SIZE = Math.round(BOTTOM_HEIGHT)
   const LEGEND_WIDTH = Math.round(INSIDE_WIDTH - DESCRIPTION_WIDTH - QRCODE_SIZE - MARGIN)
 
   const MAPINFO_PADDING = Math.round(MARGIN * 0.4)
