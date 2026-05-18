@@ -9,6 +9,7 @@ export function getPaperDimensions(paperWidth) {
   const PAPER_WIDTH = paperWidth
   const PAPER_HEIGHT = Math.round(PAPER_WIDTH / Math.sqrt(2))
   const MARGIN = Math.round(PAPER_HEIGHT * 0.05)
+  const PIXELRATIO = 4
 
   const INSIDE_WIDTH = Math.round(PAPER_WIDTH - MARGIN * 2)
   const INSIDE_HEIGHT = Math.round(PAPER_HEIGHT - MARGIN * 2)
@@ -27,6 +28,7 @@ export function getPaperDimensions(paperWidth) {
     PAPER_WIDTH,
     PAPER_HEIGHT,
     MARGIN,
+    PIXELRATIO,
     INSIDE_WIDTH,
     INSIDE_HEIGHT,
     MAP_WIDTH,

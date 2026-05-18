@@ -6,6 +6,7 @@ const {
   PAPER_WIDTH,
   PAPER_HEIGHT,
   MARGIN,
+  PIXELRATIO,
   MAP_WIDTH,
   MAP_HEIGHT,
   BOTTOM_HEIGHT,
@@ -103,8 +104,8 @@ export async function composeMapImageCanvas(extractedBlobs) {
     const northPosY = projectionPosY + northPadding
 
     //2.4 - Scale dimensions and position (below projection)
-    const scaleX = MAP_WIDTH / mapCanvas.width / 2
-    const scaleY = MAP_HEIGHT / mapCanvas.height / 2
+    const scaleX = MAP_WIDTH / mapCanvas.width
+    const scaleY = MAP_HEIGHT / mapCanvas.height
     const scalePadding = (PROJECTION_HEIGHT - scaleImg.height * scaleY) / 2
     const scalePosX = northPosX + NORTH_SIZE + MAPINFO_PADDING
     const scalePosY = projectionPosY + scalePadding
@@ -114,7 +115,7 @@ export async function composeMapImageCanvas(extractedBlobs) {
     //2.5 - Background dimensions and position
     const backgroundX = MARGIN + MAPINFO_PADDING
     const backgroundY = projectionPosY
-    const backgroundWidth = projectionWidth * 2 + NORTH_SIZE
+    const backgroundWidth = projectionWidth + NORTH_SIZE + (scaleWidth / (PIXELRATIO * PIXELRATIO)) + 2 * MAPINFO_PADDING
     const backgroundHeight = PROJECTION_HEIGHT
 
     //2.6 - Draw Map Info background

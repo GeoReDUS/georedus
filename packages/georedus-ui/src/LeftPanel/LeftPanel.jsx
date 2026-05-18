@@ -230,7 +230,7 @@ function LeftPanelInner({
                   onClick={async () => {
                     await dialogs.view({
                       maxWidth: '1500px',
-                      width: '1500px',
+                      width: '1200px',
                       children: (
                         <SharePanel
                           resolvedLayout={resolvedLayout}

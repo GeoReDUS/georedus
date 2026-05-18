@@ -51,6 +51,7 @@ const LegendContainer = styled(Flex)`
 // Paper dimensions for preview (PAPER_WIDTH = 3508 for final image export)
 const {
   MARGIN,
+  PIXELRATIO,
   INSIDE_WIDTH,
   MAP_WIDTH,
   MAP_HEIGHT,
@@ -168,6 +169,7 @@ export const ExportImage = forwardRef(function ExportImage({
         ref={layeredMapRef}
         sky={SKY_STYLE}
         maxPitch={80}
+        pixelRatio={PIXELRATIO}
         attributionControl={false}
         mapStyle={baseMapStyle}
         views={[...(resolvedLayout?.[0]?.views || []).reverse(), ...(topViews || [])]}
@@ -214,6 +216,7 @@ export const ExportImage = forwardRef(function ExportImage({
             <ScaleControl
               position="bottom-left"
               className={SCALE_CONTROL_CLASS_NAME}
+              pixelRatio={PIXELRATIO}
             />
           </>
         )}
