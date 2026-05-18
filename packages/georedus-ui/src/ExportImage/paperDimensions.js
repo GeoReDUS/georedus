@@ -34,7 +34,6 @@ export function getPaperDimensions(paperWidth) {
     BOTTOM_HEIGHT,
     DESCRIPTION_WIDTH,
     QRCODE_SIZE,
-    LEGEND_WIDTH,
     LOGO_HEIGHT,
     PROJECTION_HEIGHT,
     MAPINFO_PADDING,

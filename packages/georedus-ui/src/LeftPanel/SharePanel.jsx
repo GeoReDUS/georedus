@@ -13,6 +13,7 @@ export function SharePanel({
   municipioId,
   METADATA_API_ENDPOINT,
   baseMapStyle,
+  topViews,
 }) {
   const exportImageRef = useRef()
 
@@ -32,6 +33,7 @@ export function SharePanel({
           municipioId={municipioId}
           METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
           baseMapStyle={baseMapStyle}
+          topViews={topViews}
         />
         <Flex>
           <Button onClick={handleExportClick}>Salvar Como</Button>

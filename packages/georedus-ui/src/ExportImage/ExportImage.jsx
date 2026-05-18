@@ -64,6 +64,7 @@ export const ExportImage = forwardRef(function ExportImage({
   municipioId,
   METADATA_API_ENDPOINT,
   baseMapStyle,
+  topViews,
 }, ref) {
   ExportImage.displayName = 'ExportImage'
 
@@ -169,7 +170,7 @@ export const ExportImage = forwardRef(function ExportImage({
         maxPitch={80}
         attributionControl={false}
         mapStyle={baseMapStyle}
-        views={resolvedLayout?.[0]?.views}
+        views={[...(resolvedLayout?.[0]?.views || []).reverse(), ...(topViews || [])]}
         initialViewState={commitedViewState}
         style={{
           height: `${MAP_HEIGHT}px`,

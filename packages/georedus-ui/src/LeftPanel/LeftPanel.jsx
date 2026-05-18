@@ -42,6 +42,7 @@ function LeftPanelInner({
   municipioId,
   METADATA_API_ENDPOINT,
   baseMapStyle,
+  topViews,
 
   categoryIcons = undefined,
   header: customHeader = undefined,
@@ -237,6 +238,7 @@ function LeftPanelInner({
                           municipioId={municipioId}
                           METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
                           baseMapStyle={baseMapStyle}
+                          topViews={topViews}
                         />
                       ),
                     })
