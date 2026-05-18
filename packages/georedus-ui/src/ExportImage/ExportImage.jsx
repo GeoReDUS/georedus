@@ -68,7 +68,6 @@ export function ExportImage({
 }) {
   const dialogs = useDialogs()
   const rootRef = useRef(null)
-
   const layeredMapRef = useRef(null)
 
   const legends = resolvedLayout?.[0]?.legends || []
@@ -78,6 +77,7 @@ export function ExportImage({
   //Retrieve municipality data
   const [munName, setMunName] = useState(null)
   const [ufSigla, setUfSigla] = useState(null)
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     const fetchMunicipalityData = async () => {
@@ -162,40 +162,46 @@ export function ExportImage({
         canvasContextAttributes={{
           preserveDrawingBuffer: true,
         }}>
-        <ControlContainer
+        {/* <ControlContainer
           position="bottom-left"
           style={{
             boxShadow: 'none',
             backgroundColor: '#ffffffd9',
             borderRadius: '10px',
-          }}>
-          <Flex width="150" p="2" className={LOGO_CLASS_NAME}>
-            <GeoReDUSLogo color="#384DA0" />
-          </Flex>
-        </ControlContainer>
+          }}> */}
+        <Flex width="150" p="2" className={LOGO_CLASS_NAME}>
+          <GeoReDUSLogo color="#384DA0" />
+        </Flex>
+        {/* </ControlContainer> */}
         <AttributionControl position="bottom-right" compact={false} />
-        <ControlContainer //tirar north arrow dentro do container
+        {/* <ControlContainer //tirar north arrow dentro do container
           position="bottom-left"
           style={{
             boxShadow: 'none',
             backgroundColor: 'transparent',
             borderRadius: '10px',
-          }}>
-          <Flex p="2" className={PROJECTION_CLASS_NAME}>
-            <Text weight="bold">Projeção universal </Text>
-            <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
-          </Flex>
-        </ControlContainer>
-        <NorthArrow
-          position="bottom-left"
-          animationDuration={300}
-          className={NORTH_ARROW_CLASS_NAME}
-        />
-        <ScaleControl
-          position="bottom-left"
-          className={SCALE_CONTROL_CLASS_NAME}
-        />
+          }}> */}
+        <Flex p="2" className={PROJECTION_CLASS_NAME} width="fit-content">
+          <Text weight="bold">Projeção universal </Text>
+          <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
+        </Flex>
+        {/* </ControlContainer> */}
+        {isExporting && (
+          <>
+            <NorthArrow
+              position="bottom-left"
+              animationDuration={300}
+              className={NORTH_ARROW_CLASS_NAME}
+            />
+            <ScaleControl
+              position="bottom-left"
+              className={SCALE_CONTROL_CLASS_NAME}
+            />
+          </>
+        )}
       </LayeredMap>
+
+      <Flex></Flex>
       <Flex
         direction="row"
         width={`${INSIDE_WIDTH}px`}
@@ -225,12 +231,13 @@ export function ExportImage({
               />
             ))}
         </LegendContainer>
-        <Flex style={{alignItems: 'end'}}>
+        <Flex style={{ alignItems: 'end' }}>
           <QRCode value={href} className={QR_CODE_CLASS_NAME} />
         </Flex>
       </Flex>
       <Button
         onClick={async () => {
+          setIsExporting(true)
           const extractedBlobs = await extractMapImageBlobs({
             map: layeredMapRef.current.map,
             rootEl: rootRef.current,
@@ -239,6 +246,7 @@ export function ExportImage({
           const imageBlob = await dialogs.loading(async () => {
             return composeMapImageCanvas(extractedBlobs)
           })
+          setIsExporting(false)
           await dialogs.info({
             message:
               'Imagem do mapa criada com sucesso! O download deve começar em breve.',

@@ -41,7 +41,8 @@ const ArrowIcon = styled(Icon)`
  * @param {React.CSSProperties} [props.style] - Additional styles for the container
  */
 
-export function NorthArrow({ position = 'bottom-right', className }) {
+export function NorthArrow({ position = 'bottom-right', className, hidden = false }) {
+
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const [mountPoint, setMountPoint] = useState(null)
@@ -107,7 +108,7 @@ export function NorthArrow({ position = 'bottom-right', className }) {
           title="Click to reset bearing to north"
           style={style}
           position={position}>
-          <div style={circleStyle} className={className}>
+          <div style={{ ...circleStyle, display: hidden ? 'none' : 'flex' }} className={className}>
             <ArrowIcon
               path={mdiNavigation}
               size="25px"
