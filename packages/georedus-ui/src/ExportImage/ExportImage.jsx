@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import { useLocation } from 'react-use'
-import { Button, Flex, Spinner } from '@orioro/react-ui-core'
-import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
-import { toBlob } from 'html-to-image'
+import { Flex } from '@orioro/react-ui-core'
+import { LayeredMap } from '@orioro/react-maplibre-util'
 
 import { Legend } from '@orioro/react-chart-util'
 import QRCode from 'react-qr-code'
@@ -12,8 +11,6 @@ import { SKY_STYLE } from '../GeoReDUS/constants'
 import {
   ScaleControl,
   AttributionControl,
-  GeolocateControl,
-  NavigationControl,
 } from 'react-map-gl/maplibre'
 
 import { GeoReDUSLogo } from '../GeoReDUSLogo'
@@ -109,11 +106,11 @@ export const ExportImage = forwardRef(function ExportImage({
       rootEl: rootRef.current,
     })
 
-    const imageBlob = await dialogs.loading(async () => {
+    const imageCanva = await dialogs.loading(async () => {
       return composeMapImageCanvas(extractedBlobs)
     })
     setIsExporting(false)
-    saveAs(imageBlob, 'georedus_map.png') //montar nome dinamicamente
+    saveAs(imageCanva, 'georedus_map.png') //montar nome dinamicamente
   }
 
   useImperativeHandle(ref, () => ({
@@ -182,25 +179,10 @@ export const ExportImage = forwardRef(function ExportImage({
         canvasContextAttributes={{
           preserveDrawingBuffer: true,
         }}>
-        {/* <ControlContainer
-          position="bottom-left"
-          style={{
-            boxShadow: 'none',
-            backgroundColor: '#ffffffd9',
-            borderRadius: '10px',
-          }}> */}
         <Flex width="150" p="2" className={LOGO_CLASS_NAME}>
           <GeoReDUSLogo color="#384DA0" />
         </Flex>
-        {/* </ControlContainer> */}
         <AttributionControl position="bottom-right" compact={false} />
-        {/* <ControlContainer //tirar north arrow dentro do container
-          position="bottom-left"
-          style={{
-            boxShadow: 'none',
-            backgroundColor: 'transparent',
-            borderRadius: '10px',
-          }}> */}
         <Flex p="2" className={PROJECTION_CLASS_NAME} width="fit-content">
           <Text weight="bold">Projeção universal </Text>
           <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
@@ -256,27 +238,6 @@ export const ExportImage = forwardRef(function ExportImage({
           <QRCode value={href} className={QR_CODE_CLASS_NAME} />
         </Flex>
       </Flex>
-      {/* <Button
-        onClick={async () => {
-          setIsExporting(true)
-          const extractedBlobs = await extractMapImageBlobs({
-            map: layeredMapRef.current.map,
-            rootEl: rootRef.current,
-          })
-
-          const imageBlob = await dialogs.loading(async () => {
-            return composeMapImageCanvas(extractedBlobs)
-          })
-          setIsExporting(false)
-          await dialogs.info({
-            message:
-              'Imagem do mapa criada com sucesso! O download deve começar em breve.',
-            acknowledge: 'Baixar Mapa',
-          })
-          saveAs(imageBlob, 'georedus_map.png') //montar nome dinamicamente
-        }}>
-        Exportar Mapa
-      </Button> */}
     </Flex>
   )
 })
