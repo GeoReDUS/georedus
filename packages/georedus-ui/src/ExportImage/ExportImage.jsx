@@ -56,7 +56,6 @@ const {
   MAP_HEIGHT,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
-  QRCODE_SIZE,
 } = getPaperDimensions(1200)
 
 export const ExportImage = forwardRef(function ExportImage({

@@ -1,5 +1,4 @@
 import { toBlob } from 'html-to-image'
-import { PIXELRATIO } from './paperDimensions'
 
 export const LEGEND_CLASS_NAME = 'LegendContainer'
 export const IMAGE_DESCRIPTION_CLASS_NAME = 'ImageDescription'
@@ -12,7 +11,7 @@ export const SCALE_CONTROL_CLASS_NAME = 'ScaleControl'
 async function createBlob(className, rootEl, backgroundColor = '#ffffff') {
   return toBlob(rootEl.querySelector(`.${className}`), {
     cacheBust: true,
-    pixelRatio: PIXELRATIO,
+    pixelRatio: 10,
     fontEmbedCSS: false,
     backgroundColor,
   })

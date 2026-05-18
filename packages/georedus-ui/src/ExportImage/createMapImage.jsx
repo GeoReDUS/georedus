@@ -6,13 +6,11 @@ const {
   PAPER_WIDTH,
   PAPER_HEIGHT,
   MARGIN,
-  PIXELRATIO,
   MAP_WIDTH,
   MAP_HEIGHT,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
   QRCODE_SIZE,
-  LEGEND_WIDTH,
   LOGO_HEIGHT,
   PROJECTION_HEIGHT,
   MAPINFO_PADDING,
@@ -105,8 +103,8 @@ export async function composeMapImageCanvas(extractedBlobs) {
     const northPosY = projectionPosY + northPadding
 
     //2.4 - Scale dimensions and position (below projection)
-    const scaleX = MAP_WIDTH / mapCanvas.width / PIXELRATIO
-    const scaleY = MAP_HEIGHT / mapCanvas.height / PIXELRATIO
+    const scaleX = MAP_WIDTH / mapCanvas.width / 2
+    const scaleY = MAP_HEIGHT / mapCanvas.height / 2
     const scalePadding = (PROJECTION_HEIGHT - scaleImg.height * scaleY) / 2
     const scalePosX = northPosX + NORTH_SIZE + MAPINFO_PADDING
     const scalePosY = projectionPosY + scalePadding

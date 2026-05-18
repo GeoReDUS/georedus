@@ -9,7 +9,6 @@ export function getPaperDimensions(paperWidth) {
   const PAPER_WIDTH = paperWidth
   const PAPER_HEIGHT = Math.round(PAPER_WIDTH / Math.sqrt(2))
   const MARGIN = Math.round(PAPER_HEIGHT * 0.05)
-  const PIXELRATIO = 2
 
   const INSIDE_WIDTH = Math.round(PAPER_WIDTH - MARGIN * 2)
   const INSIDE_HEIGHT = Math.round(PAPER_HEIGHT - MARGIN * 2)
@@ -18,7 +17,6 @@ export function getPaperDimensions(paperWidth) {
   const BOTTOM_HEIGHT = Math.round(INSIDE_HEIGHT - MAP_HEIGHT - MARGIN / 2)
   const DESCRIPTION_WIDTH = Math.round(INSIDE_WIDTH * 0.25)
   const QRCODE_SIZE = Math.round(BOTTOM_HEIGHT)
-  const LEGEND_WIDTH = Math.round(INSIDE_WIDTH - DESCRIPTION_WIDTH - QRCODE_SIZE - MARGIN)
 
   const MAPINFO_PADDING = Math.round(MARGIN * 0.4)
   const LOGO_HEIGHT = Math.round(MAP_HEIGHT * 0.15)
@@ -29,7 +27,6 @@ export function getPaperDimensions(paperWidth) {
     PAPER_WIDTH,
     PAPER_HEIGHT,
     MARGIN,
-    PIXELRATIO,
     INSIDE_WIDTH,
     INSIDE_HEIGHT,
     MAP_WIDTH,
