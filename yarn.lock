@@ -1743,15 +1743,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.7.6":
-  version: 7.29.2
-  resolution: "@babel/runtime-corejs3@npm:7.29.2"
-  dependencies:
-    core-js-pure: "npm:^3.48.0"
-  checksum: 24a9de8b592cf67fbe62c36c002a0da8c0456079a0543646a40e2b1b0838e7712f5ff49e9551624395ccd67a409c63e7c638b23e3bebbfdf54e373b1c707ebff
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.24.4, @babel/runtime@npm:^7.24.5, @babel/runtime@npm:^7.24.6, @babel/runtime@npm:^7.26.0, @babel/runtime@npm:^7.27.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.27.0
   resolution: "@babel/runtime@npm:7.27.0"
@@ -6262,7 +6253,7 @@ __metadata:
     file-saver: "npm:^2.0.5"
     gdal3.js: "npm:^2.8.1"
     gh-pages: "npm:^6.3.0"
-    html-to-img: "npm:^1.1.1"
+    html-to-image: "npm:^1.11.13"
     katex: "npm:^0.16.22"
     lodash: "npm:^4.17.21"
     maplibre-gl: "npm:^5.1.0"
@@ -11366,13 +11357,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-arraybuffer@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "base64-arraybuffer@npm:0.2.0"
-  checksum: 9778d2089ed3ea57e6f5403e598c3b25c40ab8648cc3f6d44a9bddeae55fe741bb2df1c273ca73e4b5c142b972db80f70178c031c678732c09520e2a68d6ab13
-  languageName: node
-  linkType: hard
-
 "base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
@@ -12236,13 +12220,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.48.0":
-  version: 3.49.0
-  resolution: "core-js-pure@npm:3.49.0"
-  checksum: b4580a57b917d0bf1029356b1a60abf0f9b99562b67bf39c01485d58891f23603459ed71bde1d7f75c0a9a346829d8c281b255c525fb119726341364c513e82e
-  languageName: node
-  linkType: hard
-
 "core-util-is@npm:~1.0.0":
   version: 1.0.3
   resolution: "core-util-is@npm:1.0.3"
@@ -12394,15 +12371,6 @@ __metadata:
   dependencies:
     hyphenate-style-name: "npm:^1.0.3"
   checksum: 8bb042e8f7701a7edadc3cce5ce2d5cf41189631d7e2aed194d5a7059b25776dded2a0466cb9da1d1f3fc6c99dcecb51e45671148d073b8a2a71e34755152e52
-  languageName: node
-  linkType: hard
-
-"css-line-break@npm:1.1.1":
-  version: 1.1.1
-  resolution: "css-line-break@npm:1.1.1"
-  dependencies:
-    base64-arraybuffer: "npm:^0.2.0"
-  checksum: cd7b988abd4f49e1324743ab97438ccf08ee795c47ea712f7c02f69bdd2462973ffb521c99af19ce9ec0a2112c6ca7157960012658cec321de057f075b300254
   languageName: node
   linkType: hard
 
@@ -14974,7 +14942,6 @@ __metadata:
   resolution: "georedus@workspace:."
   dependencies:
     "@changesets/cli": "npm:^2.29.2"
-    html-to-image: "npm:^1.11.13"
     prettier: "npm:^3.5.2"
   languageName: unknown
   linkType: soft
@@ -15852,16 +15819,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-to-img@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "html-to-img@npm:1.1.1"
-  dependencies:
-    "@babel/runtime-corejs3": "npm:^7.7.6"
-    html2canvas: "npm:1.0.0-rc.4"
-  checksum: 579cdef1cd02b8afe8a9ab63d139845e57ae750451587adbe69ae2eb75d6deb1de12069b72c923b20512b9cddd343cdd812b5d547ff12b081c1c84cb041d39b8
-  languageName: node
-  linkType: hard
-
 "html-url-attributes@npm:^3.0.0":
   version: 3.0.1
   resolution: "html-url-attributes@npm:3.0.1"
@@ -15908,15 +15865,6 @@ __metadata:
   version: 3.0.1
   resolution: "html-whitespace-sensitive-tag-names@npm:3.0.1"
   checksum: da06cad111f6a432edd85c6cd09f6b5abbb385872fba79f23f939bdd4626920ac2e62507f604ef94eb8449902033bda292774624e3283b4dea4ed1620a2be3b2
-  languageName: node
-  linkType: hard
-
-"html2canvas@npm:1.0.0-rc.4":
-  version: 1.0.0-rc.4
-  resolution: "html2canvas@npm:1.0.0-rc.4"
-  dependencies:
-    css-line-break: "npm:1.1.1"
-  checksum: 40f2151b3e7feac7393fea51e99a9beea99c5705005b5e01c35b4a6d2d3072daef4a312a4c8dd5a8454707ec4bcaa2929e145d28b6b87186cb374f82082bfc13
   languageName: node
   linkType: hard
 
