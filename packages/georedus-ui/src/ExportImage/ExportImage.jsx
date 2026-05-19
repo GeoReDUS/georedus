@@ -1,17 +1,20 @@
-import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from 'react'
 import { useLocation } from 'react-use'
 import { Flex } from '@orioro/react-ui-core'
-import { LayeredMap } from '@orioro/react-maplibre-util'
+import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
 
 import { Legend } from '@orioro/react-chart-util'
 import QRCode from 'react-qr-code'
 
 import styled from 'styled-components'
 import { SKY_STYLE } from '../GeoReDUS/constants'
-import {
-  ScaleControl,
-  AttributionControl,
-} from 'react-map-gl/maplibre'
+import { ScaleControl, AttributionControl } from 'react-map-gl/maplibre'
 
 import { GeoReDUSLogo } from '../GeoReDUSLogo'
 import { Heading, Text, Strong } from '@radix-ui/themes'
@@ -56,14 +59,17 @@ const {
   DESCRIPTION_WIDTH,
 } = getPaperDimensions(1200)
 
-export const ExportImage = forwardRef(function ExportImage({
-  resolvedLayout,
-  commitedViewState,
-  municipioId,
-  METADATA_API_ENDPOINT,
-  baseMapStyle,
-  topViews,
-}, ref) {
+export const ExportImage = forwardRef(function ExportImage(
+  {
+    resolvedLayout,
+    commitedViewState,
+    municipioId,
+    METADATA_API_ENDPOINT,
+    baseMapStyle,
+    topViews,
+  },
+  ref,
+) {
   ExportImage.displayName = 'ExportImage'
 
   const dialogs = useDialogs()
@@ -77,7 +83,6 @@ export const ExportImage = forwardRef(function ExportImage({
   //Retrieve municipality data
   const [munName, setMunName] = useState(null)
   const [ufSigla, setUfSigla] = useState(null)
-  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     const fetchMunicipalityData = async () => {
@@ -100,7 +105,6 @@ export const ExportImage = forwardRef(function ExportImage({
     ).join(' + ') || ''
 
   async function createImg() {
-    setIsExporting(true)
     const extractedBlobs = await extractMapImageBlobs({
       map: layeredMapRef.current.map,
       rootEl: rootRef.current,
@@ -109,13 +113,16 @@ export const ExportImage = forwardRef(function ExportImage({
     const imageCanva = await dialogs.loading(async () => {
       return composeMapImageCanvas(extractedBlobs)
     })
-    setIsExporting(false)
     saveAs(imageCanva, 'georedus_map.png') //montar nome dinamicamente
   }
 
-  useImperativeHandle(ref, () => ({
-    createImg,
-  }), [dialogs])
+  useImperativeHandle(
+    ref,
+    () => ({
+      createImg,
+    }),
+    [dialogs],
+  )
 
   function ImageDescription() {
     return (
@@ -169,7 +176,10 @@ export const ExportImage = forwardRef(function ExportImage({
         pixelRatio={PIXELRATIO}
         attributionControl={false}
         mapStyle={baseMapStyle}
-        views={[...(resolvedLayout?.[0]?.views || []).reverse(), ...(topViews || [])]}
+        views={[
+          ...(resolvedLayout?.[0]?.views || []).reverse(),
+          ...(topViews || []),
+        ]}
         initialViewState={commitedViewState}
         style={{
           height: `${MAP_HEIGHT}px`,
@@ -179,28 +189,39 @@ export const ExportImage = forwardRef(function ExportImage({
         canvasContextAttributes={{
           preserveDrawingBuffer: true,
         }}>
-        <Flex width="150" p="2" className={LOGO_CLASS_NAME}>
-          <GeoReDUSLogo color="#384DA0" />
-        </Flex>
+        <ControlContainer
+          position="bottom-left"
+          style={{
+            boxShadow: 'none',
+            backgroundColor: '#ffffffd9',
+            borderRadius: '10px',
+          }}>
+          <Flex width="150" p="2" className={LOGO_CLASS_NAME}>
+            <GeoReDUSLogo color="#384DA0" />
+          </Flex>
+        </ControlContainer>
         <AttributionControl position="bottom-right" compact={false} />
-        <Flex p="2" className={PROJECTION_CLASS_NAME} width="fit-content">
-          <Text weight="bold">Projeção universal </Text>
-          <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
-        </Flex>
-        {/* </ControlContainer> */}
-        {isExporting && (
-          <>
-            <NorthArrow
-              position="bottom-left"
-              animationDuration={300}
-              className={NORTH_ARROW_CLASS_NAME}
-            />
-            <ScaleControl
-              position="bottom-left"
-              className={SCALE_CONTROL_CLASS_NAME}
-            />
-          </>
-        )}
+        <ControlContainer //tirar north arrow dentro do container
+          position="bottom-left"
+          style={{
+            boxShadow: 'none',
+            backgroundColor: 'transparent',
+            borderRadius: '10px',
+          }}>
+          <Flex p="2" className={PROJECTION_CLASS_NAME} width="fit-content">
+            <Text weight="bold">Projeção universal </Text>
+            <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
+          </Flex>
+        </ControlContainer>
+        <NorthArrow
+          position="bottom-left"
+          animationDuration={300}
+          className={NORTH_ARROW_CLASS_NAME}
+        />
+        <ScaleControl
+          position="bottom-left"
+          className={SCALE_CONTROL_CLASS_NAME}
+        />
       </LayeredMap>
 
       <Flex></Flex>
