@@ -6253,6 +6253,7 @@ __metadata:
     file-saver: "npm:^2.0.5"
     gdal3.js: "npm:^2.8.1"
     gh-pages: "npm:^6.3.0"
+    html-to-image: "npm:^1.11.13"
     katex: "npm:^0.16.22"
     lodash: "npm:^4.17.21"
     maplibre-gl: "npm:^5.1.0"
@@ -6264,6 +6265,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     react-highlight-words: "npm:^0.21.0"
     react-map-gl: "npm:^8.0.0"
+    react-qr-code: "npm:^2.0.18"
     react-router-dom: "npm:^7.4.1"
     react-share: "npm:^5.1.0"
     react-use: "npm:^17.5.0"
@@ -15810,6 +15812,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-to-image@npm:^1.11.13":
+  version: 1.11.13
+  resolution: "html-to-image@npm:1.11.13"
+  checksum: 03bd7192d87b99499e37ff12a8e2b41ddce4cf8e33a93dfadff18df0f213434c7f1ba8328db2158f4805da07b7aec3c90aec3152908281153217e86784218b10
+  languageName: node
+  linkType: hard
+
 "html-url-attributes@npm:^3.0.0":
   version: 3.0.1
   resolution: "html-url-attributes@npm:3.0.1"
@@ -21070,6 +21079,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"qr.js@npm:0.0.0":
+  version: 0.0.0
+  resolution: "qr.js@npm:0.0.0"
+  checksum: 1c6a4c7a58d04e52ec2fee99e39b680fdc5b2a510a981df42c36b716a8eac6634d130fc4d65af8f030f2a07dbf5fa046b97cdfa7456c250ebb50a73916efdcb5
+  languageName: node
+  linkType: hard
+
 "qs@npm:^6.12.3":
   version: 6.14.0
   resolution: "qs@npm:6.14.0"
@@ -21664,6 +21680,18 @@ __metadata:
   peerDependencies:
     react: ">=16.6.0"
   checksum: ee0f4cd3bd468b28af38dbbb65cae1659218153956f43c0bdd15cd8b38aaaf151deec43b93b7dd887c0ac28242a4ba7e9d01823351e78ba60ae04d5fb51defb4
+  languageName: node
+  linkType: hard
+
+"react-qr-code@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "react-qr-code@npm:2.0.18"
+  dependencies:
+    prop-types: "npm:^15.8.1"
+    qr.js: "npm:0.0.0"
+  peerDependencies:
+    react: "*"
+  checksum: 4e13b795cbb10f1dcf0e39d682bb59851e4c84010ba2be7225b2ad9d5c1ffea52d2d38f884ee26235b7002b8ca99e83b805f55e877663c39d67496764d975cf1
   languageName: node
   linkType: hard
 

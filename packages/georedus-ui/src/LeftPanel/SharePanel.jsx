@@ -1,53 +1,51 @@
-import React from 'react'
-import { Flex } from '@orioro/react-ui-core'
+import React, { useRef } from 'react'
+import { Flex, Button } from '@orioro/react-ui-core'
 import { ShareButtonBar } from '../ShareButtonBar'
+import { ExportImage } from '../ExportImage'
 
 import { Dialog } from '@radix-ui/themes'
+import { Text } from '@radix-ui/themes'
+import { Icon } from '@mdi/react'
+import { mdiDownload } from '@mdi/js'
 
-//
-// html2canvas does not support color functions
-// radix uses: oklch and color(...)
-//
-// https://github.com/niklasvh/html2canvas/issues/2700
-//
-// import html2canvas from 'html2canvas-pro'
-// import { useQuery } from '@tanstack/react-query'
+export function SharePanel({
+  resolvedLayout,
+  commitedViewState,
+  municipioId,
+  METADATA_API_ENDPOINT,
+  baseMapStyle,
+  topViews,
+}) {
+  const exportImageRef = useRef()
 
-export function SharePanel({ syncedMapsRef, mapContainerRef }) {
-  //
-  // Experimental image exporting
-  //
-  // const imageBlobQuery = useQuery({
-  //   queryKey: ['a'],
-  //   queryFn: async () => {
-  //     // const canvas = await html2canvas(mapContainerRef.current)
-  //     // const canvas = document.querySelector('canvas.maplibregl-canvas')
-  //     const canvas = syncedMapsRef.current?.mapInstances?.[0].map.getCanvas()
-
-  //     return new Promise((resolve, reject) => {
-  //       canvas.toBlob((blob) => {
-  //         if (blob) {
-  //           resolve(blob)
-  //         } else {
-  //           reject()
-  //         }
-  //       })
-  //     })
-  //   },
-  //   retry: false,
-  //   throwOnError: process.env.NODE_ENV !== 'production',
-  // })
+  const handleExportClick = () => {
+    exportImageRef.current?.createImg()
+  }
 
   return (
     <>
-      <Dialog.Title>Compartilhar</Dialog.Title>
-      <Flex direction="row" gap="4">
-        {/*<Flex direction="column">
-        {imageBlobQuery.data && (
-          <img src={URL.createObjectURL(imageBlobQuery.data)} />
-        )}
-      </Flex>*/}
-        <ShareButtonBar />
+      <Flex direction="column" gap="1" alignItems="center">
+        <ExportImage
+          ref={exportImageRef}
+          resolvedLayout={resolvedLayout}
+          commitedViewState={commitedViewState}
+          municipioId={municipioId}
+          METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
+          baseMapStyle={baseMapStyle}
+          topViews={topViews}
+        />
+        <Flex
+          direction="row"
+          alignItems="end"
+          justifyContent="space-between"
+          width="100%"
+          pt="4">
+          <ShareButtonBar />
+          <Button onClick={handleExportClick} style={{ marginRight: '30px' }} size="2">
+            <Icon path={mdiDownload} size="18px" />
+            Baixar imagem
+          </Button>
+        </Flex>
       </Flex>
     </>
   )

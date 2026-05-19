@@ -1,7 +1,7 @@
 import React from 'react'
 
-export function GeoReDUSLogo() {
-  const color = '#FFFFFF'
+export function GeoReDUSLogo(props) {
+  const { color = '#ffffff' } = props
 
   return (
     <svg

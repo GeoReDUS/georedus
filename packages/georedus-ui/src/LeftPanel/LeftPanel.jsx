@@ -33,10 +33,16 @@ function LeftPanelInner({
   viewConfDispatch,
   viewSpecs,
   resolvedViews,
+  resolvedLayout,
   open,
   onSetOpen,
-  syncedMapsRef,
-  mapContainerRef,
+
+  // props required for export image, but not used here
+  commitedViewState,
+  municipioId,
+  METADATA_API_ENDPOINT,
+  baseMapStyle,
+  topViews,
 
   categoryIcons = undefined,
   header: customHeader = undefined,
@@ -53,14 +59,14 @@ function LeftPanelInner({
         py="10px"
         height={HEADER_HEIGHT}
         alignItems="center"
+        justifyContent="space-between"
         direction="row"
         style={{
           backgroundColor: 'var(--accent-9)',
           whiteSpace: 'nowrap',
           flexShrink: 0,
           flexGrow: 0,
-        }}
-      >
+        }}>
         <LogoContainer direction="row" gap="8px">
           <GeoReDUSLogoSymbol />
 
@@ -70,11 +76,50 @@ function LeftPanelInner({
                 ? 'opacity .7s ease-out'
                 : 'opacity .1s ease-out',
               opacity: open ? 1 : 0,
-            }}
-          >
+            }}>
             <GeoReDUSLogoText />
           </div>
         </LogoContainer>
+        <div>
+          <IconButton
+            variant="soft"
+            size="3"
+            asChild
+            style={{ color: 'white' }}>
+            <a
+              href="https://www.redus.org.br/georedus-rede-de-dados-urbanos/formularios/cbf766bb-9a74-4bc5-897a-70b9151afbdb"
+              target="_blank"
+              rel="noreferrer nofollow">
+              <Tooltip content="Dúvidas e sugestões">
+                <Icon path={mdiForumOutline} size="24px" />
+              </Tooltip>
+            </a>
+          </IconButton>
+          <IconButton
+            variant="soft"
+            size="3"
+            style={{ color: 'white' }}
+            onClick={async () => {
+              await dialogs.view({
+                maxWidth: '1500px',
+                width: '1200px',
+                children: (
+                  <SharePanel
+                    resolvedLayout={resolvedLayout}
+                    commitedViewState={commitedViewState}
+                    municipioId={municipioId}
+                    METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
+                    baseMapStyle={baseMapStyle}
+                    topViews={topViews}
+                  />
+                ),
+              })
+            }}>
+            <Tooltip content="Compartilhar">
+              <Icon path={mdiShareVariantOutline} size="24px" />
+            </Tooltip>
+          </IconButton>
+        </div>
       </Flex>
     )
 
@@ -88,8 +133,7 @@ function LeftPanelInner({
           backgroundColor: 'white',
         }}
         direction="row"
-        justifyContent="center"
-      >
+        justifyContent="center">
         <img
           style={{
             transition: 'opacity .1s ease-out',
@@ -133,8 +177,7 @@ function LeftPanelInner({
 
           height: { xs: '40px', md: '20px' },
           width: { xs: '40px', md: '20px' },
-        }}
-      >
+        }}>
         <IconButton
           size={{
             xs: '3',
@@ -176,8 +219,7 @@ function LeftPanelInner({
             'rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,' +
             'rgba(0, 0, 0, 0.06) 0px 2px 4px -1px',
         }}
-        onClick={(e) => onSetOpen(true)}
-      >
+        onClick={(e) => onSetOpen(true)}>
         {header}
         {Array.isArray(viewSpecs) ? (
           <ViewMenu
@@ -222,35 +264,7 @@ function LeftPanelInner({
                 direction="column"
                 gap="3"
                 justifyContent="flex-end"
-                alignItems="center"
-              >
-                <IconButton
-                  variant="soft"
-                  size="3"
-                  onClick={async () => {
-                    await dialogs.view(
-                      <SharePanel
-                        mapContainerRef={mapContainerRef}
-                        syncedMapsRef={syncedMapsRef}
-                      />,
-                    )
-                  }}
-                >
-                  <Tooltip content="Compartilhar">
-                    <Icon path={mdiShareVariantOutline} size="24px" />
-                  </Tooltip>
-                </IconButton>
-                <IconButton variant="soft" size="3" asChild>
-                  <a
-                    href="https://www.redus.org.br/georedus-rede-de-dados-urbanos/formularios/cbf766bb-9a74-4bc5-897a-70b9151afbdb"
-                    target="_blank"
-                    rel="noreferrer nofollow"
-                  >
-                    <Tooltip content="Dúvidas e sugestões">
-                      <Icon path={mdiForumOutline} size="24px" />
-                    </Tooltip>
-                  </a>
-                </IconButton>
+                alignItems="center">
               </Flex>
             }
           />
@@ -259,8 +273,7 @@ function LeftPanelInner({
             style={{
               flexGrow: 1,
               position: 'relative',
-            }}
-          >
+            }}>
             <LoadingOverlay message={null} />
           </div>
         )}

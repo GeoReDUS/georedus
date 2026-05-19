@@ -1,3 +1,40 @@
+## Exportação de Mapa em Imagem
+### Comparação opções de bibliotecas para exportação de mapa em imagem: Março 2026
+
+| Biblioteca | Link | Minified Size | Bundle Size | Download Slow 3G | Download Emerging 4G | Launch | Last Publish | Weekly Download | Fork | Stars |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **html2canvas** | https://www.npmjs.com/package/html2canvas | 193,5Kb | 303B | **6ms** | **338μs** | 27/09/19 | 22/01/22 | **5M** | **4.9K** | **31.8K** |
+| **html-to-image** | https://www.npmjs.com/package/html-to-image | **12.9Kb** | **5.1Kb** | 103ms | 6ms | **26/10/20** | **14/02/25** | 1.3M | 663 | 7.1K |
+
+
+---
+### 
+
+https://miro.com/app/live-embed/uXjVGu7s5fY=/?embedMode=view_only_without_ui&moveToViewport=1149%2C-723%2C5137%2C2496&embedId=518791624362
+
+
+![Arquitetura da Implementação de Exportação de Mapa em Imagem](<./public/georedus/doc/map_to_img_implementation.jpg>)
+
+### Sobre as dimensões adotadas
+
+A exportação da imagem está sendo feita para o tamanho de uma folha A4 que segue o padrão internacional ISO 216, que define as dimensões físicas dos formatos de papel da série A. Segundo a norma, uma folha A4 possui dimensões de **210 × 297 mm**.
+
+As dimensões em pixels não são definidas diretamente pela ISO. Elas são calculadas a partir do tamanho físico da folha e da resolução de impressão (DPI — dots per inch), utilizando a fórmula:
+
+```
+pixels = (mm/25.4) x DPI
+```
+
+Por exemplo, uma folha A4 em 300 DPI corresponde aproximadamente a **2480 × 3508 px**.
+
+Referências:
+
+* [ISO 216 Standard](https://www.iso.org/standard/36631.html?utm_source=chatgpt.com)
+* [PrintReadyKit – A4 Pixel Dimensions](https://printreadykit.com/paper-sizes/a4?utm_source=chatgpt.com)
+* [FeetToPixels – Paper Sizes in Pixels](https://www.feettopixels.com/en/paper-sizes-in-pixels?utm_source=chatgpt.com)
+
+
+
 ## Estilizando Camadas
 
 Para estilizar camadas do na plataforma da GeoReDUS nós usamos os parâmetros da bibliteca do [MapLibre](https://maplibre.org/maplibre-style-spec/layers/) na [tabela de Cadastro](https://docs.google.com/spreadsheets/d/1Y2Pt8fXzhGUA_Nhwz7vOyEZUKi6FEP71DChfYBSTa7U/edit?gid=1006885047#gid=1006885047)

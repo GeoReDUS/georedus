@@ -75,6 +75,8 @@ import {
   SVG_PATTERNS,
 } from '@orioro/react-maplibre-util'
 
+import { SKY_STYLE } from './constants'
+
 //
 // Sets up vtx:// protocol
 //
@@ -218,16 +220,6 @@ const BR_BBOX = {
     ],
   },
   properties: {},
-}
-
-const SKY_STYLE = {
-  'sky-color': '#199EF3',
-  'sky-horizon-blend': 0.5,
-  'horizon-color': '#d3edfd',
-  'horizon-fog-blend': 0.5,
-  'fog-color': '#0000ff',
-  'fog-ground-blend': 0.5,
-  'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 10, 1, 12, 0],
 }
 
 const BASEMAPS = {
@@ -687,6 +679,8 @@ function GeoReDUSInner({
     [],
   )
 
+  const [commitedViewState, setCommitedViewState] = useState(null)
+
   return (
     <Flex>
       <LeftPanel
@@ -696,7 +690,15 @@ function GeoReDUSInner({
         viewConfState={viewConfState}
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
-        syncedMapsRef={syncedMapsRef}
+        resolvedLayout={resolvedLayout}
+        
+        // props required for export image
+        commitedViewState={commitedViewState}
+        municipioId={municipioId}
+        METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
+        baseMapStyle={BASE_MAP_STYLE[baseMapStyle]}
+        topViews={TOP_VIEWS}
+        
         {...leftPanelProps}
       />
 
@@ -767,6 +769,8 @@ function GeoReDUSInner({
         // TODO: review mapBounds calculation
         //
         onMoveEnd={(e) => {
+  
+          setCommitedViewState(e.viewState)
           const { latitude, longitude } = e.viewState
           const bounds = e.target.getBounds()
           const minLng = bounds.getWest()
