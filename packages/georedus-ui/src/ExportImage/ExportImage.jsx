@@ -48,7 +48,7 @@ const LegendContainer = styled(Flex)`
   box-shadow: none;
 `
 
-const { PREVIEW_WIDTH_PX } = constants
+import { PREVIEW_WIDTH_PX } from './constants.js'
 const {
   MARGIN,
   PIXELRATIO,

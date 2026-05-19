@@ -1,7 +1,7 @@
 import { toBlob } from 'html-to-image'
 import { getPaperDimensions } from './paperDimensions'
 
-const { PAPER_WIDTH_PX } = constants
+import { PAPER_WIDTH_PX } from './constants.js'
 const {
   PAPER_WIDTH,
   PAPER_HEIGHT,
