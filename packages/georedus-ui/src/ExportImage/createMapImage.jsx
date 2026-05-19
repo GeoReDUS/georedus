@@ -1,7 +1,7 @@
 import { toBlob } from 'html-to-image'
 import { getPaperDimensions } from './paperDimensions'
 
-// Paper dimensions for final image export (PAPER_WIDTH = 1200 for preview)
+const { PAPER_WIDTH_PX } = constants
 const {
   PAPER_WIDTH,
   PAPER_HEIGHT,
@@ -16,7 +16,7 @@ const {
   PROJECTION_HEIGHT,
   MAPINFO_PADDING,
   NORTH_SIZE,
-} = getPaperDimensions(3508)
+} = getPaperDimensions(PAPER_WIDTH_PX)
 
 function createImg(blob) {
   return new Promise((resolve) => {

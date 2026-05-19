@@ -48,7 +48,7 @@ const LegendContainer = styled(Flex)`
   box-shadow: none;
 `
 
-// Paper dimensions for preview (PAPER_WIDTH = 3508 for final image export)
+const { PREVIEW_WIDTH_PX } = constants
 const {
   MARGIN,
   PIXELRATIO,
@@ -57,7 +57,7 @@ const {
   MAP_HEIGHT,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
-} = getPaperDimensions(1200)
+} = getPaperDimensions(PREVIEW_WIDTH_PX)
 
 export const ExportImage = forwardRef(function ExportImage(
   {

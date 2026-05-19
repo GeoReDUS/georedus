@@ -1,7 +1,8 @@
 import { toBlob } from 'html-to-image'
 import { getPaperDimensions } from './paperDimensions'
 
-const { PIXELRATIO } = getPaperDimensions(3508)
+const { PAPER_WIDTH_PX } = constants
+const { PIXELRATIO } = getPaperDimensions(PAPER_WIDTH_PX)
 
 export const LEGEND_CLASS_NAME = 'LegendContainer'
 export const IMAGE_DESCRIPTION_CLASS_NAME = 'ImageDescription'
