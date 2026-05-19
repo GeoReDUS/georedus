@@ -4,6 +4,7 @@ import {
   useState,
   forwardRef,
   useImperativeHandle,
+  useCallback,
 } from 'react'
 import { useLocation } from 'react-use'
 import { Flex } from '@orioro/react-ui-core'
@@ -40,6 +41,8 @@ import { useDialogs } from '../DialogSystem'
 import { saveAs } from 'file-saver'
 
 import { uniq } from 'lodash'
+
+import { slugify } from '@orioro/util'
 
 const LegendContainer = styled(Flex)`
   flex-wrap: wrap;
@@ -104,24 +107,23 @@ export const ExportImage = forwardRef(function ExportImage(
         .filter(Boolean) || [],
     ).join(' + ') || ''
 
-  async function createImg() {
-    const extractedBlobs = await extractMapImageBlobs({
-      map: layeredMapRef.current.map,
-      rootEl: rootRef.current,
-    })
-
+  const createImg = useCallback(async () => {
     const imageCanva = await dialogs.loading(async () => {
+      const extractedBlobs = await extractMapImageBlobs({
+        map: layeredMapRef.current.map,
+        rootEl: rootRef.current,
+      })
       return composeMapImageCanvas(extractedBlobs)
     })
-    saveAs(imageCanva, 'georedus_map.png') //montar nome dinamicamente
-  }
+    saveAs(imageCanva, `${slugify(munName, '_')}_georedus.png`)
+  }, [dialogs, layeredMapRef.current?.map, rootRef.current])
 
   useImperativeHandle(
     ref,
     () => ({
       createImg,
     }),
-    [dialogs],
+    [createImg],
   )
 
   function ImageDescription() {
