@@ -6263,7 +6263,6 @@ __metadata:
     gdal3.js: "npm:^2.8.1"
     gh-pages: "npm:^6.3.0"
     html-to-img: "npm:^1.1.1"
-    html2canvas-pro: "npm:^2.0.2"
     katex: "npm:^0.16.22"
     lodash: "npm:^4.17.21"
     maplibre-gl: "npm:^5.1.0"
@@ -11374,13 +11373,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-arraybuffer@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "base64-arraybuffer@npm:1.0.2"
-  checksum: 3acac95c70f9406e87a41073558ba85b6be9dbffb013a3d2a710e3f2d534d506c911847d5d9be4de458af6362c676de0a5c4c2d7bdf4def502d00b313368e72f
-  languageName: node
-  linkType: hard
-
 "base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
@@ -12411,15 +12403,6 @@ __metadata:
   dependencies:
     base64-arraybuffer: "npm:^0.2.0"
   checksum: cd7b988abd4f49e1324743ab97438ccf08ee795c47ea712f7c02f69bdd2462973ffb521c99af19ce9ec0a2112c6ca7157960012658cec321de057f075b300254
-  languageName: node
-  linkType: hard
-
-"css-line-break@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "css-line-break@npm:2.1.0"
-  dependencies:
-    utrie: "npm:^1.0.2"
-  checksum: b2222d99d5daf7861ecddc050244fdce296fad74b000dcff6bdfb1eb16dc2ef0b9ffe2c1c965e3239bd05ebe9eadb6d5438a91592fa8648d27a338e827cf9048
   languageName: node
   linkType: hard
 
@@ -14961,15 +14944,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geogrid-maplibre-gl@npm:^0.2.4":
-  version: 0.2.4
-  resolution: "geogrid-maplibre-gl@npm:0.2.4"
-  peerDependencies:
-    maplibre-gl: 3.x || 4.x || 5.x
-  checksum: 6cdcc54580237bcd422735e14bbd3e2736d7ba73ee9dc748548904623e18d660c2a77f2e4c2735264f3ad24fb6b04ce187d6084139459a69a7e75cc291cae842
-  languageName: node
-  linkType: hard
-
 "geojson-equality-ts@npm:^1.0.2":
   version: 1.0.2
   resolution: "geojson-equality-ts@npm:1.0.2"
@@ -15000,7 +14974,6 @@ __metadata:
   resolution: "georedus@workspace:."
   dependencies:
     "@changesets/cli": "npm:^2.29.2"
-    geogrid-maplibre-gl: "npm:^0.2.4"
     html-to-image: "npm:^1.11.13"
     prettier: "npm:^3.5.2"
   languageName: unknown
@@ -15935,16 +15908,6 @@ __metadata:
   version: 3.0.1
   resolution: "html-whitespace-sensitive-tag-names@npm:3.0.1"
   checksum: da06cad111f6a432edd85c6cd09f6b5abbb385872fba79f23f939bdd4626920ac2e62507f604ef94eb8449902033bda292774624e3283b4dea4ed1620a2be3b2
-  languageName: node
-  linkType: hard
-
-"html2canvas-pro@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "html2canvas-pro@npm:2.0.2"
-  dependencies:
-    css-line-break: "npm:^2.1.0"
-    text-segmentation: "npm:^1.0.3"
-  checksum: 15268678f32010437a91b65cfc8420cbba3090b5f1871e581cebcc4cce6f957126aae39b9587dd8495a728f4a3fad307b7314d289e6d593c4ea378b771a6bee0
   languageName: node
   linkType: hard
 
@@ -24243,15 +24206,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"text-segmentation@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "text-segmentation@npm:1.0.3"
-  dependencies:
-    utrie: "npm:^1.0.2"
-  checksum: 8b9ae8524e3a332371060d0ca62f10ad49a13e954719ea689a6c3a8b8c15c8a56365ede2bb91c322fb0d44b6533785f0da603e066b7554d052999967fb72d600
-  languageName: node
-  linkType: hard
-
 "throttle-debounce@npm:^3.0.1":
   version: 3.0.1
   resolution: "throttle-debounce@npm:3.0.1"
@@ -25282,15 +25236,6 @@ __metadata:
   version: 0.4.0
   resolution: "utila@npm:0.4.0"
   checksum: 2791604e09ca4f77ae314df83e80d1805f867eb5c7e13e7413caee01273c278cf2c9a3670d8d25c889a877f7b149d892fe61b0181a81654b425e9622ab23d42e
-  languageName: node
-  linkType: hard
-
-"utrie@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "utrie@npm:1.0.2"
-  dependencies:
-    base64-arraybuffer: "npm:^1.0.2"
-  checksum: eaffe645bd81a39e4bc3abb23df5895e9961dbdd49748ef3b173529e8b06ce9dd1163e9705d5309a1c61ee41ffcb825e2043bc0fd1659845ffbdf4b1515dfdb4
   languageName: node
   linkType: hard
 
