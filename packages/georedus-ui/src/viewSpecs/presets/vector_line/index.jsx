@@ -5,7 +5,7 @@ import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
 import { Flex } from '@orioro/react-ui-core'
-import { getColorOptions } from '../util/color_options/index'
+import { getColorSelectorSchema } from '../util'
 
 const LINE_PATTERN_OPTIONS = [
   { label: 'Continua', value: 'line' },
@@ -89,7 +89,7 @@ export function vector_line(
     label,
     confSchema: {
       style: {
-        color: getColorOptions(_initialColor),
+        color: getColorSelectorSchema(_initialColor),
         linePattern: {
           label: 'Linha',
           type: 'select',

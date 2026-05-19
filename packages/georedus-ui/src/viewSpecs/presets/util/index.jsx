@@ -1,5 +1,24 @@
 import { Flex } from '@orioro/react-ui-core'
 
+export function svgBgImage(svg) {
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+}
+
+export const FILL_PATTERN_SOLID = 'solid'
+
+export const FILL_PATTERN_OPTIONS = [
+  { label: 'Preenchido', value: FILL_PATTERN_SOLID },
+  { label: 'Quadrados', value: 'squares_1' },
+  { label: 'Triângulos', value: 'triangles_1' },
+  { label: 'Diamantes', value: 'diamonds_1' },
+  { label: 'Cruz', value: 'cross_1' },
+  { label: 'Mosaico 1', value: 'mosaic_1' },
+  { label: 'Mosaico 2', value: 'mosaic_2' },
+  { label: 'Ondas', value: 'waves_1' },
+  { label: 'Círculos', value: 'circles_1' },
+  { label: 'Linhas', value: 'lines_1' },
+]
+
 export const COLOR_OPTIONS = [
   { label: 'Azul Claro', value: '#a6cee3' },
   { label: 'Azul', value: '#1f78b4' },
@@ -15,7 +34,7 @@ export const COLOR_OPTIONS = [
   { label: 'Marrom', value: '#b15928' },
 ]
 
-export function getColorOptions(_initialColor) {
+export function getColorSelectorSchema(_initialColor) {
   return {
     label: 'Cor',
     helperText: 'Selecione a cor para a camada',
