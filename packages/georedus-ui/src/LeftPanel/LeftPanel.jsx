@@ -59,6 +59,7 @@ function LeftPanelInner({
         py="10px"
         height={HEADER_HEIGHT}
         alignItems="center"
+        justifyContent="space-between"
         direction="row"
         style={{
           backgroundColor: 'var(--accent-9)',
@@ -79,6 +80,46 @@ function LeftPanelInner({
             <GeoReDUSLogoText />
           </div>
         </LogoContainer>
+        <div>
+          <IconButton
+            variant="soft"
+            size="3"
+            asChild
+            style={{ color: 'white' }}>
+            <a
+              href="https://www.redus.org.br/georedus-rede-de-dados-urbanos/formularios/cbf766bb-9a74-4bc5-897a-70b9151afbdb"
+              target="_blank"
+              rel="noreferrer nofollow">
+              <Tooltip content="Dúvidas e sugestões">
+                <Icon path={mdiForumOutline} size="24px" />
+              </Tooltip>
+            </a>
+          </IconButton>
+          <IconButton
+            variant="soft"
+            size="3"
+            style={{ color: 'white' }}
+            onClick={async () => {
+              await dialogs.view({
+                maxWidth: '1500px',
+                width: '1200px',
+                children: (
+                  <SharePanel
+                    resolvedLayout={resolvedLayout}
+                    commitedViewState={commitedViewState}
+                    municipioId={municipioId}
+                    METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
+                    baseMapStyle={baseMapStyle}
+                    topViews={topViews}
+                  />
+                ),
+              })
+            }}>
+            <Tooltip content="Compartilhar">
+              <Icon path={mdiShareVariantOutline} size="24px" />
+            </Tooltip>
+          </IconButton>
+        </div>
       </Flex>
     )
 
@@ -224,7 +265,7 @@ function LeftPanelInner({
                 gap="3"
                 justifyContent="flex-end"
                 alignItems="center">
-                <IconButton
+                {/* <IconButton
                   variant="soft"
                   size="3"
                   onClick={async () => {
@@ -256,7 +297,7 @@ function LeftPanelInner({
                       <Icon path={mdiForumOutline} size="24px" />
                     </Tooltip>
                   </a>
-                </IconButton>
+                </IconButton> */}
               </Flex>
             }
           />

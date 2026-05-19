@@ -198,7 +198,6 @@ export const ExportImage = forwardRef(function ExportImage({
             <ScaleControl
               position="bottom-left"
               className={SCALE_CONTROL_CLASS_NAME}
-              pixelRatio={PIXELRATIO}
             />
           </>
         )}
