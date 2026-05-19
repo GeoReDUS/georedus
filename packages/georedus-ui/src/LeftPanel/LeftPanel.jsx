@@ -265,39 +265,6 @@ function LeftPanelInner({
                 gap="3"
                 justifyContent="flex-end"
                 alignItems="center">
-                {/* <IconButton
-                  variant="soft"
-                  size="3"
-                  onClick={async () => {
-                    await dialogs.view({
-                      maxWidth: '1500px',
-                      width: '1200px',
-                      children: (
-                        <SharePanel
-                          resolvedLayout={resolvedLayout}
-                          commitedViewState={commitedViewState}
-                          municipioId={municipioId}
-                          METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
-                          baseMapStyle={baseMapStyle}
-                          topViews={topViews}
-                        />
-                      ),
-                    })
-                  }}>
-                  <Tooltip content="Compartilhar">
-                    <Icon path={mdiShareVariantOutline} size="24px" />
-                  </Tooltip>
-                </IconButton>
-                <IconButton variant="soft" size="3" asChild>
-                  <a
-                    href="https://www.redus.org.br/georedus-rede-de-dados-urbanos/formularios/cbf766bb-9a74-4bc5-897a-70b9151afbdb"
-                    target="_blank"
-                    rel="noreferrer nofollow">
-                    <Tooltip content="Dúvidas e sugestões">
-                      <Icon path={mdiForumOutline} size="24px" />
-                    </Tooltip>
-                  </a>
-                </IconButton> */}
               </Flex>
             }
           />
