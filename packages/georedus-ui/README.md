@@ -11,7 +11,7 @@
 https://miro.com/app/live-embed/uXjVGu7s5fY=/?embedMode=view_only_without_ui&moveToViewport=1149%2C-723%2C5137%2C2496&embedId=518791624362
 
 
-![Arquitetura da Implementação de Exportação de Mapa em Imagem](<map_to_img_implementation.jpg>)
+![Arquitetura da Implementação de Exportação de Mapa em Imagem](<./public/georedus/doc/map_to_img_implementation.jpg>)
 ## Estilizando Camadas
 
 Para estilizar camadas do na plataforma da GeoReDUS nós usamos os parâmetros da bibliteca do [MapLibre](https://maplibre.org/maplibre-style-spec/layers/) na [tabela de Cadastro](https://docs.google.com/spreadsheets/d/1Y2Pt8fXzhGUA_Nhwz7vOyEZUKi6FEP71DChfYBSTa7U/edit?gid=1006885047#gid=1006885047)
