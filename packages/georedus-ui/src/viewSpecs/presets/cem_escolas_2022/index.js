@@ -129,7 +129,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
           defaultValue: indicator_id,
         },
 
-        showSize: sizing_variable_id
+        showSize: sizing_variable_id && (sizing_variable_id != variable_id)
           ? {
               label: 'Matrículas',
               type: 'booleanCheckbox',
