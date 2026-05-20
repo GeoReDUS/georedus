@@ -402,26 +402,6 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     ].filter(Boolean),
   }
 
-  // const $legends = sizing_variable_id
-  //   ? [
-  //       [
-  //         '$if',
-  //         ['$get', 'view.conf.data.showSize'],
-  //         {
-  //           type: 'ProportionalSymbolLegend',
-  //           unit: 'Matrículas',
-  //           title: sizing_variable_label,
-  //           min: ['$min', ['$get', 'view.metadata.sizingValues']],
-  //           max: ['$max', ['$get', 'view.metadata.sizingValues']],
-  //           sizeMin: SIZE_MIN * 2,
-  //           sizeMax: SIZE_MAX * 2,
-  //           numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
-  //         },
-  //         null,
-  //       ],
-  //     ]
-  //   : []
-
   const $legends = sizing_variable_id && ['$get', 'view.conf.data.showSize']
   ? [
       {
