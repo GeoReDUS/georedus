@@ -1,5 +1,4 @@
-import { resolveColor } from '../../util'
-import { COLOR_OPTIONS } from '../util'
+import { resolveColor, schemeGeoReDUS } from '../../util'
 
 export type StyleSpec = {
   color?: string
@@ -20,7 +19,7 @@ export type StyleSpec = {
 export type StyleSpecInput = string | StyleSpec
 
 function _defaultColor(inputColor: string | undefined): string {
-  return inputColor ? resolveColor(inputColor) : COLOR_OPTIONS[0].value
+  return inputColor ? resolveColor(inputColor) : schemeGeoReDUS.laranja
 }
 
 export function parseStyleSpec(styleInput?: StyleSpecInput): StyleSpec {
