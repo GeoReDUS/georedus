@@ -5,6 +5,7 @@ import {
   FILL_PATTERN_SOLID,
   svgBgImage,
   applyOpacity,
+  basicTooltip,
   DEFAULT_FILL_OPACITY,
 } from '../util'
 import { resolve } from '@orioro/resolve'
@@ -97,6 +98,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     type: 'fill',
     paint: _fillPaint,
     legends: _main_fill_legends(props, viewSpec, allViewSpecs, context),
+    tooltip: basicTooltip(viewSpec.tooltip),
   }
 }
 

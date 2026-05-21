@@ -2,6 +2,7 @@ import { resolveAsync } from '@orioro/resolve'
 import { interpolate, slugify } from '@orioro/util'
 import { uniqBy } from 'lodash'
 import { COLOR_SCHEMES, resolveSchemeColor } from '../../util'
+import { humanize } from '../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -27,7 +28,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
               typeof categoryInput === 'string'
                 ? {
                     value: categoryInput,
-                    label: categoryInput,
                   }
                 : categoryInput,
             )
@@ -47,7 +47,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
       return {
         ...cat,
         color,
-        label: cat.label || cat.value,
+        label: cat.label || humanize(cat.value),
       }
     })
   })

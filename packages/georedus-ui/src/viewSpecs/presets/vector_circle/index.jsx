@@ -4,7 +4,7 @@ import { Z_OVERLAY_BASE_1000, Z_OVERLAY_TOP_3000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
-import { getColorSelectorSchema } from '../util'
+import { colorSelector } from '../util'
 import { _resolveSourceBounds } from '../cem_censo/2010_2022/metadata'
 
 function _parseTiles(tiles, context) {
@@ -67,7 +67,7 @@ export function vector_circle(
     label,
     confSchema: {
       style: {
-        color: getColorSelectorSchema(_initialColor),
+        color: colorSelector(_initialColor),
       },
     },
     metadata: {},

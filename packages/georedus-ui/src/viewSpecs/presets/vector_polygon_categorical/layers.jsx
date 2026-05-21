@@ -4,6 +4,7 @@ import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import {
   FILL_PATTERN_SOLID,
   svgBgImage,
+  basicTooltip,
   applyOpacity,
   DEFAULT_FILL_OPACITY,
 } from '../util'
@@ -11,47 +12,96 @@ import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
 
-function _main_line() {}
-
-function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const {} = props
+function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
-  const _fillPaint = resolve.fn((context) => {
+  const borderStyle = viewSpec.style?.borderStyle || 'solid'
+
+  if (borderStyle === 'none') {
+    return null
+  }
+
+  const paint = {
+    dashed: { 'line-dasharray': [4, 2], 'line-width': 2 },
+    dotted: { 'line-dasharray': [0.5, 2], 'line-width': 2 },
+    solid: {},
+  }[borderStyle]
+
+  return {
+    zIndex: Z_OVERLAY_BASE_1000,
+    source: MAIN_SOURCE_ID,
+    'source-layer': source_layer,
+    type: 'line',
+    layout:
+      borderStyle === 'dotted'
+        ? {
+            'line-cap': 'round',
+          }
+        : {},
+    paint: {
+      'line-color': _maplibreColorExp,
+      'line-width': 2,
+      ...paint,
+    },
+  }
+}
+
+function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
+  const _legends = resolve.fn((context) => {
     const categories = context.view.metadata.categories
-    console.log('_fillPaint context', context)
 
-    return {
-      'fill-color': 'red',
-
-      'fill-color': [
-        'match',
-        ['get', 'macrozona'],
-        ...categories.map((cat) => [cat.value, cat.color]).flat(),
-        '#CCCCCC',
-      ],
-
-      'fill-opacity': DEFAULT_FILL_OPACITY,
-    }
+    return [
+      {
+        type: 'CategoricalLegend',
+        title: viewSpec.label,
+        items: categories.map((cat) => ({
+          id: cat.value,
+          label: cat.label,
+          color: cat.color,
+          box: {
+            style: {
+              backgroundColor: applyOpacity(cat.color, DEFAULT_FILL_OPACITY),
+            },
+          },
+        })),
+      },
+    ]
   })
 
-  // const _fillPaint = resolve.fn(
-  //   [_color, _fillPattern],
-  //   ([resolvedColor, resolvedFillPattern], ctx) => {
-  //     const resolvedFillPatternStr =
-  //       resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
-  //         ? `${resolvedFillPattern}({ stroke: "${resolvedColor}", scale: 0.5 })`
-  //         : null
+  return _legends
+}
 
-  //     return {
-  //       'fill-opacity': DEFAULT_FILL_OPACITY,
-  //       'fill-color': resolvedColor,
-  //       ...(resolvedFillPatternStr
-  //         ? { 'fill-pattern': resolvedFillPatternStr }
-  //         : {}),
-  //     }
-  //   },
-  // )
+function _main_fill(props, viewSpec, allViewSpecs, context) {
+  const { _maplibreColorExp, _fillPattern } = props
+  const { source_layer } = viewSpec
+
+  const _fillPaint = resolve.fn(
+    [_fillPattern],
+    ([resolvedFillPattern], ctx) => {
+      const resolvedFillPatternStr =
+        resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
+          ? [
+              'match',
+              ['get', viewSpec.style.categoryKey],
+              ...ctx.view.metadata.categories
+                .map((cat) => [
+                  cat.value,
+                  `${resolvedFillPattern}({ stroke: "${cat.color}", scale: 0.5 })`,
+                ])
+                .flat(),
+              '#CCCCCC',
+            ]
+          : null
+
+      return {
+        'fill-color': _maplibreColorExp,
+        'fill-opacity': DEFAULT_FILL_OPACITY,
+        ...(resolvedFillPatternStr
+          ? { 'fill-pattern': resolvedFillPatternStr }
+          : {}),
+      }
+    },
+  )
 
   return {
     zIndex: Z_OVERLAY_BASE_1000,
@@ -59,7 +109,8 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     type: 'fill',
     paint: _fillPaint,
-    // legends: _main_fill_legends(props, viewSpec, allViewSpecs, context),
+    legends: _main_fill_legends(props, viewSpec, allViewSpecs, context),
+    tooltip: basicTooltip(viewSpec.tooltip),
   }
 }
 
@@ -72,21 +123,29 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  // const _color = resolve.fn((ctx) =>
-  //   resolveColor(ctx.view?.conf?.style?.color || styleSpec.color),
-  // )
+  const _maplibreColorExp = resolve.fn((ctx) => [
+    'match',
+    ['get', viewSpec.style.categoryKey],
+    ...ctx.view.metadata.categories.map((cat) => [cat.value, cat.color]).flat(),
+    '#CCCCCC',
+  ])
 
-  // const _fillPattern = resolve.fn(
-  //   (ctx) => ctx.view?.conf?.style?.fillPattern || styleSpec.fillPattern,
-  // )
+  const _fillPattern = resolve.fn(
+    (ctx) => ctx.view?.conf?.style?.fillPattern || styleSpec.fillPattern,
+  )
 
   return {
-    // [`main_line`]: _main_line(
-    //   { _color, _fillPattern },
-    //   viewSpec,
-    //   allViewSpecs,
-    //   context,
-    // ),
-    [`main_fill`]: _main_fill({}, viewSpec, allViewSpecs, context),
+    [`main_line`]: _main_line(
+      { _maplibreColorExp },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
+    [`main_fill`]: _main_fill(
+      { _maplibreColorExp, _fillPattern },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
   }
 }

@@ -4,7 +4,7 @@ import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { Flex } from '@orioro/react-ui-core'
-import { getColorSelectorSchema } from '../util'
+import { colorSelector } from '../util'
 
 const SOLID = 'solid'
 const DEFAULT_FILL_OPACITY = 0.5
@@ -140,7 +140,7 @@ export function vector_polygon(
     label,
     confSchema: {
       style: {
-        color: getColorSelectorSchema(_initialColor),
+        color: colorSelector(_initialColor),
         fillPattern: {
           label: 'Textura',
           type: 'select',
