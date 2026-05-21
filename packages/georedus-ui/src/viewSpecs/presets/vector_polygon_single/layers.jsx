@@ -1,29 +1,13 @@
 import { SVG_PATTERNS } from '@orioro/react-maplibre-util'
 import { resolveColor } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { FILL_PATTERN_SOLID, svgBgImage } from '../util'
+import {
+  FILL_PATTERN_SOLID,
+  svgBgImage,
+  applyOpacity,
+  DEFAULT_FILL_OPACITY,
+} from '../util'
 import { resolve } from '@orioro/resolve'
-import { resolveData } from '@orioro/react-csv'
-
-const DEFAULT_FILL_OPACITY = 0.5
-
-function applyOpacity(color, alpha = 1) {
-  if (color.startsWith('#')) {
-    let hex = color
-    if (hex.length === 4) {
-      hex = '#' + [...hex.slice(1)].map((c) => c + c).join('')
-    }
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`
-  }
-
-  console.warn(
-    `applyOpacity: unsupported color format "${color}", returning as-is`,
-  )
-  return color
-}
 
 function _main_fill_legends(
   { _color, _fillPattern },

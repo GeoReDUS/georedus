@@ -24,5 +24,18 @@ export function resolveColor(colorInput: string): string {
     : colorInput
 }
 
+export function resolveSchemeColor(
+  colorSchemeId: string,
+  indexOrId: string | number,
+): string {
+  const colorScheme = COLOR_SCHEMES[colorSchemeId]
+
+  return typeof indexOrId === 'string'
+    ? colorScheme[indexOrId]
+    : (Array.isArray(colorScheme) ? colorScheme : Object.values(colorScheme))[
+        indexOrId
+      ]
+}
+
 export * from './d3'
 export * from './georedus'
