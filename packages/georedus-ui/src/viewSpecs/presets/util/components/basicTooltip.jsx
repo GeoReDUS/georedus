@@ -42,16 +42,22 @@ export function basicTooltip({ title, entries } = {}) {
                   ]),
               )
 
-        return Object.entries(entrySpecs).map(([key, { label, format }]) => [
-          label,
-          cast(
-            {
-              type: 'string',
-              ...format,
-            },
-            ctx.feature?.properties[key],
-          ),
-        ])
+        return Object.entries(entrySpecs).map(([key, spec]) => {
+          spec = typeof spec === 'string' ? { label: spec } : spec
+
+          const { label, format } = spec
+
+          return [
+            label,
+            cast(
+              {
+                type: 'string',
+                ...format,
+              },
+              ctx.feature?.properties[key],
+            ),
+          ]
+        })
       }),
     ],
   }

@@ -116,7 +116,7 @@ function _objMap(
   return Object.fromEntries(Object.entries(obj).map(iter))
 }
 
-const D3_CATEGORICAL = {
+export const D3_CATEGORICAL = {
   schemeCategory10,
   schemeAccent,
   schemeDark2,
@@ -130,7 +130,7 @@ const D3_CATEGORICAL = {
   schemeTableau10,
 }
 
-const D3_DIVERGING = {
+export const D3_DIVERGING = {
   schemeBrBG,
   schemePRGn,
   schemePiYG,
@@ -142,7 +142,7 @@ const D3_DIVERGING = {
   schemeSpectral,
 }
 
-const D3_SEQUENTIAL = {
+export const D3_SEQUENTIAL = {
   schemeBlues,
   schemeGreens,
   schemeGreys,
