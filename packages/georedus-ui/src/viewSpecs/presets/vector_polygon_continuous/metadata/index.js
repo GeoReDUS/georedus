@@ -27,8 +27,8 @@ export function metadata(viewSpec, allViewSpecs, context) {
     //
     // Resolve color scale stops
     //
-    const colorScheme =
-      COLOR_SCHEMES[style.colorScheme] || COLOR_SCHEMES.schemeOrRd
+    const colorSchemeId = ctx.view.conf?.style?.colorScheme || style.colorScheme
+    const colorScheme = COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES.schemeOrRd
 
     const _classificationMethod = {
       ...(style.classificationMethod || {}),

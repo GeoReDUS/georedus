@@ -11,30 +11,32 @@ const D3_SCHEMES = {
   ...D3_DIVERGING,
 }
 
-const COLOR_SCHEME_OPTIONS = Object.entries(D3_SCHEMES).map(([name, scheme]) => {
-  const colors = getLargestColorArray(scheme)
-  
-  return {
-    value: name,
-    label: (
-      <Flex direction="row" gap="2" alignItems="center">
-        <div style={{ display: 'flex', gap: '2px' }}>
-          {colors.map((color, idx) => (
-            <div
-              key={idx}
-              style={{
-                width: 15,
-                height: 15,
-                backgroundColor: color,
-                border: 'none',
-              }}
-            />
-          ))}
-        </div>
-      </Flex>
-    ),
-  }
-})
+const COLOR_SCHEME_OPTIONS = Object.entries(D3_SCHEMES).map(
+  ([name, scheme]) => {
+    const colors = getLargestColorArray(scheme)
+
+    return {
+      value: name,
+      label: (
+        <Flex direction="row" gap="2" alignItems="center">
+          <div style={{ display: 'flex', gap: '2px' }}>
+            {colors.map((color, idx) => (
+              <div
+                key={idx}
+                style={{
+                  width: 15,
+                  height: 15,
+                  backgroundColor: color,
+                  border: 'none',
+                }}
+              />
+            ))}
+          </div>
+        </Flex>
+      ),
+    }
+  },
+)
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   return {
@@ -42,6 +44,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
       classificationMethodType: {
         label: 'Método de classificação',
         type: 'select',
+        clearable: false,
         defaultValue:
           viewSpec.style?.classificationMethod?.type || 'naturalBreaks',
         options: [
@@ -58,6 +61,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
       colorScheme: {
         label: 'Esquema de cores',
         type: 'select',
+        clearable: false,
         defaultValue: viewSpec.style?.colorScheme || DEFAULT_COLOR_SCHEME_ID,
         options: COLOR_SCHEME_OPTIONS,
       },

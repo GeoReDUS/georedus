@@ -9,7 +9,7 @@ export const COLOR_SCHEMES = {
 }
 
 export function colorScheme(path: string) {
-  const scheme = get(D3_COLOR_SCHEMES, path)
+  const scheme = get(COLOR_SCHEMES, path)
 
   if (!scheme) {
     throw new Error(`Could not find scheme at ${path}`)
@@ -19,9 +19,7 @@ export function colorScheme(path: string) {
 }
 
 export function resolveColor(colorInput: string): string {
-  return colorInput
-    ? get(D3_COLOR_SCHEMES, colorInput) || colorInput
-    : colorInput
+  return colorInput ? get(COLOR_SCHEMES, colorInput) || colorInput : colorInput
 }
 
 export function resolveSchemeColor(
