@@ -28,8 +28,15 @@ export function basicTooltip({ title, entries } = {}) {
           return []
         }
 
-        const entrySpecs =
-          typeof entries === 'object'
+        const entrySpecs = Array.isArray(entries)
+          ? Object.fromEntries(
+              entries.map((spec) =>
+                typeof spec === 'string'
+                  ? [spec, { label: humanize(spec) }]
+                  : [spec.key, spec],
+              ),
+            )
+          : typeof entries === 'object'
             ? entries
             : Object.fromEntries(
                 Object.keys(ctx.feature.properties)
