@@ -190,7 +190,7 @@ const CATEGORY_ICONS = {
   'divisoes-territoriais': <Icon path={mdiMap} />,
   maceio: (
     <img
-      src={`${ASSETS_BASE}pilotos/maceio/logo-prefeitura.svg`}
+      src={`${ASSETS_BASE}pilotos/maceio/brasao.png`}
       style={{
         width: 45,
         height: 45,
@@ -199,7 +199,25 @@ const CATEGORY_ICONS = {
   ),
   'sao-luis': (
     <img
-      src={`${ASSETS_BASE}pilotos/sao-luis/logo-prefeitura.png`}
+      src={`${ASSETS_BASE}pilotos/sao-luis/brasao.png`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  'sao-cristovao': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-cristovao/brasao.png`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  'sao-goncalo': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-goncalo/brasao.png`}
       style={{
         width: 45,
         height: 45,
