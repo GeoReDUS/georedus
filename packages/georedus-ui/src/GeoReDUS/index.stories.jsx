@@ -95,6 +95,12 @@ const GOOGLE_MUN_MACEIO =
 const GOOGLE_MUN_SAO_LUIS =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2087614392&single=true&output=csv'
 
+const GOOGLE_MUN_SAO_CRISTOVAO =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1293057365&single=true&output=csv'
+
+const GOOGLE_MUN_SAO_GONCALO =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=543036353&single=true&output=csv'
+
 const GOOGLE_MUN_CURITIBA =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=871920015&single=true&output=csv'
 
@@ -118,6 +124,8 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
     GOOGLE_MUN_SAO_LUIS,
+    GOOGLE_MUN_SAO_CRISTOVAO,
+    GOOGLE_MUN_SAO_GONCALO,
     [
       piloto_mobilidade_stops({
         ...API,
