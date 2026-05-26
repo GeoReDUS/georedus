@@ -2,8 +2,10 @@ import { resolveColor, schemeGeoReDUS } from '../../util'
 
 export type StyleSpec = {
   tooltip?: { [key: string]: any }
-  radius?: string | number
+  radius?: number
   color?: string
+  opacity?: number
+  border?: boolean
 }
 
 export type StyleSpecInput = StyleSpec
@@ -16,8 +18,6 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
     return {}
   }
-
-  // console.log('styleInput', styleInput)
 
   if (typeof styleInput === 'string') {
     return {

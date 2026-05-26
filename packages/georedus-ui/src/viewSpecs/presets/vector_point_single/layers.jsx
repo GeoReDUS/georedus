@@ -30,6 +30,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
                 backgroundColor: _resolvedColor,
                 border: 'none',
                 borderRadius: '30px',
+                opacity: viewSpec.style.opacity || 1,
               },
             },
           },
@@ -73,12 +74,12 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           return _resolvedColor
         }
       }),
-      'circle-opacity': 1,
+      'circle-opacity': viewSpec.style.opacity || 1,
       'circle-radius': resolve.fn((ctx) => {
         return viewSpec.style.radius || 10
       }),
       'circle-stroke-color': '#ffffff',
-      'circle-stroke-width': 2,
+      'circle-stroke-width': viewSpec.style.border === false ? 0 : 2,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
@@ -87,7 +88,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 
 export function layers(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
-
+  // console.log('styleSpec', styleSpec)
   const { source_layer } = viewSpec
 
   if (!source_layer) {
