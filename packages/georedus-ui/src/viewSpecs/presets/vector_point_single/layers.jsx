@@ -11,7 +11,7 @@ import {
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     const _resolvedColor =
-      resolveColor(ctx.view?.conf?.style?.color || viewSpec.style.color) ||
+      resolveColor(ctx.view?.conf?.style?.color || viewSpec.style?.color) ||
       schemeGeoReDUS.laranja
 
     return [
@@ -25,7 +25,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
                 backgroundColor: _resolvedColor,
                 border: 'none',
                 borderRadius: '30px',
-                opacity: viewSpec.style.opacity || 1,
+                opacity: viewSpec.style?.opacity || 1,
               },
             },
           },
@@ -49,15 +49,15 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     paint: {
       'circle-color': resolve.fn((ctx) => {
         const _resolvedColor =
-          resolveColor(ctx.view?.conf?.style?.color || viewSpec.style.color) ||
+          resolveColor(ctx.view?.conf?.style?.color || viewSpec.style?.color) ||
           schemeGeoReDUS.laranja
 
         return _resolvedColor
       }),
-      'circle-opacity': viewSpec.style.opacity || 1,
-      'circle-radius': viewSpec.style.radius || 10,
+      'circle-opacity': viewSpec.style?.opacity || 1,
+      'circle-radius': viewSpec.style?.radius || 10,
       'circle-stroke-color': '#ffffff',
-      'circle-stroke-width': viewSpec.style.border ? 2 : 0,
+      'circle-stroke-width': viewSpec.style?.border ? 2 : 0,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),

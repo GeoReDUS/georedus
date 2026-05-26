@@ -26,7 +26,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
     const _values = _validNumericalValues(ctx.view.metadata.radiusData.values)
 
     const _resolvedColor =
-      resolveColor(viewSpec.style.color) || schemeGeoReDUS.laranja
+      resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
 
     return [
       {
@@ -79,14 +79,14 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     paint: {
       'circle-color': resolve.fn((ctx) => {
         const _resolvedColor =
-          resolveColor(viewSpec.style.color) || schemeGeoReDUS.laranja
+          resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
 
-        if (viewSpec.style.radius?.valueKey) {
+        if (viewSpec.style?.radius?.valueKey) {
           return [
             'case',
             [
               '==',
-              ['typeof', ['get', viewSpec.style.radius.valueKey]],
+              ['typeof', ['get', viewSpec.style?.radius?.valueKey]],
               'number',
             ],
             _resolvedColor,
