@@ -48,8 +48,6 @@ import {
   schemeTableau10,
 } from 'd3-scale-chromatic'
 
-import { get } from '@orioro/get'
-
 export const DEFAULT_NULL_COLOR = '#CCCCCC'
 
 export type CategoricalScheme = {
@@ -118,7 +116,7 @@ function _objMap(
   return Object.fromEntries(Object.entries(obj).map(iter))
 }
 
-const D3_CATEGORICAL = {
+export const D3_CATEGORICAL = {
   schemeCategory10,
   schemeAccent,
   schemeDark2,
@@ -132,7 +130,7 @@ const D3_CATEGORICAL = {
   schemeTableau10,
 }
 
-const D3_DIVERGING = {
+export const D3_DIVERGING = {
   schemeBrBG,
   schemePRGn,
   schemePiYG,
@@ -144,7 +142,7 @@ const D3_DIVERGING = {
   schemeSpectral,
 }
 
-const D3_SEQUENTIAL = {
+export const D3_SEQUENTIAL = {
   schemeBlues,
   schemeGreens,
   schemeGreys,
@@ -165,7 +163,21 @@ const D3_SEQUENTIAL = {
   schemeYlOrRd,
 }
 
-export const COLOR_SCHEMES = {
+const SCHEME_GEOREDUS = [
+  '#FF7F00',
+  '#CAB2D6',
+  '#FFE551',
+  '#39BBA7',
+  '#FB9A99',
+  '#B15928',
+  '#FDBF6F',
+  '#DA5AD8',
+  '#B4B282',
+  '#6A3D9A',
+]
+
+export const D3_COLOR_SCHEMES = {
+  schemeGeoReDUS: SCHEME_GEOREDUS,
   ..._objMap(D3_CATEGORICAL, ([id, scheme]) => [
     id,
     _categoricalScheme(scheme),
@@ -180,18 +192,4 @@ export const COLOR_SCHEMES = {
     `-${id}`,
     _reverseByKScheme(scheme),
   ]),
-}
-
-export function colorScheme(path: string) {
-  const scheme = get(COLOR_SCHEMES, path)
-
-  if (!scheme) {
-    throw new Error(`Could not find scheme at ${path}`)
-  }
-
-  return scheme
-}
-
-export function resolveColor(colorInput: string): string {
-  return colorInput ? get(COLOR_SCHEMES, colorInput) || colorInput : colorInput
 }

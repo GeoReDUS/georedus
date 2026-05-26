@@ -95,6 +95,12 @@ const GOOGLE_MUN_MACEIO =
 const GOOGLE_MUN_SAO_LUIS =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2087614392&single=true&output=csv'
 
+const GOOGLE_MUN_SAO_CRISTOVAO =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1293057365&single=true&output=csv'
+
+const GOOGLE_MUN_SAO_GONCALO =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=543036353&single=true&output=csv'
+
 const GOOGLE_MUN_CURITIBA =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=871920015&single=true&output=csv'
 
@@ -103,6 +109,9 @@ const GOOGLE_DIVISOES_TERRITORIAIS =
 
 const GOOGLE_EMERGENCIAS_CLIMATICAS =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=874932999&single=true&output=csv'
+
+const GOOGLE_SAUDE_ARBOVIROSES =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=2142442976&single=true&output=csv'
 
 const ASSETS_BASE = process.env.NODE_ENV === 'development' ? '/' : '/georedus/'
 
@@ -115,6 +124,8 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
   all: [
     GOOGLE_MUN_MACEIO,
     GOOGLE_MUN_SAO_LUIS,
+    GOOGLE_MUN_SAO_CRISTOVAO,
+    GOOGLE_MUN_SAO_GONCALO,
     [
       piloto_mobilidade_stops({
         ...API,
@@ -141,6 +152,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
     // GOOGLE_CEM_CENSO_2010,
     GOOGLE_CEM_ESCOLAS_2022,
     GOOGLE_CEM_SAUDE_2024,
+    GOOGLE_SAUDE_ARBOVIROSES,
 
     [
       hand({
@@ -178,7 +190,7 @@ const CATEGORY_ICONS = {
   'divisoes-territoriais': <Icon path={mdiMap} />,
   maceio: (
     <img
-      src={`${ASSETS_BASE}pilotos/maceio/logo-prefeitura.svg`}
+      src={`${ASSETS_BASE}pilotos/maceio/brasao.png`}
       style={{
         width: 45,
         height: 45,
@@ -187,7 +199,25 @@ const CATEGORY_ICONS = {
   ),
   'sao-luis': (
     <img
-      src={`${ASSETS_BASE}pilotos/sao-luis/logo-prefeitura.png`}
+      src={`${ASSETS_BASE}pilotos/sao-luis/brasao.png`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  'sao-cristovao': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-cristovao/brasao.png`}
+      style={{
+        width: 45,
+        height: 45,
+      }}
+    />
+  ),
+  'sao-goncalo': (
+    <img
+      src={`${ASSETS_BASE}pilotos/sao-goncalo/brasao.png`}
       style={{
         width: 45,
         height: 45,

@@ -4,6 +4,13 @@ import { Z_OVERLAY_BASE_1000, Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
 import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
+import { Flex } from '@orioro/react-ui-core'
+import { basicTooltip, colorSelector } from '../util'
+
+const LINE_PATTERN_OPTIONS = [
+  { label: 'Continua', value: 'line' },
+  { label: 'Tracejada', value: 'dashed' },
+]
 
 function _parseTiles(tiles, context) {
   tiles = Array.isArray(tiles)
@@ -28,6 +35,7 @@ export function vector_line(
     source_layer,
     sources = {},
     layers = {},
+    tooltip = {},
     ...props
   },
   allViewSpecs,
@@ -37,24 +45,78 @@ export function vector_line(
     throw new Error('source_layer must be defined')
   }
 
-  const _color = resolveColor(color)
-  const _line_pattern = {
-    legendItemProps: {
-      box: {
-        style: {
-          height: 0,
-          borderColor: _color,
-          borderStyle:
-            line.paint && line.paint['line-dasharray'] ? 'dashed' : 'line',
-          borderWidth: '1px',
+  const _initialColor = resolveColor(color)
+  const _color = resolve.fn(
+    (ctx) => resolveColor(ctx.view?.conf?.style?.color) || _initialColor,
+  )
+
+  const _initialLinePattern =
+    line.paint && line.paint['line-dasharray'] ? 'dashed' : 'line'
+
+  const _linePattern = resolve.fn(_color, (_resolvedColor, ctx) => {
+    const resolvedLinePattern =
+      ctx.view?.conf?.style?.linePattern || _initialLinePattern
+
+    return {
+      'line-width': 1,
+      'line-color': _color,
+      ...(line.paint || {}),
+      ...(resolvedLinePattern === 'dashed' ? { 'line-dasharray': [2, 2] } : {}),
+    }
+  })
+
+  const _legend = resolve.fn(_color, (_resolvedColor, ctx) => {
+    return {
+      type: 'CategoricalLegend',
+      items: [
+        {
+          label,
+          box: {
+            style: {
+              height: 0,
+              borderColor: _resolvedColor,
+              borderStyle:
+                ctx.view?.conf?.style?.linePattern || _initialLinePattern,
+              borderWidth: '1px',
+            },
+          },
         },
-      },
-    },
-  }
+      ],
+    }
+  })
 
   return {
     ...props,
     label,
+    confSchema: {
+      style: {
+        color: colorSelector(_initialColor),
+        linePattern: {
+          label: 'Linha',
+          type: 'select',
+          clearable: false,
+          defaultValue: _initialLinePattern || 'line',
+          options: LINE_PATTERN_OPTIONS.map((opt) => {
+            return {
+              ...opt,
+              label: (
+                <Flex direction="row" alignItems="center" gap="2">
+                  <div
+                    style={{
+                      width: 15,
+                      height: 0,
+                      borderStyle: opt.value === 'line' ? 'solid' : 'dashed',
+                      borderWidth: 1,
+                    }}
+                  />
+                  <div> {opt.label}</div>
+                </Flex>
+              ),
+            }
+          }),
+        },
+      },
+    },
     metadata: {},
     sources: {
       main: {
@@ -71,38 +133,9 @@ export function vector_line(
         'source-layer': source_layer,
         type: 'line',
         ...line,
-        paint: {
-          'line-width': 1,
-          'line-color': _color,
-          ...(line.paint || {}),
-        },
-        legends: [
-          {
-            type: 'CategoricalLegend',
-            items: [
-              {
-                label,
-                ..._line_pattern.legendItemProps,
-              },
-            ],
-          },
-        ],
-        tooltip: {
-          title: [
-            '$literal',
-            resolve.fn((ctx) => {
-              return ctx?.feature?.properties?.name
-            }),
-          ],
-          entries: [
-            '$literal',
-            resolve.fn((ctx) => {
-              return typeof ctx.feature?.properties === 'object'
-                ? Object.entries(ctx.feature.properties)
-                : []
-            }),
-          ],
-        },
+        paint: _linePattern,
+        legends: [_legend],
+        tooltip: basicTooltip(tooltip)
       },
       ...layers,
     },
