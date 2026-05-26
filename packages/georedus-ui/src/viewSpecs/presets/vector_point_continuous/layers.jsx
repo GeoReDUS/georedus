@@ -107,7 +107,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
         )
 
         return zoomSensitiveLinearSizes({
-          variable: ['get', viewSpec.style.radius.valueKey],
+          variable: ['get', viewSpec.style?.radius?.valueKey],
           minValue: Math.min(...values),
           maxValue: Math.max(...values),
           minSize: SIZE_MIN,
@@ -121,8 +121,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 }
 
 export function layers(viewSpec, allViewSpecs, context) {
-  const styleSpec = viewSpec.style
-
   const { source_layer } = viewSpec
 
   if (!source_layer) {
