@@ -4,6 +4,7 @@ import { layers } from './layers'
 import { sources } from './sources'
 import { pick } from 'lodash'
 import { parseStyleSpec } from './parseStyleSpec'
+import { download } from './download'
 
 export function vector_point_continuous(
   { style, ...viewSpec },
@@ -21,5 +22,6 @@ export function vector_point_continuous(
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
     layers: layers(viewSpec, allViewSpecs, context),
+    download: download(viewSpec, allViewSpecs, context),
   }
 }
