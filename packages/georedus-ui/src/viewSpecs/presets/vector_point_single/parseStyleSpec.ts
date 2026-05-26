@@ -22,8 +22,9 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (typeof styleInput === 'string') {
     return {
       color: _defaultColor(styleInput),
+      border: true
     }
   } else {
-    return { ...styleInput, color: _defaultColor(styleInput.color) }
+    return { border: true, ...styleInput, color: _defaultColor(styleInput.color) }
   }
 }

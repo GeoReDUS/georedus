@@ -5,7 +5,7 @@ import { interpolate } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
 import { Flex } from '@orioro/react-ui-core'
-import { colorSelector } from '../util'
+import { basicTooltip, colorSelector } from '../util'
 
 const LINE_PATTERN_OPTIONS = [
   { label: 'Continua', value: 'line' },
@@ -35,6 +35,7 @@ export function vector_line(
     source_layer,
     sources = {},
     layers = {},
+    tooltip = {},
     ...props
   },
   allViewSpecs,
@@ -134,22 +135,7 @@ export function vector_line(
         ...line,
         paint: _linePattern,
         legends: [_legend],
-        tooltip: {
-          title: [
-            '$literal',
-            resolve.fn((ctx) => {
-              return ctx?.feature?.properties?.name
-            }),
-          ],
-          entries: [
-            '$literal',
-            resolve.fn((ctx) => {
-              return typeof ctx.feature?.properties === 'object'
-                ? Object.entries(ctx.feature.properties)
-                : []
-            }),
-          ],
-        },
+        tooltip: basicTooltip(tooltip)
       },
       ...layers,
     },

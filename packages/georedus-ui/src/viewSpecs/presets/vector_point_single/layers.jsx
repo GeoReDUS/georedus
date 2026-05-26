@@ -4,20 +4,15 @@ import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
 import {
-  GEOREDUS_LABELED_RESTRICTED_USE_COLORS,
   resolveColor,
   schemeGeoReDUS,
-  zoomSensitiveLinearSizes,
 } from '../../util'
-import { color } from '@orioro/react-ui-core'
 
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
-    const _initialColor =
-      resolveColor(viewSpec.style.color) || schemeGeoReDUS.laranja
-    const _resolvedColor = resolve.fn(
-      (ctx) => resolveColor(ctx.view?.conf?.style?.color) || _initialColor,
-    )
+    const _resolvedColor =
+      resolveColor(ctx.view?.conf?.style?.color || viewSpec.style.color) ||
+      schemeGeoReDUS.laranja
 
     return [
       {
@@ -53,33 +48,16 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 
     paint: {
       'circle-color': resolve.fn((ctx) => {
-        const _initialColor =
-          resolveColor(viewSpec.style.color) || schemeGeoReDUS.laranja
-        const _resolvedColor = resolve.fn(
-          (ctx) => resolveColor(ctx.view?.conf?.style?.color) || _initialColor,
-        )
+        const _resolvedColor =
+          resolveColor(ctx.view?.conf?.style?.color || viewSpec.style.color) ||
+          schemeGeoReDUS.laranja
 
-        if (viewSpec.style.radius?.valueKey) {
-          return [
-            'case',
-            [
-              '==',
-              ['typeof', ['get', viewSpec.style.radius.valueKey]],
-              'number',
-            ],
-            _resolvedColor,
-            NO_DATA_COLOR,
-          ]
-        } else {
-          return _resolvedColor
-        }
+        return _resolvedColor
       }),
       'circle-opacity': viewSpec.style.opacity || 1,
-      'circle-radius': resolve.fn((ctx) => {
-        return viewSpec.style.radius || 10
-      }),
+      'circle-radius': viewSpec.style.radius || 10,
       'circle-stroke-color': '#ffffff',
-      'circle-stroke-width': viewSpec.style.border === false ? 0 : 2,
+      'circle-stroke-width': viewSpec.style.border ? 2 : 0,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
@@ -87,8 +65,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 }
 
 export function layers(viewSpec, allViewSpecs, context) {
-  const styleSpec = viewSpec.style
-  // console.log('styleSpec', styleSpec)
   const { source_layer } = viewSpec
 
   if (!source_layer) {
