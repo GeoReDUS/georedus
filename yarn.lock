@@ -4026,9 +4026,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@orioro/dev@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "@orioro/dev@npm:0.0.6"
+"@orioro/dev@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "@orioro/dev@npm:0.0.7"
   dependencies:
     "@babel/preset-env": "npm:^7.23.9"
     "@babel/preset-react": "npm:^7.23.3"
@@ -4051,7 +4051,7 @@ __metadata:
     next: ^14.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: c7d82b701feaaaf5922abb3b471965fd5ddf5cde91170712122cb3ac99955ef5db06215256ebb100bd299c5447c69c4dd2e408c6f714a5161af7076f7c5f3c6d
+  checksum: bc9d016aaa0c719e676c8d561305750dd64468814bdf6600ef809e7653287d7fa9f02e05654bc47cdfeac92d9810087aa80779989ae6fc9893850e5da264112c
   languageName: node
   linkType: hard
 
@@ -4086,7 +4086,7 @@ __metadata:
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
     "@orioro/cast": "npm:^0.0.12"
-    "@orioro/dev": "npm:^0.0.6"
+    "@orioro/dev": "npm:^0.0.7"
     "@orioro/react-maplibre-util": "workspace:^"
     "@orioro/react-ui-core": "npm:^0.0.20"
     "@orioro/util": "npm:^0.16.0"
@@ -4155,7 +4155,7 @@ __metadata:
   dependencies:
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
-    "@orioro/dev": "npm:^0.0.6"
+    "@orioro/dev": "npm:^0.0.7"
     "@orioro/react-select": "npm:^3.1.1"
     "@orioro/react-tree": "npm:^0.0.10"
     "@orioro/react-ui-core": "npm:^0.0.20"
@@ -4180,7 +4180,7 @@ __metadata:
     "@maplibre/maplibre-gl-inspect": "npm:^1.7.1"
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
-    "@orioro/dev": "npm:^0.0.6"
+    "@orioro/dev": "npm:^0.0.7"
     "@orioro/react-select": "npm:^3.1.1"
     "@orioro/react-ui-core": "npm:^0.0.20"
     "@orioro/resolve": "npm:^0.1.12"
@@ -4422,7 +4422,7 @@ __metadata:
     "@duckdb/duckdb-wasm": "npm:1.29.1-dev132.0"
     "@mapbox/vector-tile": "npm:^2.0.3"
     "@maplibre/maplibre-gl-inspect": "npm:^1.7.1"
-    "@orioro/dev": "npm:^0.0.6"
+    "@orioro/dev": "npm:^0.0.7"
     "@orioro/util": "npm:^0.16.0"
     "@types/memoizee": "npm:^0.4.12"
     "@types/vt-pbf": "npm:^3.1.0"
@@ -6223,7 +6223,7 @@ __metadata:
     "@mdi/js": "npm:^7.4.47"
     "@mdi/react": "npm:^1.6.1"
     "@orioro/cast": "npm:^0.0.12"
-    "@orioro/dev": "npm:^0.0.6"
+    "@orioro/dev": "npm:^0.0.7"
     "@orioro/get": "npm:^0.0.12"
     "@orioro/react-chart-util": "workspace:^"
     "@orioro/react-csv": "npm:^0.0.17"

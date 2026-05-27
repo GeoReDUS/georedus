@@ -23,7 +23,7 @@
     "build-storybook": "storybook build"
   },
   "devDependencies": {
-    "@orioro/dev": "^0.0.6",
+    "@orioro/dev": "^0.0.7",
     "@radix-ui/themes": "^3.0.1",
     "@tanstack/react-query": "^5.66.0",
     "maplibre-gl": "^5.1.0",

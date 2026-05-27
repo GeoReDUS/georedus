@@ -31,7 +31,7 @@
     "react-map-gl": "^8.0.0"
   },
   "devDependencies": {
-    "@orioro/dev": "^0.0.6",
+    "@orioro/dev": "^0.0.7",
     "@orioro/react-versioned-state": "^0.0.2",
     "@radix-ui/themes": "^3.0.1",
     "@types/geojson": "^7946.0.16",
