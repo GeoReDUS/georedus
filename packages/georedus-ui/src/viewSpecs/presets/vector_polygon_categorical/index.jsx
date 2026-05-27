@@ -17,7 +17,7 @@ export function vector_polygon_categorical(
   }
 
   return {
-    ...pick(viewSpec, ['id', 'path', 'label', 'sourceLabel']),
+    ...pick(viewSpec, ['id', 'path', 'label', 'sourceLabel', 'metodology', 'shortDescription']),
     confSchema: confSchema(viewSpec, allViewSpecs, context),
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
