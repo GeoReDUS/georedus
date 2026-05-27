@@ -1,5 +1,11 @@
 # @orioro/react-dir-nav
 
+## 0.2.2
+
+### Patch Changes
+
+- fix: upgrade build dependency react babel preset runtime: automatic
+
 ## 0.2.1
 
 ### Patch Changes

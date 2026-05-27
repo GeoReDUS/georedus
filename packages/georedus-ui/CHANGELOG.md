@@ -1,5 +1,16 @@
 # @orioro/template-react
 
+## 0.20.1
+
+### Patch Changes
+
+- fix: upgrade build dependency react babel preset runtime: automatic
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.8.1
+  - @orioro/react-chart-util@0.3.2
+  - @orioro/vector-tile-util@0.3.2
+  - @orioro/react-dir-nav@0.2.2
+
 ## 0.20.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.3.2
+
+### Patch Changes
+
+- fix: upgrade build dependency react babel preset runtime: automatic
+
 ## 0.3.1
 
 ### Patch Changes

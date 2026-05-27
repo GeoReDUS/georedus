@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.8.1
+
+### Patch Changes
+
+- fix: upgrade build dependency react babel preset runtime: automatic
+
 ## 0.8.0
 
 ### Minor Changes
