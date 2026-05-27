@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.20.2
+
+### Patch Changes
+
+- fix react-qr-code import compat with next
+
 ## 0.20.1
 
 ### Patch Changes
