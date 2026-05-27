@@ -1,5 +1,17 @@
 # @orioro/template-react
 
+## 0.20.0
+
+### Minor Changes
+
+- release vector_polygon presets
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/react-maplibre-util@0.8.0
+  - @orioro/react-chart-util@0.3.1
+
 ## 0.19.5
 
 ### Patch Changes

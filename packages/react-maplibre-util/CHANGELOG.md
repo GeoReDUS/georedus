@@ -1,5 +1,11 @@
 # @orioro/react-maplibre-util
 
+## 0.8.0
+
+### Minor Changes
+
+- release vector_polygon presets
+
 ## 0.7.1
 
 ### Patch Changes
