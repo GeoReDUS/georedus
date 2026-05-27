@@ -11,7 +11,11 @@ import { Flex } from '@orioro/react-ui-core'
 import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
 
 import { Legend } from '@orioro/react-chart-util'
-import QRCode from 'react-qr-code'
+//
+// Must import as named module:
+// https://github.com/rosskhanas/react-qr-code/issues/285
+//
+import { QRCode } from 'react-qr-code'
 
 import styled from 'styled-components'
 import { SKY_STYLE } from '../GeoReDUS/constants'
@@ -62,7 +66,7 @@ const {
   DESCRIPTION_WIDTH,
 } = getPaperDimensions(PREVIEW_WIDTH_PX)
 
-export const ExportImage = forwardRef(function ExportImage(
+export const ExportImage = forwardRef(function ExportImageInner(
   {
     resolvedLayout,
     commitedViewState,
@@ -73,8 +77,6 @@ export const ExportImage = forwardRef(function ExportImage(
   },
   ref,
 ) {
-  ExportImage.displayName = 'ExportImage'
-
   const dialogs = useDialogs()
   const rootRef = useRef(null)
   const layeredMapRef = useRef(null)
@@ -132,7 +134,8 @@ export const ExportImage = forwardRef(function ExportImage(
         <Flex
           direction="column"
           width={`${DESCRIPTION_WIDTH}px`}
-          className={IMAGE_DESCRIPTION_CLASS_NAME}>
+          className={IMAGE_DESCRIPTION_CLASS_NAME}
+        >
           <Flex height="100%" wrap="wrap" gap="2">
             <Heading size="4" color="iris">
               {munName} - {ufSigla} / BR
@@ -190,14 +193,16 @@ export const ExportImage = forwardRef(function ExportImage(
         }}
         canvasContextAttributes={{
           preserveDrawingBuffer: true,
-        }}>
+        }}
+      >
         <ControlContainer
           position="bottom-left"
           style={{
             boxShadow: 'none',
             backgroundColor: '#ffffffd9',
             borderRadius: '10px',
-          }}>
+          }}
+        >
           <Flex width="150" p="2" className={LOGO_CLASS_NAME}>
             <GeoReDUSLogo color="#384DA0" />
           </Flex>
@@ -209,7 +214,8 @@ export const ExportImage = forwardRef(function ExportImage(
             boxShadow: 'none',
             backgroundColor: 'transparent',
             borderRadius: '10px',
-          }}>
+          }}
+        >
           <Flex p="2" className={PROJECTION_CLASS_NAME} width="fit-content">
             <Text weight="bold">Projeção universal </Text>
             <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
@@ -234,14 +240,16 @@ export const ExportImage = forwardRef(function ExportImage(
         style={{
           justifyContent: 'space-between',
           marginTop: `${MARGIN}px !important`,
-        }}>
+        }}
+      >
         <ImageDescription />
         <LegendContainer
           className={LEGEND_CLASS_NAME}
           direction="column"
           gap="3"
           p="0"
-          style={{ margin: '0 !important' }}>
+          style={{ margin: '0 !important' }}
+        >
           {legends
             .filter((legend) => legend?.type)
             .map((legend, i) => (
