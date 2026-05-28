@@ -22,31 +22,11 @@ function _validNumericalValues(values) {
   )
 }
 
-const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
-
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     const _values = _validNumericalValues(ctx.view.metadata.radiusData.values)
 
-    // const _resolvedColor =
-    //   resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
-
     return [
-      // {
-      //   type: 'CategoricalLegend',
-      //   title: viewSpec.label,
-
-      //   items: [
-      //     {
-      //       label: 'Com dados',
-      //       color: _resolvedColor,
-      //     },
-      //     {
-      //       label: 'Sem dados',
-      //       color: NO_DATA_COLOR,
-      //     },
-      //   ],
-      // },
       {
         type: 'ProportionalSymbolLegend',
         unit: viewSpec.measure_unit,
@@ -72,32 +52,10 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     interactive: true,
     type: 'circle',
 
-    // 'circle-sort-key': resolve.fn((ctx) => {
-    //   if (!viewSpec.style.radius?.valueKey) {
-    //     return 0
-    //   }
-
-    //   return ['coalesce', ['get', viewSpec.style.radius.valueKey], 0]
-    // }),
     paint: {
       'circle-color':
         resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja,
-      'circle-opacity': resolve.fn((ctx) => {
-        if (viewSpec.style?.radius?.valueKey) {
-          return [
-            'case',
-            [
-              '==',
-              ['typeof', ['get', viewSpec.style?.radius?.valueKey]],
-              'number',
-            ],
-            1,
-            0,
-          ]
-        } else {
-          return 1
-        }
-      }),
+      'circle-opacity': 1,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
           return 10
@@ -106,10 +64,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
         const values = _validNumericalValues(
           ctx.view.metadata.radiusData.values,
         )
-        // console.log('viewSpec', viewSpec)
-        // console.log('min', Math.min(...values))
-        // console.log('max', Math.max(...values))
-        // console.log('values', values)
         return zoomSensitiveLinearSizes({
           variable: ['get', viewSpec.style?.radius?.valueKey],
           minValue: Math.min(...values),
@@ -121,18 +75,11 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
-    filter: [
+    filter: viewSpec.style?.filter ? [
       'all',
-      [
-        '==',
-        ['get', 'id_municipio_gestor_2026'],
-        context.municipioId,
-      ],
-      [ '!=',
-        ['get', viewSpec.id],
-        null,
-      ],
-    ]
+      ['==', ['get', 'id_municipio_gestor_2026'], context.municipioId],
+      ['!=', ['get', viewSpec.id], null],
+    ] : ['all'],
   }
 }
 
