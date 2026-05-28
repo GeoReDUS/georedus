@@ -1,11 +1,12 @@
 import { schemeCategory10 } from 'd3-scale-chromatic'
 import { waves_1 } from '@orioro/react-maplibre-util'
 import { Z_OVERLAY_BASE_1000, Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
-import { interpolate } from '@orioro/util'
+import { interpolate, slugify } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
 import { Flex } from '@orioro/react-ui-core'
 import { basicTooltip, colorSelector } from '../util'
+import { basicDownload } from '../util'
 
 const LINE_PATTERN_OPTIONS = [
   { label: 'Continua', value: 'line' },
@@ -36,6 +37,7 @@ export function vector_line(
     sources = {},
     layers = {},
     tooltip = {},
+    download_url = "",
     ...props
   },
   allViewSpecs,
@@ -135,9 +137,15 @@ export function vector_line(
         ...line,
         paint: _linePattern,
         legends: [_legend],
-        tooltip: basicTooltip(tooltip)
+        tooltip: basicTooltip(tooltip),
       },
       ...layers,
     },
+    download: basicDownload({
+      fileName: slugify(label),
+      downloadUrl: interpolate(download_url || '', {
+        METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+      }),
+    }),
   }
 }

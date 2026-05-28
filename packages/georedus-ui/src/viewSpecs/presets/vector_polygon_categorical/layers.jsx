@@ -49,7 +49,6 @@ function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
 function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((context) => {
     const categories = context.view.metadata.categories
-
     return [
       {
         type: 'CategoricalLegend',
@@ -57,10 +56,10 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
         items: categories.map((cat) => ({
           id: cat.value,
           label: cat.label,
-          color: cat.color,
+          color: resolveColor(cat.color),
           box: {
             style: {
-              backgroundColor: applyOpacity(cat.color, DEFAULT_FILL_OPACITY),
+              backgroundColor: applyOpacity(resolveColor(cat.color), DEFAULT_FILL_OPACITY),
             },
           },
         })),
@@ -86,7 +85,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
               ...ctx.view.metadata.categories
                 .map((cat) => [
                   cat.value,
-                  `${resolvedFillPattern}({ stroke: "${cat.color}", scale: 0.5 })`,
+                  `${resolvedFillPattern}({ stroke: "${resolveColor(cat.color)}", scale: 0.5 })`,
                 ])
                 .flat(),
               '#CCCCCC',
@@ -126,7 +125,7 @@ export function layers(viewSpec, allViewSpecs, context) {
   const _maplibreColorExp = resolve.fn((ctx) => [
     'match',
     ['get', viewSpec.style.categoryKey],
-    ...ctx.view.metadata.categories.map((cat) => [cat.value, cat.color]).flat(),
+    ...ctx.view.metadata.categories.map((cat) => [cat.value, resolveColor(cat.color)]).flat(),
     '#CCCCCC',
   ])
 
