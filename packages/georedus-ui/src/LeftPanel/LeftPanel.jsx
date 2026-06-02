@@ -96,6 +96,7 @@ function LeftPanelInner({
             </a>
           </IconButton>
           <IconButton
+            id='share-map'
             variant="soft"
             size="3"
             style={{ color: 'white' }}

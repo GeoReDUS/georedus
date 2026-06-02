@@ -41,7 +41,11 @@ export function SharePanel({
           width="100%"
           pt="4">
           <ShareButtonBar />
-          <Button onClick={handleExportClick} style={{ marginRight: '30px' }} size="2">
+          <Button
+            id="export-image-button"
+            onClick={handleExportClick}
+            style={{ marginRight: '30px' }}
+            size="2">
             <Icon path={mdiDownload} size="18px" />
             Baixar imagem
           </Button>
