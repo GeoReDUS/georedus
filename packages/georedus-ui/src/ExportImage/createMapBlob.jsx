@@ -44,10 +44,10 @@ function createScaleWrapper(map) {
 }
 
 // Extract all DOM elements to blobs FIRST (while DOM is visible)
-export async function extractMapImageBlobs({ map, rootEl }) {
+export async function extractMapImageBlobs({ map, rootEl, onlyMap = false }) {
+  const blobDescription = !onlyMap ? await createBlob(IMAGE_DESCRIPTION_CLASS_NAME, rootEl) : null
+  const blobQRCode = !onlyMap ? await createBlob(QR_CODE_CLASS_NAME, rootEl) : null
   const blobLegend = await createBlob(LEGEND_CLASS_NAME, rootEl)
-  const blobDescription = await createBlob(IMAGE_DESCRIPTION_CLASS_NAME, rootEl)
-  const blobQRCode = await createBlob(QR_CODE_CLASS_NAME, rootEl)
   const blobLogo = await createBlob(LOGO_CLASS_NAME, rootEl, 'transparent')
   const blobProjection = await createBlob(
     PROJECTION_CLASS_NAME,
@@ -59,7 +59,6 @@ export async function extractMapImageBlobs({ map, rootEl }) {
     rootEl,
     'transparent',
   )
-
   const scaleWrapper = createScaleWrapper(map)
   const blobScale = await toBlob(scaleWrapper, {
     cacheBust: true,

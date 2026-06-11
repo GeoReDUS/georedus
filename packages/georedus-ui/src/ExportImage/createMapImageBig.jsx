@@ -8,13 +8,10 @@ const {
   INSIDE_HEIGHT,
   MARGIN,
   PIXELRATIO,
-  MAP_WIDTH,
-  MAP_HEIGHT,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
   QRCODE_SIZE,
   LOGO_HEIGHT,
-  PROJECTION_HEIGHT,
   MAPINFO_PADDING,
   NORTH_SIZE,
 } = getPaperDimensions(PAPER_WIDTH_PX)
@@ -55,7 +52,7 @@ function roundRect(ctx, x, y, width, height, radius) {
 }
 
 // Compose canvas AFTER (using already-extracted blobs)
-export async function composeMapImageCanvas(extractedBlobs, onlyMap = false) {
+export async function composeMapImageCanvas(extractedBlobs) {
   const {
     mapCanvas,
     blobLegend,
@@ -78,11 +75,7 @@ export async function composeMapImageCanvas(extractedBlobs, onlyMap = false) {
   ctx.fillRect(0, 0, PAPER_WIDTH, PAPER_HEIGHT)
 
   //1 - DRAW MAP ON CANVAS
-  const mapWidth = onlyMap ? INSIDE_WIDTH : MAP_WIDTH
-  const mapHeight = onlyMap ? INSIDE_HEIGHT : MAP_HEIGHT
-  console.log(onlyMap, mapWidth, mapHeight)
-  console.log(onlyMap, INSIDE_WIDTH, INSIDE_HEIGHT)
-  ctx.drawImage(mapCanvas, MARGIN, MARGIN, mapWidth, mapHeight)
+  ctx.drawImage(mapCanvas, MARGIN, MARGIN, INSIDE_WIDTH, INSIDE_HEIGHT)
 
   //2 - Draw Map Infos
   //2.1 - Create images from blobs (to get dimensions)
@@ -93,24 +86,25 @@ export async function composeMapImageCanvas(extractedBlobs, onlyMap = false) {
   let projectionPosX = 0
   let projectionPosY = 0
   let projectionWidth = 0
+  let projectionHeight = 0
 
   //2.2 - Projection dimensions and position
   if (projectionImg && northArrowImg && scaleImg) {
     projectionPosX = MARGIN + MAPINFO_PADDING
-    projectionPosY = MARGIN + mapHeight - MAPINFO_PADDING - PROJECTION_HEIGHT
-    projectionWidth = Math.round(
-      PROJECTION_HEIGHT * (projectionImg.width / projectionImg.height),
-    )
+    projectionPosY =
+      MARGIN + INSIDE_HEIGHT - MAPINFO_PADDING - projectionHeight
+    projectionWidth = projectionImg.width
+    projectionHeight = projectionImg.height
 
     //2.3 - North dimensions and position (to the right of projection)
-    const northPadding = (PROJECTION_HEIGHT - NORTH_SIZE) / 2
+    const northPadding = (projectionHeight - NORTH_SIZE) / 2
     const northPosX = projectionPosX + projectionWidth + MAPINFO_PADDING
     const northPosY = projectionPosY + northPadding
 
     //2.4 - Scale dimensions and position (below projection)
-    const scaleX = mapWidth / mapCanvas.width
-    const scaleY = mapHeight / mapCanvas.height
-    const scalePadding = (PROJECTION_HEIGHT - scaleImg.height * scaleY) / 2
+    const scaleX = INSIDE_WIDTH / mapCanvas.width
+    const scaleY = INSIDE_HEIGHT / mapCanvas.height
+    const scalePadding = (projectionHeight - scaleImg.height * scaleY) / 2
     const scalePosX = northPosX + NORTH_SIZE + MAPINFO_PADDING
     const scalePosY = projectionPosY + scalePadding
     const scaleWidth = Math.round(scaleImg.width * scaleX)
@@ -124,7 +118,7 @@ export async function composeMapImageCanvas(extractedBlobs, onlyMap = false) {
       NORTH_SIZE +
       scaleWidth / (PIXELRATIO * PIXELRATIO) +
       2 * MAPINFO_PADDING
-    const backgroundHeight = PROJECTION_HEIGHT
+    const backgroundHeight = projectionHeight
 
     //2.6 - Draw Map Info background
     ctx.fillStyle = '#ffffff80'
@@ -144,7 +138,7 @@ export async function composeMapImageCanvas(extractedBlobs, onlyMap = false) {
       projectionPosX,
       projectionPosY,
       projectionWidth,
-      PROJECTION_HEIGHT,
+      projectionHeight,
     )
     ctx.drawImage(northArrowImg, northPosX, northPosY, NORTH_SIZE, NORTH_SIZE)
     ctx.drawImage(scaleImg, scalePosX, scalePosY, scaleWidth, scaleHeight)
@@ -174,47 +168,21 @@ export async function composeMapImageCanvas(extractedBlobs, onlyMap = false) {
   }
 
   //3 - Calculate positions for bottom section elements and scale
-  const bottomStartY = mapHeight + MARGIN * 1.5
+  const bottomStartY = INSIDE_HEIGHT + MARGIN * 1.5
 
-  //4 - DRAW DESCRIPTION
-  if (!onlyMap) {
-    const descriptionImg = await createImg(blobDescription)
-    if (descriptionImg) {
-      ctx.drawImage(
-        descriptionImg,
-        MARGIN,
-        bottomStartY,
-        DESCRIPTION_WIDTH,
-        BOTTOM_HEIGHT,
-      )
-    }
-
-    //5 - DRAW LEGEND
-    const legendImg = await createImg(blobLegend)
-    if (legendImg) {
-      const legendScale = legendImg.width / legendImg.height
-      const legendHeight = BOTTOM_HEIGHT
-      const legendWidth = legendHeight * legendScale
-      ctx.drawImage(
-        legendImg,
-        MARGIN * 1.5 + DESCRIPTION_WIDTH,
-        bottomStartY,
-        legendWidth,
-        legendHeight,
-      )
-    }
-
-    //6 - DRAW QR CODE
-    const qrCodeImg = await createImg(blobQRCode)
-    if (qrCodeImg) {
-      ctx.drawImage(
-        qrCodeImg,
-        PAPER_WIDTH - MARGIN - QRCODE_SIZE,
-        PAPER_HEIGHT - MARGIN - QRCODE_SIZE,
-        QRCODE_SIZE,
-        QRCODE_SIZE,
-      )
-    }
+  //5 - DRAW LEGEND
+  const legendImg = await createImg(blobLegend)
+  console.log(legendImg)
+  if (legendImg) {
+    const legendHeight = legendImg.height
+    const legendWidth = legendImg.width
+    ctx.drawImage(
+      legendImg,
+      PAPER_WIDTH - MARGIN - MAPINFO_PADDING - legendWidth,
+      PAPER_HEIGHT - MARGIN - MAPINFO_PADDING - legendHeight,
+      legendWidth,
+      legendHeight,
+    )
   }
 
   return new Promise((resolve) => {
