@@ -7,8 +7,12 @@ import {
   useCallback,
 } from 'react'
 import { useLocation } from 'react-use'
-import { Flex } from '@orioro/react-ui-core'
-import { LayeredMap, ControlContainer } from '@orioro/react-maplibre-util'
+import { Flex, LoadingIndicator } from '@orioro/react-ui-core'
+import {
+  LayeredMap,
+  ControlContainer,
+  useTilesLoading,
+} from '@orioro/react-maplibre-util'
 
 import { Legend } from '@orioro/react-chart-util'
 //
@@ -51,7 +55,7 @@ import { slugify } from '@orioro/util'
 import { fitGeometry } from '@orioro/react-maplibre-util'
 
 import * as turf from '@turf/turf'
-
+import 'maplibre-gl/dist/maplibre-gl.css'
 const LegendContainer = styled(Flex)`
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
@@ -122,14 +126,44 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
   )
 
   const DEFAULT_INITIAL_VIEW_STATE = {
-    // // Brazil
     longitude: -53.0736,
     latitude: -10.7798,
     zoom: 3.5,
   }
 
+  const tilesLoading = useTilesLoading(
+    [layeredMapRef.current?.map].filter(Boolean),
+  )
+  console.log(tilesLoading, 'tilesLoading')
+  useEffect(() => {
+    window.__tilesLoading = tilesLoading
+    return () => {
+      delete window.__tilesLoading
+    }
+  }, [tilesLoading])
+
+   useEffect(() => {
+      console.log('Will expose')
+      window.__createImg = async () => {
+        await createImg()
+      }
+      return () => {
+        delete window.__createImg
+      }
+    }, [createImg])
+
   return (
     <Flex direction="column" ref={rootRef}>
+      {tilesLoading && (
+        <LoadingIndicator
+          style={{
+            position: 'fixed',
+            bottom: '40px',
+            right: '20px',
+            zIndex: 20,
+          }}
+        />
+      )}
       <LayeredMap
         ref={layeredMapRef}
         sky={SKY_STYLE}
@@ -137,21 +171,12 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
         pixelRatio={PIXELRATIO}
         attributionControl={false}
         mapStyle={baseMapStyle}
-        // onLoad={() => {
-        //   setMapReady(true)
-        //   if (bbox && bbox.geometry) {
-        //     fitGeometry(layeredMapRef.current, bbox.geometry, {
-        //       padding: 100,
-        //       duration: 0,
-        //     })
-        //   }
-        // }}
         onLoad={() => {
           setMapReady(true)
           if (bbox && bbox.geometry && layeredMapRef.current?.map) {
             const map = layeredMapRef.current.map
             const bounds = turf.bbox(bbox.geometry)
-            map.fitBounds(bounds, { padding: 0 })
+            map.fitBounds(bounds, { padding: 20 })
           }
         }}
         views={

@@ -166,7 +166,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
       }),
       temperatura_superficie({
         ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025_v2/mosaic.json`,
       }),
       curvatura({
         ...API,

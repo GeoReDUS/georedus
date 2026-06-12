@@ -66,6 +66,7 @@ function temperatura_legends() {
 export function temperatura_superficie({
   RASTER_TILE_SERVER_ENDPOINT,
   mosaicJsonUrl,
+  minzoom = 9, //HOTFIX
 }) {
   const DEVICE_PIXEL_RATIO_SUFFIX =
     typeof window !== 'undefined' && window.devicePixelRatio > 1 ? '@2x' : ''
@@ -112,7 +113,7 @@ export function temperatura_superficie({
 
     sources: {
       [TEMPERATURA_SUPERFICIE_ID]: {
-        minzoom: 9,
+        minzoom: minzoom || 9,
         maxzoom: 14,
         type: 'raster',
         tiles: [
@@ -141,7 +142,7 @@ export function temperatura_superficie({
     },
     layers: {
       [`${TEMPERATURA_SUPERFICIE_ID}`]: {
-        minzoom: 9,
+        minzoom: minzoom || 9,
         // zIndex: 10,
         type: 'raster',
         source: TEMPERATURA_SUPERFICIE_ID,

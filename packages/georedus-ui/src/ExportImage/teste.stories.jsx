@@ -1,6 +1,6 @@
 // ExportImage.stories.jsx
 
-import React, { useMemo, useRef, useReducer } from 'react'
+import React, { useMemo, useRef, useReducer, useEffect } from 'react'
 import { Button } from '@orioro/react-ui-core'
 import { BrowserRouter, useSearchParams } from 'react-router-dom'
 import { ExportImageBig } from './ExportImageBig'
@@ -89,10 +89,6 @@ export const Basic = (props) => {
   const municipioId = Number(stateStorage?.municipioId) || 3550308 // default: São Paulo //2704302
   const viewConf = stateStorage?.viewConf || null
 
-  // console.log('Story received viewConf:', viewConf)
-  // console.log('Story received baseMapStyle:', baseMapStyle)
-  // console.log('Story received municipioId:', municipioId)
-
   // Replicate GeoReDUS viewConf reducer
   const [viewConfState] = useReducer(
     viewConfReducer,
@@ -143,7 +139,8 @@ export const Basic = (props) => {
       // or at minimum the temperature layer that you need
       temperatura_superficie({
         ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025_v2/mosaic.json`,
+        minzoom: 5, //HOTFIX
       }),
     ],
   }
@@ -198,11 +195,6 @@ export const Basic = (props) => {
     })
   }, [viewConfState.layout, viewConfState.byId, resolvedViews])
 
-  console.log('viewConfState:', viewConfState)
-  console.log('viewSpecsQuery.data:', viewSpecsQuery.data)
-  console.log('resolvedViews:', resolvedViews)
-  console.log('resolvedLayout:', resolvedLayout)
-
   const initialViewState = useMemo(() => {
     if (!bbox) {
       return {
@@ -221,21 +213,15 @@ export const Basic = (props) => {
     const latDelta = maxLat - minLat
     const maxDelta = Math.max(lngDelta, latDelta)
 
-    // More aggressive zoom: use smaller denominator and add buffer
     // This ensures municipality takes up most of the viewport
     const zoom = Math.min(20, Math.log2(450 / maxDelta))
-
+    console.log("ZOOM", zoom)
     return {
       longitude: lng,
       latitude: lat,
       zoom,
     }
   }, [bbox])
-
-  // console.log('DEBUG - initialViewState:', initialViewState)
-  // console.log('DEBUG - bbox:', bbox)
-  // console.log('DEBUG - coords:', coords)
-  // console.log('DEBUG - munDataQuery.data:', munDataQuery.data)
 
   const baseMapStyleObj = dataviz.baseMapStyle()
 
@@ -250,20 +236,9 @@ export const Basic = (props) => {
 
   const exportImageRef = useRef()
 
-  const handleExportClick = () => {
-    exportImageRef.current?.createImg()
-  }
-
-  if (munDataQuery.isLoading) {
-    return <div style={{ padding: '20px' }}>Loading municipality data...</div>
-  }
-
-  if (munDataQuery.error) {
-    return (
-      <div style={{ padding: '20px', color: 'red' }}>
-        Error loading municipality: {munDataQuery.error.message}
-      </div>
-    )
+  const handleExportClick = async () => {
+    console.log('Export button clicked', exportImageRef.current)
+    await exportImageRef.current?.createImg()
   }
 
   return (
@@ -285,7 +260,7 @@ export const Basic = (props) => {
         style={{ marginRight: '30px' }}
         size="2">
         <Icon path={mdiDownload} size="18px" />
-        Baixar imagem
+        Baixar imagem manualmente
       </Button>
     </>
   )

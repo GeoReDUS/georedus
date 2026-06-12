@@ -8,6 +8,8 @@ import { dirname } from 'path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+const outputDir = path.join(__dirname, 'exported-images')
+fs.mkdirSync(outputDir, { recursive: true })
 
 function readMunicipios(csvPath) {
   const file = fs.readFileSync(csvPath, 'utf-8')
@@ -15,59 +17,50 @@ function readMunicipios(csvPath) {
   return records.map((r) => r.municipioId)
 }
 
+async function wait(ms) {
+  return await new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
 async function printMunicipioImage(page, municipioId, viewConf) {
   // Navigate to URL with municipioId
   const url = `${config.baseUrl}&municipioId=${municipioId}&viewConf=${viewConf}`
-  try {
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: 15000,
-    })
-  } catch (error) {
-    console.error('Navigation failed:', error.message)
-    throw error
-  }
-  console.log('Page loaded:', url)
 
-  try {
-    await page.waitForSelector('.maplibregl-canvas', {
-      timeout: 10000,
-    })
-    console.log('Map canvas found')
-  } catch (error) {
-    console.error('Map did not load:', error.message)
-    throw error
-  }
-
-  // Give the map time to finish rendering
-  await page.waitForNetworkIdle({
-    idleTime: 2000,
-    timeout: 20000,
+  await page.goto(url, {
+    waitUntil: 'domcontentloaded',
   })
 
-	// Componente precisaria enviar feedback de que acabou de carregar
-  // await page.waitForFunction(() => window.mapReady === true, { timeout: 30000 })
+  await page.waitForSelector('.maplibregl-canvas')
 
-  console.log('Map loaded')
+  await wait(5000)
 
-  // Small extra delay for animations/rendering
-  await new Promise((resolve) => setTimeout(resolve, 2000))
-
-  console.log('Timeout')
-
-  await page.screenshot({
-    path: `${config.outputDir}/${municipioId}.png`,
-    fullPage: true,
+  await page.waitForFunction(() => {
+    console.log('Waiting for create Img')
+    const createImgReady = typeof window.__createImg === 'function'
+    const tilesReady = window.__tilesLoading === false
+    return createImgReady && tilesReady
   })
 
-  console.log('Screenshot')
+  await wait(1000)
 
+  await page.evaluate(async () => {
+    console.log('evaluating create Img')
+    await window.__createImg()
+  })
+
+  await wait(1000)
+
+  console.log('Export completed for:', municipioId)
   return true
 }
 
 async function mapPrint(csvPath) {
   const municipios = readMunicipios(csvPath)
-  const browser = await puppeteer.launch({ headless: 'new' })
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: [`--download-default-directory=${outputDir}`],
+  })
 
   let completed = 0
   let failed = 0
@@ -79,6 +72,13 @@ async function mapPrint(csvPath) {
 
       const promises = batch.map(async (municipioId) => {
         const page = await browser.newPage()
+        const client = await page.createCDPSession()
+        await client.send('Browser.setDownloadBehavior', {
+          behavior: 'allow',
+          downloadPath: outputDir,
+          eventsEnabled: true,
+        })
+        await page.setViewport({ width: 1920, height: 1080 })
         try {
           await printMunicipioImage(page, municipioId, config.viewConf)
           completed++

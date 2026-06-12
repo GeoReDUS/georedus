@@ -7,7 +7,8 @@ export function br_municipios({ api, app }) {
     sources: {
       [BR_MUNICIPIOS_ID]: {
         type: 'vector',
-        minzoom: 8,
+        // minzoom: 8,
+        minzoom: 6, //TODO: para Altamira
         //
         // Prevent system from fetching data beyond necessary detail
         //
