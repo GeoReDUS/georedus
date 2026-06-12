@@ -90,11 +90,10 @@ export async function composeMapImageCanvas(extractedBlobs) {
 
   //2.2 - Projection dimensions and position
   if (projectionImg && northArrowImg && scaleImg) {
-    projectionPosX = MARGIN + MAPINFO_PADDING
-    projectionPosY =
-      MARGIN + INSIDE_HEIGHT - MAPINFO_PADDING - projectionHeight
     projectionWidth = projectionImg.width
     projectionHeight = projectionImg.height
+    projectionPosX = MARGIN + MAPINFO_PADDING
+    projectionPosY = MARGIN + INSIDE_HEIGHT - MAPINFO_PADDING - projectionHeight
 
     //2.3 - North dimensions and position (to the right of projection)
     const northPadding = (projectionHeight - NORTH_SIZE) / 2
@@ -116,8 +115,7 @@ export async function composeMapImageCanvas(extractedBlobs) {
     const backgroundWidth =
       projectionWidth +
       NORTH_SIZE +
-      scaleWidth / (PIXELRATIO * PIXELRATIO) +
-      2 * MAPINFO_PADDING
+      scaleWidth / PIXELRATIO
     const backgroundHeight = projectionHeight
 
     //2.6 - Draw Map Info background

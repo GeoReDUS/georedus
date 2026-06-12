@@ -50,13 +50,7 @@ import { slugify } from '@orioro/util'
 
 import { fitGeometry } from '@orioro/react-maplibre-util'
 
-// const LegendContainer = styled(Flex)`
-//   flex-wrap: wrap;
-//   background-color: white;
-//   border: none;
-//   box-shadow: none;
-//   border-radius: 4px;
-// `
+import * as turf from '@turf/turf'
 
 const LegendContainer = styled(Flex)`
   box-shadow:
@@ -82,7 +76,7 @@ const {
 export const ExportImageBig = forwardRef(function ExportImageInner(
   {
     resolvedLayout,
-    commitedViewState,
+    initialViewState,
     municipioId,
     METADATA_API_ENDPOINT,
     baseMapStyle,
@@ -92,13 +86,6 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
   },
   ref,
 ) {
-  // console.log('resolvedLayout', resolvedLayout)
-  // console.log('commitedViewState', commitedViewState)
-  // console.log('municipioId', municipioId)
-  // console.log('METADATA_API_ENDPOINT', METADATA_API_ENDPOINT)
-  // console.log('baseMapStyle', baseMapStyle)
-  // console.log('topViews', topViews)
-
   const dialogs = useDialogs()
   const rootRef = useRef(null)
   const layeredMapRef = useRef(null)
@@ -122,7 +109,6 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
       onlyMap,
     })
     const imageCanva = await composeMapImageCanvas(extractedBlobs, onlyMap)
-    console.log(imageCanva)
 
     saveAs(imageCanva, `${municipioId}.png`)
   }, [dialogs, layeredMapRef.current?.map, rootRef.current])
@@ -135,6 +121,13 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
     [createImg],
   )
 
+  const DEFAULT_INITIAL_VIEW_STATE = {
+    // // Brazil
+    longitude: -53.0736,
+    latitude: -10.7798,
+    zoom: 3.5,
+  }
+
   return (
     <Flex direction="column" ref={rootRef}>
       <LayeredMap
@@ -144,13 +137,21 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
         pixelRatio={PIXELRATIO}
         attributionControl={false}
         mapStyle={baseMapStyle}
+        // onLoad={() => {
+        //   setMapReady(true)
+        //   if (bbox && bbox.geometry) {
+        //     fitGeometry(layeredMapRef.current, bbox.geometry, {
+        //       padding: 100,
+        //       duration: 0,
+        //     })
+        //   }
+        // }}
         onLoad={() => {
           setMapReady(true)
-          if (bbox) {
-            fitGeometry(layeredMapRef.current, bbox, {
-              padding: 20,
-              duration: 0,
-            })
+          if (bbox && bbox.geometry && layeredMapRef.current?.map) {
+            const map = layeredMapRef.current.map
+            const bounds = turf.bbox(bbox.geometry)
+            map.fitBounds(bounds, { padding: 0 })
           }
         }}
         views={
@@ -161,7 +162,7 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
               ]
             : []
         }
-        initialViewState={commitedViewState}
+        initialViewState={initialViewState}
         style={{
           height: `${onlyMap ? INSIDE_HEIGHT : MAP_HEIGHT}px`,
           width: `${onlyMap ? INSIDE_WIDTH : MAP_WIDTH}px`,

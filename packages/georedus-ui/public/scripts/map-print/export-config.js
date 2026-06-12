@@ -1,8 +1,8 @@
 export const config = {
   // baseUrl: 'https://www.redus.org.br/georedus',
-  baseUrl: 'http://localhost:6006/iframe.html?args=&globals=&id=georedus-georedus--basic&viewMode=story&v=v0',
-  viewConf: 'N4IgRgngkgJiBcoDGBTAtgfTQQwDYAtsMUBnJAe12xIwAcBXMXASyWowCYAGDgVgDoALuRjtmAOz7EY9HlmyCMwxVyUjqCUKMHZNIAG7YATs2zjBsBCGGiaEqShlyci5RlU2NAGhAl85AHcAZWYALxQEQSN6FB8-QKhxADNcGPFUAEEjFF14KJifCRS0zOzsACVsGGZ6EgRuLh9qkhJKfRQAeXajKlpaCQBzAHEUcjQUKOZSBCS8EhQAX0K4eBBUTBwCIlIKKhoGJlZ2bj4hdTtJXmlZDnlXchU1WxAFpZAqCHJ6QQQAbVBmCt3igkj9CoJ0HV4P8QICrOt5FtiGRKOwDiw2DQTgJPBcHE5bi41I9cS8ALpLAFAkwDfBg2EQtBQ34UilAA',
-  outputDir: '../exported-images',
+  baseUrl: 'http://localhost:6006/iframe.html?globals=&id=georedus-exportimage--basic&viewMode=story&v=v0',
+  viewConf: 'N4IgRgngkgJiBcoAuBTAtgBxQJwIZIFc8B9AZwK2wDMBLAYxpQVBn12ZFUx3yNwCVcAOwDmTeAG0ATAAYANADYZAXQC%2BckDTjxO6SrxLlKtBk1XqQAG1wQA9gSQIJoLQisoqjjTS6knL7V1uPEJDChwTRhBVNTkAt2waEQALL01fJzU1IA',
+  outputDir: './public/exported-images/',
   concurrency: 1,
   mapLoadTimeout: 30000,
   maxRetries: 2,

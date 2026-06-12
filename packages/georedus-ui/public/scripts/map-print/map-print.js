@@ -56,7 +56,7 @@ async function printMunicipioImage(page, municipioId, viewConf) {
   console.log('Timeout')
 
   await page.screenshot({
-    path: `./public/exported-images/map-${municipioId}.png`,
+    path: `${config.outputDir}/${municipioId}.png`,
     fullPage: true,
   })
 

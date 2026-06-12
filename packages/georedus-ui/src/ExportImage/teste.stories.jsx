@@ -1,14 +1,25 @@
 // ExportImage.stories.jsx
 
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useRef, useReducer } from 'react'
 import { Button } from '@orioro/react-ui-core'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, useSearchParams } from 'react-router-dom'
 import { ExportImageBig } from './ExportImageBig'
 import { Icon } from '@mdi/react'
 import { mdiDownload } from '@mdi/js'
 import { useQuery } from '@tanstack/react-query'
 import { dataviz } from '../viewSpecs/basemaps'
 import * as turf from '@turf/turf'
+import {
+  fetchViewSpecs,
+  resolveViewSpecs,
+  temperatura_superficie,
+} from '../viewSpecs'
+import {
+  viewConfReducer,
+  viewConfReducerInitialState,
+} from '../GeoReDUS/viewConfReducer'
+import { useViews } from '../viewSpecs/useViews'
+import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 
 export default {
   title: 'GeoReDUS / ExportImage',
@@ -34,472 +45,86 @@ const API = {
   RASTER_TILE_SERVER_ENDPOINT: (
     process.env.STORYBOOK_RASTER_TILE_SERVER_ENDPOINT || ''
   ).replace(/\/$/, ''),
+  RASTER_TILE_ROOT_PATH: (
+    process.env.STORYBOOK_RASTER_TILE_ROOT_PATH ||
+    `file:///devtools-data/raster-server`
+  ).replace(/\/$/, ''),
 }
 
-const { METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT } = API
+const {
+  METADATA_API_ENDPOINT,
+  VECTOR_TILE_SERVER_ENDPOINT,
+  RASTER_TILE_SERVER_ENDPOINT,
+  RASTER_TILE_ROOT_PATH,
+} = API
+
+const VERSION_SPECS = [
+  {
+    id: 'v0',
+    fromPrev: (prev) => ({ baseMapStyle: 'dataviz', ...(prev || {}) }),
+    fromNext: (next) => next || {},
+  },
+]
+
+const useVersionedSearchParamsState = versionedSearchParamsStateHook(
+  VERSION_SPECS,
+  useSearchParams,
+)
 
 export const Basic = (props) => {
+  const [stateStorage] = useVersionedSearchParamsState(
+    {},
+    {
+      schema: {
+        baseMapStyle: 'string',
+        municipioId: 'string',
+        regional: 'boolean',
+        viewConf: 'object',
+        env: 'string',
+      },
+    },
+  )
+
+  const baseMapStyle = stateStorage?.baseMapStyle || 'dataviz'
+  const municipioId = Number(stateStorage?.municipioId) || 3550308 // default: São Paulo //2704302
+  const viewConf = stateStorage?.viewConf || null
+
+  // console.log('Story received viewConf:', viewConf)
+  // console.log('Story received baseMapStyle:', baseMapStyle)
+  // console.log('Story received municipioId:', municipioId)
+
+  // Replicate GeoReDUS viewConf reducer
+  const [viewConfState] = useReducer(
+    viewConfReducer,
+    viewConf,
+    viewConfReducerInitialState,
+  )
+
   const munDataQuery = useQuery({
-    queryKey: ['munData', 2700508],
+    queryKey: ['munData', municipioId],
     queryFn: async () => {
-      console.log('will fetch')
       const res = await fetch(
-        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?id=eq.2700508&select=geom`,
+        `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?id=eq.${municipioId}&select=geom`,
       ).then((res) => res.json())
-      console.log('did fetch')
-      console.log(res)
-      // var line = turf.lineString([
-      //   [-74, 40],
-      //   [-78, 42],
-      //   [-82, 35],
-      // ])
 
       return res[0]
     },
+    enabled: !!municipioId && municipioId > 0,
     throwOnError: true,
   })
 
-  const coords = munDataQuery.data?.geom
-    ? turf.lineString(munDataQuery.data.geom.coordinates[0])
-    : null
+  const coords =
+    munDataQuery.data?.geom &&
+    munDataQuery.data.geom.coordinates?.[0]?.[0]?.length >= 2
+      ? {
+          type: 'Feature',
+          geometry: munDataQuery.data.geom,
+          properties: {},
+        }
+      : null
 
   const bbox = coords ? turf.bbox(coords) : null
   const bboxPolygon = bbox ? turf.bboxPolygon(bbox) : null
-
-  const resolvedLayout = [
-    {
-      id: 'right',
-      views: [
-        {
-          id: 'temperatura_superficie',
-          conf: {
-            data: {
-              temperaturaRange: [20, 60],
-            },
-            id: 'temperatura_superficie',
-          },
-          metadata: {
-            sourceLabel: 'Landsat-8 e Landsat-9',
-          },
-          sources: {
-            temperatura_superficie: {
-              minzoom: 9,
-              maxzoom: 14,
-              type: 'raster',
-              tiles: [
-                'https://georedus-prod-raster-server.orioro.design/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}?colormap=%5B%5B%5B20%2C20.99999999%5D%2C%22%235e4fa2%22%5D%2C%5B%5B21%2C21.99999999%5D%2C%22%23535da9%22%5D%2C%5B%5B22%2C22.99999999%5D%2C%22%234a6cae%22%5D%2C%5B%5B23%2C23.99999999%5D%2C%22%23447ab3%22%5D%2C%5B%5B24%2C24.99999999%5D%2C%22%234288b5%22%5D%2C%5B%5B25%2C25.99999999%5D%2C%22%234696b3%22%5D%2C%5B%5B26%2C26.99999999%5D%2C%22%234ea4b0%22%5D%2C%5B%5B27%2C27.99999999%5D%2C%22%235ab1ac%22%5D%2C%5B%5B28%2C28.99999999%5D%2C%22%2369bda9%22%5D%2C%5B%5B29%2C29.99999999%5D%2C%22%2378c7a6%22%5D%2C%5B%5B30%2C30.99999999%5D%2C%22%2389cfa5%22%5D%2C%5B%5B31%2C31.99999999%5D%2C%22%2399d6a4%22%5D%2C%5B%5B32%2C32.99999999%5D%2C%22%23a9dda2%22%5D%2C%5B%5B33%2C33.99999999%5D%2C%22%23b9e3a0%22%5D%2C%5B%5B34%2C34.99999999%5D%2C%22%23c8e99f%22%5D%2C%5B%5B35%2C35.99999999%5D%2C%22%23d5ee9f%22%5D%2C%5B%5B36%2C36.99999999%5D%2C%22%23e0f3a1%22%5D%2C%5B%5B37%2C37.99999999%5D%2C%22%23eaf6a5%22%5D%2C%5B%5B38%2C38.99999999%5D%2C%22%23f1f9ab%22%5D%2C%5B%5B39%2C39.99999999%5D%2C%22%23f7faaf%22%5D%2C%5B%5B40%2C40.99999999%5D%2C%22%23fbf8b0%22%5D%2C%5B%5B41%2C41.99999999%5D%2C%22%23fdf4ac%22%5D%2C%5B%5B42%2C42.99999999%5D%2C%22%23feeea3%22%5D%2C%5B%5B43%2C43.99999999%5D%2C%22%23fee698%22%5D%2C%5B%5B44%2C44.99999999%5D%2C%22%23fedd8d%22%5D%2C%5B%5B45%2C45.99999999%5D%2C%22%23fed281%22%5D%2C%5B%5B46%2C46.99999999%5D%2C%22%23fdc676%22%5D%2C%5B%5B47%2C47.99999999%5D%2C%22%23fdb96c%22%5D%2C%5B%5B48%2C48.99999999%5D%2C%22%23fcac63%22%5D%2C%5B%5B49%2C49.99999999%5D%2C%22%23fa9d5a%22%5D%2C%5B%5B50%2C50.99999999%5D%2C%22%23f88e53%22%5D%2C%5B%5B51%2C51.99999999%5D%2C%22%23f57e4d%22%5D%2C%5B%5B52%2C52.99999999%5D%2C%22%23f0704a%22%5D%2C%5B%5B53%2C53.99999999%5D%2C%22%23eb6249%22%5D%2C%5B%5B54%2C54.99999999%5D%2C%22%23e45649%22%5D%2C%5B%5B55%2C55.99999999%5D%2C%22%23db494a%22%5D%2C%5B%5B56%2C56.99999999%5D%2C%22%23d13c4b%22%5D%2C%5B%5B57%2C57.99999999%5D%2C%22%23c62e4a%22%5D%2C%5B%5B58%2C58.99999999%5D%2C%22%23b91f48%22%5D%2C%5B%5B59%2C59.99999999%5D%2C%22%23ac1045%22%5D%2C%5B%5B60%2C9999999%5D%2C%5B0%2C0%2C0%2C0%5D%5D%5D&url=s3%3A%2F%2Fgeoredus-prod-private-us-east-1%2Fraster-server%2Fcem%2Ftemperatura_superficie_2021_2025%2Fmosaic.json',
-              ],
-            },
-          },
-          layers: {
-            temperatura_superficie: {
-              minzoom: 9,
-              type: 'raster',
-              source: 'temperatura_superficie',
-              paint: {
-                'raster-opacity': 0.85,
-              },
-              legends: [
-                {
-                  type: 'ContinuousColorLegend',
-                  title: 'Temperatura máxima de superfície (ºC)',
-                  unit: 'Valor médio em º Celsius da temperatura máxima no período de 2021 - 2025',
-                  numberUnit: 'º',
-                  colors: [
-                    '#5e4fa2',
-                    '#535da9',
-                    '#4a6cae',
-                    '#447ab3',
-                    '#4288b5',
-                    '#4696b3',
-                    '#4ea4b0',
-                    '#5ab1ac',
-                    '#69bda9',
-                    '#78c7a6',
-                    '#89cfa5',
-                    '#99d6a4',
-                    '#a9dda2',
-                    '#b9e3a0',
-                    '#c8e99f',
-                    '#d5ee9f',
-                    '#e0f3a1',
-                    '#eaf6a5',
-                    '#f1f9ab',
-                    '#f7faaf',
-                    '#fbf8b0',
-                    '#fdf4ac',
-                    '#feeea3',
-                    '#fee698',
-                    '#fedd8d',
-                    '#fed281',
-                    '#fdc676',
-                    '#fdb96c',
-                    '#fcac63',
-                    '#fa9d5a',
-                    '#f88e53',
-                    '#f57e4d',
-                    '#f0704a',
-                    '#eb6249',
-                    '#e45649',
-                    '#db494a',
-                    '#d13c4b',
-                    '#c62e4a',
-                    '#b91f48',
-                    '#ac1045',
-                    '#9e0142',
-                  ],
-                  domain: [20, 60],
-                  barDirection: 'to right',
-                  barWidth: '100%',
-                  barHeight: 15,
-                },
-              ],
-              tooltip: null,
-            },
-          },
-          controls: {
-            legends: [
-              {
-                type: 'ContinuousColorLegend',
-                title: 'Temperatura máxima de superfície (ºC)',
-                unit: 'Valor médio em º Celsius da temperatura máxima no período de 2021 - 2025',
-                numberUnit: 'º',
-                colors: [
-                  '#5e4fa2',
-                  '#535da9',
-                  '#4a6cae',
-                  '#447ab3',
-                  '#4288b5',
-                  '#4696b3',
-                  '#4ea4b0',
-                  '#5ab1ac',
-                  '#69bda9',
-                  '#78c7a6',
-                  '#89cfa5',
-                  '#99d6a4',
-                  '#a9dda2',
-                  '#b9e3a0',
-                  '#c8e99f',
-                  '#d5ee9f',
-                  '#e0f3a1',
-                  '#eaf6a5',
-                  '#f1f9ab',
-                  '#f7faaf',
-                  '#fbf8b0',
-                  '#fdf4ac',
-                  '#feeea3',
-                  '#fee698',
-                  '#fedd8d',
-                  '#fed281',
-                  '#fdc676',
-                  '#fdb96c',
-                  '#fcac63',
-                  '#fa9d5a',
-                  '#f88e53',
-                  '#f57e4d',
-                  '#f0704a',
-                  '#eb6249',
-                  '#e45649',
-                  '#db494a',
-                  '#d13c4b',
-                  '#c62e4a',
-                  '#b91f48',
-                  '#ac1045',
-                  '#9e0142',
-                ],
-                domain: [20, 60],
-                barDirection: 'to right',
-                barWidth: '100%',
-                barHeight: 15,
-                layerId: 'temperatura_superficie__temperatura_superficie',
-                id: 'temperatura_superficie_0',
-              },
-            ],
-          },
-          download: null,
-        },
-      ],
-      legends: [
-        {
-          type: 'ContinuousColorLegend',
-          title: 'Temperatura máxima de superfície (ºC)',
-          unit: 'Valor médio em º Celsius da temperatura máxima no período de 2021 - 2025',
-          numberUnit: 'º',
-          colors: [
-            '#5e4fa2',
-            '#535da9',
-            '#4a6cae',
-            '#447ab3',
-            '#4288b5',
-            '#4696b3',
-            '#4ea4b0',
-            '#5ab1ac',
-            '#69bda9',
-            '#78c7a6',
-            '#89cfa5',
-            '#99d6a4',
-            '#a9dda2',
-            '#b9e3a0',
-            '#c8e99f',
-            '#d5ee9f',
-            '#e0f3a1',
-            '#eaf6a5',
-            '#f1f9ab',
-            '#f7faaf',
-            '#fbf8b0',
-            '#fdf4ac',
-            '#feeea3',
-            '#fee698',
-            '#fedd8d',
-            '#fed281',
-            '#fdc676',
-            '#fdb96c',
-            '#fcac63',
-            '#fa9d5a',
-            '#f88e53',
-            '#f57e4d',
-            '#f0704a',
-            '#eb6249',
-            '#e45649',
-            '#db494a',
-            '#d13c4b',
-            '#c62e4a',
-            '#b91f48',
-            '#ac1045',
-            '#9e0142',
-          ],
-          domain: [20, 60],
-          barDirection: 'to right',
-          barWidth: '100%',
-          barHeight: 15,
-          layerId: 'temperatura_superficie__temperatura_superficie',
-          id: 'temperatura_superficie_0',
-        },
-      ],
-    },
-  ]
-
-  const commitedViewState = {
-    longitude: -35.74093955943317,
-    latitude: -9.534729101493141,
-    zoom: 10.708468187243355,
-    pitch: 0,
-    bearing: 0,
-    padding: {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-    },
-  }
-  const municipioId = 2704302 // Maceió
-
-  // const METADATA_API_ENDPOINT = 'https://georedus-metadata-api.orioro.design'
-  const BASEMAPS = {
-    dataviz,
-  }
-
-  // const baseMapStyle = {
-  //   version: 8,
-  //   sources: {
-  //     maptiler_attribution: {
-  //       attribution:
-  //         '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
-  //       type: 'vector',
-  //     },
-  //     maptiler_planet: {
-  //       url: 'https://api.maptiler.com/tiles/v3/tiles.json?key=GrVhAvGBsZif7P3yzFoV',
-  //       type: 'vector',
-  //     },
-  //   },
-  //   glyphs:
-  //     'https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=GrVhAvGBsZif7P3yzFoV',
-  //   sprite:
-  //     'https://api.maptiler.com/maps/0195f947-fb77-7256-83d6-47a54db345a3/sprite',
-  //   layers: [
-  //     {
-  //       id: 'background',
-  //       type: 'background',
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'background-color': 'hsl(30,25%,98%)',
-  //         'background-opacity': 1,
-  //       },
-  //     },
-  //     {
-  //       id: 'residential',
-  //       type: 'fill',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'landuse',
-  //       minzoom: 6,
-  //       maxzoom: 13,
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'fill-antialias': true,
-  //         'fill-color': {
-  //           stops: [
-  //             [6, 'hsl(0, 0%, 94%)'],
-  //             [13, 'hsl(0,0%,93%)'],
-  //           ],
-  //         },
-  //         'fill-opacity': 1,
-  //       },
-  //       filter: ['==', 'class', 'residential'],
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //     {
-  //       id: 'cemetery',
-  //       type: 'fill',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'landuse',
-  //       minzoom: 10,
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'fill-antialias': true,
-  //         'fill-color': 'hsl(0, 0%, 89%)',
-  //         'fill-opacity': 1,
-  //       },
-  //       filter: ['==', 'class', 'cemetery'],
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //     {
-  //       id: 'river',
-  //       type: 'line',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'waterway',
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'line-color': 'hsl(187,37%,87%)',
-  //         'line-width': [
-  //           'interpolate',
-  //           ['linear'],
-  //           ['zoom'],
-  //           8,
-  //           0.5,
-  //           9,
-  //           1,
-  //           15,
-  //           1.5,
-  //           16,
-  //           2.5,
-  //         ],
-  //       },
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //     {
-  //       id: 'water_shadow',
-  //       type: 'fill',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'water',
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'fill-antialias': true,
-  //         'fill-color': 'hsl(196,28%,74%)',
-  //         'fill-opacity': 1,
-  //       },
-  //       filter: [
-  //         'all',
-  //         ['==', '$type', 'Polygon'],
-  //         ['!=', 'brunnel', 'tunnel'],
-  //       ],
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //     {
-  //       id: 'water',
-  //       type: 'fill',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'water',
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'fill-antialias': true,
-  //         'fill-color': 'hsl(187, 36%, 87%)',
-  //         'fill-opacity': 1,
-  //         'fill-translate': {
-  //           stops: [
-  //             [0, [0, 2]],
-  //             [6, [0, 3]],
-  //             [12, [0, 2]],
-  //             [14, [0, 0]],
-  //           ],
-  //         },
-  //         'fill-translate-anchor': 'map',
-  //       },
-  //       filter: [
-  //         'all',
-  //         ['==', '$type', 'Polygon'],
-  //         ['!=', 'brunnel', 'tunnel'],
-  //       ],
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //     {
-  //       id: 'building',
-  //       type: 'fill',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'building',
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'fill-antialias': true,
-  //         'fill-color': {
-  //           stops: [
-  //             [13, 'hsl(0,0%,92%)'],
-  //             [16, 'hsl(0,0%,85%)'],
-  //           ],
-  //         },
-  //       },
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //     {
-  //       id: 'building_top',
-  //       type: 'fill',
-  //       source: 'maptiler_planet',
-  //       'source-layer': 'building',
-  //       layout: {
-  //         visibility: 'visible',
-  //       },
-  //       paint: {
-  //         'fill-color': 'hsl(0, 0%, 92%)',
-  //         'fill-opacity': {
-  //           base: 1,
-  //           stops: [
-  //             [13, 0],
-  //             [16, 1],
-  //           ],
-  //         },
-  //         'fill-outline-color': {
-  //           stops: [
-  //             [12, 'hsl(0, 0%, 92%)'],
-  //             [14, 'hsl(0, 0%, 92%)'],
-  //             [18, 'hsl(0,0%,76%)'],
-  //           ],
-  //         },
-  //         'fill-translate': {
-  //           base: 1,
-  //           stops: [
-  //             [14, [0, 0]],
-  //             [16, [-2, -2]],
-  //           ],
-  //         },
-  //       },
-  //       absoluteSourceId: 'maptiler_planet',
-  //     },
-  //   ],
-  // }
-
-  const baseMapStyle = dataviz.baseMapStyle()
 
   const APP_CONTEXT = useMemo(
     () => ({
@@ -512,6 +137,108 @@ export const Basic = (props) => {
     [municipioId, baseMapStyle],
   )
 
+  const EXPORT_VIEW_SPECS = {
+    all: [
+      // Import the same specs as the GeoReDUS story
+      // or at minimum the temperature layer that you need
+      temperatura_superficie({
+        ...API,
+        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025/mosaic.json`,
+      }),
+    ],
+  }
+
+  const viewSpecsQuery = useQuery({
+    queryKey: ['ViewSpecs', municipioId],
+    queryFn: async () => {
+      const SPEC_SRCS = EXPORT_VIEW_SPECS.all
+
+      return [
+        ...resolveViewSpecs(await fetchViewSpecs(SPEC_SRCS), {
+          municipioId,
+          METADATA_API_ENDPOINT,
+          VECTOR_TILE_SERVER_ENDPOINT,
+          RASTER_TILE_SERVER_ENDPOINT,
+          RASTER_TILE_ROOT_PATH,
+          MAP_TILER_API_KEY: process.env.NEXT_PUBLIC_MAP_TILER_API_KEY,
+        }),
+      ].filter(Boolean)
+    },
+    enabled: !!municipioId && municipioId > 0,
+    throwOnError: true,
+  })
+
+  const { resolvedViews } = useViews({
+    viewSpecs: viewSpecsQuery.data,
+    viewConfState,
+    app: APP_CONTEXT,
+  })
+
+  const resolvedLayout = useMemo(() => {
+    const resolvedViewsById = Object.fromEntries(
+      resolvedViews.map((view) => [view.id, view]),
+    )
+
+    const hasActiveViews = Object.keys(viewConfState.byId).length > 0
+
+    return (
+      hasActiveViews
+        ? viewConfState.layout.filter((list) => list.items.length > 0)
+        : [viewConfState.layout[0]]
+    ).map((list) => {
+      const views = list.items
+        .map((item) => resolvedViewsById[item.id])
+        .filter(Boolean)
+
+      return {
+        id: list.id,
+        views,
+        legends: views.flatMap((view) => view?.controls?.legends || []),
+      }
+    })
+  }, [viewConfState.layout, viewConfState.byId, resolvedViews])
+
+  console.log('viewConfState:', viewConfState)
+  console.log('viewSpecsQuery.data:', viewSpecsQuery.data)
+  console.log('resolvedViews:', resolvedViews)
+  console.log('resolvedLayout:', resolvedLayout)
+
+  const initialViewState = useMemo(() => {
+    if (!bbox) {
+      return {
+        longitude: -53.0736,
+        latitude: -10.7798,
+        zoom: 3.5,
+      }
+    }
+
+    const [minLng, minLat, maxLng, maxLat] = bbox
+    const lng = (minLng + maxLng) / 2
+    const lat = (minLat + maxLat) / 2
+
+    // Calculate zoom to fit bounds
+    const lngDelta = maxLng - minLng
+    const latDelta = maxLat - minLat
+    const maxDelta = Math.max(lngDelta, latDelta)
+
+    // More aggressive zoom: use smaller denominator and add buffer
+    // This ensures municipality takes up most of the viewport
+    const zoom = Math.min(20, Math.log2(450 / maxDelta))
+
+    return {
+      longitude: lng,
+      latitude: lat,
+      zoom,
+    }
+  }, [bbox])
+
+  // console.log('DEBUG - initialViewState:', initialViewState)
+  // console.log('DEBUG - bbox:', bbox)
+  // console.log('DEBUG - coords:', coords)
+  // console.log('DEBUG - munDataQuery.data:', munDataQuery.data)
+
+  const baseMapStyleObj = dataviz.baseMapStyle()
+
   const TOP_VIEWS = useMemo(
     () =>
       dataviz.topViews({
@@ -521,1642 +248,22 @@ export const Basic = (props) => {
     [APP_CONTEXT],
   )
 
-  // const topViews = [
-  //   {
-  //     id: 'maptiler_top_layers',
-  //     layers: {
-  //       landcover: {
-  //         id: 'landcover',
-  //         type: 'fill',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'landcover',
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'fill-antialias': false,
-  //           'fill-color': 'hsl(96, 44%, 79%)',
-  //           'fill-opacity': {
-  //             stops: [
-  //               [8, 0.2],
-  //               [9, 0.25],
-  //               [11, 0.35],
-  //             ],
-  //           },
-  //         },
-  //         filter: ['in', 'class', 'wood', 'grass'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       forest: {
-  //         id: 'forest',
-  //         type: 'fill',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'globallandcover',
-  //         maxzoom: 7,
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'fill-color': 'hsla(96, 44%, 79%, 0.15)',
-  //         },
-  //         filter: ['in', 'class', 'forest', 'tree'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       stadium: {
-  //         id: 'stadium',
-  //         type: 'fill',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'landuse',
-  //         minzoom: 10,
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'fill-antialias': true,
-  //           'fill-color': 'hsl(86,57%,88%)',
-  //           'fill-opacity': {
-  //             stops: [
-  //               [10, 0.25],
-  //               [14, 0.55],
-  //             ],
-  //           },
-  //           'fill-outline-color': 'hsl(85,26%,77%)',
-  //         },
-  //         filter: ['in', 'class', 'stadium', 'pitch'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       aeroway: {
-  //         id: 'aeroway',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'aeroway',
-  //         minzoom: 12,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 87%)',
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             11,
-  //             ['match', ['get', 'class'], ['runway'], 3, 0.5],
-  //             15,
-  //             ['match', ['get', 'class'], ['runway'], 15, 6],
-  //             16,
-  //             ['match', ['get', 'class'], ['runway'], 20, 6],
-  //           ],
-  //         },
-  //         metadata: {},
-  //         filter: ['==', '$type', 'LineString'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       tunnel_outline: {
-  //         id: 'tunnel_outline',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 11,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             11,
-  //             'hsla(0, 0%, 85%, 0.5)',
-  //             22,
-  //             'hsla(0, 0%, 85%, 0.75)',
-  //           ],
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 2],
-  //             ['zoom'],
-  //             4,
-  //             0.5,
-  //             7,
-  //             0.5,
-  //             10,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 0, 2.5],
-  //               ['trunk', 'primary'],
-  //               2.4,
-  //               0,
-  //             ],
-  //             12,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 2, 6],
-  //               ['trunk', 'primary'],
-  //               3,
-  //               ['secondary', 'tertiary'],
-  //               2,
-  //               ['minor', 'service', 'track'],
-  //               1,
-  //               0.5,
-  //             ],
-  //             14,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 5, 8],
-  //               ['trunk'],
-  //               4,
-  //               ['primary'],
-  //               6,
-  //               ['secondary'],
-  //               6,
-  //               ['tertiary'],
-  //               4,
-  //               ['minor', 'service', 'track'],
-  //               3,
-  //               3,
-  //             ],
-  //             16,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               10,
-  //               ['secondary'],
-  //               9,
-  //               ['tertiary'],
-  //               8,
-  //               ['minor', 'service', 'track'],
-  //               6,
-  //               6,
-  //             ],
-  //             20,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               26,
-  //               ['secondary'],
-  //               26,
-  //               ['tertiary'],
-  //               26,
-  //               ['minor', 'service', 'track'],
-  //               18,
-  //               18,
-  //             ],
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           [
-  //             'in',
-  //             'class',
-  //             'motorway',
-  //             'trunk',
-  //             'primary',
-  //             'secondary',
-  //             'tertiary',
-  //             'minor',
-  //             'service',
-  //           ],
-  //           ['==', 'brunnel', 'tunnel'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       tunnel_path: {
-  //         id: 'tunnel_path',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 15,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 90%)',
-  //           'line-dasharray': [0.5, 2],
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             14,
-  //             0.7,
-  //             16,
-  //             0.8,
-  //             18,
-  //             1,
-  //             22,
-  //             2,
-  //           ],
-  //         },
-  //         filter: ['all', ['==', 'class', 'path'], ['==', 'brunnel', 'tunnel']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       tunnel: {
-  //         id: 'tunnel',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 11,
-  //         layout: {
-  //           'line-cap': 'square',
-  //           'line-join': 'miter',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 97%)',
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 2],
-  //             ['zoom'],
-  //             5,
-  //             0.5,
-  //             6,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'brunnel'], ['bridge'], 0, 1],
-  //               ['trunk', 'primary'],
-  //               0,
-  //               0,
-  //             ],
-  //             10,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 0, 2.5],
-  //               ['trunk', 'primary'],
-  //               1.5,
-  //               1,
-  //             ],
-  //             12,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 1, 4],
-  //               ['trunk'],
-  //               2.5,
-  //               ['primary'],
-  //               2.5,
-  //               ['secondary', 'tertiary'],
-  //               1.5,
-  //               ['minor', 'service', 'track'],
-  //               1,
-  //               1,
-  //             ],
-  //             14,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 5, 6],
-  //               ['trunk'],
-  //               3,
-  //               ['primary'],
-  //               5,
-  //               ['secondary'],
-  //               4,
-  //               ['tertiary'],
-  //               3,
-  //               ['minor', 'service', 'track'],
-  //               2,
-  //               2,
-  //             ],
-  //             16,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               8,
-  //               ['secondary'],
-  //               7,
-  //               ['tertiary'],
-  //               6,
-  //               ['minor', 'service', 'track'],
-  //               4,
-  //               4,
-  //             ],
-  //             20,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               24,
-  //               ['secondary'],
-  //               24,
-  //               ['tertiary'],
-  //               24,
-  //               ['minor', 'service', 'track'],
-  //               16,
-  //               16,
-  //             ],
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['==', '$type', 'LineString'],
-  //           [
-  //             'all',
-  //             [
-  //               'in',
-  //               'class',
-  //               'minor',
-  //               'motorway',
-  //               'primary',
-  //               'secondary',
-  //               'service',
-  //               'tertiary',
-  //               'trunk',
-  //             ],
-  //             ['==', 'brunnel', 'tunnel'],
-  //           ],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       railway_tunnel: {
-  //         id: 'railway_tunnel',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 13,
-  //         layout: {
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 80%)',
-  //           'line-opacity': 0.5,
-  //           'line-width': {
-  //             base: 1.3,
-  //             stops: [
-  //               [13, 0.5],
-  //               [14, 1],
-  //               [15, 1],
-  //               [16, 3],
-  //               [21, 7],
-  //             ],
-  //           },
-  //         },
-  //         filter: ['all', ['==', 'class', 'rail'], ['==', 'brunnel', 'tunnel']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       railway_tunnel_dash: {
-  //         id: 'railway_tunnel_dash',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 15,
-  //         layout: {
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 95%)',
-  //           'line-dasharray': [2, 2],
-  //           'line-width': {
-  //             base: 1.3,
-  //             stops: [
-  //               [15, 0.5],
-  //               [16, 1],
-  //               [20, 5],
-  //             ],
-  //           },
-  //         },
-  //         filter: ['all', ['==', 'class', 'rail'], ['==', 'brunnel', 'tunnel']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       pier: {
-  //         id: 'pier',
-  //         type: 'fill',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'fill-antialias': true,
-  //           'fill-color': 'hsl(38, 50%, 97%)',
-  //         },
-  //         metadata: {},
-  //         filter: ['all', ['==', '$type', 'Polygon'], ['==', 'class', 'pier']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       pier_road: {
-  //         id: 'pier_road',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(30,25%,98%)',
-  //           'line-width': {
-  //             base: 1.2,
-  //             stops: [
-  //               [15, 1],
-  //               [17, 4],
-  //             ],
-  //           },
-  //         },
-  //         metadata: {},
-  //         filter: [
-  //           'all',
-  //           ['==', '$type', 'LineString'],
-  //           ['in', 'class', 'pier'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       bridge: {
-  //         id: 'bridge',
-  //         type: 'fill',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'fill-antialias': true,
-  //           'fill-color': 'hsl(30,25%,98%)',
-  //           'fill-opacity': 0.5,
-  //         },
-  //         metadata: {},
-  //         filter: [
-  //           'all',
-  //           ['==', '$type', 'Polygon'],
-  //           ['in', 'brunnel', 'bridge'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       road_network_outline: {
-  //         id: 'road_network_outline',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 6,
-  //         layout: {
-  //           'line-cap': 'butt',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 85%)',
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 2],
-  //             ['zoom'],
-  //             4,
-  //             0.5,
-  //             7,
-  //             0.5,
-  //             10,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 0, 2.5],
-  //               ['trunk', 'primary'],
-  //               2.4,
-  //               0,
-  //             ],
-  //             12,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 2, 6],
-  //               ['trunk', 'primary'],
-  //               3,
-  //               ['secondary', 'tertiary'],
-  //               2,
-  //               ['minor', 'service', 'track'],
-  //               0,
-  //               0.5,
-  //             ],
-  //             14,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 5, 8],
-  //               ['trunk'],
-  //               4,
-  //               ['primary'],
-  //               6,
-  //               ['secondary'],
-  //               6,
-  //               ['tertiary'],
-  //               4,
-  //               ['minor', 'service', 'track'],
-  //               3,
-  //               3,
-  //             ],
-  //             16,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               10,
-  //               ['secondary'],
-  //               9,
-  //               ['tertiary'],
-  //               8,
-  //               ['minor', 'service', 'track'],
-  //               6,
-  //               6,
-  //             ],
-  //             20,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               26,
-  //               ['secondary'],
-  //               26,
-  //               ['tertiary'],
-  //               26,
-  //               ['minor', 'service', 'track'],
-  //               18,
-  //               18,
-  //             ],
-  //           ],
-  //         },
-  //         metadata: {},
-  //         filter: [
-  //           'all',
-  //           ['!=', 'brunnel', 'tunnel'],
-  //           [
-  //             '!in',
-  //             'class',
-  //             'ferry',
-  //             'rail',
-  //             'transit',
-  //             'pier',
-  //             'bridge',
-  //             'path',
-  //             'aerialway',
-  //             'motorway_construction',
-  //             'trunk_construction',
-  //             'primary_construction',
-  //             'secondary_construction',
-  //             'tertiary_construction',
-  //             'minor_construction',
-  //             'service_construction',
-  //             'track_construction',
-  //           ],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       road_network: {
-  //         id: 'road_network',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 6,
-  //         layout: {
-  //           'line-cap': 'butt',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 100%)',
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 2],
-  //             ['zoom'],
-  //             5,
-  //             0.5,
-  //             6,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'brunnel'], ['bridge'], 0, 1],
-  //               ['trunk', 'primary'],
-  //               0,
-  //               0,
-  //             ],
-  //             10,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 0, 2.5],
-  //               ['trunk', 'primary'],
-  //               1.5,
-  //               1,
-  //             ],
-  //             12,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 1, 4],
-  //               ['trunk'],
-  //               2.5,
-  //               ['primary'],
-  //               2.5,
-  //               ['secondary', 'tertiary'],
-  //               1.5,
-  //               ['minor', 'service', 'track'],
-  //               0,
-  //               1,
-  //             ],
-  //             14,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway'],
-  //               ['match', ['get', 'ramp'], 1, 5, 6],
-  //               ['trunk'],
-  //               3,
-  //               ['primary'],
-  //               5,
-  //               ['secondary'],
-  //               4,
-  //               ['tertiary'],
-  //               3,
-  //               ['minor', 'service', 'track'],
-  //               2,
-  //               2,
-  //             ],
-  //             16,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               8,
-  //               ['secondary'],
-  //               7,
-  //               ['tertiary'],
-  //               6,
-  //               ['minor', 'service', 'track'],
-  //               4,
-  //               4,
-  //             ],
-  //             20,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['motorway', 'trunk', 'primary'],
-  //               24,
-  //               ['secondary'],
-  //               24,
-  //               ['tertiary'],
-  //               24,
-  //               ['minor', 'service', 'track'],
-  //               16,
-  //               16,
-  //             ],
-  //           ],
-  //         },
-  //         metadata: {},
-  //         filter: [
-  //           'all',
-  //           ['!=', 'brunnel', 'tunnel'],
-  //           [
-  //             '!in',
-  //             'class',
-  //             'ferry',
-  //             'rail',
-  //             'transit',
-  //             'pier',
-  //             'bridge',
-  //             'path',
-  //             'aerialway',
-  //             'motorway_construction',
-  //             'trunk_construction',
-  //             'primary_construction',
-  //             'secondary_construction',
-  //             'tertiary_construction',
-  //             'minor_construction',
-  //             'service_construction',
-  //             'track_construction',
-  //           ],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       path_outline: {
-  //         id: 'path_outline',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 16,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-blur': {
-  //             stops: [
-  //               [16, 1],
-  //               [22, 2],
-  //             ],
-  //           },
-  //           'line-color': 'hsl(0, 0%, 100%)',
-  //           'line-opacity': {
-  //             stops: [
-  //               [15, 0],
-  //               [22, 0.5],
-  //             ],
-  //           },
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             15,
-  //             1.5,
-  //             16,
-  //             2,
-  //             18,
-  //             6,
-  //             22,
-  //             12,
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['in', 'class', 'path', 'track'],
-  //           ['!has', 'brunnel'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       path_minor: {
-  //         id: 'path_minor',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 14,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 80%)',
-  //           'line-dasharray': [0.5, 2],
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             14,
-  //             0.7,
-  //             16,
-  //             0.8,
-  //             18,
-  //             1,
-  //             22,
-  //             2,
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['in', 'class', 'path_pedestrian'],
-  //           ['!has', 'brunnel'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       path: {
-  //         id: 'path',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 14,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 80%)',
-  //           'line-dasharray': [0.5, 2],
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             14,
-  //             0.7,
-  //             16,
-  //             0.8,
-  //             18,
-  //             1,
-  //             22,
-  //             2,
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['in', 'class', 'path', 'track'],
-  //           ['!has', 'brunnel'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       railway: {
-  //         id: 'railway',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 10,
-  //         layout: {
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 80%)',
-  //           'line-width': {
-  //             base: 1.3,
-  //             stops: [
-  //               [13, 0.5],
-  //               [14, 1],
-  //               [15, 1],
-  //               [16, 3],
-  //               [21, 7],
-  //             ],
-  //           },
-  //         },
-  //         filter: ['all', ['==', 'class', 'rail'], ['!=', 'brunnel', 'tunnel']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       railway_dash: {
-  //         id: 'railway_dash',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation',
-  //         minzoom: 15,
-  //         layout: {
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(0, 0%, 100%)',
-  //           'line-dasharray': [2, 2],
-  //           'line-width': {
-  //             base: 1.3,
-  //             stops: [
-  //               [15, 0.5],
-  //               [16, 1],
-  //               [20, 5],
-  //             ],
-  //           },
-  //         },
-  //         filter: ['all', ['==', 'class', 'rail'], ['!=', 'brunnel', 'tunnel']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       other_border: {
-  //         id: 'other_border',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'boundary',
-  //         minzoom: 5,
-  //         maxzoom: 8,
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(356, 32%, 83%)',
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             3,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 0.5, 0],
-  //             4,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 0.75, 0],
-  //             8,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 1.1, 0],
-  //             12,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 2, 1.5],
-  //             16,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 3, 2],
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['in', 'admin_level', 3, 4, 5, 6, 7, 8, 9, 10],
-  //           ['==', 'maritime', 0],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       other_border_dash: {
-  //         id: 'other_border_dash',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'boundary',
-  //         minzoom: 8,
-  //         layout: {
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(356, 32%, 83%)',
-  //           'line-dasharray': {
-  //             stops: [
-  //               [8, [3, 1]],
-  //               [12, [2, 2, 6, 2]],
-  //             ],
-  //           },
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             3,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 0.5, 0],
-  //             4,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 0.75, 0],
-  //             8,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 1.25, 0],
-  //             12,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 2, 1.25],
-  //             16,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 3, 2],
-  //             22,
-  //             ['case', ['<=', ['get', 'admin_level'], 6], 6, 4],
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['in', 'admin_level', 3, 4, 5, 6, 7, 8, 9, 10],
-  //           ['==', 'maritime', 0],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       disputed_border: {
-  //         id: 'disputed_border',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'boundary',
-  //         minzoom: 0,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': 'hsl(354, 33%, 88%)',
-  //           'line-dasharray': [2, 3],
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             1,
-  //             0.75,
-  //             3,
-  //             1,
-  //             6,
-  //             1.5,
-  //             12,
-  //             5,
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['==', 'admin_level', 2],
-  //           ['==', 'maritime', 0],
-  //           ['==', 'disputed', 1],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       country_border: {
-  //         id: 'country_border',
-  //         type: 'line',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'boundary',
-  //         minzoom: 0,
-  //         layout: {
-  //           'line-cap': 'round',
-  //           'line-join': 'round',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'line-color': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             4,
-  //             'hsl(354, 33%, 88%)',
-  //             6,
-  //             'hsl(356,23%,84%)',
-  //           ],
-  //           'line-opacity': 1,
-  //           'line-width': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             1,
-  //             0.75,
-  //             3,
-  //             1.5,
-  //             7,
-  //             2.2,
-  //             12,
-  //             3.5,
-  //             22,
-  //             8,
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['==', 'admin_level', 2],
-  //           ['==', 'maritime', 0],
-  //           ['==', 'disputed', 0],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       ocean_labels: {
-  //         id: 'ocean_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'water_name',
-  //         minzoom: 0,
-  //         maxzoom: 4,
-  //         layout: {
-  //           'symbol-placement': 'point',
-  //           'text-allow-overlap': false,
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold Italic', 'Noto Sans Bold'],
-  //           'text-ignore-placement': false,
-  //           'text-letter-spacing': 0.1,
-  //           'text-line-height': 1.2,
-  //           'text-max-width': 6,
-  //           'text-padding': 2,
-  //           'text-pitch-alignment': 'auto',
-  //           'text-rotation-alignment': 'auto',
-  //           'text-size': ['interpolate', ['linear', 1], ['zoom'], 1, 11, 4, 14],
-  //           'text-transform': 'uppercase',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(190,9%,63%)',
-  //           'text-opacity': [
-  //             'step',
-  //             ['zoom'],
-  //             0,
-  //             1,
-  //             ['match', ['get', 'class'], ['ocean'], 1, 0],
-  //             4,
-  //             1,
-  //           ],
-  //         },
-  //         filter: ['all', ['==', 'class', 'ocean'], ['has', 'name']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       sea_labels: {
-  //         id: 'sea_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'water_name',
-  //         minzoom: 3,
-  //         layout: {
-  //           'symbol-placement': 'point',
-  //           'text-allow-overlap': false,
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold Italic', 'Noto Sans Bold'],
-  //           'text-ignore-placement': false,
-  //           'text-letter-spacing': 0.1,
-  //           'text-line-height': 1.2,
-  //           'text-max-width': 6,
-  //           'text-padding': 2,
-  //           'text-pitch-alignment': 'auto',
-  //           'text-rotation-alignment': 'auto',
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             3,
-  //             9,
-  //             9,
-  //             16,
-  //             14,
-  //             20,
-  //           ],
-  //           'text-transform': 'uppercase',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(190,9%,63%)',
-  //           'text-opacity': 1,
-  //         },
-  //         filter: ['all', ['==', 'class', 'sea'], ['has', 'name']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       lakeline_labels: {
-  //         id: 'lakeline_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'water_name',
-  //         layout: {
-  //           'symbol-placement': 'line',
-  //           'symbol-spacing': 350,
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold Italic', 'Noto Sans Bold'],
-  //           'text-line-height': 1.2,
-  //           'text-pitch-alignment': 'auto',
-  //           'text-rotation-alignment': 'auto',
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             9,
-  //             12,
-  //             14,
-  //             16,
-  //             18,
-  //             20,
-  //           ],
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(190,9%,63%)',
-  //         },
-  //         filter: ['has', 'name'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       road_labels: {
-  //         id: 'road_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'transportation_name',
-  //         minzoom: 14,
-  //         layout: {
-  //           'symbol-avoid-edges': false,
-  //           'symbol-placement': 'line',
-  //           'symbol-spacing': {
-  //             stops: [
-  //               [6, 200],
-  //               [16, 250],
-  //               [20, 250],
-  //               [22, 600],
-  //             ],
-  //           },
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-justify': 'center',
-  //           'text-letter-spacing': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             13,
-  //             0,
-  //             16,
-  //             ['match', ['get', 'class'], 'primary', 0.2, 0.1],
-  //           ],
-  //           'text-pitch-alignment': 'auto',
-  //           'text-rotation-alignment': 'auto',
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             14,
-  //             ['match', ['get', 'class'], ['primary'], 10, 7],
-  //             15,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['primary'],
-  //               10,
-  //               ['secondary', 'tertiary'],
-  //               9,
-  //               7,
-  //             ],
-  //             16,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['primary', 'secondary', 'tertiary'],
-  //               11,
-  //               10,
-  //             ],
-  //             18,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['primary', 'secondary', 'tertiary'],
-  //               13,
-  //               12,
-  //             ],
-  //           ],
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0,0%,100%)',
-  //           'text-halo-width': 1.5,
-  //           'text-opacity': [
-  //             'step',
-  //             ['zoom'],
-  //             1,
-  //             14,
-  //             ['match', ['get', 'class'], ['primary'], 1, 0],
-  //             15,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['primary', 'secondary', 'tertiary'],
-  //               1,
-  //               0,
-  //             ],
-  //             16,
-  //             1,
-  //           ],
-  //         },
-  //         filter: [
-  //           'in',
-  //           'class',
-  //           'primary',
-  //           'secondary',
-  //           'tertiary',
-  //           'minor',
-  //           'service',
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       place_labels: {
-  //         id: 'place_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 13,
-  //         layout: {
-  //           'symbol-sort-key': ['to-number', ['get', 'rank']],
-  //           'text-anchor': 'center',
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-keep-upright': true,
-  //           'text-max-width': 10,
-  //           'text-offset': [0.2, 0.2],
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             12,
-  //             10,
-  //             13,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['suburb', 'neighborhood', 'neighbourhood'],
-  //               12,
-  //               11,
-  //             ],
-  //             14,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['suburb', 'neighborhood', 'neighbourhood'],
-  //               12,
-  //               11,
-  //             ],
-  //             16,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['suburb', 'neighborhood', 'neighbourhood'],
-  //               14,
-  //               13,
-  //             ],
-  //           ],
-  //           'text-transform': 'none',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0, 0%, 100%)',
-  //           'text-halo-width': 1.5,
-  //           'text-opacity': [
-  //             'step',
-  //             ['zoom'],
-  //             0,
-  //             13,
-  //             [
-  //               'match',
-  //               ['get', 'class'],
-  //               ['suburb', 'neighborhood', 'neighbourhood'],
-  //               1,
-  //               0,
-  //             ],
-  //             14,
-  //             1,
-  //           ],
-  //         },
-  //         filter: [
-  //           '!in',
-  //           'class',
-  //           'city',
-  //           'continent',
-  //           'country',
-  //           'province',
-  //           'state',
-  //           'town',
-  //           'village',
-  //           'place',
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       village_labels: {
-  //         id: 'village_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 12,
-  //         layout: {
-  //           'symbol-sort-key': ['to-number', ['get', 'rank']],
-  //           'text-anchor': 'center',
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-keep-upright': true,
-  //           'text-max-width': 10,
-  //           'text-offset': [0.2, 0.2],
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             12,
-  //             10,
-  //             13,
-  //             12,
-  //             14,
-  //             14,
-  //             16,
-  //             13,
-  //           ],
-  //           'text-transform': 'none',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0, 0%, 100%)',
-  //           'text-halo-width': 1.5,
-  //           'text-opacity': 1,
-  //         },
-  //         filter: ['==', 'class', 'village'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       town_labels: {
-  //         id: 'town_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 11,
-  //         maxzoom: 16,
-  //         layout: {
-  //           'symbol-sort-key': ['to-number', ['get', 'rank']],
-  //           'text-anchor': 'center',
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-keep-upright': true,
-  //           'text-max-width': 10,
-  //           'text-offset': [0.2, 0.2],
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear'],
-  //             ['zoom'],
-  //             10,
-  //             11,
-  //             13,
-  //             14,
-  //             14,
-  //             15,
-  //           ],
-  //           'text-transform': 'none',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0,0%,100%)',
-  //           'text-halo-width': 1.5,
-  //         },
-  //         filter: ['==', 'class', 'town'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       state_labels: {
-  //         id: 'state_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 5,
-  //         maxzoom: 8,
-  //         layout: {
-  //           'symbol-sort-key': ['to-number', ['get', 'rank']],
-  //           'text-allow-overlap': false,
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-max-width': 9,
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             5,
-  //             ['match', ['get', 'rank'], 1, 10, 10],
-  //             11,
-  //             ['match', ['get', 'rank'], 1, 16, 16],
-  //           ],
-  //           'text-transform': 'uppercase',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'icon-opacity': 0.75,
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(30,25%,98%)',
-  //           'text-halo-width': 1.5,
-  //           'text-opacity': 0.75,
-  //         },
-  //         filter: ['all', ['==', 'class', 'state'], ['==', 'rank', 1]],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       city_labels: {
-  //         id: 'city_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 5,
-  //         maxzoom: 14,
-  //         layout: {
-  //           'symbol-sort-key': ['to-number', ['get', 'rank']],
-  //           'text-anchor': 'center',
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-keep-upright': false,
-  //           'text-max-width': 10,
-  //           'text-offset': [0.2, 0.2],
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             5,
-  //             ['case', ['>=', ['get', 'rank'], 6], 11, 12],
-  //             9,
-  //             ['case', ['>=', ['get', 'rank'], 6], 12, 14],
-  //             13,
-  //             ['case', ['>=', ['get', 'rank'], 6], 16, 18],
-  //             14,
-  //             ['case', ['>=', ['get', 'rank'], 6], 20, 22],
-  //           ],
-  //           'text-transform': 'none',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0,0%,100%)',
-  //           'text-halo-width': 1.5,
-  //         },
-  //         filter: ['all', ['==', 'class', 'city'], ['has', 'rank']],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       country_labels: {
-  //         id: 'country_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 2,
-  //         maxzoom: 10,
-  //         layout: {
-  //           'symbol-sort-key': ['to-number', ['get', 'rank']],
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-size': [
-  //             'interpolate',
-  //             ['linear', 1],
-  //             ['zoom'],
-  //             2,
-  //             ['case', ['<=', ['get', 'rank'], 2], 11, 0],
-  //             3,
-  //             ['case', ['<=', ['get', 'rank'], 2], 11, 9],
-  //             4,
-  //             ['case', ['<=', ['get', 'rank'], 2], 12, 10],
-  //             5,
-  //             ['case', ['<=', ['get', 'rank'], 2], 13, 11],
-  //             6,
-  //             ['case', ['<=', ['get', 'rank'], 2], 14, 12],
-  //             7,
-  //             ['case', ['<=', ['get', 'rank'], 2], 14, 13],
-  //           ],
-  //           'text-transform': 'uppercase',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0,0%,100%)',
-  //           'text-halo-width': 1.5,
-  //           'text-opacity': [
-  //             'step',
-  //             ['zoom'],
-  //             1,
-  //             2,
-  //             ['case', ['<=', ['get', 'rank'], 2], 1, 0],
-  //             3,
-  //             1,
-  //           ],
-  //         },
-  //         filter: [
-  //           'all',
-  //           ['==', 'class', 'country'],
-  //           ['has', 'iso_a2'],
-  //           ['!=', 'iso_a2', 'VA'],
-  //         ],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //       continent_labels: {
-  //         id: 'continent_labels',
-  //         type: 'symbol',
-  //         source: 'maptiler_planet',
-  //         'source-layer': 'place',
-  //         minzoom: 0,
-  //         maxzoom: 2,
-  //         layout: {
-  //           'text-field': ['get', 'name'],
-  //           'text-font': ['Metropolis Semi Bold', 'Noto Sans Bold'],
-  //           'text-justify': 'center',
-  //           'text-keep-upright': false,
-  //           'text-letter-spacing': 0.1,
-  //           'text-max-width': 9,
-  //           'text-size': 13,
-  //           'text-transform': 'uppercase',
-  //           visibility: 'visible',
-  //         },
-  //         paint: {
-  //           'text-color': 'hsl(204, 11%, 47%)',
-  //           'text-halo-blur': 0,
-  //           'text-halo-color': 'hsl(0,0%,100%)',
-  //           'text-halo-width': 1.5,
-  //         },
-  //         filter: ['==', 'class', 'continent'],
-  //         absoluteSourceId: 'maptiler_planet',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     id: 'ibge_malha_br_municipio_2024.geom',
-  //     sources: {
-  //       'ibge_malha_br_municipio_2024.geom': {
-  //         type: 'vector',
-  //         minzoom: 8,
-  //         maxzoom: 10,
-  //         tiles: [
-  //           'https://dev-geoapi-vector-tile.orioro.design/ibge_malha_br_municipio_2024.geom/{z}/{x}/{y}',
-  //         ],
-  //       },
-  //     },
-  //     layers: {
-  //       'ibge_malha_br_municipio_2024.geom_selected_bounds': {
-  //         source: 'ibge_malha_br_municipio_2024.geom',
-  //         'source-layer': 'ibge_malha_br_municipio_2024.geom',
-  //         type: 'line',
-  //         filter: ['all', ['==', ['get', 'cd_mun'], '2704302']],
-  //         paint: {
-  //           'line-color': '#888888',
-  //           'line-width': 5,
-  //           'line-opacity': 0.5,
-  //         },
-  //       },
-  //       'ibge_malha_br_municipio_2024.geom_other_bounds': {
-  //         source: 'ibge_malha_br_municipio_2024.geom',
-  //         'source-layer': 'ibge_malha_br_municipio_2024.geom',
-  //         type: 'line',
-  //         filter: ['all', ['!', ['==', ['get', 'cd_mun'], '2704302']]],
-  //         paint: {
-  //           'line-color': '#888888',
-  //           'line-width': 1,
-  //           'line-opacity': 0.5,
-  //         },
-  //       },
-  //     },
-  //   },
-  // ]
-
   const exportImageRef = useRef()
 
   const handleExportClick = () => {
     exportImageRef.current?.createImg()
+  }
+
+  if (munDataQuery.isLoading) {
+    return <div style={{ padding: '20px' }}>Loading municipality data...</div>
+  }
+
+  if (munDataQuery.error) {
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        Error loading municipality: {munDataQuery.error.message}
+      </div>
+    )
   }
 
   return (
@@ -2164,10 +271,10 @@ export const Basic = (props) => {
       <ExportImageBig
         ref={exportImageRef}
         resolvedLayout={resolvedLayout}
-        commitedViewState={commitedViewState}
+        initialViewState={initialViewState}
         municipioId={municipioId}
         METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
-        baseMapStyle={baseMapStyle}
+        baseMapStyle={baseMapStyleObj}
         topViews={TOP_VIEWS}
         onlyMap={true}
         bbox={bboxPolygon}
