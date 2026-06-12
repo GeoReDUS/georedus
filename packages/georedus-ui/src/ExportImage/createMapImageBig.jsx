@@ -2,11 +2,9 @@ import { getPaperDimensions } from './paperDimensions'
 
 import { PAPER_WIDTH_PX } from './constants.js'
 const {
+  MAPWIDTH,
   PAPER_WIDTH,
   PAPER_HEIGHT,
-  INSIDE_WIDTH,
-  INSIDE_HEIGHT,
-  MARGIN,
   PIXELRATIO,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
@@ -75,50 +73,64 @@ export async function composeMapImageCanvas(extractedBlobs) {
   ctx.fillRect(0, 0, PAPER_WIDTH, PAPER_HEIGHT)
 
   //1 - DRAW MAP ON CANVAS
-  ctx.drawImage(mapCanvas, MARGIN, MARGIN, INSIDE_WIDTH, INSIDE_HEIGHT)
+  ctx.drawImage(mapCanvas, 0, 0, PAPER_WIDTH, PAPER_HEIGHT)
 
   //2 - Draw Map Infos
-  //2.1 - Create images from blobs (to get dimensions)
+  //2.1 - DRAW LEGEND
+  const legendImg = await createImg(blobLegend)
+  let legendWidth = 0
+  if (legendImg) {
+    const legendHeight = legendImg.height //* 0.9
+    legendWidth = legendImg.width //* 0.9
+    ctx.drawImage(
+      legendImg,
+      PAPER_WIDTH - MAPINFO_PADDING - legendWidth,
+      PAPER_HEIGHT - MAPINFO_PADDING - legendHeight,
+      legendWidth,
+      legendHeight,
+    )
+  }
+  //2.2 - DRAW INFORMATIONS (logo, projection, north arrow, scale)
   const projectionImg = await createImg(blobProjection)
   const northArrowImg = await createImg(blobNorthArrow)
   const scaleImg = await createImg(blobScale)
+  const logoImg = await createImg(blobLogo)
 
-  let projectionPosX = 0
-  let projectionPosY = 0
-  let projectionWidth = 0
-  let projectionHeight = 0
+  //2.2.0 - Informations dimensions and position
+  if (logoImg && projectionImg && northArrowImg && scaleImg) {
+    // 2.2.1 Logo dimentsions and position
+    const logoScale = logoImg.width / logoImg.height
+    const logoPosX = MAPINFO_PADDING
+    const logoPosY = PAPER_HEIGHT - MAPINFO_PADDING - LOGO_HEIGHT
+    const logoWidth = Math.round(LOGO_HEIGHT * logoScale)
 
-  //2.2 - Projection dimensions and position
-  if (projectionImg && northArrowImg && scaleImg) {
-    projectionWidth = projectionImg.width
-    projectionHeight = projectionImg.height
-    projectionPosX = MARGIN + MAPINFO_PADDING
-    projectionPosY = MARGIN + INSIDE_HEIGHT - MAPINFO_PADDING - projectionHeight
+    // 2.2.2 - Projection dimensions and position
+    const projectionWidth = projectionImg.width
+    const projectionHeight = projectionImg.height
+    const projectionPosX = logoPosX + logoWidth + MAPINFO_PADDING
+    const projectionPosY = logoPosY
 
-    //2.3 - North dimensions and position (to the right of projection)
+    //2.2.3 - North dimensions and position (to the right of projection)
     const northPadding = (projectionHeight - NORTH_SIZE) / 2
     const northPosX = projectionPosX + projectionWidth + MAPINFO_PADDING
-    const northPosY = projectionPosY + northPadding
+    const northPosY = logoPosY + northPadding
 
-    //2.4 - Scale dimensions and position (below projection)
-    const scaleX = INSIDE_WIDTH / mapCanvas.width
-    const scaleY = INSIDE_HEIGHT / mapCanvas.height
+    //2.2.4 - Scale dimensions and position (below projection)
+    const scaleX = PAPER_WIDTH / mapCanvas.width
+    const scaleY = PAPER_HEIGHT / mapCanvas.height
     const scalePadding = (projectionHeight - scaleImg.height * scaleY) / 2
     const scalePosX = northPosX + NORTH_SIZE + MAPINFO_PADDING
-    const scalePosY = projectionPosY + scalePadding
+    const scalePosY = logoPosY + scalePadding
     const scaleWidth = Math.round(scaleImg.width * scaleX)
     const scaleHeight = Math.round(scaleImg.height * scaleY)
 
-    //2.5 - Background dimensions and position
-    const backgroundX = MARGIN + MAPINFO_PADDING
-    const backgroundY = projectionPosY
-    const backgroundWidth =
-      projectionWidth +
-      NORTH_SIZE +
-      scaleWidth / PIXELRATIO
+    //2.2.5 - Background dimensions and position
+    const backgroundX = +MAPINFO_PADDING
+    const backgroundY = logoPosY
+    const backgroundWidth = PAPER_WIDTH - 3 * MAPINFO_PADDING - legendWidth
     const backgroundHeight = projectionHeight
 
-    //2.6 - Draw Map Info background
+    //2.2.6 - Draw Map Info background
     ctx.fillStyle = '#ffffff80'
     roundRect(
       ctx,
@@ -130,7 +142,8 @@ export async function composeMapImageCanvas(extractedBlobs) {
     )
     ctx.fill()
 
-    //2.7 - Draw Map Infos
+    //2.2.7 - Draw Map Infos
+    ctx.drawImage(logoImg, logoPosX, logoPosY, logoWidth, LOGO_HEIGHT)
     ctx.drawImage(
       projectionImg,
       projectionPosX,
@@ -140,47 +153,6 @@ export async function composeMapImageCanvas(extractedBlobs) {
     )
     ctx.drawImage(northArrowImg, northPosX, northPosY, NORTH_SIZE, NORTH_SIZE)
     ctx.drawImage(scaleImg, scalePosX, scalePosY, scaleWidth, scaleHeight)
-  }
-
-  //3 - Draw logo on bottom left of map
-
-  const logoImg = await createImg(blobLogo)
-  if (logoImg) {
-    const logoScale = logoImg.width / logoImg.height
-    const logoPosX = MARGIN + MAPINFO_PADDING
-    const logoPosY = projectionPosY - MAPINFO_PADDING - LOGO_HEIGHT
-    const logoWidth = Math.round(LOGO_HEIGHT * logoScale)
-
-    ctx.fillStyle = '#ffffff80'
-    roundRect(
-      ctx,
-      logoPosX,
-      logoPosY,
-      logoWidth,
-      LOGO_HEIGHT,
-      MAPINFO_PADDING / 2,
-    )
-    ctx.fill()
-
-    ctx.drawImage(logoImg, logoPosX, logoPosY, logoWidth, LOGO_HEIGHT)
-  }
-
-  //3 - Calculate positions for bottom section elements and scale
-  const bottomStartY = INSIDE_HEIGHT + MARGIN * 1.5
-
-  //5 - DRAW LEGEND
-  const legendImg = await createImg(blobLegend)
-  console.log(legendImg)
-  if (legendImg) {
-    const legendHeight = legendImg.height
-    const legendWidth = legendImg.width
-    ctx.drawImage(
-      legendImg,
-      PAPER_WIDTH - MARGIN - MAPINFO_PADDING - legendWidth,
-      PAPER_HEIGHT - MARGIN - MAPINFO_PADDING - legendHeight,
-      legendWidth,
-      legendHeight,
-    )
   }
 
   return new Promise((resolve) => {

@@ -215,7 +215,6 @@ export const Basic = (props) => {
 
     // This ensures municipality takes up most of the viewport
     const zoom = Math.min(20, Math.log2(450 / maxDelta))
-    console.log("ZOOM", zoom)
     return {
       longitude: lng,
       latitude: lat,
@@ -237,7 +236,6 @@ export const Basic = (props) => {
   const exportImageRef = useRef()
 
   const handleExportClick = async () => {
-    console.log('Export button clicked', exportImageRef.current)
     await exportImageRef.current?.createImg()
   }
 
