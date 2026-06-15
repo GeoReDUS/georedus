@@ -63,7 +63,7 @@ const LegendContainer = styled(Flex)`
   background-color: white;
   border-radius: 4px;
   padding: 8px;
-  width: 260px
+  width: 260px;
 `
 
 import { PREVIEW_WIDTH_PX } from './constants.js'
@@ -143,14 +143,14 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
     }
   }, [tilesLoading])
 
-   useEffect(() => {
-      window.__createImg = async () => {
-        await createImg()
-      }
-      return () => {
-        delete window.__createImg
-      }
-    }, [createImg])
+  useEffect(() => {
+    window.__createImg = async () => {
+      await createImg()
+    }
+    return () => {
+      delete window.__createImg
+    }
+  }, [createImg])
 
   return (
     <Flex direction="column" ref={rootRef}>
@@ -176,7 +176,14 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
           if (bbox && bbox.geometry && layeredMapRef.current?.map) {
             const map = layeredMapRef.current.map
             const bounds = turf.bbox(bbox.geometry)
-            map.fitBounds(bounds, { padding: 100 })
+            map.fitBounds(bounds, {
+              padding: {
+                top: 60,
+                bottom: 100,
+                left: 60,
+                right: 60,
+              },
+            })
           }
         }}
         views={

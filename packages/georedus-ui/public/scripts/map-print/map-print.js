@@ -33,7 +33,7 @@ async function printMunicipioImage(page, municipioId, viewConf) {
 
   await page.waitForSelector('.maplibregl-canvas')
 
-  await wait(5000)
+  await wait(7000)
 
   await page.waitForFunction(() => {
     console.log('Waiting for create Img')
@@ -42,14 +42,14 @@ async function printMunicipioImage(page, municipioId, viewConf) {
     return createImgReady && tilesReady
   })
 
-  await wait(1000)
+  await wait(3000)
 
   await page.evaluate(async () => {
     console.log('evaluating create Img')
     await window.__createImg()
   })
 
-  await wait(1000)
+  await wait(3000)
 
   console.log('Export completed for:', municipioId)
   return true
