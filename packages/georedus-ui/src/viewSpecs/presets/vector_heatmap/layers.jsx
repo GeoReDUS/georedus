@@ -31,7 +31,7 @@ function _main_heatmap_legends(props, viewSpec, allViewSpecs, context) {
 function _main_heatmap(props, viewSpec, allViewSpecs, context) {
   const {} = props
   const { source_layer } = viewSpec
-  console.log(viewSpec)
+  
   return {
     zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
