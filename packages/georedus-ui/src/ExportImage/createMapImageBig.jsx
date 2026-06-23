@@ -2,16 +2,13 @@ import { getPaperDimensions } from './paperDimensions'
 
 import { PAPER_WIDTH_PX } from './constants.js'
 const {
-  MAPWIDTH,
   PAPER_WIDTH,
   PAPER_HEIGHT,
   PIXELRATIO,
-  BOTTOM_HEIGHT,
-  DESCRIPTION_WIDTH,
-  QRCODE_SIZE,
   LOGO_HEIGHT,
   MAPINFO_PADDING,
   NORTH_SIZE,
+  MARGIN,
 } = getPaperDimensions(PAPER_WIDTH_PX)
 
 function createImg(blob) {
@@ -60,6 +57,7 @@ export async function composeMapImageCanvas(extractedBlobs) {
     blobProjection,
     blobNorthArrow,
     blobScale,
+    blobAttribution,
   } = extractedBlobs
 
   //0 - CREATE COMBINED CANVAS
@@ -95,13 +93,39 @@ export async function composeMapImageCanvas(extractedBlobs) {
   const northArrowImg = await createImg(blobNorthArrow)
   const scaleImg = await createImg(blobScale)
   const logoImg = await createImg(blobLogo)
+  const attributionImg = await createImg(blobAttribution)
+  const descriptionImg = await createImg(blobDescription)
 
+  console.log(descriptionImg)
   //2.2.0 - Informations dimensions and position
-  if (logoImg && projectionImg && northArrowImg && scaleImg) {
+  if (
+    logoImg &&
+    projectionImg &&
+    northArrowImg &&
+    scaleImg &&
+    attributionImg &&
+    descriptionImg
+  ) {
+    // 2.2.1 Description dimensions and positions
+
+    // const attrScaleX = PAPER_WIDTH / mapCanvas.width
+    // const attrScaleY = PAPER_HEIGHT / mapCanvas.height
+    // const attrW = attributionImg.width * attrScaleX
+    // const attrH = attributionImg.height * attrScaleY
+    // const attrX = MAPINFO_PADDING
+    // const attrY = PAPER_HEIGHT - 2 * MAPINFO_PADDING - attrH
+
+    const backgroundWidth = PAPER_WIDTH - 3 * MAPINFO_PADDING - legendWidth
+
+    const descriptionWidth = backgroundWidth < descriptionImg.width ? backgroundWidth : descriptionImg.width
+    const descriptionHeight = descriptionImg.height * (descriptionWidth / descriptionImg.width);
+    const descriptionPosX = MAPINFO_PADDING
+    const descriptionPosY = PAPER_HEIGHT - MAPINFO_PADDING - descriptionHeight
+
     // 2.2.1 Logo dimentsions and position
     const logoScale = logoImg.width / logoImg.height
     const logoPosX = MAPINFO_PADDING
-    const logoPosY = PAPER_HEIGHT - MAPINFO_PADDING - LOGO_HEIGHT
+    const logoPosY = descriptionPosY - LOGO_HEIGHT
     const logoWidth = Math.round(LOGO_HEIGHT * logoScale)
 
     // 2.2.2 - Projection dimensions and position
@@ -125,10 +149,9 @@ export async function composeMapImageCanvas(extractedBlobs) {
     const scaleHeight = Math.round(scaleImg.height * scaleY)
 
     //2.2.5 - Background dimensions and position
-    const backgroundX = +MAPINFO_PADDING
+    const backgroundX = MAPINFO_PADDING
     const backgroundY = logoPosY
-    const backgroundWidth = PAPER_WIDTH - 3 * MAPINFO_PADDING - legendWidth
-    const backgroundHeight = projectionHeight
+    const backgroundHeight = projectionHeight + descriptionHeight
 
     //2.2.6 - Draw Map Info background
     ctx.fillStyle = '#ffffff80'
@@ -143,6 +166,14 @@ export async function composeMapImageCanvas(extractedBlobs) {
     ctx.fill()
 
     //2.2.7 - Draw Map Infos
+    // ctx.drawImage(attributionImg, attrX, attrY, attrW, attrH)
+    ctx.drawImage(
+      descriptionImg,
+      descriptionPosX,
+      descriptionPosY,
+      descriptionWidth,
+      descriptionHeight,
+    )
     ctx.drawImage(logoImg, logoPosX, logoPosY, logoWidth, LOGO_HEIGHT)
     ctx.drawImage(
       projectionImg,

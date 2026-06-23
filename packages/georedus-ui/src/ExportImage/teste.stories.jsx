@@ -58,6 +58,9 @@ const {
   RASTER_TILE_ROOT_PATH,
 } = API
 
+const GOOGLE_EMERGENCIAS_CLIMATICAS =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=874932999&single=true&output=csv'
+
 const VERSION_SPECS = [
   {
     id: 'v0',
@@ -135,13 +138,14 @@ export const Basic = (props) => {
 
   const EXPORT_VIEW_SPECS = {
     all: [
-      // Import the same specs as the GeoReDUS story
-      // or at minimum the temperature layer that you need
-      temperatura_superficie({
-        ...API,
-        mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025_v2/mosaic.json`,
-        minzoom: 5, //HOTFIX
-      }),
+      GOOGLE_EMERGENCIAS_CLIMATICAS,
+      [
+        temperatura_superficie({
+          ...API,
+          mosaicJsonUrl: `${RASTER_TILE_ROOT_PATH}/cem/temperatura_superficie_2021_2025_v2/mosaic.json`,
+          minzoom: 5, //HOTFIX
+        }),
+      ],
     ],
   }
 

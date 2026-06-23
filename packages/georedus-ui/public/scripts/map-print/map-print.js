@@ -35,12 +35,20 @@ async function printMunicipioImage(page, municipioId, viewConf) {
 
   await wait(7000)
 
+  // await page.waitForFunction(() => {
+  //   console.log('Waiting for create Img')
+  //   const createImgReady = typeof window.__createImg === 'function'
+  //   const tilesReady = window.__tilesLoading === false
+  //   return createImgReady && tilesReady
+  // })
+
   await page.waitForFunction(() => {
-    console.log('Waiting for create Img')
+    console.log('Waiting for map to be ready and bounds applied')
     const createImgReady = typeof window.__createImg === 'function'
     const tilesReady = window.__tilesLoading === false
-    return createImgReady && tilesReady
-  })
+    const boundsApplied = window.__mapBoundsApplied === true
+    return createImgReady && tilesReady && boundsApplied
+  }, { timeout: 60000 })
 
   await wait(3000)
 
@@ -54,6 +62,8 @@ async function printMunicipioImage(page, municipioId, viewConf) {
   console.log('Export completed for:', municipioId)
   return true
 }
+
+
 
 async function mapPrint(csvPath) {
   const municipios = readMunicipios(csvPath)

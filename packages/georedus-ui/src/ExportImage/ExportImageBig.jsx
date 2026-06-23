@@ -103,9 +103,16 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
   const sourceLabels =
     uniq(
       resolvedLayout?.[0]?.views
-        ?.map((view) => view.metadata.sourceLabel || '')
+        ?.map(
+          (view) =>
+            (view.metadata.sourceLabel === 'SGB'
+              ? 'Serviço Geológico Brasileiro (SGB)'
+              : view.metadata.sourceLabel) || '',
+        )
         .filter(Boolean) || [],
     ).join(' + ') || ''
+
+  console.log('sourceLabels', sourceLabels)
 
   const createImg = useCallback(async () => {
     const extractedBlobs = await extractMapImageBlobs({
@@ -144,6 +151,13 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
   }, [tilesLoading])
 
   useEffect(() => {
+    window.__mapBoundsApplied = false
+    return () => {
+      delete window.__mapBoundsApplied
+    }
+  }, [])
+
+  useEffect(() => {
     window.__createImg = async () => {
       await createImg()
     }
@@ -179,11 +193,16 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
             map.fitBounds(bounds, {
               padding: {
                 top: 60,
-                bottom: 100,
+                bottom: 120,
                 left: 60,
                 right: 60,
               },
+              zIndex: 3000,
             })
+            window.__mapBoundsApplied = true
+          } else {
+            console.warn('ExportImageBig: bbox not available for fitBounds')
+            window.__mapBoundsApplied = false
           }
         }}
         views={
@@ -215,7 +234,7 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
           </Flex>
         </ControlContainer>
         <AttributionControl position="bottom-right" compact={false} />
-        <ControlContainer //tirar north arrow dentro do container
+        <ControlContainer
           position="bottom-left"
           style={{
             boxShadow: 'none',
@@ -225,6 +244,15 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
           <Flex p="2" className={PROJECTION_CLASS_NAME} width="fit-content">
             <Text weight="bold">Projeção universal </Text>
             <Text style={{ marginTop: 0 }}>Mercator (EPSG:3857)</Text>
+          </Flex>
+          <Flex
+            p="2"
+            className={IMAGE_DESCRIPTION_CLASS_NAME}
+            width="fit-content">
+            <Text size="2">
+              <Strong>Fonte: </Strong>
+              {sourceLabels || ''} - © MapTiler © OpenStreetMap contributors
+            </Text>
           </Flex>
         </ControlContainer>
         <NorthArrow

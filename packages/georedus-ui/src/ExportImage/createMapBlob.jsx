@@ -43,9 +43,32 @@ function createScaleWrapper(map) {
   return scaleWrapper
 }
 
+// function createAttributionWrapper(map) {
+//   const attributionElement = map
+//     .getContainer()
+//     .querySelector('.maplibregl-ctrl-attrib')
+
+//   if (!attributionElement) return null
+
+//   // Force expand if in compact mode
+//   attributionElement.classList.add('maplibregl-compact-show')
+
+//   const attributionWrapper = document.createElement('div')
+//   attributionWrapper.style.padding = '0px'
+//   attributionWrapper.style.backgroundColor = 'transparent'
+//   attributionWrapper.style.display = 'inline-block'
+//   attributionWrapper.style.position = 'relative'
+
+//   const attributionClone = attributionElement.cloneNode(true)
+//   attributionWrapper.appendChild(attributionClone)
+//   document.body.appendChild(attributionWrapper)
+
+//   return attributionWrapper
+// }
+
 // Extract all DOM elements to blobs FIRST (while DOM is visible)
 export async function extractMapImageBlobs({ map, rootEl, onlyMap = false }) {
-  const blobDescription = !onlyMap ? await createBlob(IMAGE_DESCRIPTION_CLASS_NAME, rootEl) : null
+  const blobDescription = await createBlob(IMAGE_DESCRIPTION_CLASS_NAME, rootEl, onlyMap ? "transparent" : null)
   const blobQRCode = !onlyMap ? await createBlob(QR_CODE_CLASS_NAME, rootEl) : null
   const blobLegend = await createBlob(LEGEND_CLASS_NAME, rootEl)
   const blobLogo = await createBlob(LOGO_CLASS_NAME, rootEl, 'transparent')
@@ -68,6 +91,17 @@ export async function extractMapImageBlobs({ map, rootEl, onlyMap = false }) {
   })
   document.body.removeChild(scaleWrapper)
 
+  // const attributionWrapper = createAttributionWrapper(map)
+  // const blobAttribution = attributionWrapper
+  //   ? await toBlob(attributionWrapper, {
+  //       cacheBust: true,
+  //       pixelRatio: PIXELRATIO,
+  //       fontEmbedCSS: false,
+  //       backgroundColor: 'transparent',
+  //     })
+  //   : null
+  // if (attributionWrapper) document.body.removeChild(attributionWrapper)
+
   return {
     mapCanvas: map.getCanvas(),
     blobLegend,
@@ -77,5 +111,6 @@ export async function extractMapImageBlobs({ map, rootEl, onlyMap = false }) {
     blobProjection,
     blobNorthArrow,
     blobScale,
+    // blobAttribution,
   }
 }
