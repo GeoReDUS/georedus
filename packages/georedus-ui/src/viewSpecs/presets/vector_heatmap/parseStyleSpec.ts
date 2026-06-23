@@ -1,30 +1,28 @@
-import { resolveColor, schemeGeoReDUS } from '../../util'
+type HeatmapColor = {
+  step: number
+  color: string
+  label: string
+}
 
 export type StyleSpec = {
-  tooltip?: { [key: string]: any }
+  weight?: number
   radius?: number
-  color?: string
   opacity?: number
-  border?: boolean
+  color?: HeatmapColor[]
 }
 
 export type StyleSpecInput = StyleSpec
 
-function _defaultColor(inputColor: string | undefined): string {
-  return inputColor ? resolveColor(inputColor) : schemeGeoReDUS.laranja
-}
+const DEFAULTCOLOR = [
+  { step: 0.2, color: 'schemeGeoReDUS.azul_claro', label: 'Baixa' },
+  { step: 0.6, color: 'schemeGeoReDUS.laranja_claro', label: 'Média' },
+  { step: 1, color: 'schemeGeoReDUS.vermelho', label: 'Alta' },
+]
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
-    return {}
+    return { color: DEFAULTCOLOR }
   }
 
-  if (typeof styleInput === 'string') {
-    return {
-      color: _defaultColor(styleInput),
-      border: true
-    }
-  } else {
-    return { border: true, ...styleInput, color: _defaultColor(styleInput.color) }
-  }
+  return { color: DEFAULTCOLOR, ...styleInput }
 }

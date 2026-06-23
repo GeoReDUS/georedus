@@ -5,7 +5,7 @@ import { pick } from 'lodash'
 import { parseStyleSpec } from './parseStyleSpec'
 import { download } from './download'
 
-export function vector_point_single(
+export function vector_heatmap(
   { style, ...viewSpec },
   allViewSpecs,
   context,
