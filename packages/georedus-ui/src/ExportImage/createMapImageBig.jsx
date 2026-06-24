@@ -103,7 +103,6 @@ export async function composeMapImageCanvas(extractedBlobs) {
     projectionImg &&
     northArrowImg &&
     scaleImg &&
-    attributionImg &&
     descriptionImg
   ) {
     // 2.2.1 Description dimensions and positions

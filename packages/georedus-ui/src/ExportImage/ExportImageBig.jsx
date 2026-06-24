@@ -112,8 +112,6 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
         .filter(Boolean) || [],
     ).join(' + ') || ''
 
-  console.log('sourceLabels', sourceLabels)
-
   const createImg = useCallback(async () => {
     const extractedBlobs = await extractMapImageBlobs({
       map: layeredMapRef.current.map,
@@ -192,10 +190,10 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
             const bounds = turf.bbox(bbox.geometry)
             map.fitBounds(bounds, {
               padding: {
-                top: 60,
-                bottom: 120,
-                left: 60,
-                right: 60,
+                top: 40,
+                bottom: 160,
+                left: 40,
+                right: 40,
               },
               zIndex: 3000,
             })

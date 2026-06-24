@@ -34,7 +34,8 @@ export function br_municipios({ api, app }) {
           // 'line-color': '#888888',
           'line-color': '#353535',
           'line-width': 5,
-          'line-opacity': 0.9,
+          // 'line-opacity': 0.5,
+          'line-opacity': 0.7,
           // 'line-dasharray': [1, 1], // 2px dash, 4px gap
         },
       },
