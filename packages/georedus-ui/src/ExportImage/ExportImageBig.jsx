@@ -42,7 +42,7 @@ import {
 
 import { composeMapImageCanvas } from './createMapImageBig'
 
-import { getPaperDimensions } from './paperDimensions'
+import { getPaperDimensions } from './paperDimensionsBig'
 
 import { useDialogs } from '../DialogSystem'
 
@@ -76,7 +76,7 @@ const {
   MAP_HEIGHT,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
-} = getPaperDimensions(PREVIEW_WIDTH_PX)
+} = getPaperDimensions(2000)
 
 export const ExportImageBig = forwardRef(function ExportImageInner(
   {

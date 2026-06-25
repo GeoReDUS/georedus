@@ -110,7 +110,6 @@ export function temperatura_superficie({
       },
     },
     metadata: {},
-
     sources: {
       [TEMPERATURA_SUPERFICIE_ID]: {
         minzoom: minzoom || 9,

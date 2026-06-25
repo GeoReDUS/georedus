@@ -1,6 +1,6 @@
-import { getPaperDimensions } from './paperDimensions'
+import { getPaperDimensions } from './paperDimensionsBig'
 
-import { PAPER_WIDTH_PX } from './constants.js'
+import { BIG_WIDTH_PX } from './constants.js'
 const {
   PAPER_WIDTH,
   PAPER_HEIGHT,
@@ -9,7 +9,7 @@ const {
   MAPINFO_PADDING,
   NORTH_SIZE,
   MARGIN,
-} = getPaperDimensions(PAPER_WIDTH_PX)
+} = getPaperDimensions(BIG_WIDTH_PX)
 
 function createImg(blob) {
   return new Promise((resolve) => {
