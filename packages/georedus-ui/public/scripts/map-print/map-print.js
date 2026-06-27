@@ -59,7 +59,6 @@ async function printMunicipioImage(page, municipioId, viewConf) {
 
   await wait(3000)
 
-  console.log('Export completed for:', municipioId)
   return true
 }
 

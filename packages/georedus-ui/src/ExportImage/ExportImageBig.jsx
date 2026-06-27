@@ -76,7 +76,7 @@ const {
   MAP_HEIGHT,
   BOTTOM_HEIGHT,
   DESCRIPTION_WIDTH,
-} = getPaperDimensions(2000)
+} = getPaperDimensions(PREVIEW_WIDTH_PX)
 
 export const ExportImageBig = forwardRef(function ExportImageInner(
   {
