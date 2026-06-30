@@ -48,7 +48,7 @@ async function printMunicipioImage(page, municipioId, viewConf) {
     const tilesReady = window.__tilesLoading === false
     const boundsApplied = window.__mapBoundsApplied === true
     return createImgReady && tilesReady && boundsApplied
-  }, { timeout: 60000 })
+  })
 
   await wait(3000)
 

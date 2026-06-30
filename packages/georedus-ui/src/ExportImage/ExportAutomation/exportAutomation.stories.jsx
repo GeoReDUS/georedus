@@ -1,24 +1,24 @@
 // ExportImage.stories.jsx
 
-import React, { useMemo, useRef, useReducer, useEffect } from 'react'
+import React, { useMemo, useRef, useReducer, useEffect, useState } from 'react'
 import { Button } from '@orioro/react-ui-core'
 import { BrowserRouter, useSearchParams } from 'react-router-dom'
-import { ExportImageBig } from './ExportImageBig'
+import { ExportImageAutomation } from './ExportImageAutomation'
 import { Icon } from '@mdi/react'
 import { mdiDownload } from '@mdi/js'
 import { useQuery } from '@tanstack/react-query'
-import { dataviz } from '../viewSpecs/basemaps'
+import { dataviz } from '../../viewSpecs/basemaps'
 import * as turf from '@turf/turf'
 import {
   fetchViewSpecs,
   resolveViewSpecs,
   temperatura_superficie,
-} from '../viewSpecs'
+} from '../../viewSpecs'
 import {
   viewConfReducer,
   viewConfReducerInitialState,
-} from '../GeoReDUS/viewConfReducer'
-import { useViews } from '../viewSpecs/useViews'
+} from '../../GeoReDUS/viewConfReducer'
+import { useViews } from '../../viewSpecs/useViews'
 import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 
 export default {
@@ -102,6 +102,7 @@ export const Basic = (props) => {
   const munDataQuery = useQuery({
     queryKey: ['munData', municipioId],
     queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 15000))
       const res = await fetch(
         `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?id=eq.${municipioId}&select=geom`,
       ).then((res) => res.json())
@@ -121,7 +122,6 @@ export const Basic = (props) => {
           properties: {},
         }
       : null
-
   const bbox = coords ? turf.bbox(coords) : null
   const bboxPolygon = bbox ? turf.bboxPolygon(bbox) : null
 
@@ -245,7 +245,7 @@ export const Basic = (props) => {
 
   return (
     <>
-      <ExportImageBig
+      <ExportImageAutomation
         ref={exportImageRef}
         resolvedLayout={resolvedLayout}
         initialViewState={initialViewState}

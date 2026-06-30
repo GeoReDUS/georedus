@@ -1,6 +1,6 @@
-import { getPaperDimensions } from './paperDimensionsBig'
+import { getPaperDimensions } from './paperDimensionsAutomation.js'
 
-import { BIG_WIDTH_PX } from './constants.js'
+import { BIG_WIDTH_PX } from '../constants.js'
 const {
   PAPER_WIDTH,
   PAPER_HEIGHT,
@@ -96,7 +96,6 @@ export async function composeMapImageCanvas(extractedBlobs) {
   const attributionImg = await createImg(blobAttribution)
   const descriptionImg = await createImg(blobDescription)
 
-  console.log(descriptionImg)
   //2.2.0 - Informations dimensions and position
   if (
     logoImg &&

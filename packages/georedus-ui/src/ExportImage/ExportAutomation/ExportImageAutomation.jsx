@@ -22,13 +22,13 @@ import { Legend } from '@orioro/react-chart-util'
 import { QRCode } from 'react-qr-code'
 
 import styled from 'styled-components'
-import { SKY_STYLE } from '../GeoReDUS/constants'
+import { SKY_STYLE } from '../../GeoReDUS/constants.js'
 import { ScaleControl, AttributionControl } from 'react-map-gl/maplibre'
 
-import { GeoReDUSLogo } from '../GeoReDUSLogo'
+import { GeoReDUSLogo } from '../../GeoReDUSLogo/index.jsx'
 import { Heading, Text, Strong } from '@radix-ui/themes'
 
-import { NorthArrow } from './NorthArrow'
+import { NorthArrow } from '../NorthArrow.jsx'
 import {
   LEGEND_CLASS_NAME,
   IMAGE_DESCRIPTION_CLASS_NAME,
@@ -38,13 +38,13 @@ import {
   NORTH_ARROW_CLASS_NAME,
   SCALE_CONTROL_CLASS_NAME,
   extractMapImageBlobs,
-} from './createMapBlob'
+} from '../createMapBlob.jsx'
 
-import { composeMapImageCanvas } from './createMapImageBig'
+import { composeMapImageCanvas } from './createMapImageAutomation.jsx'
 
-import { getPaperDimensions } from './paperDimensionsBig'
+import { getPaperDimensions } from './paperDimensionsAutomation.js'
 
-import { useDialogs } from '../DialogSystem'
+import { useDialogs } from '../../DialogSystem/index.jsx'
 
 import { saveAs } from 'file-saver'
 
@@ -66,7 +66,7 @@ const LegendContainer = styled(Flex)`
   width: 260px;
 `
 
-import { PREVIEW_WIDTH_PX } from './constants.js'
+import { PREVIEW_WIDTH_PX } from '../constants.js'
 const {
   INSIDE_WIDTH,
   INSIDE_HEIGHT,
@@ -78,7 +78,7 @@ const {
   DESCRIPTION_WIDTH,
 } = getPaperDimensions(PREVIEW_WIDTH_PX)
 
-export const ExportImageBig = forwardRef(function ExportImageInner(
+export const ExportImageAutomation = forwardRef(function ExportImageInner(
   {
     resolvedLayout,
     initialViewState,
@@ -164,6 +164,29 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
     }
   }, [createImg])
 
+  useEffect(() => {
+    if (!mapReady) return
+    if (!bbox?.geometry) {
+      console.warn('ExportImageAutomation: bbox not available for fitBounds')
+      window.__mapBoundsApplied = false
+      return
+    }
+    const map = layeredMapRef.current?.map
+    if (!map) return
+
+    const bounds = turf.bbox(bbox.geometry)
+    map.fitBounds(bounds, {
+      padding: {
+        top: 40,
+        bottom: 160,
+        left: 40,
+        right: 40,
+      },
+      zIndex: 3000,
+    })
+    window.__mapBoundsApplied = true
+  }, [mapReady, bbox])
+
   return (
     <Flex direction="column" ref={rootRef}>
       {tilesLoading && (
@@ -185,23 +208,25 @@ export const ExportImageBig = forwardRef(function ExportImageInner(
         mapStyle={baseMapStyle}
         onLoad={() => {
           setMapReady(true)
-          if (bbox && bbox.geometry && layeredMapRef.current?.map) {
-            const map = layeredMapRef.current.map
-            const bounds = turf.bbox(bbox.geometry)
-            map.fitBounds(bounds, {
-              padding: {
-                top: 40,
-                bottom: 160,
-                left: 40,
-                right: 40,
-              },
-              zIndex: 3000,
-            })
-            window.__mapBoundsApplied = true
-          } else {
-            console.warn('ExportImageBig: bbox not available for fitBounds')
-            window.__mapBoundsApplied = false
-          }
+          // if (bbox && bbox.geometry && layeredMapRef.current?.map) {
+          //   const map = layeredMapRef.current.map
+          //   const bounds = turf.bbox(bbox.geometry)
+          //   map.fitBounds(bounds, {
+          //     padding: {
+          //       top: 40,
+          //       bottom: 160,
+          //       left: 40,
+          //       right: 40,
+          //     },
+          //     zIndex: 3000,
+          //   })
+          //   window.__mapBoundsApplied = true
+          // } else {
+          //   console.warn(
+          //     'ExportImageAutomation: bbox not available for fitBounds',
+          //   )
+          //   window.__mapBoundsApplied = false
+          // }
         }}
         views={
           mapReady
