@@ -25,14 +25,20 @@ export function resolveColor(colorInput: string): string {
 export function resolveSchemeColor(
   colorSchemeId: string,
   indexOrId: string | number,
+  k?: number,
 ): string {
+
   const colorScheme = COLOR_SCHEMES[colorSchemeId]
 
   return typeof indexOrId === 'string'
     ? colorScheme[indexOrId]
-    : (Array.isArray(colorScheme) ? colorScheme : Object.values(colorScheme))[
-        indexOrId
-      ]
+    : (Array.isArray(colorScheme)
+        ? colorScheme
+        : colorScheme.colors && Array.isArray(colorScheme.colors)
+          ? colorScheme.colors
+          : colorScheme.scalesByK && k
+          ? colorScheme.scalesByK[k]
+          :Object.values(colorScheme))[indexOrId]
 }
 
 export * from './d3'
