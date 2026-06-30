@@ -102,7 +102,6 @@ export const Basic = (props) => {
   const munDataQuery = useQuery({
     queryKey: ['munData', municipioId],
     queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 15000))
       const res = await fetch(
         `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?id=eq.${municipioId}&select=geom`,
       ).then((res) => res.json())
