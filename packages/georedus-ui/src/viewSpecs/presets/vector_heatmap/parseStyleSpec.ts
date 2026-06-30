@@ -9,6 +9,37 @@ export type StyleSpec = {
   radius?: number
   opacity?: number
   color?: HeatmapColor[]
+  colorScheme?:
+    | 'schemeGeoReDUS'
+    // sequential
+    | 'schemeBlues'
+    | 'schemeGreens'
+    | 'schemeGreys'
+    | 'schemeOranges'
+    | 'schemePurples'
+    | 'schemeReds'
+    | 'schemeBuGn'
+    | 'schemeBuPu'
+    | 'schemeGnBu'
+    | 'schemeOrRd'
+    | 'schemePuBuGn'
+    | 'schemePuBu'
+    | 'schemePuRd'
+    | 'schemeRdPu'
+    | 'schemeYlGnBu'
+    | 'schemeYlGn'
+    | 'schemeYlOrBr'
+    | 'schemeYlOrRd'
+    // diverging:
+    | 'schemeBrBG'
+    | 'schemePRGn'
+    | 'schemePiYG'
+    | 'schemePuOr'
+    | 'schemeRdBu'
+    | 'schemeRdGy'
+    | 'schemeRdYlBu'
+    | 'schemeRdYlGn'
+    | 'schemeSpectral'
 }
 
 export type StyleSpecInput = StyleSpec
