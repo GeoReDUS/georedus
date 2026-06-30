@@ -20,7 +20,9 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
+    | 'schemeYlOrRd' //added for 'Espraiamento Urbano', is categorical, but need sequential color
   categories: Category[]
+  k: number //added for 'Espraiamento Urbano', is categorical, but need sequential color
 }
 
 export type StyleSpecInput = StyleSpec
@@ -38,8 +40,8 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     ...category,
     color: category.color
       ? resolveColor(category.color) || resolveSchemeColor(colorScheme, index)
-      : resolveSchemeColor(colorScheme, index),
+      : resolveSchemeColor(colorScheme, index, styleInput.k),
   }))
 
-  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, categories }
+  return { ...styleInput, colorScheme: DEFAULT_COLOR_SCHEME_ID, categories }
 }
