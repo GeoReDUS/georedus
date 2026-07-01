@@ -1,14 +1,17 @@
-type HeatmapColor = {
+import { resolveColor } from '../../util'
+import { DEFAULT_COLOR_SCHEME_ID } from '../util'
+
+type HeatmapSteps = {
   step: number
-  color: string
   label: string
+  color?: string
 }
 
 export type StyleSpec = {
   weight?: number
   radius?: number
   opacity?: number
-  color?: HeatmapColor[]
+  steps?: HeatmapSteps[]
   colorScheme?:
     | 'schemeGeoReDUS'
     // sequential
@@ -44,16 +47,28 @@ export type StyleSpec = {
 
 export type StyleSpecInput = StyleSpec
 
-const DEFAULTCOLOR = [
-  { step: 0.2, color: 'schemeGeoReDUS.azul_claro', label: 'Baixa' },
-  { step: 0.6, color: 'schemeGeoReDUS.laranja_claro', label: 'Média' },
-  { step: 1, color: 'schemeGeoReDUS.vermelho', label: 'Alta' },
+const DEFAULTSTEPS = [
+  { step: 0.2, label: 'Baixa' },
+  { step: 0.6, label: 'Média' },
+  { step: 1, label: 'Alta' },
 ]
+
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
-    return { color: DEFAULTCOLOR }
+    return { steps: DEFAULTSTEPS }
   }
+  
+  // const steps = styleInput.steps?.map((step, index) => ({
+  //   ...step,
+  //   color: step.color 
+  //     ? resolveColor(step.color) || resolveSchemeColor(colorScheme, index)
+  //     : resolveSchemeColor(colorScheme, index, steps?.length)
+  // }))
 
-  return { color: DEFAULTCOLOR, ...styleInput }
+  return {
+    steps: DEFAULTSTEPS,
+    colorScheme: DEFAULT_COLOR_SCHEME_ID,
+    ...styleInput,
+  }
 }

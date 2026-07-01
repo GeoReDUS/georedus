@@ -1,3 +1,4 @@
+import { confSchema } from './confSchema'
 import { metadata } from './metadata'
 import { layers } from './layers'
 import { sources } from './sources'
@@ -17,6 +18,7 @@ export function vector_heatmap(
 
   return {
     ...pick(viewSpec, ['id', 'path', 'label', 'sourceLabel', 'metodology', 'shortDescription']),
+    confSchema: confSchema(viewSpec, allViewSpecs, context),
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
     layers: layers(viewSpec, allViewSpecs, context),

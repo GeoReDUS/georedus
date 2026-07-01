@@ -4,6 +4,8 @@ import { resolve } from '@orioro/resolve'
 import { MAIN_SOURCE_ID } from './sources'
 import { resolveColor } from '../../util'
 
+const colorScheme = COLOR_SCHEMES[viewSpec.style.colorScheme]
+
 function _main_heatmap_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     return [
