@@ -55,7 +55,7 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
         9,
         2,
         17,
-        50,
+        30,
       ],
       // 'heatmap-opacity': viewSpec.style.opacity || DEFAULT_FILL_OPACITY,
       // 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 14, 1, 18, 0],

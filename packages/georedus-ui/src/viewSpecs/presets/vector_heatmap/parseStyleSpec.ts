@@ -1,5 +1,4 @@
-import { resolveColor } from '../../util'
-import { DEFAULT_COLOR_SCHEME_ID } from '../util'
+import { resolveColor, COLOR_SCHEMES } from '../../util'
 
 type HeatmapSteps = {
   step: number
@@ -12,10 +11,8 @@ export type StyleSpec = {
   radius?: number
   opacity?: number
   steps?: HeatmapSteps[]
-  colorScheme?:
-    | 'schemeGeoReDUS'
-    // sequential
-    | 'schemeBlues'
+  colorScheme?: // sequential
+  | 'schemeBlues'
     | 'schemeGreens'
     | 'schemeGreys'
     | 'schemeOranges'
@@ -33,6 +30,27 @@ export type StyleSpec = {
     | 'schemeYlGn'
     | 'schemeYlOrBr'
     | 'schemeYlOrRd'
+
+    //sequential reverse:
+    | '-schemeBlues'
+    | '-schemeGreens'
+    | '-schemeGreys'
+    | '-schemeOranges'
+    | '-schemePurples'
+    | '-schemeReds'
+    | '-schemeBuGn'
+    | '-schemeBuPu'
+    | '-schemeGnBu'
+    | '-schemeOrRd'
+    | '-schemePuBuGn'
+    | '-schemePuBu'
+    | '-schemePuRd'
+    | '-schemeRdPu'
+    | '-schemeYlGnBu'
+    | '-schemeYlGn'
+    | '-schemeYlOrBr'
+    | '-schemeYlOrRd'
+
     // diverging:
     | 'schemeBrBG'
     | 'schemePRGn'
@@ -43,31 +61,48 @@ export type StyleSpec = {
     | 'schemeRdYlBu'
     | 'schemeRdYlGn'
     | 'schemeSpectral'
+
+    //diverging reverse:
+    | '-schemeBrBG'
+    | '-schemePRGn'
+    | '-schemePiYG'
+    | '-schemePuOr'
+    | '-schemeRdBu'
+    | '-schemeRdGy'
+    | '-schemeRdYlBu'
+    | '-schemeRdYlGn'
+    | '-schemeSpectral'
 }
 
 export type StyleSpecInput = StyleSpec
 
-const DEFAULTSTEPS = [
-  { step: 0.2, label: 'Baixa', color: 'schemeGeoReDUS.azul_claro' },
-  { step: 0.6, label: 'Média', color: 'schemeGeoReDUS.amarelo' },
-  { step: 1, label: 'Alta', color: 'schemeGeoReDUS.vermelho' },
+// const DEFAULT_STEPS = [
+//   { step: 0.2, label: 'Baixa', color: 'schemeGeoReDUS.azul_claro' },
+//   { step: 0.6, label: 'Média', color: 'schemeGeoReDUS.amarelo' },
+//   { step: 1, label: 'Alta', color: 'schemeGeoReDUS.vermelho' },
+// ]
+const DEFAULT_STEPS = [
+  { step: 0.2, label: 'Muito Baixa' },
+  { step: 0.4, label: 'Baixa' },
+  { step: 0.6, label: 'Média' },
+  { step: 0.8, label: 'Alta' },
+  { step: 1, label: 'Muito Alta' },
 ]
 
-export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
-  if (!styleInput) {
-    return { steps: DEFAULTSTEPS }
-  }
+const DEFAULT_COLOR_SCHEME_ID = '-schemeSpectral'
 
-  // const steps = styleInput.steps?.map((step, index) => ({
-  //   ...step,
-  //   color: step.color
-  //     ? resolveColor(step.color) || resolveSchemeColor(colorScheme, index)
-  //     : resolveSchemeColor(colorScheme, index, steps?.length)
-  // }))
-
+export function parseStyleSpec(styleInput: StyleSpecInput = {}): StyleSpec {
+  const steps = styleInput.steps || DEFAULT_STEPS
+  const colorSchemeId = styleInput.colorScheme || DEFAULT_COLOR_SCHEME_ID
+  console.log("colorScheme", COLOR_SCHEMES[colorSchemeId])
   return {
-    steps: DEFAULTSTEPS,
-    colorScheme: DEFAULT_COLOR_SCHEME_ID,
     ...styleInput,
+    steps: steps.map((step, index) => ({
+      ...step,
+      color: step.color
+        ? resolveColor(step.color)
+        : COLOR_SCHEMES[colorSchemeId].scalesByK[steps.length][index],
+    })),
+    colorScheme: colorSchemeId,
   }
 }
