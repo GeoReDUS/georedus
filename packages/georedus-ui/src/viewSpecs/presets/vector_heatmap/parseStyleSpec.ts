@@ -48,20 +48,19 @@ export type StyleSpec = {
 export type StyleSpecInput = StyleSpec
 
 const DEFAULTSTEPS = [
-  { step: 0.2, label: 'Baixa' },
-  { step: 0.6, label: 'Média' },
-  { step: 1, label: 'Alta' },
+  { step: 0.2, label: 'Baixa', color: 'schemeGeoReDUS.azul_claro' },
+  { step: 0.6, label: 'Média', color: 'schemeGeoReDUS.amarelo' },
+  { step: 1, label: 'Alta', color: 'schemeGeoReDUS.vermelho' },
 ]
-
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
     return { steps: DEFAULTSTEPS }
   }
-  
+
   // const steps = styleInput.steps?.map((step, index) => ({
   //   ...step,
-  //   color: step.color 
+  //   color: step.color
   //     ? resolveColor(step.color) || resolveSchemeColor(colorScheme, index)
   //     : resolveSchemeColor(colorScheme, index, steps?.length)
   // }))
