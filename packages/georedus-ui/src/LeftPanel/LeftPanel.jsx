@@ -121,6 +121,25 @@ function LeftPanelInner({
               <Icon path={mdiShareVariantOutline} size="24px" />
             </Tooltip>
           </IconButton>
+          <IconButton
+                  variant="soft"
+                  size="3"
+                  style={{ color: 'white' }}
+                  onClick={async () => {
+                    await dialogs.view(
+                      <GeocodeCSVUploader
+                        syncedMapsRef={syncedMapsRef}
+                        geocodeApiEndpoint={
+                          process.env.NEXT_PUBLIC_GEOCODE_API_ENDPOINT
+                        }
+                      />,
+                    )
+                  }}
+                >
+                  <Tooltip content="Geocodificar CSV">
+                    <Icon path={mdiMapMarker} size="24px" />
+                  </Tooltip>
+          </IconButton>
         </div>
       </Flex>
     )
