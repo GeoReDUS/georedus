@@ -1,6 +1,7 @@
 import { Flex } from '@orioro/react-ui-core'
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
 import { D3_DIVERGING, D3_SEQUENTIAL } from '../../util'
+import { schemeSelector } from '../util/components/confInputs'
 
 const getLargestColorArray = (scheme) => {
   return scheme[scheme.length - 1]
@@ -58,13 +59,10 @@ export function confSchema(viewSpec, allViewSpecs, context) {
           },
         ],
       },
-      colorScheme: {
-        label: 'Esquema de cores',
-        type: 'select',
-        clearable: false,
+      colorScheme: schemeSelector({
         defaultValue: viewSpec.style?.colorScheme || DEFAULT_COLOR_SCHEME_ID,
-        options: COLOR_SCHEME_OPTIONS,
-      },
+        schemeType: 'continuous',
+      }),
     },
   }
 }
