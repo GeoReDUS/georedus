@@ -8,9 +8,10 @@ type HeatmapSteps = {
 
 export type StyleSpec = {
   weight?: number
-  radius?: number
-  opacity?: number
+  radius?: number | number[]
+  opacity?: number | number[]
   steps?: HeatmapSteps[]
+  circle?: Boolean
   colorScheme?: // sequential
   | 'schemeBlues'
     | 'schemeGreens'
@@ -87,9 +88,9 @@ const DEFAULT_STEPS = [
 export const DEFAULT_HEATMAP_COLOR_SCHEME_ID = '-schemeSpectral'
 
 export function parseStyleSpec(styleInput: StyleSpecInput = {}): StyleSpec {
-
   const steps = styleInput.steps || DEFAULT_STEPS
-  const colorSchemeId = styleInput.colorScheme || DEFAULT_HEATMAP_COLOR_SCHEME_ID
+  const colorSchemeId =
+    styleInput.colorScheme || DEFAULT_HEATMAP_COLOR_SCHEME_ID
 
   return {
     ...styleInput,

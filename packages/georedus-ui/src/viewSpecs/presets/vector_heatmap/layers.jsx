@@ -4,6 +4,7 @@ import { resolve } from '@orioro/resolve'
 import { MAIN_SOURCE_ID } from './sources'
 import { resolveColor } from '../../util'
 
+const DEFAULT_FILL_OPACITY = 1
 
 function _main_heatmap_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
@@ -48,17 +49,24 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
             resolveColor(item.color),
           ]),
         ],
-        'heatmap-radius': ctx.view.metadata.radius || [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          9,
-          2,
-          17,
-          30,
-        ],
-        // 'heatmap-opacity': viewSpec.style.opacity || DEFAULT_FILL_OPACITY,
-        // 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 14, 1, 18, 0],
+        'heatmap-radius':
+          viewSpec.style.radius && Array.isArray(viewSpec.style.radius)
+            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.radius]
+            : viewSpec.style.radius || [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                14,
+                3,
+                18,
+                9,
+              ],
+        'heatmap-opacity':
+          viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
+            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.opacity]
+            : viewSpec.style.circle
+              ? ['interpolate', ['linear'], ['zoom'], 14, 1, 18, 0]
+              : viewSpec.style.opacity || DEFAULT_FILL_OPACITY,
       },
       legends: _main_heatmap_legends(props, viewSpec, allViewSpecs, context),
     }
@@ -69,21 +77,46 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
 function _main_circle(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
-  return {
-    zIndex: Z_OVERLAY_BASE_1000,
-    source: MAIN_SOURCE_ID,
-    'source-layer': source_layer,
-    type: 'circle',
-    interactive: true,
-    minzoom: 14,
-    paint: {
-      'circle-color': resolveColor(viewSpec.style.steps[0].color),
-      'circle-stroke-color': '#FFFFFF',
-      'circle-stroke-width': 2,
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 3, 18, 9],
-      'circle-opacity': ['interpolate', ['linear'], ['zoom'], 15, 0, 17, 1],
-    },
-  }
+  const circle = resolve.fn((ctx) => {
+    return {
+      zIndex: Z_OVERLAY_BASE_1000,
+      source: MAIN_SOURCE_ID,
+      'source-layer': source_layer,
+      type: 'circle',
+      interactive: true,
+      minzoom: 14,
+      paint: {
+        'circle-color': resolveColor(ctx.view.metadata.steps[0].color),
+        'circle-stroke-color': '#FFFFFF',
+        'circle-stroke-width': 2,
+        'circle-radius':
+          viewSpec.style.radius && Array.isArray(viewSpec.style.radius)
+            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.radius]
+            : viewSpec.style.radius || [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                14,
+                3,
+                18,
+                9,
+              ],
+        'circle-opacity':
+          viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
+            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.opacity]
+            : viewSpec.style.opacity || [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                15,
+                0,
+                17,
+                1,
+              ],
+      },
+    }
+  })
+  return circle
 }
 
 export function layers(viewSpec, allViewSpecs, context) {
@@ -95,6 +128,8 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_heatmap`]: _main_heatmap({}, viewSpec, allViewSpecs, context),
-    // [`main_circle`]: _main_circle({}, viewSpec, allViewSpecs, context),
+    [`main_circle`]:
+      viewSpec.style.circle &&
+      _main_circle({}, viewSpec, allViewSpecs, context),
   }
 }
