@@ -35,7 +35,6 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
       interactive: true,
       type: 'heatmap',
       minzoom: 7,
-      // maxzoom: 17,
       paint: {
         'heatmap-weight': viewSpec.style.weight || 1,
         'heatmap-color': [
@@ -56,10 +55,10 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                14,
-                3,
-                18,
                 9,
+                2,
+                17,
+                30,
               ],
         'heatmap-opacity':
           viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
@@ -96,10 +95,10 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                14,
-                3,
-                18,
                 9,
+                2,
+                17,
+                30,
               ],
         'circle-opacity':
           viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
