@@ -37,7 +37,7 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
       minzoom: 7,
       // maxzoom: 17,
       paint: {
-        'heatmap-weight': 1,
+        'heatmap-weight': viewSpec.style.weight || 1,
         'heatmap-color': [
           'interpolate',
           ['linear'],
