@@ -76,11 +76,6 @@ export type StyleSpec = {
 
 export type StyleSpecInput = StyleSpec
 
-// const DEFAULT_STEPS = [
-//   { step: 0.2, label: 'Baixa', color: 'schemeGeoReDUS.azul_claro' },
-//   { step: 0.6, label: 'Média', color: 'schemeGeoReDUS.amarelo' },
-//   { step: 1, label: 'Alta', color: 'schemeGeoReDUS.vermelho' },
-// ]
 const DEFAULT_STEPS = [
   { step: 0.2, label: 'Muito Baixa' },
   { step: 0.4, label: 'Baixa' },
@@ -89,12 +84,13 @@ const DEFAULT_STEPS = [
   { step: 1, label: 'Muito Alta' },
 ]
 
-const DEFAULT_COLOR_SCHEME_ID = '-schemeSpectral'
+export const DEFAULT_HEATMAP_COLOR_SCHEME_ID = '-schemeSpectral'
 
 export function parseStyleSpec(styleInput: StyleSpecInput = {}): StyleSpec {
+
   const steps = styleInput.steps || DEFAULT_STEPS
-  const colorSchemeId = styleInput.colorScheme || DEFAULT_COLOR_SCHEME_ID
-  console.log("colorScheme", COLOR_SCHEMES[colorSchemeId])
+  const colorSchemeId = styleInput.colorScheme || DEFAULT_HEATMAP_COLOR_SCHEME_ID
+
   return {
     ...styleInput,
     steps: steps.map((step, index) => ({

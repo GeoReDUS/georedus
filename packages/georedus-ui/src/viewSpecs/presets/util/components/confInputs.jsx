@@ -1,7 +1,7 @@
 import { Flex } from '@orioro/react-ui-core'
 import { GEOREDUS_LABELED_COLORS } from '../../../util/colorSchemes'
 import { SVG_PATTERNS } from '@orioro/react-maplibre-util'
-import { D3_DIVERGING, D3_SEQUENTIAL } from '../../../util'
+import { D3_DIVERGING, D3_SEQUENTIAL, D3_COLOR_SCHEMES } from '../../../util'
 
 export const COLOR_OPTIONS = Object.values(GEOREDUS_LABELED_COLORS)
 
@@ -93,13 +93,22 @@ const CATEGORICAL_SCHEMES = {
   ...GEOREDUS_LABELED_COLORS,
 }
 
-const CONTINUOUS_SCHEMES = {
-  ...D3_SEQUENTIAL,
-  ...D3_DIVERGING,
-}
+const continuousIds = [
+  ...Object.keys(D3_SEQUENTIAL),
+  ...Object.keys(D3_SEQUENTIAL).map((id) => `-${id}`),
+  ...Object.keys(D3_DIVERGING),
+  ...Object.keys(D3_DIVERGING).map((id) => `-${id}`),
+]
+
+const CONTINUOUS_SCHEMES = Object.fromEntries(
+  continuousIds.map((id) => [id, D3_COLOR_SCHEMES[id]]),
+)
 
 const getLargestColorArray = (scheme) => {
-  return scheme[scheme.length - 1]
+  if ('colors' in scheme) {
+    return scheme.colors
+  }
+  return scheme.scalesByK[scheme.maxK]
 }
 
 const colorScheme = (scheme) => {
