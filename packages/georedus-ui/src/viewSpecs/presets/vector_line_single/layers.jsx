@@ -14,10 +14,11 @@ function _main_line_legends({ _color }, viewSpec, allViewSpecs, context) {
             style: {
               height: 0,
               borderColor: resolvedColor,
-              borderStyle:
+              borderTopStyle:
                 ctx.view?.conf?.style?.linePattern ||
                 styleSpec.linePattern ||
                 LINE_PATTERN_SOLID,
+              borderBottomStyle: 'none',
               borderWidth: ctx.view?.conf?.style?.lineWidth || viewSpec.style?.lineWidth || LINE_WIDTH_1,
             },
           },

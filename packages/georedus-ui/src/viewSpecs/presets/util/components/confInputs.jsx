@@ -111,7 +111,7 @@ export function linePatternSelector({defaultValue = LINE_PATTERN_SOLID} = {}) {
               style={{
                 width: 15,
                 height: 0,
-                border: `1px ${opt.value} black`,
+                borderTop: `2px ${opt.value} black`,
               }}
             />
             <div> {opt.label}</div>
@@ -146,7 +146,7 @@ export function lineWidthSelector({defaultValue = LINE_WIDTH_1} = {}) {
               style={{
                 width: 15,
                 height: 0,
-                border: `${opt.value}px solid black`,
+                borderTop: `${opt.value}px solid black`,
               }}
             />
             <div> {opt.label}</div>
