@@ -92,7 +92,6 @@ export const LINE_PATTERN_OPTIONS = [
   { label: 'Sólido', value: 'solid' },
   { label: 'Tracejado', value: 'dashed' },
   { label: 'Pontilhado', value: 'dotted' },
-  { label: 'Nenhum', value: 'none' },
 ]
 
 export function linePatternSelector({defaultValue = LINE_PATTERN_SOLID} = {}) {

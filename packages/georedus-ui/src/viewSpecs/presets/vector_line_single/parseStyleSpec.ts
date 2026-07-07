@@ -3,7 +3,7 @@ import { LINE_PATTERN_SOLID } from '../util'
 
 export type StyleSpec = {
   color?: string
-  linePattern?: 'solid' | 'dashed' | 'dotted' | 'none'
+  linePattern?: 'solid' | 'dashed' | 'dotted'
   lineWidth?: number
 }
 
