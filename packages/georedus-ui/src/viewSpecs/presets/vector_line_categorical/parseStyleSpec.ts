@@ -20,7 +20,7 @@ export type StyleSpec = {
     | 'schemeSet3'
     | 'schemeTableau10'
   categories: string | (string | Category)[]
-  linePattern?: 'solid' | 'dashed' | 'dotted' | 'none'
+  linePattern?: 'solid' | 'dashed' | 'dotted'
   lineWidth?: number
 }
 
