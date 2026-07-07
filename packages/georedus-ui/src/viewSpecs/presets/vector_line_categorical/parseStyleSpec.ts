@@ -1,13 +1,7 @@
-export type CategoryStyleSpec = {
-  color?: string
-  linePattern?: 'solid' | 'dashed' | 'dotted' | 'none'
-  lineWidth?: number
-}
-
-
-type Category = CategoryStyleSpec & {
+type Category = {
   value: string
   label?: string
+  color?: string
 }
 
 export type StyleSpec = {
@@ -26,7 +20,9 @@ export type StyleSpec = {
     | 'schemeSet3'
     | 'schemeTableau10'
   categories: string | (string | Category)[]
-} & Omit<CategoryStyleSpec, 'color'>
+  linePattern?: 'solid' | 'dashed' | 'dotted' | 'none'
+  lineWidth?: number
+}
 
 export type StyleSpecInput = StyleSpec
 
