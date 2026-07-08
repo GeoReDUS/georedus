@@ -1,6 +1,7 @@
 import { Flex } from '@orioro/react-ui-core'
 import { GEOREDUS_LABELED_COLORS } from '../../../util/colorSchemes'
 import { SVG_PATTERNS } from '@orioro/react-maplibre-util'
+import { D3_DIVERGING, D3_SEQUENTIAL, D3_COLOR_SCHEMES } from '../../../util'
 
 export const COLOR_OPTIONS = Object.values(GEOREDUS_LABELED_COLORS)
 
@@ -83,5 +84,69 @@ export function fillPatternSelector(props = {}) {
       }
     }),
     ...props,
+  }
+}
+
+export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
+
+const CATEGORICAL_SCHEMES = {
+  ...GEOREDUS_LABELED_COLORS,
+}
+
+const continuousIds = [
+  ...Object.keys(D3_SEQUENTIAL),
+  ...Object.keys(D3_SEQUENTIAL).map((id) => `-${id}`),
+  ...Object.keys(D3_DIVERGING),
+  ...Object.keys(D3_DIVERGING).map((id) => `-${id}`),
+]
+
+const CONTINUOUS_SCHEMES = Object.fromEntries(
+  continuousIds.map((id) => [id, D3_COLOR_SCHEMES[id]]),
+)
+
+const getLargestColorArray = (scheme) => {
+  if ('colors' in scheme) {
+    return scheme.colors
+  }
+  return scheme.scalesByK[scheme.maxK]
+}
+
+const colorScheme = (scheme) => {
+  return Object.entries(scheme).map(([name, scheme]) => {
+    const colors = getLargestColorArray(scheme)
+
+    return {
+      value: name,
+      label: (
+        <Flex direction="row" gap="2" alignItems="center">
+          <div style={{ display: 'flex', gap: '2px' }}>
+            {colors.map((color, idx) => (
+              <div
+                key={idx}
+                style={{
+                  width: 15,
+                  height: 15,
+                  backgroundColor: color,
+                  border: 'none',
+                }}
+              />
+            ))}
+          </div>
+        </Flex>
+      ),
+    }
+  })
+}
+
+export function schemeSelector({ defaultValue, schemeType }) {
+  return {
+    label: 'Esquema de cores',
+    type: 'select',
+    clearable: false,
+    defaultValue: defaultValue || DEFAULT_COLOR_SCHEME_ID,
+    options:
+      schemeType === 'categorical'
+        ? colorScheme(CATEGORICAL_SCHEMES)
+        : colorScheme(CONTINUOUS_SCHEMES),
   }
 }

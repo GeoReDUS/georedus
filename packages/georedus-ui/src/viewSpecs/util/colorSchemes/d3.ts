@@ -163,21 +163,7 @@ export const D3_SEQUENTIAL = {
   schemeYlOrRd,
 }
 
-const SCHEME_GEOREDUS = [
-  '#FF7F00',
-  '#CAB2D6',
-  '#FFE551',
-  '#39BBA7',
-  '#FB9A99',
-  '#B15928',
-  '#FDBF6F',
-  '#DA5AD8',
-  '#B4B282',
-  '#6A3D9A',
-]
-
 export const D3_COLOR_SCHEMES = {
-  schemeGeoReDUS: SCHEME_GEOREDUS,
   ..._objMap(D3_CATEGORICAL, ([id, scheme]) => [
     id,
     _categoricalScheme(scheme),
