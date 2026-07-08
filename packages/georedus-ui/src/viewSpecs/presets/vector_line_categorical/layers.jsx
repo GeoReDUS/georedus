@@ -5,7 +5,7 @@ import { basicTooltip, LINE_PATTERN_SOLID, LINE_WIDTH_1 } from '../util'
 
 function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   const _legend = resolve.fn((ctx) => {
-    const categories = viewSpec.style.categories
+    const categories = ctx.view.metadata.categories
 
     return {
       type: 'CategoricalLegend',
