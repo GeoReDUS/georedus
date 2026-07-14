@@ -87,7 +87,6 @@ export function fillPatternSelector(props = {}) {
   }
 }
 
-<<<<<<< HEAD
 export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
 
 const CATEGORICAL_SCHEMES = {
@@ -151,7 +150,6 @@ export function schemeSelector({ defaultValue, schemeType }) {
         : colorScheme(CONTINUOUS_SCHEMES),
   }
 }
-=======
 export const LINE_PATTERN_SOLID = 'solid'
 
 export const LINE_PATTERN_OPTIONS = [
@@ -221,4 +219,3 @@ export function lineWidthSelector({defaultValue = LINE_WIDTH_1} = {}) {
     }), 
   }
 }
->>>>>>> 0bb9cc64db4a87695421d3c9688b8d3808c9c1d9
