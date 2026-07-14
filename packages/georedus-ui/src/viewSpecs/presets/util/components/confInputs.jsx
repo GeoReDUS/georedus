@@ -87,6 +87,7 @@ export function fillPatternSelector(props = {}) {
   }
 }
 
+<<<<<<< HEAD
 export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
 
 const CATEGORICAL_SCHEMES = {
@@ -150,3 +151,74 @@ export function schemeSelector({ defaultValue, schemeType }) {
         : colorScheme(CONTINUOUS_SCHEMES),
   }
 }
+=======
+export const LINE_PATTERN_SOLID = 'solid'
+
+export const LINE_PATTERN_OPTIONS = [
+  { label: 'Sólido', value: 'solid' },
+  { label: 'Tracejado', value: 'dashed' },
+  { label: 'Pontilhado', value: 'dotted' },
+]
+
+export function linePatternSelector({defaultValue = LINE_PATTERN_SOLID} = {}) {
+  return {
+    label: 'Padrão da linha',
+    helperText: 'Selecione o padrão de linha para a camada',
+    type: 'select',
+    clearable: false,
+    defaultValue: defaultValue,
+    options: LINE_PATTERN_OPTIONS.map((opt) => {
+      return {
+        ...opt,
+        label: (
+          <Flex direction="row" alignItems="center" gap="2">
+            <div
+              style={{
+                width: 15,
+                height: 0,
+                borderTop: `2px ${opt.value} black`,
+              }}
+            />
+            <div> {opt.label}</div>
+          </Flex>
+        ),
+      }
+    }),
+  }
+}
+
+
+export const LINE_WIDTH_1 = 1
+
+export const LINE_WIDTH_OPTIONS = Array.from({ length: 5 }, (_, i) => i + 1).map((v) => ({
+  label: `${v}px`,
+  value: v,
+}))
+
+export function lineWidthSelector({defaultValue = LINE_WIDTH_1} = {}) {
+  return {
+    label: 'Espessura da linha',
+    helperText: 'Selecione a expessura da linha para a camada',
+    type: 'select',
+    clearable: false,
+    defaultValue: defaultValue,
+    options: LINE_WIDTH_OPTIONS.map((opt) => {
+      return {
+        ...opt,
+        label: (
+          <Flex direction="row" alignItems="center" gap="2">
+            <div
+              style={{
+                width: 15,
+                height: 0,
+                borderTop: `${opt.value}px solid black`,
+              }}
+            />
+            <div> {opt.label}</div>
+          </Flex>
+        ),
+      }
+    }), 
+  }
+}
+>>>>>>> 0bb9cc64db4a87695421d3c9688b8d3808c9c1d9
