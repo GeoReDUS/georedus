@@ -28,6 +28,8 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   const heatmap = resolve.fn((ctx) => {
+    const _confOpacity = ctx.view?.conf?.style?.opacity
+
     return {
       zIndex: Z_OVERLAY_BASE_1000,
       source: MAIN_SOURCE_ID,
@@ -61,11 +63,12 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
                 30,
               ],
         'heatmap-opacity':
-          viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
+          _confOpacity ||
+          (viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
             ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.opacity]
             : viewSpec.style.circle
               ? ['interpolate', ['linear'], ['zoom'], 14, 1, 18, 0]
-              : viewSpec.style.opacity || DEFAULT_FILL_OPACITY,
+              : viewSpec.style.opacity || DEFAULT_FILL_OPACITY),
       },
       legends: _main_heatmap_legends(props, viewSpec, allViewSpecs, context),
     }
@@ -77,6 +80,8 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   const circle = resolve.fn((ctx) => {
+    const _confOpacity = ctx.view?.conf?.style?.opacity
+
     return {
       zIndex: Z_OVERLAY_BASE_1000,
       source: MAIN_SOURCE_ID,
@@ -101,7 +106,8 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
                 30,
               ],
         'circle-opacity':
-          viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
+          _confOpacity ||
+          (viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
             ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.opacity]
             : viewSpec.style.opacity || [
                 'interpolate',
@@ -111,7 +117,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
                 0,
                 17,
                 1,
-              ],
+              ]),
       },
     }
   })
