@@ -1,7 +1,7 @@
 import { Flex } from '@orioro/react-ui-core'
-import { GEOREDUS_LABELED_COLORS } from '../../../util/colorSchemes'
+import { GEOREDUS_LABELED_COLORS, GEOREDUS_LABELED_SAFE_COLORS } from '../../../util/colorSchemes'
 import { SVG_PATTERNS } from '@orioro/react-maplibre-util'
-import { D3_DIVERGING, D3_SEQUENTIAL, D3_COLOR_SCHEMES } from '../../../util'
+import { D3_DIVERGING, D3_SEQUENTIAL, D3_CATEGORICAL, D3_COLOR_SCHEMES } from '../../../util'
 
 export const COLOR_OPTIONS = Object.values(GEOREDUS_LABELED_COLORS)
 
@@ -89,8 +89,18 @@ export function fillPatternSelector(props = {}) {
 
 export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
 
+const GEOREDUS_CATEGORICAL_SAFE_COLORS = Object.values(GEOREDUS_LABELED_SAFE_COLORS).map(
+  (color) => color.value,
+)
+
+const GEOREDUS_CATEGORICAL_COLORS = Object.values(GEOREDUS_LABELED_COLORS).map(
+  (color) => color.value,
+)
+
 const CATEGORICAL_SCHEMES = {
-  ...GEOREDUS_LABELED_COLORS,
+  schemeGeoReDUSSafe: GEOREDUS_CATEGORICAL_SAFE_COLORS,
+  schemeGeoReDUS: GEOREDUS_CATEGORICAL_COLORS,
+  ...D3_CATEGORICAL,
 }
 
 const continuousIds = [
@@ -111,9 +121,9 @@ const getLargestColorArray = (scheme) => {
   return scheme.scalesByK[scheme.maxK]
 }
 
-const colorScheme = (scheme) => {
-  return Object.entries(scheme).map(([name, scheme]) => {
-    const colors = getLargestColorArray(scheme)
+const colorScheme = (schemeAll, isSchemeByK) => {
+  return Object.entries(schemeAll).map(([name, scheme]) => {
+    const colors = isSchemeByK ? getLargestColorArray(scheme) : scheme
 
     return {
       value: name,
@@ -146,8 +156,8 @@ export function schemeSelector({ defaultValue, schemeType }) {
     defaultValue: defaultValue || DEFAULT_COLOR_SCHEME_ID,
     options:
       schemeType === 'categorical'
-        ? colorScheme(CATEGORICAL_SCHEMES)
-        : colorScheme(CONTINUOUS_SCHEMES),
+        ? colorScheme(CATEGORICAL_SCHEMES, false)
+        : colorScheme(CONTINUOUS_SCHEMES, true),
   }
 }
 
@@ -160,6 +170,7 @@ export function opacitySelector({ defaultValue }) {
     clearable: false,
     defaultValue: defaultValue || DEFAULT_OPACITY,
     options: [
+      { value: 0.0001, label: '0%' },
       { value: 0.25, label: '25%' },
       { value: 0.5, label: '50%' },
       { value: 0.75, label: '75%' },

@@ -28,11 +28,17 @@ export function resolveSchemeColor(
 ): string {
   const colorScheme = COLOR_SCHEMES[colorSchemeId]
 
-  return typeof indexOrId === 'string'
-    ? colorScheme[indexOrId]
-    : (Array.isArray(colorScheme) ? colorScheme : Object.values(colorScheme))[
-        indexOrId
-      ]
+  if (typeof indexOrId === 'string') {
+    return colorScheme[indexOrId]
+  }
+
+  const values = Array.isArray(colorScheme)
+    ? colorScheme
+    : Array.isArray(colorScheme?.colors)
+      ? colorScheme.colors
+      : Object.values(colorScheme)
+
+  return values[indexOrId % values.length]
 }
 
 export * from './d3'

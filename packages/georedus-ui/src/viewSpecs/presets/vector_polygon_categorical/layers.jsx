@@ -49,6 +49,7 @@ function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
 function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((context) => {
     const categories = context.view.metadata.categories
+    const _opacity = context.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
     return [
       {
         type: 'CategoricalLegend',
@@ -59,7 +60,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
           color: resolveColor(cat.color),
           box: {
             style: {
-              backgroundColor: applyOpacity(resolveColor(cat.color), DEFAULT_FILL_OPACITY),
+              backgroundColor: applyOpacity(resolveColor(cat.color), _opacity),
             },
           },
         })),
@@ -91,10 +92,12 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
               '#CCCCCC',
             ]
           : null
+      
+      const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
 
       return {
         'fill-color': _maplibreColorExp,
-        'fill-opacity': DEFAULT_FILL_OPACITY,
+        'fill-opacity': _opacity,
         ...(resolvedFillPatternStr
           ? { 'fill-pattern': resolvedFillPatternStr }
           : {}),

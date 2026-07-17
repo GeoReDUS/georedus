@@ -10,7 +10,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
   const categories = resolveAsync.fn(async (ctx) => {
     // Resolve color scheme
     const colorSchemeId =
-      ctx.view?.conf?.style?.colorScheme || 'schemeGeoReDUSSafe'
+      ctx.view?.conf?.style?.colorScheme || style.colorScheme || 'schemeGeoReDUSSafe'
 
     // resolve categories
     const resolvedCategories =
