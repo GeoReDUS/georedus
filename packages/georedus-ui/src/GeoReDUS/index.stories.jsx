@@ -116,6 +116,9 @@ const GOOGLE_SAUDE_ARBOVIROSES =
 const GOOGLE_INFRA_SERVICOS =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1057066350&single=true&output=csv'
 
+const GOOGLE_HEXAGONS =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7R3I_EjXhXkNK5OE4qUG_uiSg9qZrPIzzVPtj0fNA4EympIWzQA4KkFt6TNwp6RYH7ZgaJrDJ4z6J/pub?gid=1038041860&single=true&output=csv'
+
 const ASSETS_BASE = process.env.NODE_ENV === 'development' ? '/' : '/georedus/'
 
 const BUILT_IN_CEM_CENSO_2010 = `${ASSETS_BASE}georedus/data/cem_censo_2010.csv`
@@ -157,6 +160,7 @@ const GOOGLE_SHEETS_VIEW_SPECS = {
     GOOGLE_CEM_SAUDE_2024,
     GOOGLE_SAUDE_ARBOVIROSES,
     GOOGLE_INFRA_SERVICOS,
+    GOOGLE_HEXAGONS,
 
     [
       hand({
