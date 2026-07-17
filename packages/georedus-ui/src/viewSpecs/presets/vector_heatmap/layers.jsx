@@ -37,6 +37,7 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
       interactive: true,
       type: 'heatmap',
       minzoom: 7,
+      maxzoom: 16,
       paint: {
         'heatmap-weight': viewSpec.style.weight || 1,
         'heatmap-color': [
