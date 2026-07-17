@@ -153,7 +153,7 @@ export function schemeSelector({ defaultValue, schemeType, clearable = false }) 
     label: 'Esquema de cores',
     type: 'select',
     clearable: clearable,
-    defaultValue: defaultValue || DEFAULT_COLOR_SCHEME_ID,
+    defaultValue: defaultValue === undefined ? DEFAULT_COLOR_SCHEME_ID : defaultValue,
     options:
       schemeType === 'categorical'
         ? colorScheme(CATEGORICAL_SCHEMES, false)
