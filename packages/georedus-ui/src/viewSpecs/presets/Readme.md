@@ -36,7 +36,14 @@ preset(viewSpecInput, allViewSpecs, context) => ViewSpec
 
 - **`viewSpecInput`**: objeto de configuração da view. Contém os campos base abaixo mais o campo `style`, cujo formato é específico de cada preset (ver seções seguintes).
 - **`allViewSpecs`**: array com os demais `viewSpecInput` do mesmo lote (disponibilizado para os presets, mas não usado diretamente pelos 7 presets vetoriais).
-- **`context`**: `{ METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT, ...outrosDadosDaAplicação }`, usado para resolver URLs de tiles e de dados de metadata/download.
+- **`context`**: `{ METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT, municipioId, ...outrosDadosDaAplicação }`, usado para resolver URLs de tiles e de dados de metadata/download.
+
+#### Placeholders em URLs
+
+Os campos que aceitam URLs como template (`tiles`, `download_url` e o `values` dos presets contínuos) podem conter os seguintes placeholders `${...}`, resolvidos a partir do `context`:
+
+- `${VECTOR_TILE_SERVER_ENDPOINT}` / `${METADATA_API_ENDPOINT}` — endpoints da aplicação (tile server e API de metadata/dados).
+- `${municipioId}` — código IBGE do **município atualmente selecionado** na interface (corresponde à coluna `cd_mun` das views PostgREST). Permite escopar os dados/quebras a uma cidade, ex.: `&cd_mun=eq.${municipioId}`. Como a view é reprocessada quando o município muda, as quebras (natural breaks/quantis) são recalculadas para cada cidade.
 
 Um preset é tipicamente selecionado dinamicamente através do campo `preset` (nome da função) em conjunto com `parseViewSpec`, que despacha o `viewSpecInput` para o preset correspondente — mas os presets também podem ser importados e chamados diretamente.
 
@@ -140,7 +147,7 @@ objeto `radius`:
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `valueKey` | `string` | **sim** (se `radius` definido) | Nome da propriedade da feature usada para calcular o raio. |
-| `values` | `string \| number[] \| { value: number }[]` | **sim** (se `radius` definido) | URL (retornando JSON) ou array com os valores usados para calcular a escala min/max do raio. |
+| `values` | `string \| number[] \| { value: number }[]` | **sim** (se `radius` definido) | URL (retornando JSON) ou array com os valores usados para calcular a escala min/max do raio. Aceita o placeholder `${municipioId}` para escopar os valores ao município selecionado (ex.: `&cd_mun=eq.${municipioId}`). |
 | `numberFormat` | `any` | não | Formato numérico usado na legenda. |
 <!-- | `classificationMethod` | objeto | não | Método de distribuição de valores a ser usado | -->
 <!-- | `legend.format` | objeto | não | Formatação adicional da legenda de símbolo proporcional. | -->
@@ -160,7 +167,8 @@ Pontos cuja feature não possua valor numérico em `radius.valueKey` são render
     color: 'schemeGeoReDUS.laranja',
     radius: {
       valueKey: 'atendimentos_mes',
-      values: `${METADATA_API_ENDPOINT}/ubs_atendimentos?select=value`,
+      // `&cd_mun=eq.${municipioId}` restringe a escala do raio ao município selecionado
+      values: `${METADATA_API_ENDPOINT}/ubs_atendimentos?select=value&cd_mun=eq.${municipioId}`,
       numberFormat: ['pt-BR'],
     },
   },
@@ -316,7 +324,7 @@ Renderiza polígonos com preenchimento em coroplético — a cor varia continuam
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
 | `valueKey` | `string` | **sim** | Nome da propriedade numérica da feature. |
-| `values` | `string \| number[] \| { value: number }[]` | **sim** | URL (retornando JSON) ou array com os valores usados para calcular as classes/quebras da escala. |
+| `values` | `string \| number[] \| { value: number }[]` | **sim** | URL (retornando JSON) ou array com os valores usados para calcular as classes/quebras da escala. Aceita o placeholder `${municipioId}` — sem o filtro `cd_mun=eq.${municipioId}` na URL, as quebras são calculadas sobre **todos** os municípios; com ele, apenas sobre a cidade selecionada. |
 | `colorScheme` | ver [Esquemas de cor contínuos](#esquemas-de-cor-contínuos) | `'schemeOrRd'` | Paleta sequencial/divergente ou array custom de cores. |
 | `classificationMethod` | `'naturalBreaks' \| 'quantile' \| { type: 'naturalBreaks' \| 'quantile', k: number } \| { type: 'custom', breaks: number[] }` | `{ type: 'naturalBreaks', k: 5 }` | Método de classificação dos valores em faixas de cor. `k` é o número de classes. |
 | `numberFormat` | `any` | não | Formato numérico usado na legenda. |
@@ -334,7 +342,8 @@ Renderiza polígonos com preenchimento em coroplético — a cor varia continuam
   source_layer: 'setores_censitarios',
   style: {
     valueKey: 'renda_media',
-    values: `${METADATA_API_ENDPOINT}/censo_2022_renda?select=value`,
+    // `&cd_mun=eq.${municipioId}` restringe as quebras ao município selecionado
+    values: `${METADATA_API_ENDPOINT}/censo_2022_renda?select=value&cd_mun=eq.${municipioId}`,
     colorScheme: 'schemeBlues',
     classificationMethod: { type: 'quantile', k: 5 },
     numberFormat: ['pt-BR', { style: 'currency', currency: 'BRL' }],
