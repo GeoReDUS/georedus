@@ -48,6 +48,5 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   }
   const colorScheme =
     typeof styleInput.categories === 'string' ? DEFAULT_COLOR_SCHEME_ID : null
-    console.log(colorScheme)
   return { colorScheme: colorScheme, ...styleInput }
 }

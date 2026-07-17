@@ -36,8 +36,6 @@ const DEFAULT_NUMBER_FORMAT = ['pt-BR', {}]
 
 function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
-    console.log('ctx', ctx)
-
     return [
       {
         type: 'SequentialColorLegend',
