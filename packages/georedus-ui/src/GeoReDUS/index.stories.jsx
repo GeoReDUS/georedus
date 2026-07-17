@@ -11,6 +11,7 @@ import {
   mdiHospitalBox,
   mdiEarth,
   mdiMap,
+  mdiBus,
 } from '@mdi/js'
 
 import {
@@ -194,6 +195,7 @@ const CATEGORY_ICONS = {
   educacao: <Icon path={mdiSchool} />,
   'infraestrutura-e-servicos-urbanos': <Icon path={mdiHomeCity} />,
   saude: <Icon path={mdiHospitalBox} />,
+  mobilidade: <Icon path={mdiBus} />,
   'emergencias-climaticas': <Icon path={mdiEarth} />,
   'divisoes-territoriais': <Icon path={mdiMap} />,
   maceio: (
