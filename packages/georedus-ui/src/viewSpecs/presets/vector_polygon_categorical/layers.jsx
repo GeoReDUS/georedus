@@ -47,23 +47,46 @@ function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
 }
 
 function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
-  const _legends = resolve.fn((context) => {
-    const categories = context.view.metadata.categories
-    const _opacity = context.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
+  const { _fillPattern } = props
+
+  const _legends = resolve.fn([_fillPattern], ([resolvedFillPattern], ctx) => {
+    const categories = ctx.view.metadata.categories
+    const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
+
     return [
       {
         type: 'CategoricalLegend',
         title: viewSpec.label,
-        items: categories.map((cat) => ({
-          id: cat.value,
-          label: cat.label,
-          color: resolveColor(cat.color),
-          box: {
-            style: {
-              backgroundColor: applyOpacity(resolveColor(cat.color), _opacity),
+        items: categories.map((cat) => {
+          const boxStyle =
+            resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
+              ? {
+                  backgroundColor: 'transparent',
+                  backgroundImage:
+                    typeof SVG_PATTERNS[resolvedFillPattern] === 'function'
+                      ? svgBgImage(
+                          SVG_PATTERNS[resolvedFillPattern]({
+                            stroke: resolveColor(cat.color),
+                            scale: '0.25',
+                          }),
+                        )
+                      : '',
+                }
+              : {
+                  backgroundColor: applyOpacity(
+                    resolveColor(cat.color),
+                    _opacity,
+                  ),
+                }
+          return {
+            id: cat.value,
+            label: cat.label,
+            color: resolveColor(cat.color),
+            box: {
+              style: boxStyle,
             },
-          },
-        })),
+          }
+        }),
       },
     ]
   })
@@ -92,7 +115,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
               '#CCCCCC',
             ]
           : null
-      
+
       const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
 
       return {
@@ -128,7 +151,9 @@ export function layers(viewSpec, allViewSpecs, context) {
   const _maplibreColorExp = resolve.fn((ctx) => [
     'match',
     ['get', viewSpec.style.categoryKey],
-    ...ctx.view.metadata.categories.map((cat) => [cat.value, resolveColor(cat.color)]).flat(),
+    ...ctx.view.metadata.categories
+      .map((cat) => [cat.value, resolveColor(cat.color)])
+      .flat(),
     '#CCCCCC',
   ])
 

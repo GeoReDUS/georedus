@@ -6,8 +6,9 @@ export function confSchema(viewSpec, allViewSpecs, context) {
     style: {
       fillPattern: fillPatternSelector(),
       colorScheme: schemeSelector({
-        defaultValue: viewSpec.style?.colorScheme || 'schemeGeoReDUSSafe',
+        defaultValue: viewSpec.style?.colorScheme,
         schemeType: 'categorical',
+        clearable: viewSpec.style?.colorScheme === null
       }),
       opacity: opacitySelector({ defaultValue: DEFAULT_FILL_OPACITY }),
     },

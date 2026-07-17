@@ -34,6 +34,7 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
+    | null
   categories: string | (string | Category)[]
 } & Omit<CategoryStyleSpec, 'color'>
 
@@ -45,6 +46,8 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
     throw new Error('expected existing styleInput')
   }
-
-  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, ...styleInput }
+  const colorScheme =
+    typeof styleInput.categories === 'string' ? DEFAULT_COLOR_SCHEME_ID : null
+    console.log(colorScheme)
+  return { colorScheme: colorScheme, ...styleInput }
 }
