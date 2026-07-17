@@ -10,7 +10,6 @@ Este documento cobre os 9 presets disponíveis (8 vetoriais + 1 raster):
 | Ponto | [`vector_point_single`](#vector_point_single) | — | [`vector_point_continuous`](#vector_point_continuous) | [`vector_heatmap`](#vector_heatmap) |
 | Linha | [`vector_line_single`](#vector_line_single) | [`vector_line_categorical`](#vector_line_categorical) | — | — |
 | Polígono | [`vector_polygon_single`](#vector_polygon_single) | [`vector_polygon_categorical`](#vector_polygon_categorical) | [`vector_polygon_continuous`](#vector_polygon_continuous) | — |
-| Raster | — | [`raster_categorical`](#raster_categorical) | — | — |
 
 ### Raster Presets
 | Geometria | Estilo único | Estilo categórico | Estilo contínuo | Densidade |
