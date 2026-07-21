@@ -46,7 +46,7 @@ const VIEW_SPECS = {
   all: [
     [
       {
-        id: 'test_item',
+        id: 'test_item_1',
         collection_id: 'test',
         indicator_id: 'test',
         preset: 'vector_point_categorical',
@@ -56,9 +56,30 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_pontos_culturais_2026.geom/{z}/{x}/{y}',
         source_layer: 'mun_maceio_malha_pontos_culturais_2026.geom',
         style: {
-          categoryKey: 'textstring',
+          categoryKey: 'tipo',
+          categories: [
+            { value: 'Pontos Culturais', color: 'schemeGeoReDUS.azul' },
+            { value: 'Atrativos Turísticos', color: 'schemeGeoReDUS.rosa' },
+          ],
+        },
+        tooltip: '',
+        sourceLabel: 'TEst',
+        metodology: 'test metodology',
+      },
+      {
+        id: 'test_item_2',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'vector_point_categorical',
+        path: 'Test dir / _',
+        label: 'Conselho Tutelar',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025.geom/{z}/{x}/{y}',
+        source_layer: 'mun_maceio_malha_conselho_tutelar_2025.geom',
+        style: {
+          categoryKey: 'nome',
           categories:
-            '${METADATA_API_ENDPOINT}/mun_maceio_malha_pontos_culturais_2026?select=textstring',
+            '${METADATA_API_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025?select=nome',
         },
         tooltip: '',
         sourceLabel: 'TEst',
