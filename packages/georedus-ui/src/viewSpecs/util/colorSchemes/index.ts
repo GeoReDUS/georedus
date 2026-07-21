@@ -43,6 +43,10 @@ export function resolveSchemeColor(
       ? colorScheme.colors
       : Object.values(colorScheme)
 
+  if (typeof indexOrId === 'number' && indexOrId > values.length - 1) {
+    console.warn('Index is higher than colorScheme size: will repeat colors')
+  }
+
   return values[indexOrId % values.length]
 }
 
