@@ -93,6 +93,7 @@ export function parseStyleSpec(styleInput: StyleSpecInput = {}): StyleSpec {
     styleInput.colorScheme || DEFAULT_HEATMAP_COLOR_SCHEME_ID
 
   return {
+    circle: false,
     ...styleInput,
     steps: steps.map((step, index) => ({
       ...step,
