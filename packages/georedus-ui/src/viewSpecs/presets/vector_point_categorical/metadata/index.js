@@ -22,18 +22,11 @@ export function metadata(viewSpec, allViewSpecs, context) {
             }),
           )
             .then((res) => res.json())
-            .then((features) => {
-              const categoryKey = style.categoryKey
-              const uniqueValues = uniqBy(
-                features
-                  .map((feature) => ({
-                    value: feature[categoryKey],
-                  }))
-                  .filter((cat) => cat.value != null),
-                'value',
-              )
-              return uniqueValues
-            })
+            .then((categories) =>
+              uniqBy(categories, (cat) => cat.value).filter(
+                (cat) => cat.value !== null,
+              ),
+            )
         : Array.isArray(style.categories)
           ? style.categories.map((categoryInput) =>
               typeof categoryInput === 'string'
@@ -43,8 +36,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
                 : categoryInput,
             )
           : null
-
-    console.log('resolvedCategories', resolvedCategories)
 
     if (!resolvedCategories) {
       throw new Error('could not resolve categories ' + viewSpec.id)

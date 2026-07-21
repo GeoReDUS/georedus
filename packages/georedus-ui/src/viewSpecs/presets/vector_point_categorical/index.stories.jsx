@@ -79,7 +79,7 @@ const VIEW_SPECS = {
         style: {
           categoryKey: 'nome',
           categories:
-            '${METADATA_API_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025?select=nome',
+            '${METADATA_API_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025?select=value:nome',
         },
         tooltip: '',
         sourceLabel: 'TEst',
