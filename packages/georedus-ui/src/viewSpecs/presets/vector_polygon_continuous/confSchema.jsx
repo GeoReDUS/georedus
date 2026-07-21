@@ -1,5 +1,5 @@
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
-import { schemeSelector } from '../util/components/confInputs'
+import { colorSchemeSelector } from '../util/components/confInputs'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   return {
@@ -21,7 +21,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
           },
         ],
       },
-      colorScheme: schemeSelector({
+      colorScheme: colorSchemeSelector({
         defaultValue: viewSpec.style?.colorScheme || DEFAULT_COLOR_SCHEME_ID,
         schemeType: 'continuous',
       }),

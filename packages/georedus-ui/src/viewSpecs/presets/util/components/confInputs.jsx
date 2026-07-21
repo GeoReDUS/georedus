@@ -138,7 +138,7 @@ const colorScheme = (scheme) => {
   })
 }
 
-export function schemeSelector({ defaultValue, schemeType }) {
+export function colorSchemeSelector({ defaultValue, schemeType }) {
   return {
     label: 'Esquema de cores',
     type: 'select',
