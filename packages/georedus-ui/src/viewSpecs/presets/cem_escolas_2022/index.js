@@ -129,14 +129,15 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
           defaultValue: indicator_id,
         },
 
-        showSize: sizing_variable_id && (sizing_variable_id != variable_id)
-          ? {
-              label: 'Matrículas',
-              type: 'booleanCheckbox',
-              description: 'Tamanho proporcional à quantidade de matrículas',
-              defaultValue: true,
-            }
-          : null,
+        showSize:
+          sizing_variable_id && sizing_variable_id != variable_id
+            ? {
+                label: 'Matrículas',
+                type: 'booleanCheckbox',
+                description: 'Tamanho proporcional à quantidade de matrículas',
+                defaultValue: true,
+              }
+            : null,
 
         ...influenceAreaConf({
           defaultBufferSize: 200,
@@ -374,22 +375,34 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
             // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
             // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
             const ETAPAS = [
-              { label: 'Infantil / Creche',     sufixos: ['in_inf_cre', 'edu02_etp_cre_0'] },
-              { label: 'Infantil / Pré-escola', sufixos: ['in_inf_pre', 'edu02_etp_pre_0'] },
-              { label: 'Fundamental I',         sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'] },
-              { label: 'Fundamental II',        sufixos: ['in_fund_af', 'edu02_etp_fn2_0'] },
-              { label: 'Ensino Médio',          sufixos: ['in_med', 'edu02_etp_em_0'] },
+              {
+                label: 'Infantil / Creche',
+                sufixos: ['in_inf_cre', 'edu02_etp_cre_0'],
+              },
+              {
+                label: 'Infantil / Pré-escola',
+                sufixos: ['in_inf_pre', 'edu02_etp_pre_0'],
+              },
+              {
+                label: 'Fundamental I',
+                sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'],
+              },
+              {
+                label: 'Fundamental II',
+                sufixos: ['in_fund_af', 'edu02_etp_fn2_0'],
+              },
+              { label: 'Ensino Médio', sufixos: ['in_med', 'edu02_etp_em_0'] },
             ]
 
-            return ETAPAS
-              .filter(({ sufixos }) => {
-                // Percorre todas as propriedades da feature atual
-                return Object.entries(properties).some(([key, value]) => 
-                  // Verifica se o nome da coluna termina com algum dos sufixos mapeados 
+            return ETAPAS.filter(({ sufixos }) => {
+              // Percorre todas as propriedades da feature atual
+              return Object.entries(properties).some(
+                ([key, value]) =>
+                  // Verifica se o nome da coluna termina com algum dos sufixos mapeados
                   // E se o valor da coluna é "truthy" (maior que 0, true, etc)
-                  sufixos.some(sufixo => key.endsWith(sufixo)) && value
-                )
-              })
+                  sufixos.some((sufixo) => key.endsWith(sufixo)) && value,
+              )
+            })
               .map(({ label }) => label)
               .join(', ')
           }),
@@ -402,20 +415,25 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     ].filter(Boolean),
   }
 
-  const $legends = sizing_variable_id && ['$get', 'view.conf.data.showSize']
-  ? [
-      {
-        type: 'ProportionalSymbolLegend',
-        unit: 'Matrículas',
-        title: sizing_variable_label,
-        min: ['$min', ['$get', 'view.metadata.sizingValues']],
-        max: ['$max', ['$get', 'view.metadata.sizingValues']],
-        sizeMin: SIZE_MIN * 2,
-        sizeMax: SIZE_MAX * 2,
-        numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
-      },
-    ]
-  : []
+  const $legends = sizing_variable_id
+    ? [
+        [
+          '$if',
+          ['$get', 'view.conf.data.showSize'],
+          {
+            type: 'ProportionalSymbolLegend',
+            unit: 'Matrículas',
+            title: sizing_variable_label,
+            min: ['$min', ['$get', 'view.metadata.sizingValues']],
+            max: ['$max', ['$get', 'view.metadata.sizingValues']],
+            sizeMin: SIZE_MIN * 2,
+            sizeMax: SIZE_MAX * 2,
+            numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
+          },
+          null,
+        ],
+      ]
+    : []
 
   const typeParser = BY_TYPE[indicator_type]
 
