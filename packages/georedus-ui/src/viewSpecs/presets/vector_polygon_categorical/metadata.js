@@ -22,19 +22,20 @@ export function metadata(viewSpec, allViewSpecs, context) {
             }),
           )
             .then((res) => res.json())
-            .then((features) => {
-              const categoryKey = style.categoryKey
-              const uniqueValues = uniqBy(
-                features
-                  .map((feature) => ({
-                    value: feature[categoryKey],
-                  }))
-                  .filter((cat) => cat.value != null),
-                'value',
-              )
-              return uniqueValues
-            })
-        : Array.isArray(style.categories)
+            .then((categories) => uniqBy(categories, (cat) => cat.value))
+        : // .then((features) => {
+          //   const categoryKey = style.categoryKey
+          //   const uniqueValues = uniqBy(
+          //     features
+          //       .map((feature) => ({
+          //         value: feature[categoryKey],
+          //       }))
+          //       .filter((cat) => cat.value != null),
+          //     'value',
+          //   )
+          //   return uniqueValues
+          // })
+          Array.isArray(style.categories)
           ? style.categories.map((categoryInput) =>
               typeof categoryInput === 'string'
                 ? {

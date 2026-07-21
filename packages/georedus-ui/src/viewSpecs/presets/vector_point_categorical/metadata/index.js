@@ -44,6 +44,8 @@ export function metadata(viewSpec, allViewSpecs, context) {
             )
           : null
 
+    console.log('resolvedCategories', resolvedCategories)
+
     if (!resolvedCategories) {
       throw new Error('could not resolve categories ' + viewSpec.id)
     }
