@@ -160,21 +160,3 @@ export function schemeSelector({ defaultValue, schemeType, clearable = false }) 
         : colorScheme(CONTINUOUS_SCHEMES, true),
   }
 }
-
-const DEFAULT_OPACITY = 0.5
-
-export function opacitySelector({ defaultValue }) {
-  return {
-    label: 'Opacidade',
-    type: 'select',
-    clearable: false,
-    defaultValue: defaultValue || DEFAULT_OPACITY,
-    options: [
-      { value: 0.0001, label: '0%' },
-      { value: 0.25, label: '25%' },
-      { value: 0.5, label: '50%' },
-      { value: 0.75, label: '75%' },
-      { value: 1, label: '100%' },
-    ],
-  }
-}

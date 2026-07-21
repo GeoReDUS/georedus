@@ -36,8 +36,8 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
       'source-layer': source_layer,
       interactive: true,
       type: 'heatmap',
-      minzoom: 7,
-      maxzoom: 16,
+      minzoom: viewSpec.style.minzoom || 7,
+      ...(viewSpec.style.maxzoom ? { maxzoom: viewSpec.style.maxzoom } : {}),
       paint: {
         'heatmap-weight': viewSpec.style.weight || 1,
         'heatmap-color': [
@@ -63,13 +63,13 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
                 17,
                 30,
               ],
-        'heatmap-opacity':
-          _confOpacity ||
-          (viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
-            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.opacity]
-            : viewSpec.style.circle
-              ? ['interpolate', ['linear'], ['zoom'], 14, 1, 18, 0]
-              : viewSpec.style.opacity || DEFAULT_FILL_OPACITY),
+        'heatmap-opacity': viewSpec.style.circle
+          ? ['interpolate', ['linear'], ['zoom'], 12, 1, 16, 0]
+          : typeof _confOpacity === 'number'
+            ? _confOpacity
+            : viewSpec.style.opacity
+              ? viewSpec.style.opacity
+              : DEFAULT_FILL_OPACITY,
       },
       legends: _main_heatmap_legends(props, viewSpec, allViewSpecs, context),
     }
@@ -81,7 +81,17 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   const circle = resolve.fn((ctx) => {
-    const _confOpacity = ctx.view?.conf?.style?.opacity
+    const _opacity = viewSpec.style.opacity
+      ? viewSpec.style.opacity
+      : viewSpec.style.opacity || [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          14,
+          0,
+          17,
+          1,
+        ]
 
     return {
       zIndex: Z_OVERLAY_BASE_1000,
@@ -91,9 +101,14 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       interactive: true,
       minzoom: 14,
       paint: {
-        'circle-color': resolveColor(ctx.view.metadata.steps[0].color),
+        'circle-color': resolveColor(
+          ctx.view.metadata.steps[
+            Math.floor(ctx.view.metadata.steps.length / 2)
+          ].color,
+        ),
         'circle-stroke-color': '#FFFFFF',
         'circle-stroke-width': 2,
+        'circle-stroke-opacity': _opacity,
         'circle-radius':
           viewSpec.style.radius && Array.isArray(viewSpec.style.radius)
             ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.radius]
@@ -101,24 +116,12 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                9,
+                11,
                 2,
                 17,
-                30,
+                10,
               ],
-        'circle-opacity':
-          _confOpacity ||
-          (viewSpec.style.opacity && Array.isArray(viewSpec.style.opacity)
-            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.opacity]
-            : viewSpec.style.opacity || [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                15,
-                0,
-                17,
-                1,
-              ]),
+        'circle-opacity': _opacity,
       },
     }
   })
