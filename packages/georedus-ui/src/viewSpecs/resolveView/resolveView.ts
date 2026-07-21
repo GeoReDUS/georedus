@@ -158,7 +158,7 @@ export const resolveControls = _stageResolver<
     ? Object.entries(view.layers).flatMap(([layerRelativeId, layer]) => {
         return layer.hidden || layer.visibility === 'none'
           ? []
-          : (layer.legends || []).map((legend, index) => ({
+          : (layer.legends || []).filter(Boolean).map((legend, index) => ({
               ...legend,
               //
               // TODO: review if there is a better approach
@@ -171,7 +171,7 @@ export const resolveControls = _stageResolver<
 
   return {
     ...(controls || {}),
-    legends: [...(controls.legends || []), ...layerLegends],
+    legends: [...(controls.legends || []).filter(Boolean), ...layerLegends],
   }
 })
 
