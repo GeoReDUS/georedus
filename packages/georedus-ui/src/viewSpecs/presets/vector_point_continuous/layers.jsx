@@ -78,7 +78,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     filter: viewSpec.style?.filter ? [
       'all',
       ['==', ['get', 'id_municipio_gestor_2026'], context.municipioId],
-      ['!=', ['get', viewSpec.id], null],
+      ['!=', ['get', viewSpec.style.radius.valueKey], null],
     ] : ['all'],
   }
 }
