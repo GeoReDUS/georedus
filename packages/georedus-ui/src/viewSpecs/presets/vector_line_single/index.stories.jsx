@@ -56,10 +56,7 @@ const VIEW_SPECS = {
         path: 'Test Dir / _ ',
         label: 'Hidrografia',
         style: 'schemeGeoReDUS.azul',
-        tooltip: {
-          title: 'nome_uc',
-          entries: ['categoria'],
-        },
+        tooltip: { title: 'nome' },
         sourceLabel: 'Test',
         metodology: 'test metodology',
         download_url:
@@ -81,8 +78,7 @@ const VIEW_SPECS = {
           lineWidth: 4,
         },
         tooltip: {
-          title: 'nome_uc',
-          entries: ['categoria'],
+          entries: [],
         },
         sourceLabel: 'Test',
         metodology: 'test metodology',
