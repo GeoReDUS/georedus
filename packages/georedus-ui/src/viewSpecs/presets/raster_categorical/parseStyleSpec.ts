@@ -9,6 +9,7 @@ type Category = {
 export type StyleSpec = {
   colorScheme?:
     | 'schemeGeoReDUSSafe'
+    | 'schemeGeoReDUS'
     | 'schemeCategory10'
     | 'schemeAccent'
     | 'schemeDark2'
