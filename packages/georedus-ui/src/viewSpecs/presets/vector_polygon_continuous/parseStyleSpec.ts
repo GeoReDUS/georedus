@@ -15,7 +15,6 @@ export type StyleSpec = {
   legend?: {
     format: { [key: string]: any }
   }
-  tooltip?: { [key: string]: any }
   colorScheme?: // sequential
   | 'schemeBlues'
     | 'schemeGreens'
