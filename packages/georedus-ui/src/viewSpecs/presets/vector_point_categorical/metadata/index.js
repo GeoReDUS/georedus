@@ -1,8 +1,8 @@
-import { resolveAsync } from '@orioro/resolve'
 import { interpolate } from '@orioro/util'
+import { resolveAsync } from '@orioro/resolve'
+import { humanize } from '../../util'
 import { uniqBy } from 'lodash'
-import { resolveSchemeColor } from '../../util'
-import { humanize } from '../util'
+import { resolveSchemeColor } from '../../../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -10,7 +10,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
   const categories = resolveAsync.fn(async (ctx) => {
     // Resolve color scheme
     const colorSchemeId =
-      ctx.view?.conf?.style?.colorScheme || style.colorScheme
+      ctx.view?.conf?.style?.colorScheme || 'schemeGeoReDUSSafe'
 
     // resolve categories
     const resolvedCategories =
@@ -42,7 +42,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
-      const color = colorSchemeId ? resolveSchemeColor(colorSchemeId, index) : cat.color
+      const color = cat.color || resolveSchemeColor(colorSchemeId, index)
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)

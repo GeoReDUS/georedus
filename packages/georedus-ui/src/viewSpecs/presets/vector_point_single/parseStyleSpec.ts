@@ -1,7 +1,6 @@
 import { resolveColor, schemeGeoReDUS } from '../../util'
 
 export type StyleSpec = {
-  tooltip?: { [key: string]: any }
   radius?: number
   color?: string
   opacity?: number

@@ -148,7 +148,7 @@ const colorScheme = (schemeAll, isSchemeByK) => {
   })
 }
 
-export function schemeSelector({ defaultValue, schemeType, clearable = false }) {
+export function colorSchemeSelector({ defaultValue, schemeType }) {
   return {
     label: 'Esquema de cores',
     type: 'select',
