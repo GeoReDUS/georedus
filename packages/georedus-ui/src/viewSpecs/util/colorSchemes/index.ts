@@ -28,11 +28,26 @@ export function resolveCategoricalSchemeColor(
 ): string {
   const colorScheme = COLOR_SCHEMES[colorSchemeId]
 
-  return typeof indexOrId === 'string'
-    ? colorScheme[indexOrId]
-    : (colorScheme.colors ? colorScheme.colors : Object.values(colorScheme))[
-        indexOrId
-      ]
+  // return typeof indexOrId === 'string'
+  //   ? colorScheme[indexOrId]
+  //   : (Array.isArray(colorScheme) ? colorScheme : Object.values(colorScheme))[
+  //       indexOrId
+  //     ]
+  if (typeof indexOrId === 'string') {
+    return colorScheme[indexOrId]
+  }
+
+  const values = Array.isArray(colorScheme)
+    ? colorScheme
+    : Array.isArray(colorScheme?.colors)
+      ? colorScheme.colors
+      : Object.values(colorScheme)
+
+  if (typeof indexOrId === 'number' && indexOrId > values.length - 1) {
+    console.warn('Index is higher than colorScheme size: will repeat colors')
+  }
+
+  return values[indexOrId % values.length]
 }
 
 export * from './d3'
