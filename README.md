@@ -268,9 +268,7 @@ Exemplo:
 
 #### **1 - Conf Schema**
 
-Permite configurar **paineis de dados** e **estilos** da view
-
-![imagem painel](image.png)
+Permite criar variáveis para configurar **paineis de dados** e **estilos** da view.
 
 Em `data` serão feitas as configurações dos dados. Nele é possível definir as variáveis disponíveis para uma visualização específica. Por exemplo, para visualizar a população por faixa etária, podemos ter as seguintes variantes:
 
@@ -299,11 +297,53 @@ confSchema: {
 }
 ```
 
+Em `style` é possível configurar os estilos da view. Por exemplo, para uma visualização vetorial de polígono é possível estilizar as cores do polígono criando um seletor de cores:
+
+```jsx
+import { colorSelector } from '../viewSpecs/presets/util/components/confInputs/colorSelector'
+
+confSchema: {
+  style: {
+    color: colorSelector('schemeGeoReDUS.laranja'),
+  },
+}
+```
+
+O helper `colorSelector` já resolve a lista de opções a partir de `GEOREDUS_LABELED_COLORS` (definida em `viewSpecs/util/colorSchemes`) e monta o preview colorido ao lado de cada label. Ele existe justamente para evitar reimplementar esse seletor em cada preset — a menos que a visualização precise de um conjunto de cores diferente do padrão, prefira reaproveitar o helper a escrever o `confSchema` de cor na mão.
+
+Assim como `data.variantId` é lido depois no `metadata`, o valor escolhido em `style.color` é lido mais adiante, ao montar a camada (`layers`), para definir a cor de fato usada no mapa:
+
+```jsx
+import { resolveColor, schemeGeoReDUS } from '../viewSpecs/util'
+
+// Usa a cor escolhida no confSchema; se nenhuma foi selecionada, cai no laranja padrão
+const fillColor = resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
+```
+
+Outro exemplo comum de `style` é o controle de opacidade da camada, usando um `slider` em vez de um `select`:
+
+```jsx
+confSchema: {
+  style: {
+    layerOpacity: {
+      type: 'slider',
+      label: 'Opacidade da camada',
+      min: 0,
+      max: 1,
+      step: 0.01,
+      defaultValue: 0.6,
+    },
+  },
+}
+```
+
+Esse é o mesmo `layerOpacity` que será usado mais adiante, na etapa de _Layers_, para definir o `fill-opacity` da camada a partir do valor escolhido pelo usuário (`['$get', 'view.conf.style.layerOpacity']`).
+
 #### **2 - Metadata**
 
-Carrega todos os dados de todo o município para conseguir calcular as **porcentagens**, **escalas de cores** e **legendas** que serão aplicadas posteriormente sobre os dados específicos de cada tile carregado.
+Carrega os dados e executa cálculos para a finalidade daquela views expecífica, como **porcentagens**, **escalas de cores** e **legendas** que serão aplicadas posteriormente sobre os dados específicos de cada tile carregado.
 
-Para isso, é necessário criar uma função que executa o *fetch* na API. Essa função deve ser envolvida pela biblioteca `resolve`, sinalizando ao sistema que ela precisa ser executada.
+Para isso, muitas vezes é necessário criar uma função que executa o _fetch_ na API. Essa função deve ser envolvida pela biblioteca `resolve`, sinalizando ao sistema que ela precisa ser executada.
 
 Exemplo para dados de moradores de 0 a 4 anos em Belém:
 
@@ -342,16 +382,15 @@ metadata: resolveAsync.fn(async (ctx) => {
 })
 ```
 
-No exemplo acima é retornado apenas o valor mínimo e o valor máximo na escala de dados. Porém outra solução seria usar o `colorScaleStops` juntamente com o `naturalBreaks` a fim de ter uma distribuição mais homogênea dos dados no mapa (explicações mais detalhadas sobre isso serão dadas no tópico de *layers*).
+No exemplo acima é retornado apenas o valor mínimo e o valor máximo na escala de dados. Porém outra solução seria usar o `colorScaleStops` juntamente com o `naturalBreaks` a fim de ter uma distribuição mais homogênea dos dados no mapa (explicações mais detalhadas sobre isso serão dadas no tópico de _layers_).
 
 ```jsx
-import { COLOR_SCHEMES} from '../viewSpecs/util'
+import { COLOR_SCHEMES } from '../viewSpecs/util'
 
 // Usa a escala de cores azul do COLOR_SCHEME
 const colorScheme = COLOR_SCHEMES.schemeBlues
 
 metadata: resolveAsync.fn(async (ctx) => {
-
   //...
 
   return {
@@ -382,9 +421,6 @@ Para cada tile renderizado, são feitas duas requisições: uma para carregar a 
 
 - Carrega a malha vetorial de um tile (`z/x/y`);
 - Carrega os dados referentes exclusivamente a esse tile (`z/x/y`);
-
-   ![Exemplo de carregamento de dados de um tile](image-1.png)
-
 - Realiza o join dos dados da malha vetorial com os dados carregados, utilizando o campo `id`.
 
 O link é definido para cada tile no formato (`z/x/y`).  
@@ -427,7 +463,7 @@ sources: {
 
 Define como os dados serão renderizados.
 
-Para *vector tiles* precisa passar o `source_layer`, pois um mesmo *tile* pode conter várias camadas de dados. O `source_layer` define qual dessas camadas será renderizada, sendo possivel também definir mais de um `source_layer`.
+Para _vector tiles_ precisa passar o `source_layer`, pois um mesmo _tile_ pode conter várias camadas de dados. O `source_layer` define qual dessas camadas será renderizada, sendo possivel também definir mais de um `source_layer`.
 
 ```jsx
 layers: {
@@ -461,17 +497,33 @@ layers: {
 }
 ```
 
-No exemplo anterior, foi utilizada uma **interpolação linear**, abordagem que nem sempre é adequada para todos os conjuntos de dados.
+No exemplo anterior, foi utilizada uma **interpolação linear**, que distribui as cores de forma uniforme ao longo do intervalo de valores. Isso funciona mal quando a distribuição dos dados é desigual — por exemplo, se **80% dos valores estão concentrados abaixo de 10%** (em uma escala de 0 a 30%), grande parte do mapa acaba na mesma cor, dificultando a distinção entre setores.
 
-Considere um conjunto de valores variando de **0 a 0,3** (0% a 30%). Em uma interpolação linear, a escala de cores é distribuída de forma uniforme ao longo do intervalo de valores. Por exemplo, ao dividir esse intervalo em três partes, obtêm-se as faixas **0–10%, 10–20% e 20–30%**.
+Para esses casos, existem duas estratégias de classificação:
 
-No entanto, quando a distribuição dos dados é desigual — por exemplo, quando **80% dos valores estão concentrados abaixo de 10%** — a interpolação linear tende a produzir uma visualização pouco informativa. Nesse cenário, grande parte do mapa é renderizada com a mesma cor (considerando a escala utilizada), dificultando a distinção entre valores próximos dentro do intervalo de **0 a 0,1**.
+- **naturalBreaks**: agrupa os valores considerando as descontinuidades naturais nos próprios dados, produzindo grupos internamente mais homogêneos — por exemplo, faixas como **0–3%, 3–5%, 5–30%** em vez de faixas lineares (foi feito um exemplo de uso no metadata).
+- **quantile**: divide os valores em `k` grupos com a **mesma quantidade de elementos** em cada um, garantindo que cada faixa da legenda represente sempre a mesma proporção de setores censitários, independentemente de como os valores estão distribuídos — útil para, por exemplo, sempre destacar os 20% de setores com os valores mais altos, mesmo sem uma quebra natural nos dados. Implementado com `scaleQuantile` da biblioteca `d3-scale` (veja [colorScaleStopResolvers.js](packages/georedus-ui/src/viewSpecs/presets/vector_polygon_continuous/metadata/colorScaleStopResolvers.js)).
 
-Para lidar com esse tipo de distribuição, pode-se utilizar a estratégia de classificação naturalBreaks. Essa abordagem segmenta os dados em grupos com **quantidades semelhantes de elementos**, levando em consideração a distribuição real dos valores (foi feito um exemplo de uso do `naturalBreaks` no metadata).
+Ambas podem ser oferecidas ao usuário como opção no `confSchema`:
 
-Dessa forma, em vez de concentrar a maior parte dos dados em um único intervalo (0–10%), os valores passam a ser distribuídos em faixas mais representativas, por exemplo **0–3%, 3–5%, 5–30%**. O resultado é uma escala de cores mais equilibrada, que melhora a legibilidade e a capacidade de distinção entre os diferentes valores apresentados na visualização.
+```jsx
+confSchema: {
+  style: {
+    classificationMethodType: {
+      label: 'Método de classificação',
+      type: 'select',
+      clearable: false,
+      defaultValue: 'naturalBreaks',
+      options: [
+        { value: 'naturalBreaks', label: 'Quebras naturais' },
+        { value: 'quantile', label: 'Quantis' },
+      ],
+    },
+  },
+}
+```
 
-Para isso é utilizado o `colorScaleStops` gerado no metadata (segundo exemplo de retorno feito na *sessão de metadata*).
+Nos dois casos, o resultado é um array de `colorScaleStops`, calculado no `metadata` (segundo exemplo de retorno feito na _sessão de metadata_) e consumido da mesma forma em `layers.paint`, como no exemplo a seguir.
 
 ```jsx
 layers: {
@@ -495,11 +547,12 @@ layers: {
     }
 }
 ```
+
 **Legenda:**
 
-As legendas do mapa são definidas aqui na camada de `layers`. 
+As legendas do mapa são definidas aqui na camada de `layers`.
 
-Utilizando a variável `variantId` no `title` e o retorno do metadata em `steps` (neste exemplo é utilizado o `colorScaleStops`), a legenda irá sempre refletir os dados e as cores representados no mapa. 
+Utilizando a variável `variantId` no `title` e o retorno do metadata em `steps` (neste exemplo é utilizado o `colorScaleStops`), a legenda irá sempre refletir os dados e as cores representados no mapa.
 
 ```jsx
 legends: [
@@ -523,7 +576,10 @@ legends: [
 
 O tooltip também é definido dentro da camada de `layers`. É o último a ser renderizado, pois para ser possível ler dados da feature em que o cursor está sobre, é preciso que a resolução da expressão aguarde a conclusão da renderização do mapa (diferentemente das outras expressões definidas na view).
 
-Existem 2 valores a serem preenchidos no tooltip: *title* e *entries*, que correspondem, respectivamente, ao título do tooltip e às informações. O entries consiste em um array de arrays onde o primeiro valor seria a etiqueta (`key`), ou seja, e o segundo valor ao que virá depois dos dois pontos (`value`).
+Existem 2 valores a serem preenchidos no tooltip: _title_ e _entries_.
+
+- `title` corresponde ao título do tooltip e deve ser uma `string`.
+- `entries` deve ser sempre um array de arrays `[label, value]`, sem outro formato aceito. Tanto `label` quanto `value` podem ser uma `string` ou um elemento JSX, e cada um tem um tratamento independente: se `label` for `string`, o componente adiciona `: ` logo após (desde que `value` não esteja vazio); se `value` for `string`, ele é exibido em negrito. Em ambos os casos, se o valor for JSX em vez de `string`, ele é renderizado como está, sem esse tratamento automático.
 
 ```jsx
 tooltip: {
@@ -545,7 +601,7 @@ tooltip: {
         [
           'Valor',
           [
-            '$literal', 
+            '$literal',
             resolve.fn((ctx) => {
               return ctx.feature?.properties?.id
             })
@@ -560,78 +616,75 @@ tooltip: {
 
 #### **5 - Download**
 
- A etapa de download permite exportar dados ou visualizações do mapa para uso externo, de forma flexível e interativa. O sistema utiliza a função `downloadResolver`, que abre um diálogo para o usuário escolher:
- 
- - O formato do arquivo (CSV, GeoJSON, GPKG, KML)
- - As variáveis de dados a serem exportadas
- 
- **Fluxo do download:**
- 
- 1. O usuário clica para baixar dados.
- 2. Um diálogo é exibido, permitindo selecionar o formato e as variáveis desejadas.
- 3. O sistema busca os dados conforme a seleção:
+A etapa de download permite exportar dados ou visualizações do mapa para uso externo, de forma flexível e interativa. O sistema utiliza a função `downloadResolver`, que abre um diálogo para o usuário escolher:
+
+- O formato do arquivo (CSV, GeoJSON, GPKG, KML)
+- As variáveis de dados a serem exportadas
+
+**Fluxo do download:**
+
+1.  O usuário clica para baixar dados.
+2.  Uma caixa de diálogo é exibido, permitindo selecionar o formato e as variáveis desejadas.
+3.  O sistema busca os dados conforme a seleção:
     - Para CSV, apenas dados tabulares são exportados.
     - Para formatos geoespaciais, as geometrias dos setores são incluídas.
- 4. Os dados são processados e convertidos para o formato escolhido usando a biblioteca GDAL (via ogr2ogr).
- 5. O arquivo é baixado automaticamente, com nome gerado dinamicamente.
- 
- **Formatos suportados:**
- - CSV: dados tabulares, sem geometria
- - GeoJSON: dados geoespaciais em JSON
- - GPKG: banco de dados geoespacial compacto
- - KML: mapas em XML
- 
- **Exemplo de configuração:**
- 
- ```jsx
- download: downloadResolver({
-   fileNameBase: [
-     '$template',
-     '${0}_${1}_georedus_censo_${2}',
-     [
-       ['$get', 'view.conf.data.variableId'],
-       ['$get', 'municipioId'],
-       '2022',
-     ],
-   ],
-   mainVariableId: ['$get', 'view.conf.data.variableId'],
-   availableVariableIds: [],
-   fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
-     const variableId = ctx.view.conf.data.variableId
-     // Monta a URL para buscar os dados tabulares
-     const dataUrl =
-       `${METADATA_API_ENDPOINT}/cem_censo_2022_pessoas?` +
-       `cd_mun=eq.${ctx.app.municipioId}&` +
-       `select=id,${variableId},${variableId}_src`
-     const data = await fetch(dataUrl).then((res) => res.json())
- 
-     if (options.format === 'CSV') {
-       // Exporta apenas dados tabulares
-       return data
-     }
- 
-     // Para formatos geoespaciais, busca geometria
-     const geometriesUrl =
-       `${METADATA_API_ENDPOINT}/ibge_malha_br_setor_censitario_2022?` +
-       `cd_mun=eq.${ctx.app.municipioId}&` +
-       `select=id,geom`
-     const geometries = await fetch(geometriesUrl).then((res) => res.json())
- 
-     // Junta dados e geometria pelo campo 'id'
-     return dataJoin([geometries, data], { key: 'id' })
-   }),
- })
- ```
- 
- **Como funciona o código:**
- - O usuário escolhe o formato e as variáveis no diálogo.
- - Para CSV, retorna apenas os dados.
- - Para GeoJSON, GPKG ou KML, busca também as geometrias e faz o join.
- - O arquivo é convertido e baixado automaticamente.
- - O nome do arquivo é gerado conforme a configuração (`fileNameBase`).
- 
- **Dica:**
- Se quiser personalizar as variáveis disponíveis para download, basta preencher o campo `availableVariableIds`.
- 
- Esse sistema permite exportar dados de forma prática, garantindo compatibilidade com diferentes ferramentas de análise geoespacial.
+4.  Os dados são processados e convertidos para o formato escolhido usando a biblioteca GDAL (via ogr2ogr).
+5.  O arquivo é baixado automaticamente, com nome gerado dinamicamente.
 
+**Formatos suportados:**
+
+- CSV: dados tabulares, sem geometria
+- GeoJSON: dados geoespaciais em JSON
+- GPKG: banco de dados geoespacial compacto
+- KML: mapas em XML
+
+**Exemplo de configuração:**
+
+```jsx
+download: downloadResolver({
+  fileNameBase: [
+    '$template',
+    '${0}_${1}_georedus_censo_${2}',
+    [['$get', 'view.conf.data.variableId'], ['$get', 'municipioId'], '2022'],
+  ],
+  mainVariableId: ['$get', 'view.conf.data.variableId'],
+  availableVariableIds: [],
+  fetchData: resolve.fn((ctx) => async ({ variableIds, options }) => {
+    const variableId = ctx.view.conf.data.variableId
+    // Monta a URL para buscar os dados tabulares
+    const dataUrl =
+      `${METADATA_API_ENDPOINT}/cem_censo_2022_pessoas?` +
+      `cd_mun=eq.${ctx.app.municipioId}&` +
+      `select=id,${variableId},${variableId}_src`
+    const data = await fetch(dataUrl).then((res) => res.json())
+
+    if (options.format === 'CSV') {
+      // Exporta apenas dados tabulares
+      return data
+    }
+
+    // Para formatos geoespaciais, busca geometria
+    const geometriesUrl =
+      `${METADATA_API_ENDPOINT}/ibge_malha_br_setor_censitario_2022?` +
+      `cd_mun=eq.${ctx.app.municipioId}&` +
+      `select=id,geom`
+    const geometries = await fetch(geometriesUrl).then((res) => res.json())
+
+    // Junta dados e geometria pelo campo 'id'
+    return dataJoin([geometries, data], { key: 'id' })
+  }),
+})
+```
+
+**Como funciona o código:**
+
+- O usuário escolhe o formato e as variáveis no diálogo.
+- Para CSV, retorna apenas os dados.
+- Para GeoJSON, GPKG ou KML, busca também as geometrias e faz o join.
+- O arquivo é convertido e baixado automaticamente.
+- O nome do arquivo é gerado conforme a configuração (`fileNameBase`).
+
+**Dica:**
+Se quiser personalizar as variáveis disponíveis para download, basta preencher o campo `availableVariableIds`.
+
+Esse sistema permite exportar dados de forma prática, garantindo compatibilidade com diferentes ferramentas de análise geoespacial.
