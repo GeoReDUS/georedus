@@ -4,7 +4,7 @@ import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
 export default {
-  title: 'Presets / vector_polygon_categorical',
+  title: 'Presets / vector_polygon_continuous',
   parameters: {
     layout: 'fullscreen',
   },
@@ -46,29 +46,36 @@ const VIEW_SPECS = {
   all: [
     [
       {
-        id: 'mma_malha_unidades_conservacao_2026.geom',
+        id: 'mun_maceio_malha_dengue_por_bairro_2023.geom',
         collection_id: 'test',
         indicator_id: 'test',
-        preset: 'vector_polygon_categorical',
+        preset: 'vector_polygon_continuous',
         tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
-        source_layer: 'mma_malha_unidades_conservacao_2026.geom',
-        path: 'Emergências Climáticas / _ / Cobertura e Uso da Terra',
-        label: 'Unidades de Conservação',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023.geom/{z}/{x}/{y}',
+        source_layer: 'mun_maceio_malha_dengue_por_bairro_2023.geom',
+        path: 'Test Dir / _ ',
+        label: 'Dengue 2023',
         style: {
-          categoryKey: 'categoria',
-          colorScheme: 'schemeSet3',
-          categories:
-            '${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria',
+          valueKey: 'dengue_2023',
+          values:
+            '${METADATA_API_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023',
         },
         tooltip: {
-          title: 'nome_uc',
-          entries: ['categoria'],
+          entries: {
+            dengue_2023: 'Casos de dengue',
+          },
         },
-        sourceLabel: 'MMA',
-        metodology: 'test metodology',
+        sourceLabel: 'Test',
+        metodology: `Vector Polygon Single Preset: parâmetro *style* preenchido com string em *values*:
+\`\`\`json
+{
+  "valueKey": "dengue_2023",
+  "values": "${'METADATA_API_ENDPOINT'}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023"
+}
+\`\`\`
+`,
         download_url:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023.geom/{z}/{x}/{y}',
       },
     ],
   ],
@@ -77,8 +84,8 @@ const VIEW_SPECS = {
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
     {
-      // Angra dos Reis (IBGE id)
-      municipioId: '3300100',
+      // Maceió (IGBE id)
+      municipioId: 2704302,
     },
     {
       schema: {

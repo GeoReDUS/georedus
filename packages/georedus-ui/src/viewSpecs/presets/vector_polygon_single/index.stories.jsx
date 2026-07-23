@@ -4,7 +4,7 @@ import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
 export default {
-  title: 'Presets / vector_polygon_categorical',
+  title: 'Presets / vector_polygon_single',
   parameters: {
     layout: 'fullscreen',
   },
@@ -46,29 +46,59 @@ const VIEW_SPECS = {
   all: [
     [
       {
-        id: 'mma_malha_unidades_conservacao_2026.geom',
+        id: 'incra_malha_quilombos_2024.geom',
         collection_id: 'test',
         indicator_id: 'test',
-        preset: 'vector_polygon_categorical',
+        preset: 'vector_polygon_single',
         tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
-        source_layer: 'mma_malha_unidades_conservacao_2026.geom',
-        path: 'Emergências Climáticas / _ / Cobertura e Uso da Terra',
-        label: 'Unidades de Conservação',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/incra_malha_quilombos_2024.geom/{z}/{x}/{y}',
+        source_layer: 'incra_malha_quilombos_2024.geom',
+        path: 'Test Dir / _ ',
+        label: 'Quilombos',
+        style: 'schemeGeoReDUS.laranja',
+        tooltip: {
+          title: 'nome_uc',
+          entries: ['categoria'],
+        },
+        sourceLabel: 'INCRA',
+        shortDescription: 'Vector Polygon Single Preset',
+        metodology:
+          'Vector Polygon Single Preset: parâmetro *style* preenchido somente com string contendo valor da cor (*schemeGeoReDUS.laranja*) ',
+        download_url:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/incra_malha_quilombos_2024.geom/{z}/{x}/{y}',
+      },
+      {
+        id: 'sgb_malha_corrida_de_massa_2026.geom',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'vector_polygon_single',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/sgb_malha_corrida_de_massa_2026.geom/{z}/{x}/{y}',
+        source_layer: 'sgb_malha_corrida_de_massa_2026.geom',
+        path: 'Test Dir / _ ',
+        label: 'Corrida de Massa',
         style: {
-          categoryKey: 'categoria',
-          colorScheme: 'schemeSet3',
-          categories:
-            '${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria',
+          color: 'schemeGeoReDUS.vermelho_claro',
+          fillPattern: 'triangles_1',
+          borderStyle: 'dashed',
         },
         tooltip: {
           title: 'nome_uc',
           entries: ['categoria'],
         },
-        sourceLabel: 'MMA',
-        metodology: 'test metodology',
+        sourceLabel: 'SGB',
+        shortDescription: 'Vector Polygon Single Preset',
+        metodology: `Vector Polygon Single Preset: parâmetro *style* preenchido com todos os parâmetros como um *json*:
+\`\`\`json
+{
+  "color": "schemeGeoReDUS.vermelho_claro",
+  "fillPattern": "triangles_1",
+  "borderStyle": "dashed",
+}
+\`\`\`
+`,
         download_url:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/sgb_malha_corrida_de_massa_2026.geom/{z}/{x}/{y}',
       },
     ],
   ],

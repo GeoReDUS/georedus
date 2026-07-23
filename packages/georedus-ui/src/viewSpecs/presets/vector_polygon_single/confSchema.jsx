@@ -1,4 +1,5 @@
-import { colorSelector, fillPatternSelector } from '../util'
+import { colorSelector, fillPatternSelector, opacitySlider } from '../util'
+import { DEFAULT_FILL_OPACITY } from '../util'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
@@ -6,7 +7,8 @@ export function confSchema(viewSpec, allViewSpecs, context) {
   return {
     style: {
       color: colorSelector(styleSpec.color),
-      fillPattern: fillPatternSelector(),
+      fillPattern: fillPatternSelector(styleSpec.fillPattern),
+      opacity: opacitySlider({ defaultValue: DEFAULT_FILL_OPACITY }),
     },
   }
 }

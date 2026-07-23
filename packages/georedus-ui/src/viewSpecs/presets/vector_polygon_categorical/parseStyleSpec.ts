@@ -34,6 +34,7 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
+    | null
   categories: string | (string | Category)[]
 } & Omit<CategoryStyleSpec, 'color'>
 

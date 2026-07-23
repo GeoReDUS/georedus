@@ -44,7 +44,10 @@ const useVersionedSearchParamsState = versionedSearchParamsStateHook(
 
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
-    {},
+    {
+      // Maceió (IGBE id)
+      municipioId: 2704302,
+    },
     {
       schema: {
         baseMapStyle: 'string',
@@ -97,7 +100,10 @@ export const Basic = () => {
 
 export const WithCircle = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
-    {},
+    {
+      // Maceió (IGBE id)
+      municipioId: 2704302,
+    },
     {
       schema: {
         baseMapStyle: 'string',
