@@ -8,7 +8,15 @@ export function confSchema(viewSpec, allViewSpecs, context) {
     style: {
       color: colorSelector(styleSpec.color),
       fillPattern: fillPatternSelector(),
-      opacity: opacitySelector(styleSpec.opacity || DEFAULT_FILL_OPACITY),
+      opacity: {
+        type: 'slider',
+        label: 'Opacidade da camada',
+        size: '1',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        defaultValue: DEFAULT_FILL_OPACITY,
+      },
     },
   }
 }

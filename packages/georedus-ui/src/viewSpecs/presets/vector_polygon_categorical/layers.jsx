@@ -51,7 +51,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 
   const _legends = resolve.fn([_fillPattern], ([resolvedFillPattern], ctx) => {
     const categories = ctx.view.metadata.categories
-    const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
+    const _confOpacity = ctx.view?.conf?.style?.opacity
 
     return [
       {
@@ -75,7 +75,9 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
               : {
                   backgroundColor: applyOpacity(
                     resolveColor(cat.color),
-                    _opacity,
+                    typeof _confOpacity === 'number'
+                      ? _confOpacity
+                      : DEFAULT_FILL_OPACITY,
                   ),
                 }
           return {
@@ -116,11 +118,14 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
             ]
           : null
 
-      const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
+      const _confOpacity = ctx.view?.conf?.style?.opacity
 
       return {
         'fill-color': _maplibreColorExp,
-        'fill-opacity': _opacity,
+        'fill-opacity':
+          typeof _confOpacity === 'number'
+            ? _confOpacity
+            : DEFAULT_FILL_OPACITY,
         ...(resolvedFillPatternStr
           ? { 'fill-pattern': resolvedFillPatternStr }
           : {}),
