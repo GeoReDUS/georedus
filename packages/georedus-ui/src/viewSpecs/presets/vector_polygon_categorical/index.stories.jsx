@@ -76,7 +76,10 @@ const VIEW_SPECS = {
 
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
-    {},
+    {
+      // Angra dos Reis (IBGE id)
+      municipioId: '3300100',
+    },
     {
       schema: {
         baseMapStyle: 'string',
