@@ -38,7 +38,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     const _confOpacity = ctx.view?.conf?.style?.opacity
     // OBS: stopsWithOpacity foi feito para aplicar na legenda a opacidade que também é aplicada no mapa
-    // colorScaleStops retorna um array cuja estrutura é [valor, cor, valor, cor, ...]
+    // colorScaleStops retorna um array cuja estrutura é [cor, valor, cor, valor, ..., valor, cor]
     // por isso a opacidade está sendo aplicada somente nos indexes pares
     const stopsWithOpacity = ctx.view.metadata.colorScaleStops.map(
       (entry, index) =>
