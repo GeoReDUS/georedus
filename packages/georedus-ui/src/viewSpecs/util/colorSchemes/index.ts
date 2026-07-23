@@ -22,7 +22,7 @@ export function resolveColor(colorInput: string): string {
   return colorInput ? get(COLOR_SCHEMES, colorInput) || colorInput : colorInput
 }
 
-export function resolveSchemeColor(
+export function resolveCategoricalSchemeColor(
   colorSchemeId: string,
   indexOrId: string | number,
 ): string {
