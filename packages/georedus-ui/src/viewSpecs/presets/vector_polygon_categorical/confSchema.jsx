@@ -1,13 +1,12 @@
-import { fillPatternSelector, colorSchemeSelector, opacitySelector } from '../util'
+import { fillPatternSelector, categoricalColorSchemeSelector } from '../util'
 import { DEFAULT_FILL_OPACITY } from '../util'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   return {
     style: {
       fillPattern: fillPatternSelector(),
-      colorScheme: colorSchemeSelector({
+      colorScheme: categoricalColorSchemeSelector({
         defaultValue: viewSpec.style?.colorScheme,
-        schemeType: 'categorical',
         clearable: viewSpec.style?.colorScheme === null,
       }),
       opacity: {

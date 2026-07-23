@@ -1,5 +1,5 @@
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
-import { colorSchemeSelector } from '../util/components/confInputs'
+import { continuousColorSchemeSelector } from '../util/components/confInputs'
 import { DEFAULT_FILL_OPACITY } from '../util'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
@@ -22,9 +22,8 @@ export function confSchema(viewSpec, allViewSpecs, context) {
           },
         ],
       },
-      colorScheme: colorSchemeSelector({
+      colorScheme: continuousColorSchemeSelector({
         defaultValue: viewSpec.style?.colorScheme || DEFAULT_COLOR_SCHEME_ID,
-        schemeType: 'continuous',
       }),
       opacity: {
         type: 'slider',

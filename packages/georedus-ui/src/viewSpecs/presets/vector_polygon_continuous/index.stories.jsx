@@ -56,19 +56,21 @@ const VIEW_SPECS = {
         path: 'Test Dir / _ ',
         label: 'Dengue 2023',
         style: {
-            valueKey: 'dengue_2023',
-            values: '${METADATA_API_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023',
+          valueKey: 'dengue_2023',
+          values:
+            '${METADATA_API_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023',
         },
         tooltip: {
-          title: 'nome_uc',
-          entries: ['categoria'],
+          entries: {
+            dengue_2023: 'Casos de dengue',
+          },
         },
         sourceLabel: 'Test',
         metodology: `Vector Polygon Single Preset: parâmetro *style* preenchido com string em *values*:
 \`\`\`json
 {
   "valueKey": "dengue_2023",
-  "values": "${METADATA_API_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023"
+  "values": "${'METADATA_API_ENDPOINT'}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023"
 }
 \`\`\`
 `,
@@ -82,8 +84,8 @@ const VIEW_SPECS = {
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
     {
-        // Maceió (IGBE id)
-        municipioId: 2704302,
+      // Maceió (IGBE id)
+      municipioId: 2704302,
     },
     {
       schema: {

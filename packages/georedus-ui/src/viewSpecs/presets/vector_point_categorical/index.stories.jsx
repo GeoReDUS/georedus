@@ -91,7 +91,10 @@ const VIEW_SPECS = {
 
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
-    {},
+    {
+      // Maceió (IGBE id)
+      municipioId: 2704302,
+    },
     {
       schema: {
         baseMapStyle: 'string',
