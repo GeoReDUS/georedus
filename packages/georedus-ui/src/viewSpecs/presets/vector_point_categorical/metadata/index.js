@@ -2,7 +2,7 @@ import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
 import { humanize } from '../../util'
 import { uniqBy } from 'lodash'
-import { resolveSchemeColor } from '../../../util'
+import { resolveCategoricalSchemeColor } from '../../../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -42,7 +42,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
-      const color = cat.color || resolveSchemeColor(colorSchemeId, index)
+      const color = cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)
