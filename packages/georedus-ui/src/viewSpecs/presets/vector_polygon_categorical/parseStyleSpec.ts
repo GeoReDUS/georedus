@@ -46,7 +46,6 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
     throw new Error('expected existing styleInput')
   }
-  const colorScheme =
-    typeof styleInput.categories === 'string' ? DEFAULT_COLOR_SCHEME_ID : null
-  return { colorScheme: colorScheme, ...styleInput }
+
+  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, ...styleInput }
 }

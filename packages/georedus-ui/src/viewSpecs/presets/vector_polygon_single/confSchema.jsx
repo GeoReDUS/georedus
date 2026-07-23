@@ -1,4 +1,4 @@
-import { colorSelector, fillPatternSelector, opacitySelector } from '../util'
+import { colorSelector, fillPatternSelector, opacitySlider } from '../util'
 import { DEFAULT_FILL_OPACITY } from '../util'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
@@ -8,15 +8,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
     style: {
       color: colorSelector(styleSpec.color),
       fillPattern: fillPatternSelector(styleSpec.fillPattern),
-      opacity: {
-        type: 'slider',
-        label: 'Opacidade da camada',
-        size: '1',
-        min: 0,
-        max: 1,
-        step: 0.01,
-        defaultValue: DEFAULT_FILL_OPACITY,
-      },
+      opacity: opacitySlider({ defaultValue: DEFAULT_FILL_OPACITY }),
     },
   }
 }
