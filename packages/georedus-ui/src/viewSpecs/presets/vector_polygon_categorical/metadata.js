@@ -2,7 +2,6 @@ import { resolveAsync } from '@orioro/resolve'
 import { interpolate } from '@orioro/util'
 import { uniqBy } from 'lodash'
 import { COLOR_SCHEMES, resolveCategoricalSchemeColor } from '../../util'
-import { resolveSchemeColor } from '../../util'
 import { humanize } from '../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
