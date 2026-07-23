@@ -7,7 +7,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
   return {
     style: {
       color: colorSelector(styleSpec.color),
-      fillPattern: fillPatternSelector(),
+      fillPattern: fillPatternSelector(styleSpec.fillPattern),
       opacity: {
         type: 'slider',
         label: 'Opacidade da camada',

@@ -49,12 +49,12 @@ export const FILL_PATTERN_OPTIONS = [
   { label: 'Linhas', value: 'lines_1' },
 ]
 
-export function fillPatternSelector(props = {}) {
+export function fillPatternSelector(_defaultValue = FILL_PATTERN_SOLID, props = {}) {
   return {
     label: 'Textura',
     type: 'select',
     clearable: false,
-    defaultValue: FILL_PATTERN_SOLID,
+    defaultValue: _defaultValue,
     options: FILL_PATTERN_OPTIONS.map((opt) => {
       const pattern =
         opt.value === FILL_PATTERN_SOLID
