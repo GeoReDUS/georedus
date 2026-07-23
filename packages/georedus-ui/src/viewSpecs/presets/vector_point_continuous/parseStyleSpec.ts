@@ -22,6 +22,7 @@ export type StyleSpec = {
   tooltip?: { [key: string]: any }
   radius?: ContinuousSpecBase & {}
   color?: string
+  filter?: boolean
 
   // color?: string | ContinuousSpecBase & {
   //   colorScheme?: // sequential

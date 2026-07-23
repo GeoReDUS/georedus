@@ -10,40 +10,23 @@ import {
   zoomSensitiveLinearSizes,
 } from '../../util'
 
-const SIZE_MAX = 25
+const SIZE_MAX = 30
 const SIZE_MIN = 6
 
 function _validNumericalValues(values) {
+  if (!Array.isArray(values)) {
+    return []
+  }
   return values.filter(
     (value) => typeof value === 'number' && !Number.isNaN(value),
   )
 }
 
-const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
-
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     const _values = _validNumericalValues(ctx.view.metadata.radiusData.values)
 
-    const _resolvedColor =
-      resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
-
     return [
-      {
-        type: 'CategoricalLegend',
-        title: viewSpec.label,
-
-        items: [
-          {
-            label: 'Com dados',
-            color: _resolvedColor,
-          },
-          {
-            label: 'Sem dados',
-            color: NO_DATA_COLOR,
-          },
-        ],
-      },
       {
         type: 'ProportionalSymbolLegend',
         unit: viewSpec.measure_unit,
@@ -69,33 +52,9 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     interactive: true,
     type: 'circle',
 
-    // 'circle-sort-key': resolve.fn((ctx) => {
-    //   if (!viewSpec.style.radius?.valueKey) {
-    //     return 0
-    //   }
-
-    //   return ['coalesce', ['get', viewSpec.style.radius.valueKey], 0]
-    // }),
     paint: {
-      'circle-color': resolve.fn((ctx) => {
-        const _resolvedColor =
-          resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
-
-        if (viewSpec.style?.radius?.valueKey) {
-          return [
-            'case',
-            [
-              '==',
-              ['typeof', ['get', viewSpec.style?.radius?.valueKey]],
-              'number',
-            ],
-            _resolvedColor,
-            NO_DATA_COLOR,
-          ]
-        } else {
-          return _resolvedColor
-        }
-      }),
+      'circle-color':
+        resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja,
       'circle-opacity': 1,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
@@ -105,7 +64,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
         const values = _validNumericalValues(
           ctx.view.metadata.radiusData.values,
         )
-
         return zoomSensitiveLinearSizes({
           variable: ['get', viewSpec.style?.radius?.valueKey],
           minValue: Math.min(...values),
@@ -117,6 +75,11 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
+    filter: viewSpec.style?.filter ? [
+      'all',
+      ['==', ['get', 'id_municipio_gestor_2026'], context.municipioId],
+      ['!=', ['get', viewSpec.style.radius.valueKey], null],
+    ] : ['all'],
   }
 }
 

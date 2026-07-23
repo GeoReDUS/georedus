@@ -4,6 +4,8 @@ import { resolveAsync } from '@orioro/resolve'
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
 
+  // console.log(context)
+
   const radiusData = style.radius?.values
     ? resolveAsync.fn(async (ctx) => {
         //
@@ -16,11 +18,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
                 interpolate(style.radius.values, {
                   METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
                   municipioId: context.municipioId,
-
-                  //
-                  // TODO: remove these hotfixes
-                  //
-                  municipioId_SUS: context.municipioId.substr(0, 6),
                 }),
               ).then((res) => res.json())
             : Array.isArray(style.radius.values)
