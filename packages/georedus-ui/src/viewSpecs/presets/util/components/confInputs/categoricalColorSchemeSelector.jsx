@@ -20,9 +20,9 @@ const CATEGORICAL_SCHEMES = {
 }
 
 export function categoricalColorSchemeSelector({
-    //TODO: Existem camadas com cores customizadas que não se encaixam nos schemas pré-definidos
-    // o clearable possibilita que  usuário limpe um schema selecionado e retorne para as cores origiais da camada
-    // idealmente deveríamos construir um schema com as cores originais e inserir na lista de schemas
+  //TODO: Existem camadas com cores customizadas que não se encaixam nos schemas pré-definidos
+  // o clearable possibilita que  usuário limpe um schema selecionado e retorne para as cores origiais da camada
+  // idealmente deveríamos construir um schema com as cores originais e inserir na lista de schemas
   clearable = false,
   defaultValue = 'schemeGeoReDUSSafe',
 }) {
