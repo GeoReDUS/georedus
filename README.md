@@ -438,14 +438,16 @@ sources: {
             return [
               '$vtxUrl',
               {
-                tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ibge_malha_br_setor_censitario_2022.geom/{z}/{x}/{y}`, // URL dos tiles vetoriais
+                // URL dos tiles vetoriais
+                tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ibge_malha_br_setor_censitario_2022.geom/{z}/{x}/{y}`,
                 data: [
                   [
                     'id',
+                    // URL dos dados para o tile
                     `${METADATA_API_ENDPOINT}/rpc/cem_censo_2022_data_tile?` +
                       `table_id=cem_censo_2022_pessoas&` +
                       `variable_id=${variableId}&` +
-                      `z={z}&x={x}&y={y}`, // URL dos dados para o tile
+                      `z={z}&x={x}&y={y}`,
                   ],
                 ],
               },
@@ -624,7 +626,7 @@ A etapa de download permite exportar dados ou visualizações do mapa para uso e
 **Fluxo do download:**
 
 1.  O usuário clica para baixar dados.
-2.  Uma caixa de diálogo é exibido, permitindo selecionar o formato e as variáveis desejadas.
+2.  Uma caixa de diálogo é exibida, permitindo selecionar o formato e as variáveis desejadas.
 3.  O sistema busca os dados conforme a seleção:
     - Para CSV, apenas dados tabulares são exportados.
     - Para formatos geoespaciais, as geometrias dos setores são incluídas.
