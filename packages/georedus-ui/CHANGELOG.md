@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.21.0
+
+### Minor Changes
+
+- add multiple presets
+
 ## 0.20.3
 
 ### Patch Changes
