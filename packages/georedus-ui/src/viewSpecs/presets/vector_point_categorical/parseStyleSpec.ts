@@ -1,7 +1,6 @@
-
 type Category = {
   value: string
-  label?: string,
+  label?: string
   color?: string
 }
 
@@ -20,8 +19,9 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
-    categories: string | Category[]
-    border?:boolean
+    | null
+  categories: string | Category[]
+  border?: boolean
 }
 
 export type StyleSpecInput = StyleSpec
@@ -33,5 +33,15 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     throw new Error('expected existing styleInput')
   }
 
-  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, border: true, ...styleInput }
+  // if categories is array and have prop color,
+  // coloScheme is null, otherwise, is default
+  const colorScheme =
+    Array.isArray(styleInput.categories) &&
+    styleInput.categories.every(
+      (category) => typeof category !== 'string' && 'color' in category,
+    )
+      ? null
+      : DEFAULT_COLOR_SCHEME_ID
+
+  return { colorScheme, border: true, ...styleInput }
 }
