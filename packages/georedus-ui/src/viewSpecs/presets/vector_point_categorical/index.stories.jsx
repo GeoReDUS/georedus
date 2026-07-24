@@ -64,7 +64,18 @@ const VIEW_SPECS = {
         },
         tooltip: '',
         sourceLabel: 'TEst',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Point Categorical Preset',
+        metodology: `Vector Point Categorical Preset: parâmetro *style* preenchido em formato *json*. Parâmetros: *categoryKey* (nome da coluna a ser categorizada) e *categories* (array com cores explícitas para cada categoria). Sem *colorScheme*, as cores no array de categorias são aplicadas a elas:
+\`\`\`json
+{
+  "categoryKey": "tipo",
+  "categories": [
+    { "value": "Pontos Culturais", "color": "schemeGeoReDUS.azul" },
+    { "value": "Atrativos Turísticos", "color": "schemeGeoReDUS.rosa" }
+  ]
+}
+\`\`\`
+`,
       },
       {
         id: 'test_item_2',
@@ -83,7 +94,15 @@ const VIEW_SPECS = {
         },
         tooltip: '',
         sourceLabel: 'TEst',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Point Categorical Preset',
+        metodology: `Vector Point Categorical Preset: parâmetro *style* preenchido em formato *json*. Parâmetros: *categoryKey* (nome da coluna a ser categorizada) e *categories* (endpoint de metadados). Cores atribuídas automaticamente pelo *colorScheme* padrão:
+\`\`\`json
+{
+  "categoryKey": "nome",
+  "categories": "\${METADATA_API_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025?select=value:nome"
+}
+\`\`\`
+`,
       },
     ],
   ],
