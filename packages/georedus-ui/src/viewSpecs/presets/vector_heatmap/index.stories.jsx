@@ -74,7 +74,7 @@ export const Basic = () => {
               tiles:
                 '${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj_hortifruti.geom/{z}/{x}/{y}',
               source_layer: 'cem_malha_estabelecimentos_cnpj_hortifruti.geom',
-              path: 'Test / _ / CNPJ',
+              path: 'Heatmap Test / _ / CNPJ',
               label: 'Hortifrutti',
               style: {
                 colorScheme: 'schemeGreens',
@@ -83,7 +83,16 @@ export const Basic = () => {
               },
               tooltip: '',
               sourceLabel: 'MMA',
-              metodology: 'test metodology',
+              shortDescription: 'Vector Heatmap Preset',
+              metodology: `Vector Heatmap Preset: parâmetro *style* preenchido em formato *json*. Parâmetros: *colorScheme* e *minzoom*/*maxzoom* (controlam em quais níveis de zoom o heatmap em gradiente é exibido):
+\`\`\`json
+{
+  "colorScheme": "schemeGreens",
+  "minzoom": 7,
+  "maxzoom": 16
+}
+\`\`\`
+`,
               download_url:
                 '${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj_hortifruti.geom/{z}/{x}/{y}',
             },
@@ -138,7 +147,15 @@ export const WithCircle = () => {
               },
               tooltip: '',
               sourceLabel: 'MMA',
-              metodology: 'test metodology',
+              shortDescription: 'Vector Heatmap Preset',
+              metodology: `Vector Heatmap Preset: parâmetro *style* preenchido como um *json* com *colorScheme* e *circle: true*, fazendo com que o heatmap seja renderizado como círculos proporcionais ao invés de um gradiente contínuo:
+\`\`\`json
+{
+  "colorScheme": "schemeGreens",
+  "circle": true
+}
+\`\`\`
+`,
               download_url:
                 '${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj_hortifruti.geom/{z}/{x}/{y}',
             },
