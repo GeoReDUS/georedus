@@ -66,7 +66,16 @@ const VIEW_SPECS = {
           entries: ['corredor'],
         },
         sourceLabel: 'Test',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Line Categorical Preset',
+        metodology: `Vector Line Categorical Preset: parâmetro *style* preenchido em formato *json*. Parâmetros: *categoryKey* (nome da coluna a ser categorizada), *lineWidth* (espessuara da linha) e *categories* (endpoint de metadados). Cores são atribuídas automaticamente pelo *colorScheme* padrão:
+\`\`\`json
+{
+  "categoryKey": "nome",
+  "lineWidth": 2,
+  "categories": "\${METADATA_API_ENDPOINT}/mun_sao_luis_malha_corredores_1992?select=value:nome"
+}
+\`\`\`
+`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_corredores_1992.geom/{z}/{x}/{y}',
       },
@@ -103,7 +112,26 @@ const VIEW_SPECS = {
           },
         },
         sourceLabel: 'Test',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Line Categorical Preset',
+        metodology: `Vector Line Categorical Preset: parâmetro *style* preenchido em formato *json*. Parâmetros: *categoryKey* (nome da coluna a ser categorizada) e *categories* (array com cores explícitas para cada categoria). Sem *colorScheme*, cores são atribuídas automaticamente pelo *colorScheme* padrão:
+\`\`\`json
+{
+  "categoryKey": "nome",
+  "categories": [
+    { "value": "CP", "color": "#e88974" },
+    { "value": "CS1", "color": "#318fc6" },
+    { "value": "CS2", "color": "#d46eb3" },
+    { "value": "CS3", "color": "#e6d35e" },
+    { "value": "CS4", "color": "#758756" },
+    { "value": "CS5", "color": "#50e6be" },
+    { "value": "CS6", "color": "#9a8feb" },
+    { "value": "CS7", "color": "#8a374c" },
+    { "value": "CS8", "color": "#a957fa" },
+    { "value": "CS9", "color": "#388a87" }
+  ]
+}
+\`\`\`
+`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom/{z}/{x}/{y}',
       },
