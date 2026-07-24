@@ -67,7 +67,7 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'Test',
         shortDescription: 'Vector Polygon Continuous Preset',
-        metodology: `Vector Polygon Continuous Preset: *style* em formato *json*. Parâmetros: *valueKey*: (nome da coluna a ser usado o valor) e *values* (endpoint de metadados):
+        metodology: `Vector Polygon Continuous Preset: **style** em formato *json*. **valueKey** (nome da coluna a ser usada como valor) e **values** (endpoint de metadados):
 \`\`\`json
 {
   "valueKey": "dengue_2023",

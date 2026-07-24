@@ -63,7 +63,7 @@ const VIEW_SPECS = {
         sourceLabel: 'Test',
         shortDescription: 'Vector Point Single Preset',
         metodology:
-          'Vector Point Single Preset: parâmetro **style** preenchido somente com string contendo valor da cor (**schemeGeoReDUS.verde**) ',
+          'Vector Point Single Preset: **style** em formato *string* contendo valor da cor (**schemeGeoReDUS.verde**) ',
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_saude_2026.geom/{z}/{x}/{y}',
       },

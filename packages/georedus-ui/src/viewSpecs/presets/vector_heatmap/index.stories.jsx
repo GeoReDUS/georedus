@@ -84,7 +84,7 @@ export const Basic = () => {
               tooltip: '',
               sourceLabel: 'MMA',
               shortDescription: 'Vector Heatmap Preset',
-              metodology: `Vector Heatmap Preset: parâmetro *style* preenchido em formato *json*. Parâmetros: *colorScheme* e *minzoom*/*maxzoom* (controlam em quais níveis de zoom o heatmap em gradiente é exibido):
+              metodology: `Vector Heatmap Preset: **style** em formato *json*. **colorScheme** (string com nome da paleta de cores) e **minzoom**/**maxzoom** (níveis de zoom em que o heatmap em gradiente é exibido):
 \`\`\`json
 {
   "colorScheme": "schemeGreens",
@@ -148,7 +148,7 @@ export const WithCircle = () => {
               tooltip: '',
               sourceLabel: 'MMA',
               shortDescription: 'Vector Heatmap Preset',
-              metodology: `Vector Heatmap Preset: parâmetro *style* preenchido como um *json* com *colorScheme* e *circle: true*, fazendo com que o heatmap seja renderizado como círculos proporcionais ao invés de um gradiente contínuo:
+              metodology: `Vector Heatmap Preset: **style** em formato *json*. **colorScheme** (string com nome da paleta de cores) e **circle** (boolean; quando **true**, o heatmap é renderizado como círculos proporcionais ao invés de um gradiente contínuo):
 \`\`\`json
 {
   "colorScheme": "schemeGreens",

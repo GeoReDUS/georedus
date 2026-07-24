@@ -60,7 +60,7 @@ const VIEW_SPECS = {
         sourceLabel: 'Test',
         shortDescription: 'Vector Line Single Preset',
         metodology:
-          'Vector Line Single Preset: parâmetro *style* preenchido somente com string contendo valor da cor (*schemeGeoReDUS.azul*)',
+          'Vector Line Single Preset: **style** em formato *string* contendo valor da cor (**schemeGeoReDUS.azul**)',
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_hidrografia_2007.geom/{z}/{x}/{y}',
       },
@@ -84,7 +84,7 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'Test',
         shortDescription: 'Vector Line Single Preset',
-        metodology: `Vector Line Single Preset: *style* preenchido com todos os parâmetros em formato *json*:
+        metodology: `Vector Line Single Preset: **style** em formato *json* com todos os parâmetros. **color** (string com nome/valor da cor), **linePattern** (padrão da linha) e **lineWidth** (espessura da linha):
 \`\`\`json
 {
   "color": "schemeGeoReDUS.marrom",

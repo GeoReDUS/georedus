@@ -65,7 +65,7 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'TEst',
         shortDescription: 'Raster Categorical Preset',
-        metodology: `Raster Categorical Preset: parâmetro *style* preenchido como um *json* sem coloScheme e cores aplicadas a cada categoria:
+        metodology: `Raster Categorical Preset: **style** em formato *json*. **categories** (array de objetos com **value** e **color** explícitos para cada categoria); sem **colorScheme**, cores atribuídas conforma preenchidas em **categories**:
 \`\`\`json
 {
   "categories": [
@@ -116,7 +116,7 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'TEst',
         shortDescription: 'Raster Categorical Preset',
-        metodology: `Raster Categorical Preset: parâmetro *style* preenchido como um *json* com coloScheme e sem cores aplicadas a cada categoria:
+        metodology: `Raster Categorical Preset: **style** em formato *json*. **colorScheme** (string com nome da paleta de cores) e **categories** (array de objetos com **value** e **label**; cores atribuídas automaticamente pelo **colorScheme**):
 \`\`\`json
 {
   "colorScheme": "schemeGeoReDUS",

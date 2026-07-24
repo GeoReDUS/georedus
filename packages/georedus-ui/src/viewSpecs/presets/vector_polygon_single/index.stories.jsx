@@ -63,7 +63,7 @@ const VIEW_SPECS = {
         sourceLabel: 'INCRA',
         shortDescription: 'Vector Polygon Single Preset',
         metodology:
-          'Vector Polygon Single Preset: parâmetro *style* preenchido somente com string contendo valor da cor (*schemeGeoReDUS.laranja*) ',
+          'Vector Polygon Single Preset: **style** em formato *string* contendo valor da cor (**schemeGeoReDUS.laranja**)',
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/incra_malha_quilombos_2024.geom/{z}/{x}/{y}',
       },
@@ -88,7 +88,7 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'SGB',
         shortDescription: 'Vector Polygon Single Preset',
-        metodology: `Vector Polygon Single Preset: parâmetro *style* preenchido com todos os parâmetros como um *json*:
+        metodology: `Vector Polygon Single Preset: **style** em formato *json* com todos os parâmetros. **color** (string com nome/valor da cor), **fillPattern** (padrão de preenchimento) e **borderStyle** (estilo da borda):
 \`\`\`json
 {
   "color": "schemeGeoReDUS.vermelho_claro",
