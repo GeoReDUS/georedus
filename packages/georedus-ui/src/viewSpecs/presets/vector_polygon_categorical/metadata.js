@@ -42,7 +42,10 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
-      const color = cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
+      // Will only use cat.color if there is not coloScheme defined
+      const color = colorSchemeId
+        ? resolveCategoricalSchemeColor(colorSchemeId, index)
+        : cat.color
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)
