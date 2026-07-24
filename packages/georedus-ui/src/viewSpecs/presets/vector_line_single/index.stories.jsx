@@ -58,7 +58,9 @@ const VIEW_SPECS = {
         style: 'schemeGeoReDUS.azul',
         tooltip: { title: 'nome' },
         sourceLabel: 'Test',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Line Single Preset',
+        metodology:
+          'Vector Line Single Preset: parâmetro *style* preenchido somente com string contendo valor da cor (*schemeGeoReDUS.azul*)',
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_hidrografia_2007.geom/{z}/{x}/{y}',
       },
@@ -81,7 +83,16 @@ const VIEW_SPECS = {
           entries: [],
         },
         sourceLabel: 'Test',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Line Single Preset',
+        metodology: `Vector Line Single Preset: *style* preenchido com todos os parâmetros em formato *json*:
+\`\`\`json
+{
+  "color": "schemeGeoReDUS.marrom",
+  "linePattern": "dotted",
+  "lineWidth": 4
+}
+\`\`\`
+`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_ferrovia_2007.geom/{z}/{x}/{y}',
       },
