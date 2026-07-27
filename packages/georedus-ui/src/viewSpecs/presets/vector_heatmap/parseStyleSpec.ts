@@ -12,6 +12,7 @@ export type StyleSpec = {
   opacity?: number | number[]
   steps?: HeatmapSteps[]
   circle?: Boolean
+  circle_radius?: number | number[] 
   colorScheme?: // sequential
   | 'schemeBlues'
     | 'schemeGreens'

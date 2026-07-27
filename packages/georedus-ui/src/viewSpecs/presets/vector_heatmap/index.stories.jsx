@@ -84,7 +84,10 @@ export const Basic = () => {
               tooltip: '',
               sourceLabel: 'MMA',
               shortDescription: 'Vector Heatmap Preset',
-              metodology: `Vector Heatmap Preset: **style** em formato *json*. **colorScheme** (string com nome da paleta de cores) e **minzoom**/**maxzoom** (níveis de zoom em que o heatmap em gradiente é exibido):
+              metodology: `Vector Heatmap Preset: **style** em formato *json*. 
+
+  - **colorScheme** (string com nome da paleta de cores);
+  - **minzoom**/**maxzoom** (níveis de zoom em que o heatmap em gradiente é exibido);
 \`\`\`json
 {
   "colorScheme": "schemeGreens",
@@ -139,7 +142,7 @@ export const WithCircle = () => {
               tiles:
                 '${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj_hortifruti.geom/{z}/{x}/{y}',
               source_layer: 'cem_malha_estabelecimentos_cnpj_hortifruti.geom',
-              path: 'Test / _ / CNPJ',
+              path: 'Heatmap Test / _',
               label: 'Hortifrutti With Circle',
               style: {
                 colorScheme: 'schemeGreens',
@@ -148,7 +151,10 @@ export const WithCircle = () => {
               tooltip: '',
               sourceLabel: 'MMA',
               shortDescription: 'Vector Heatmap Preset',
-              metodology: `Vector Heatmap Preset: **style** em formato *json*. **colorScheme** (string com nome da paleta de cores) e **circle** (boolean; quando **true**, o heatmap é renderizado como círculos proporcionais ao invés de um gradiente contínuo):
+              metodology: `Vector Heatmap Preset: **style** em formato *json*. 
+              
+  - **colorScheme** (string com nome da paleta de cores);
+  - **circle** (boolean; quando **true**, o heatmap é renderizado como círculos proporcionais ao invés de um gradiente contínuo);
 \`\`\`json
 {
   "colorScheme": "schemeGreens",
@@ -158,6 +164,42 @@ export const WithCircle = () => {
 `,
               download_url:
                 '${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj_hortifruti.geom/{z}/{x}/{y}',
+            },
+            {
+              id: 'overture_places_poc',
+              collection_id: 'test',
+              indicator_id: 'test',
+              preset: 'vector_heatmap',
+              tiles:
+                '${VECTOR_TILE_SERVER_ENDPOINT}/overture_br_places.geom/{z}/{x}/{y}?v=1',
+              source_layer: 'overture_br_places.geom',
+              path: 'Heatmap Test / _',
+              label: 'Pontos de atividade comercial',
+              style: {
+                circle: true,
+                weight: 1,
+                radius: [9, 1, 17, 15],
+                circle_radius: [17, 5, 20, 10],
+              },
+              tooltip: '',
+              sourceLabel: 'Test',
+              shortDescription: 'Vector Heatmap Preset',
+              metodology: `Vector Heatmap Preset: **style** em formato *json*. 
+
+  - **circle** (boolean; quando **true**, o heatmap é renderizado também como círculos proporcionais);
+  - **weight** (peso de cada ponto no cálculo do heatmap);
+  - **radius** (array de interpolação por zoom, no formato *[zoom1, raio1, zoom2, raio2, ...]*, definindo o raio do heatmap em gradiente);
+  - **circle_radius** (array de interpolação por zoom no mesmo formato, definindo o raio dos círculos quando **circle** é **true**);
+  - **colorScheme** não está definido, portanto será renderizado com uma paleta padrão;
+\`\`\`json
+{
+  "circle": true,
+  "weight": 1,
+  "radius": [9, 1, 17, 15],
+  "circle_radius": [17, 5, 20, 10]
+}
+\`\`\`
+`,
             },
           ],
         ],
