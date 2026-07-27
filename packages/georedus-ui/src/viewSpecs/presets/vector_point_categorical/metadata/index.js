@@ -1,8 +1,8 @@
+import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
-import { interpolate, slugify } from '@orioro/util'
+import { humanize } from '../../util'
 import { uniqBy } from 'lodash'
-import { resolveCategoricalSchemeColor } from '../../util'
-import { humanize } from '../util'
+import { resolveCategoricalSchemeColor } from '../../../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -22,7 +22,11 @@ export function metadata(viewSpec, allViewSpecs, context) {
             }),
           )
             .then((res) => res.json())
-            .then((categories) => uniqBy(categories, (cat) => cat.value))
+            .then((categories) =>
+              uniqBy(categories, (cat) => cat.value).filter(
+                (cat) => cat.value !== null,
+              ),
+            )
         : Array.isArray(style.categories)
           ? style.categories.map((categoryInput) =>
               typeof categoryInput === 'string'

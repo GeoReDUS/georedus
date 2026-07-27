@@ -1,6 +1,6 @@
 import { COLOR_SCHEMES } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, DEFAULT_FILL_OPACITY } from '../util'
+import { basicTooltip, DEFAULT_FILL_OPACITY, applyOpacity } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -36,15 +36,28 @@ const DEFAULT_NUMBER_FORMAT = ['pt-BR', {}]
 
 function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
-    console.log('ctx', ctx)
-
+    const _confOpacity = ctx.view?.conf?.style?.opacity
+    // OBS: stopsWithOpacity foi feito para aplicar na legenda a opacidade que também é aplicada no mapa
+    // colorScaleStops retorna um array cuja estrutura é [cor, valor, cor, valor, ..., valor, cor]
+    // por isso a opacidade está sendo aplicada somente nos indexes pares
+    const stopsWithOpacity = ctx.view.metadata.colorScaleStops.map(
+      (entry, index) =>
+        index % 2 === 0
+          ? applyOpacity(
+              entry,
+              typeof _confOpacity === 'number'
+                ? _confOpacity
+                : DEFAULT_FILL_OPACITY,
+            )
+          : entry,
+    )
     return [
       {
         type: 'SequentialColorLegend',
         title: viewSpec.label,
         unit: viewSpec.unit,
 
-        steps: ctx.view.metadata.colorScaleStops,
+        steps: stopsWithOpacity,
         format: {
           number: viewSpec.style.numberFormat || DEFAULT_NUMBER_FORMAT,
           below: 'Sem dados',
@@ -60,6 +73,11 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 function _main_fill(props, viewSpec, allViewSpecs, context) {
   const { _maplibreColorExp } = props
   const { source_layer } = viewSpec
+  const _opacity = resolve.fn((ctx) =>
+    typeof ctx.view?.conf?.style?.opacity === 'number'
+      ? ctx.view.conf.style.opacity
+      : DEFAULT_FILL_OPACITY,
+  )
   return {
     zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
@@ -68,7 +86,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     type: 'fill',
     paint: {
       'fill-color': _maplibreColorExp,
-      'fill-opacity': DEFAULT_FILL_OPACITY,
+      'fill-opacity': _opacity,
     },
     legends: _main_fill_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),

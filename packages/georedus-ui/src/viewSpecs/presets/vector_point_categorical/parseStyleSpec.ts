@@ -1,22 +1,8 @@
-export type CategoryStyleSpec = {
-  color?: string
-  fillPattern?:
-    | 'circles_1'
-    | 'cross_1'
-    | 'diamonds_1'
-    | 'lines_1'
-    | 'mosaic_1'
-    | 'mosaic_2'
-    | 'squares_1'
-    | 'triangles_1'
-    | 'waves_1'
-    | 'solid'
-  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none'
-}
 
-type Category = CategoryStyleSpec & {
+type Category = {
   value: string
-  label?: string
+  label?: string,
+  color?: string
 }
 
 export type StyleSpec = {
@@ -34,9 +20,9 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
-    | null
-  categories: string | (string | Category)[]
-} & Omit<CategoryStyleSpec, 'color'>
+    categories: string | Category[]
+    border?:boolean
+}
 
 export type StyleSpecInput = StyleSpec
 
@@ -47,5 +33,5 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     throw new Error('expected existing styleInput')
   }
 
-  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, ...styleInput }
+  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, border: true, ...styleInput }
 }

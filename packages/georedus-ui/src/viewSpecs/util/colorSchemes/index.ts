@@ -22,23 +22,32 @@ export function resolveColor(colorInput: string): string {
   return colorInput ? get(COLOR_SCHEMES, colorInput) || colorInput : colorInput
 }
 
-export function resolveSchemeColor(
+export function resolveCategoricalSchemeColor(
   colorSchemeId: string,
   indexOrId: string | number,
-  k?: number,
 ): string {
-
   const colorScheme = COLOR_SCHEMES[colorSchemeId]
 
-  return typeof indexOrId === 'string'
-    ? colorScheme[indexOrId]
-    : (Array.isArray(colorScheme)
-        ? colorScheme
-        : colorScheme.colors && Array.isArray(colorScheme.colors)
-          ? colorScheme.colors
-          : colorScheme.scalesByK && k
-          ? colorScheme.scalesByK[k]
-          :Object.values(colorScheme))[indexOrId]
+  // return typeof indexOrId === 'string'
+  //   ? colorScheme[indexOrId]
+  //   : (Array.isArray(colorScheme) ? colorScheme : Object.values(colorScheme))[
+  //       indexOrId
+  //     ]
+  if (typeof indexOrId === 'string') {
+    return colorScheme[indexOrId]
+  }
+
+  const values = Array.isArray(colorScheme)
+    ? colorScheme
+    : Array.isArray(colorScheme?.colors)
+      ? colorScheme.colors
+      : Object.values(colorScheme)
+
+  if (typeof indexOrId === 'number' && indexOrId > values.length - 1) {
+    console.warn('Index is higher than colorScheme size: will repeat colors')
+  }
+
+  return values[indexOrId % values.length]
 }
 
 export * from './d3'

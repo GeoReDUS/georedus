@@ -1,7 +1,7 @@
 import { resolveAsync } from '@orioro/resolve'
-import { interpolate, slugify } from '@orioro/util'
+import { interpolate } from '@orioro/util'
 import { uniqBy } from 'lodash'
-import { COLOR_SCHEMES, resolveSchemeColor } from '../../util'
+import { COLOR_SCHEMES, resolveCategoricalSchemeColor } from '../../util'
 import { humanize } from '../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
@@ -10,7 +10,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
   const categories = resolveAsync.fn(async (ctx) => {
     // Resolve color scheme
     const colorSchemeId =
-      ctx.view?.conf?.style?.colorScheme || 'schemeGeoReDUSSafe'
+      ctx.view?.conf?.style?.colorScheme || style.colorScheme
 
     // resolve categories
     const resolvedCategories =
@@ -22,7 +22,11 @@ export function metadata(viewSpec, allViewSpecs, context) {
             }),
           )
             .then((res) => res.json())
-            .then((categories) => uniqBy(categories, (cat) => cat.value))
+            .then((categories) =>
+              uniqBy(categories, (cat) => cat.value).filter(
+                (cat) => cat.value !== null,
+              ),
+            )
         : Array.isArray(style.categories)
           ? style.categories.map((categoryInput) =>
               typeof categoryInput === 'string'
@@ -38,7 +42,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
-      const color = cat.color || resolveSchemeColor(colorSchemeId, index)
+      const color = cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)

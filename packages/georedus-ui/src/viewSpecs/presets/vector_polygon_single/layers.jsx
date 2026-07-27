@@ -19,6 +19,7 @@ function _main_fill_legends(
   const _legend = resolve.fn(
     [_color, _fillPattern],
     ([resolvedColor, resolvedFillPattern], ctx) => {
+      const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
       const patternProps =
         resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
           ? {
@@ -38,7 +39,7 @@ function _main_fill_legends(
           : {
               backgroundColor: applyOpacity(
                 resolvedColor,
-                DEFAULT_FILL_OPACITY,
+                _opacity,
               ),
             }
 
@@ -80,9 +81,10 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
         resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
           ? `${resolvedFillPattern}({ stroke: "${resolvedColor}", scale: 0.5 })`
           : null
+      const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
 
       return {
-        'fill-opacity': DEFAULT_FILL_OPACITY,
+        'fill-opacity': _opacity,
         'fill-color': resolvedColor,
         ...(resolvedFillPatternStr
           ? { 'fill-pattern': resolvedFillPatternStr }
