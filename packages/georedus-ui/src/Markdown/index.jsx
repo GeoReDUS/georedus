@@ -42,9 +42,10 @@ const MARKDOWN_COMPONENTS = {
               fontFamily: CODE_FONT_FAMILY,
               fontSize: '0.85em',
               background: 'var(--gray-a3)',
-              border: '1px solid var(--gray-6)',
+              border: 'none',
               borderRadius: '4px',
               padding: '0.1em 0.4em',
+              margin: '0.1em',
             }
       }
     >
