@@ -2,12 +2,12 @@
 
 Presets são funções prontas que geram uma **view** completa (fontes e camadas MapLibre GL, legendas, tooltip e download) a partir de uma configuração declarativa (`style`), sem que seja necessário escrever manualmente `sources`/`layers`/`tooltip` como descrito no tutorial ["Criando uma view"](../../../../../README.md#-exemplo-prático) do monorepo.
 
-Este documento cobre os 9 presets disponíveis (8 vetoriais + 1 raster):
+Este documento cobre os 10 presets disponíveis (9 vetoriais + 1 raster):
 
 ### Vector Presets
 | Geometria | Estilo único | Estilo categórico | Estilo contínuo | Densidade |
 |---|---|---|---|---|
-| Ponto | [`vector_point_single`](#vector_point_single) | — | [`vector_point_continuous`](#vector_point_continuous) | [`vector_heatmap`](#vector_heatmap) |
+| Ponto | [`vector_point_single`](#vector_point_single) | [`vector_point_categorical`](#vector_point_categorical) | [`vector_point_continuous`](#vector_point_continuous) | [`vector_heatmap`](#vector_heatmap) |
 | Linha | [`vector_line_single`](#vector_line_single) | [`vector_line_categorical`](#vector_line_categorical) | — | — |
 | Polígono | [`vector_polygon_single`](#vector_polygon_single) | [`vector_polygon_categorical`](#vector_polygon_categorical) | [`vector_polygon_continuous`](#vector_polygon_continuous) | — |
 
@@ -117,6 +117,51 @@ Atalho com string (usa os `defaults` de raio/opacidade/borda):
   preset: 'vector_point_single',
   // ...
   style: 'schemeGeoReDUS.verde_agua',
+}
+```
+
+---
+
+## `vector_point_categorical`
+
+Renderiza pontos com uma cor por categoria, de acordo com o valor de uma propriedade da feature.
+
+**`style`** (obrigatório — lança erro se `style` não for informado):
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `categoryKey` | `string` | **sim** | - | Nome da propriedade da feature usada para determinar a categoria. |
+| `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | - | URL (retornando JSON) ou array de categorias. Itens que forem strings viram `{ value }`; `label`, se omitido, é criado com `humanize(value)`; `color`, se omitido, vem do `colorScheme`. |
+| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
+| `radius` | `number` | não | `10` | Raio do círculo, em pixels (compartilhado entre todas as categorias). |
+| `border` | `boolean` | não | `true` | Se `true`, desenha uma borda branca de 2px ao redor do círculo. |
+
+Pontos cuja feature não possua valor correspondente em `categoryKey` são renderizados em cinza claro (`#CCCCCC`).
+
+
+```js
+{
+  preset: 'vector_point_categorical',
+  id: 'unidades_saude_tipo',
+  label: 'Unidades de saúde por tipo',
+  path: 'Saúde / _ / Infraestrutura',
+  sourceLabel: 'DataSUS',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/unidades_saude/{z}/{x}/{y}`,
+  source_layer: 'unidades_saude',
+  style: {
+    categoryKey: 'tipo',
+    colorScheme: 'schemeSet2',
+    categories: [
+      { value: 'ubs', label: 'UBS' },
+      { value: 'hospital', label: 'Hospital' },
+      { value: 'upa', label: 'UPA' },
+    ],
+    radius: 6,
+  },
+  tooltip: {
+    title: 'nome',
+    entries: ['tipo', 'endereco'],
+  },
 }
 ```
 
@@ -440,7 +485,7 @@ Renderiza uma camada **raster** (não vetorial) cujas cores por pixel vêm de um
 |---|---|---|---|---|
 | `categories` | `{ value: string, label: string, color?: string }[]` | **sim** | — | Lista das classes/valores representados no raster. `color`, se omitido, é resolvido a partir de `colorScheme` (por índice, ou usando `k` quando informado). |
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos), mais `'schemeYlOrRd'` como caso especial (esquema sequencial usado como paleta categórica) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
-| `k` | `number` | não | — | Repassado à resolução de cor da categoria; usado apenas junto de esquemas sequenciais tratados como categóricos (ex.: `'schemeYlOrRd'`). |
+
 
 
 ```js
