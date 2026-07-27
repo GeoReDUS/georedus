@@ -74,7 +74,7 @@ export const Basic = () => {
               tiles:
                 '${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj_hortifruti.geom/{z}/{x}/{y}',
               source_layer: 'cem_malha_estabelecimentos_cnpj_hortifruti.geom',
-              path: 'Heatmap Test / _ / CNPJ',
+              path: 'Heatmap Test / _ ',
               label: 'Hortifrutti',
               style: {
                 colorScheme: 'schemeGreens',

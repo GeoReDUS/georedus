@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_saude_2026.geom/{z}/{x}/{y}',
         source_layer: 'mun_maceio_malha_saude_2026.geom',
-        path: 'Test Dir / _ ',
+        path: 'Point Single Test / _ ',
         label: 'Equipamentos de saúde',
         style: 'schemeGeoReDUS.verde',
         tooltip: {
@@ -63,7 +63,9 @@ const VIEW_SPECS = {
         sourceLabel: 'Test',
         shortDescription: 'Vector Point Single Preset',
         metodology:
-          'Vector Point Single Preset: **style** em formato *string* contendo valor da cor (**schemeGeoReDUS.verde**) ',
+          `Vector Point Single Preset: **style** em formato *string* contendo valor da cor (\`schemeGeoReDUS.verde\`).
+
+Demais parâmetros: **radius**, **opacity** e **border** terão valores padrão.`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_saude_2026.geom/{z}/{x}/{y}',
       },
@@ -75,7 +77,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_areas_de_emprego_2025.geom/{z}/{x}/{y}',
         source_layer: 'mun_maceio_malha_areas_de_emprego_2025.geom',
-        path: 'Test Dir / _ ',
+        path: 'Point Single Test / _ ',
         label: 'Áreas de Emprego',
         style: {
           color: 'schemeGeoReDUS.vermelho_claro',

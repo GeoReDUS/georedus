@@ -53,14 +53,16 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_hidrografia_2007.geom/{z}/{x}/{y}',
         source_layer: 'mun_maceio_malha_hidrografia_2007.geom',
-        path: 'Test Dir / _ ',
+        path: 'Line Single Test / _ ',
         label: 'Hidrografia',
         style: 'schemeGeoReDUS.azul',
         tooltip: { title: 'nome' },
         sourceLabel: 'Test',
         shortDescription: 'Vector Line Single Preset',
         metodology:
-          'Vector Line Single Preset: **style** em formato *string* contendo valor da cor (**schemeGeoReDUS.azul**)',
+          `Vector Line Single Preset: **style** em formato *string* contendo valor da cor (\`schemeGeoReDUS.azul\`)
+
+Demais parâmetros: **linePattern** e **lineWidth** terão valores padrão.`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_hidrografia_2007.geom/{z}/{x}/{y}',
       },
@@ -72,7 +74,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_ferrovia_2007.geom/{z}/{x}/{y}',
         source_layer: 'mun_maceio_malha_ferrovia_2007.geom',
-        path: 'Test Dir / _ ',
+        path: 'Line Single Test / _ ',
         label: 'Ferrovia',
         style: {
           color: 'schemeGeoReDUS.marrom',

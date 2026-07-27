@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
         source_layer: 'mma_malha_unidades_conservacao_2026.geom',
-        path: 'Emergências Climáticas / _',
+        path: 'Polygon Categorical Test / _',
         label: 'Unidades de Conservação',
         style: {
           categoryKey: 'categoria',

@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_corredores_1992.geom/{z}/{x}/{y}',
         source_layer: 'mun_sao_luis_malha_corredores_1992.geom',
-        path: 'Test Dir / _ ',
+        path: 'Line Categorical Test / _ ',
         label: 'Zoneamento Corredores',
         style: {
           categoryKey: 'nome',
@@ -93,7 +93,7 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom/{z}/{x}/{y}',
         source_layer:
           'mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom',
-        path: 'Test Dir / _ ',
+        path: 'Line Categorical Test / _ ',
         label: 'Parcelamento Corredores',
         style: {
           categoryKey: 'nome',

@@ -50,7 +50,7 @@ const VIEW_SPECS = {
         collection_id: 'test',
         indicator_id: 'test',
         preset: 'vector_point_categorical',
-        path: 'Test dir / _',
+        path: 'Pont Categorical Test / _',
         label: 'Estabelecimentos de Cultura',
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_pontos_culturais_2026.geom/{z}/{x}/{y}',
@@ -86,7 +86,7 @@ const VIEW_SPECS = {
         collection_id: 'test',
         indicator_id: 'test',
         preset: 'vector_point_categorical',
-        path: 'Test dir / _',
+        path: 'Pont Categorical Test / _',
         label: 'Conselho Tutelar',
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025.geom/{z}/{x}/{y}',
