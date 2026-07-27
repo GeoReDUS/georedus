@@ -65,7 +65,11 @@ const VIEW_SPECS = {
         tooltip: '',
         sourceLabel: 'TEst',
         shortDescription: 'Vector Point Categorical Preset',
-        metodology: `Vector Point Categorical Preset: **style** em formato *json*. **categoryKey** (nome da coluna a ser categorizada) e **categories** (array de objetos com **value** e **color** explícitos para cada categoria); sem **colorScheme**:
+        metodology: `Vector Point Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **categories**: array de objetos com **value** e **color** explícitos para cada categoria;
+  - **colorScheme**: não está definido, portanto as cores vêm diretamente de cada categoria;
 \`\`\`json
 {
   "categoryKey": "tipo",
@@ -95,7 +99,11 @@ const VIEW_SPECS = {
         tooltip: '',
         sourceLabel: 'TEst',
         shortDescription: 'Vector Point Categorical Preset',
-        metodology: `Vector Point Categorical Preset: **style** em formato *json*. **categoryKey** (nome da coluna a ser categorizada) e **categories** (endpoint de metadados); cores atribuídas automaticamente pelo **colorScheme** padrão:
+        metodology: `Vector Point Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **categories**: endpoint de metadados;
+  - **colorScheme**: não está definido, portanto cores serão atribuídas automaticamente pelo **colorScheme** padrão:
 \`\`\`json
 {
   "categoryKey": "nome",

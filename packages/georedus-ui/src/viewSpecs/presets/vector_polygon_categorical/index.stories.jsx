@@ -67,7 +67,11 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'MMA',
         shortDescription: 'Vector Polygon Categorical Preset',
-        metodology: `Vector Polygon Categorical Preset: **style** em formato *json*. **categoryKey** (nome da coluna a ser categorizada), **colorScheme** (string com nome da paleta de cores) e **categories** (endpoint de metadados):
+        metodology: `Vector Polygon Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **colorScheme**: string com nome da paleta de cores;
+  - **categories**: endpoint de metadados;
 \`\`\`json
 {
   "categoryKey": "categoria",

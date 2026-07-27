@@ -88,7 +88,11 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'SGB',
         shortDescription: 'Vector Polygon Single Preset',
-        metodology: `Vector Polygon Single Preset: **style** em formato *json* com todos os parâmetros. **color** (string com nome/valor da cor), **fillPattern** (padrão de preenchimento) e **borderStyle** (estilo da borda):
+        metodology: `Vector Polygon Single Preset: **style** em formato *json* com todos os parâmetros.
+
+  - **color**: string com nome/valor da cor;
+  - **fillPattern**: padrão de preenchimento;
+  - **borderStyle**: estilo da borda;
 \`\`\`json
 {
   "color": "schemeGeoReDUS.vermelho_claro",

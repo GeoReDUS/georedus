@@ -84,7 +84,11 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'Test',
         shortDescription: 'Vector Line Single Preset',
-        metodology: `Vector Line Single Preset: **style** em formato *json* com todos os parâmetros. **color** (string com nome/valor da cor), **linePattern** (padrão da linha) e **lineWidth** (espessura da linha):
+        metodology: `Vector Line Single Preset: **style** em formato *json* com todos os parâmetros.
+
+  - **color**: string com nome/valor da cor;
+  - **linePattern**: padrão da linha;
+  - **lineWidth**: espessura da linha:
 \`\`\`json
 {
   "color": "schemeGeoReDUS.marrom",

@@ -67,7 +67,12 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'Test',
         shortDescription: 'Vector Line Categorical Preset',
-        metodology: `Vector Line Categorical Preset: **style** em formato *json*. **categoryKey** (nome da coluna a ser categorizada), **lineWidth** (espessura da linha) e **categories** (endpoint de metadados); cores atribuídas automaticamente pelo **colorScheme** padrão:
+        metodology: `Vector Line Categorical Preset: **style** em formato *json*. 
+        
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **lineWidth**: espessura da linha;
+  - **categories**: endpoint de metadados;
+  - **colorScheme**: não está definido, portanto cores serão atribuídas automaticamente pelo **colorScheme** padrão:
 \`\`\`json
 {
   "categoryKey": "nome",
@@ -113,7 +118,11 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'Test',
         shortDescription: 'Vector Line Categorical Preset',
-        metodology: `Vector Line Categorical Preset: **style** em formato *json*. **categoryKey** (nome da coluna a ser categorizada) e **categories** (array de objetos com **value** e **color** explícitos para cada categoria), sem **colorScheme**:
+        metodology: `Vector Line Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **categories**: array de objetos com **value** e **color** explícitos para cada categoria;
+  - **colorScheme**: não está definido, portanto as cores vêm diretamente de cada categoria:
 \`\`\`json
 {
   "categoryKey": "nome",

@@ -89,7 +89,12 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'Test',
         shortDescription: 'Vector Point Single Preset',
-        metodology: `Vector Point Single Preset: **style** em formato *json* com todos os parâmetros. **color** (string com nome/valor da cor), **radius** (raio em pixels), **opacity** (opacidade de 0 a 1) e **border** (boolean) :
+        metodology: `Vector Point Single Preset: **style** em formato *json* com todos os parâmetros.
+
+  - **color**: string com nome/valor da cor;
+  - **radius**: raio em pixels;
+  - **opacity**: opacidade de 0 a 1;
+  - **border**: boolean;
 \`\`\`json
 {
   "color": "schemeGeoReDUS.vermelho_claro",
