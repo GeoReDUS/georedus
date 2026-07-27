@@ -22,7 +22,6 @@ Este documento cobre os 9 presets disponíveis (8 vetoriais + 1 raster):
 - **Estilo categórico**: a cor/padrão varia de acordo com o valor de uma propriedade categórica (`categoryKey` nos presets vetoriais; classes pré-definidas no raster), com uma cor por categoria.
 - **Estilo contínuo**: a cor (ou o raio, no caso de pontos) varia de acordo com uma propriedade numérica (`valueKey`), usando uma escala de cores e um método de classificação.
 - **Densidade**: a intensidade da cor reflete a concentração de pontos em uma área (mapa de calor).
-- `raster_categorical` é o único preset **não vetorial** da lista — a geometria já vem rasterizada (por pixel) a partir do tile server, em vez de features vetoriais.
 
 
 
@@ -34,7 +33,7 @@ Todos os presets têm a mesma assinatura:
 preset(viewSpecInput, allViewSpecs, context) => ViewSpec
 ```
 
-- **`viewSpecInput`**: objeto de configuração da view. Contém os campos base abaixo mais o campo `style`, cujo formato é específico de cada preset (ver seções seguintes).
+- **`viewSpecInput`**: objeto de configuração da view. Contém os campos base (descritos abaixo) mais o campo `style`, cujo formato é específico de cada preset (ver seções seguintes).
 - **`allViewSpecs`**: array com os demais `viewSpecInput` do mesmo lote (disponibilizado para os presets, mas não usado diretamente pelos 7 presets vetoriais).
 - **`context`**: `{ METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT, ...outrosDadosDaAplicação }`, usado para resolver URLs de tiles e de dados de metadata/download.
 
@@ -46,8 +45,8 @@ Além de `style`, todo preset aceita:
 
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `id` | `string` | recomendado | Identificador único da view. |
-| `path` | `string` | não | Caminho de navegação (separado por `/`) usado para organizar a view no menu latera, ex.: `'Censo 2022 / Domicílios'`. |
+| `id` | `string` | recomendado* | Identificador único da view. |
+| `path` | `string` | não | Caminho de navegação (níveis separados por `/`) usado para organizar a view no menu lateral, seguindo a ordem `Menu Principal / Ano / Submenu / ...`, com quantos níveis forem necessários; ex.: `Censo / 2022 / Domicílios`. Quando não há um ano associado ao dado, usa-se `_` no lugar, ex.: `Emergências Climáticas / _ / Inundação`. |
 | `label` | `string` | não | Nome legível exibido na interface. |
 | `sourceLabel` | `string` | não | Atribuição da fonte de dados, ex.: `'IBGE'`. |
 | `shortDescription` | `string` | não | Descrição curta do indicador. |
@@ -94,7 +93,7 @@ Renderiza pontos com cor, raio e opacidade definidos.
   preset: 'vector_point_single',
   id: 'escolas_municipais',
   label: 'Escolas municipais',
-  path: 'Educação / Infraestrutura',
+  path: 'Educação / _ / Infraestrutura',
   sourceLabel: 'INEP',
   tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/escolas_municipais/{z}/{x}/{y}`,
   source_layer: 'escolas_municipais',
@@ -152,7 +151,7 @@ Pontos cuja feature não possua valor numérico em `radius.valueKey` são render
   preset: 'vector_point_continuous',
   id: 'ubs_atendimentos',
   label: 'Unidades básicas de saúde — atendimentos/mês',
-  path: 'Saúde / Infraestrutura',
+  path: 'Saúde / _ / Infraestrutura',
   sourceLabel: 'DataSUS',
   tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ubs/{z}/{x}/{y}`,
   source_layer: 'ubs',
@@ -198,6 +197,16 @@ Renderiza linhas com cor, espessura e padrão definidos.
 }
 ```
 
+Atalho com string (usa os `defaults` de linePattern/lineWidth):
+
+```js
+{
+  preset: 'vector_line_single',
+  // ...
+  style: 'schemeSet1.colors.2',
+}
+```
+
 ---
 
 ## `vector_line_categorical`
@@ -209,23 +218,23 @@ Renderiza linhas com uma cor por categoria, de acordo com o valor de uma proprie
 | Campo | Tipo | Obrigatório | Default | Descrição |
 |---|---|---|---|---|
 | `categoryKey` | `string` | **sim** | - | Nome da propriedade da feature usada para determinar a categoria. |
-| `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | - | URL (retornando JSON) ou array de categorias. Itens string viram `{ value }`. `label` default é `humanize(value)`; `color`, se omitido, vem do `colorScheme`. |
+| `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | - | URL (retornando JSON) ou array de categorias. Itens que forem strings viram `{ value }`; `label`, se omitido, é criado com `humanize(value)`; `color`, se omitido, vem do `colorScheme`. |
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
 | `linePattern` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não | `'solid'` | Padrão do traçado (compartilhado entre todas as categorias). |
-| `lineWidth` | `number` | não | `1` | Espessura da linha em pixels. |
+| `lineWidth` | `number` | não | `1` | Espessura da linha em pixels (compartilhado entre todas as categorias). |
 
 ```js
 {
   preset: 'vector_line_categorical',
   id: 'malha_viaria_hierarquia',
   label: 'Hierarquia viária',
-  path: 'Mobilidade / Malha viária',
+  path: 'Mobilidade / 2020 / Malha viária',
   sourceLabel: 'IBGE',
   tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/malha_viaria/{z}/{x}/{y}`,
   source_layer: 'malha_viaria',
   style: {
     categoryKey: 'hierarquia',
-    colorScheme: 'schemeSet1',
+    colorScheme: 'schemeSet3',
     categories: [
       { value: 'arterial', label: 'Via arterial' },
       { value: 'coletora', label: 'Via coletora' },
@@ -255,7 +264,7 @@ Renderiza polígonos com preenchimento e borda de estilo definidos.
   preset: 'vector_polygon_single',
   id: 'area_protegida',
   label: 'Área de proteção ambiental',
-  path: 'Meio ambiente / Áreas protegidas',
+  path: 'Meio ambiente / _ / Áreas protegidas',
   sourceLabel: 'ICMBio',
   tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/area_protegida/{z}/{x}/{y}`,
   source_layer: 'area_protegida',
@@ -264,6 +273,16 @@ Renderiza polígonos com preenchimento e borda de estilo definidos.
     fillPattern: 'lines_1',
     borderStyle: 'dashed',
   },
+}
+```
+
+Atalho com string (usa os `defaults` de fillPattern/borderStyle):
+
+```js
+{
+  preset: 'vector_polygon_single',
+  // ...
+  style: 'schemeGeoReDUS.amarelo',
 }
 ```
 
@@ -279,7 +298,7 @@ Renderiza polígonos com preenchimento e borda coloridos por categoria.
 |---|---|---|---|
 | `categoryKey` | `string` | **sim** | Nome da propriedade da feature usada para determinar a categoria. |
 | `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | URL ou array de categorias — mesmo formato de `vector_line_categorical`. Cada categoria pode definir sua própria `color`. |
-| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
+| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias. |
 | `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | `'solid'` | Hachura aplicada sobre o preenchimento (compartilhada entre categorias, cada uma usando sua própria cor). |
 | `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | `'solid'` | Estilo da borda (compartilhado entre categorias). |
 
@@ -288,13 +307,12 @@ Renderiza polígonos com preenchimento e borda coloridos por categoria.
   preset: 'vector_polygon_categorical',
   id: 'uso_do_solo',
   label: 'Uso do solo',
-  path: 'Território / Uso e ocupação',
+  path: 'Território / _ / Uso e ocupação',
   sourceLabel: 'IBGE',
   tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/uso_do_solo/{z}/{x}/{y}`,
   source_layer: 'uso_do_solo',
   style: {
     categoryKey: 'classe_uso',
-    colorScheme: 'schemeGeoReDUSSafe',
     categories: [
       { value: 'urbano', label: 'Zona urbana', color: '#808080' },
       { value: 'rural', label: 'Zona rural', color: '#8B4513' },
@@ -305,13 +323,27 @@ Renderiza polígonos com preenchimento e borda coloridos por categoria.
 }
 ```
 
+Atalho com array de string (usa os `defaults` de fillPattern/borderStyle e aplica as cores das categorias de acordo com o coloscheme):
+
+```js
+{
+  preset: 'vector_line_single',
+  // ...
+  style: {
+    categoryKey: 'classe_uso',
+    colorScheme: 'schemeGeoReDUSSafe',
+    categories: ['urbano', 'rural'],
+  },
+}
+```
+
 ---
 
 ## `vector_polygon_continuous`
 
-Renderiza polígonos com preenchimento em coroplético — a cor varia continuamente de acordo com uma propriedade numérica, usando uma escala de cores e um método de classificação.
+Renderiza polígonos com preenchimento em cloroplético — a cor varia continuamente de acordo com uma propriedade numérica, usando uma escala de cores e um método de classificação.
 
-**`style`**:
+**`style`** (obrigatório — lança erro se style não for informado):
 
 | Campo | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -320,8 +352,9 @@ Renderiza polígonos com preenchimento em coroplético — a cor varia continuam
 | `colorScheme` | ver [Esquemas de cor contínuos](#esquemas-de-cor-contínuos) | `'schemeOrRd'` | Paleta sequencial/divergente ou array custom de cores. |
 | `classificationMethod` | `'naturalBreaks' \| 'quantile' \| { type: 'naturalBreaks' \| 'quantile', k: number } \| { type: 'custom', breaks: number[] }` | `{ type: 'naturalBreaks', k: 5 }` | Método de classificação dos valores em faixas de cor. `k` é o número de classes. |
 | `numberFormat` | `any` | não | Formato numérico usado na legenda. |
-| `legend.format` | objeto | não | Formatação adicional da legenda sequencial. |
-| `tooltip` | objeto | não | Ver [Tooltip](#tooltip). |
+| `legend.format` | `{ below?, above?, between?, number? }` | não | Sobrescreve a formatação da legenda sequencial. `below`/`above`/`between` são strings com placeholders `${0}`/`${1}` (ou funções); `number` é `Intl.NumberFormat` (instância ou tupla `[locale, options]`), com `numberFormat` como default. |
+
+Além dos campos de `style`, o [`tooltip`](#tooltip) no nível raiz do `viewSpecInput` também se aplica normalmente a este preset.
 
 ```js
 {
@@ -338,6 +371,23 @@ Renderiza polígonos com preenchimento em coroplético — a cor varia continuam
     colorScheme: 'schemeBlues',
     classificationMethod: { type: 'quantile', k: 5 },
     numberFormat: ['pt-BR', { style: 'currency', currency: 'BRL' }],
+    legend: {
+      format: {
+        below: 'Sem dados',
+        above: 'Acima de ${0}',
+        between: '${0} - ${1}',
+        number: ['pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }],
+      },
+    },
+  },
+  tooltip: {
+    title: 'nome_setor',
+    entries: {
+      renda_media: {
+        label: 'Renda média domiciliar',
+        format: { number: ['pt-BR', { style: 'currency', currency: 'BRL' }] },
+      },
+    },
   },
 }
 ```
@@ -384,7 +434,7 @@ Renderiza uma camada **raster** (não vetorial) cujas cores por pixel vêm de um
 
 ⚠️ **Atenção:** a fonte é do tipo `raster`, não `vector`.
 
-**`style`**:
+**`style`** (obrigatório — lança erro se style não for informado):
 
 | Campo | Tipo | Obrigatório | Default | Descrição |
 |---|---|---|---|---|
@@ -392,7 +442,6 @@ Renderiza uma camada **raster** (não vetorial) cujas cores por pixel vêm de um
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos), mais `'schemeYlOrRd'` como caso especial (esquema sequencial usado como paleta categórica) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
 | `k` | `number` | não | — | Repassado à resolução de cor da categoria; usado apenas junto de esquemas sequenciais tratados como categóricos (ex.: `'schemeYlOrRd'`). |
 
-⚠️ **Importane:** `style` é obrigatório — o preset lança erro se não for informado.
 
 ```js
 {
@@ -434,7 +483,7 @@ Renderiza uma camada **raster** (não vetorial) cujas cores por pixel vêm de um
 ### Esquemas de cor categóricos
 
 `colorScheme` (presets `*_categorical`) aceita: 
-  - `'schemeGeoReDUSSafe'` (default, paleta própria do GeoReDUS)
+  - `'schemeGeoReDUSSafe'` (default, paleta própria da GeoReDUS)
   - `'schemeCategory10'`
   - `'schemeAccent'`
   - `'schemeDark2'`
