@@ -25,7 +25,12 @@ export function confSchema(viewSpec, allViewSpecs, context) {
       colorScheme: continuousColorSchemeSelector({
         defaultValue: viewSpec.style?.colorScheme || DEFAULT_COLOR_SCHEME_ID,
       }),
-      opacity: opacitySlider({ defaultValue: DEFAULT_FILL_OPACITY }),
+      opacity: opacitySlider({
+        defaultValue:
+          typeof viewSpec.style.opacity === 'number'
+            ? viewSpec.style.opacity
+            : DEFAULT_FILL_OPACITY,
+      }),
     },
   }
 }

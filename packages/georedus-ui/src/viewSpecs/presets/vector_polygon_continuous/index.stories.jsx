@@ -59,6 +59,7 @@ const VIEW_SPECS = {
           valueKey: 'dengue_2023',
           values:
             '${METADATA_API_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023?select=value:dengue_2023',
+          opacity: 0.8, //add to metodology and readme documentation
         },
         tooltip: {
           entries: {

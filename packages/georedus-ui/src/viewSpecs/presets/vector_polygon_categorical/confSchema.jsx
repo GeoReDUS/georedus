@@ -13,7 +13,12 @@ export function confSchema(viewSpec, allViewSpecs, context) {
         defaultValue: viewSpec.style?.colorScheme,
         clearable: viewSpec.style?.colorScheme === null,
       }),
-      opacity: opacitySlider({ defaultValue: DEFAULT_FILL_OPACITY }),
+      opacity: opacitySlider({
+        defaultValue:
+          typeof viewSpec.style.opacity === 'number'
+            ? viewSpec.style.opacity
+            : DEFAULT_FILL_OPACITY,
+      }),
     },
   }
 }

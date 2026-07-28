@@ -1,3 +1,5 @@
+import { DEFAULT_FILL_OPACITY } from '../util'
+
 export type CategoryStyleSpec = {
   color?: string
   fillPattern?:
@@ -36,6 +38,7 @@ export type StyleSpec = {
     | 'schemeTableau10'
     | null
   categories: string | (string | Category)[]
+  opacity?: number
 } & Omit<CategoryStyleSpec, 'color'>
 
 export type StyleSpecInput = StyleSpec
@@ -47,5 +50,9 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     throw new Error('expected existing styleInput')
   }
 
-  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, ...styleInput }
+  return {
+    colorScheme: DEFAULT_COLOR_SCHEME_ID,
+    opacity: DEFAULT_FILL_OPACITY,
+    ...styleInput,
+  }
 }

@@ -22,6 +22,7 @@ export type StyleSpec = {
     | 'schemeTableau10'
     categories: string | Category[]
     border?:boolean
+    opacity?: number
 }
 
 export type StyleSpecInput = StyleSpec
