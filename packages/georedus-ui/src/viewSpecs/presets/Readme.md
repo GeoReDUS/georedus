@@ -88,6 +88,12 @@ Renderiza pontos com cor, raio e opacidade definidos.
 | `border` | `boolean` | não | `true` | Se `true`, desenha uma borda branca de 2px ao redor do círculo. |
 <!-- | `tooltip` | objeto | não | — | Alternativa a definir `tooltip` no nível raiz do `viewSpecInput`. | -->
 
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `color` | select (cores nomeadas) | valor atual de `style.color` | Cor de preenchimento do ponto. |
+
 ```js
 {
   preset: 'vector_point_single',
@@ -138,6 +144,9 @@ Renderiza pontos com uma cor por categoria, de acordo com o valor de uma proprie
 
 Pontos cuja feature não possua valor correspondente em `categoryKey` são renderizados em cinza claro (`#CCCCCC`).
 
+**Controles editáveis (`confSchema`)**
+
+Este preset não expõe `confSchema` — não há controles de estilo editáveis pelo usuário em tempo real.
 
 ```js
 {
@@ -191,6 +200,10 @@ objeto `radius`:
 
 Pontos cuja feature não possua valor numérico em `radius.valueKey` são renderizados em cinza claro (`#CCCCCC`), sinalizando "sem dados".
 
+**Controles editáveis (`confSchema`)**
+
+Este preset não expõe `confSchema` no momento — há um import comentado em `index.jsx` (`// import { confSchema } from './confSchema'`) sugerindo que é um recurso planejado e ainda não implementado.
+
 ```js
 {
   preset: 'vector_point_continuous',
@@ -224,6 +237,14 @@ Renderiza linhas com cor, espessura e padrão definidos.
 | `color` | `string` | não | laranja GeoReDUS | Cor da linha. |
 | `linePattern` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não | `'solid'` | Padrão do traçado. `'none'` oculta a camada. |
 | `lineWidth` | `number` | não | `1` | Espessura da linha em pixels. |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `color` | select (cores nomeadas) | valor atual de `style.color` | Cor da linha. |
+| `linePattern` | select (solid/dashed/dotted) | valor atual de `style.linePattern` | Padrão do traçado. |
+| `lineWidth` | select (1–5px) | valor atual de `style.lineWidth` | Espessura da linha. |
 
 ```js
 {
@@ -268,6 +289,15 @@ Renderiza linhas com uma cor por categoria, de acordo com o valor de uma proprie
 | `linePattern` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não | `'solid'` | Padrão do traçado (compartilhado entre todas as categorias). |
 | `lineWidth` | `number` | não | `1` | Espessura da linha em pixels (compartilhado entre todas as categorias). |
 
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `linePattern` | select (solid/dashed/dotted) | valor atual de `style.linePattern` | Padrão do traçado (todas as categorias). |
+| `lineWidth` | select (1–5px) | valor atual de `style.lineWidth` | Espessura da linha (todas as categorias). |
+
+> Diferente de `vector_polygon_categorical`, aqui `colorScheme` **não** é editável ao vivo.
+
 ```js
 {
   preset: 'vector_line_categorical',
@@ -303,6 +333,16 @@ Renderiza polígonos com preenchimento e borda de estilo definidos.
 | `color` | `string` | não | laranja GeoReDUS | Cor de preenchimento (aplicada com opacidade de 0.5). |
 | `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | não | `'solid'` | Hachura aplicada sobre o preenchimento. |
 | `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não |  `'solid'` | Estilo da borda do polígono. `'none'` oculta a borda. |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `color` | select (cores nomeadas) | valor atual de `style.color` | Cor de preenchimento. |
+| `fillPattern` | select (10 hachuras) | valor atual de `style.fillPattern` | Hachura sobre o preenchimento. |
+| `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
+
+> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente. `borderStyle`, apesar de documentado acima, não é editável ao vivo.
 
 ```js
 {
@@ -346,6 +386,16 @@ Renderiza polígonos com preenchimento e borda coloridos por categoria.
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias. |
 | `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | `'solid'` | Hachura aplicada sobre o preenchimento (compartilhada entre categorias, cada uma usando sua própria cor). |
 | `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | `'solid'` | Estilo da borda (compartilhado entre categorias). |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `fillPattern` | select (10 hachuras) | `'solid'` | Hachura sobre o preenchimento (todas as categorias). |
+| `colorScheme` | select (paletas categóricas) | valor atual de `style.colorScheme` | Paleta usada para colorir as categorias. |
+| `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
+
+> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente. `borderStyle`, apesar de documentado acima, não é editável ao vivo.
 
 ```js
 {
@@ -401,6 +451,16 @@ Renderiza polígonos com preenchimento em cloroplético — a cor varia continua
 
 Além dos campos de `style`, o [`tooltip`](#tooltip) no nível raiz do `viewSpecInput` também se aplica normalmente a este preset.
 
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `classificationMethodType` | select (`'Quebras naturais'` / `'Quantis'`) | valor atual de `style.classificationMethod.type` (ou `'naturalBreaks'`) | Sobrescreve apenas o `type` de `classificationMethod`; o `k` não é editável ao vivo (não há controle de UI para ele, embora o metadata aceite um `classificationMethodK` de conf). |
+| `colorScheme` | select (paletas sequenciais/divergentes) | valor atual de `style.colorScheme` ou `'schemeOrRd'` | Paleta de cores. |
+| `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
+
+> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente.
+
 ```js
 {
   preset: 'vector_polygon_continuous',
@@ -454,6 +514,13 @@ Renderiza um mapa de calor (heatmap) a partir da densidade de pontos, com a opç
 | `colorScheme` | ver [Esquemas de cor contínuos](#esquemas-de-cor-contínuos) (inclui variantes invertidas, ex.: `'-schemeSpectral'`) | não | `'-schemeSpectral'` | Paleta usada para colorir os `steps` sem `color` explícito. |
 | `circle` | `boolean` | não | `false` | Se `true`, adiciona uma camada de pontos individuais (círculos), visível a partir do zoom 14, enquanto o heatmap permanece visível a partir do zoom 7. |
 
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `colorScheme` | select (paletas sequenciais/divergentes, incl. invertidas) | valor atual de `style.colorScheme` ou `'-schemeSpectral'` | Paleta de cores do heatmap. |
+| `opacity` | slider (0–1) | `1` | Opacidade do heatmap. **Omitido do painel quando `style.circle: true`** (o preset já usa esmaecimento por zoom nesse caso). |
+
 ```js
 {
   preset: 'vector_heatmap',
@@ -486,7 +553,9 @@ Renderiza uma camada **raster** (não vetorial) cujas cores por pixel vêm de um
 | `categories` | `{ value: string, label: string, color?: string }[]` | **sim** | — | Lista das classes/valores representados no raster. `color`, se omitido, é resolvido a partir de `colorScheme` (por índice, ou usando `k` quando informado). |
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos), mais `'schemeYlOrRd'` como caso especial (esquema sequencial usado como paleta categórica) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
 
+**Controles editáveis (`confSchema`)**
 
+Este preset não expõe `confSchema` — não há controles de estilo editáveis pelo usuário em tempo real.
 
 ```js
 {
