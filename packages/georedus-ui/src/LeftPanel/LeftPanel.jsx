@@ -128,24 +128,43 @@ function LeftPanelInner({
       customFooter
     ) : (
       <Flex
-        p="2"
-        style={{
-          backgroundColor: 'white',
-        }}
         direction="row"
-        justifyContent="center">
-        <img
-          style={{
-            transition: 'opacity .1s ease-out',
-            opacity: open ? 1 : 0,
-            height: 48,
-            width: 'auto',
-
-            // height: 'auto',
-            // width: '100%',
-          }}
-          src="/georedus/assets/parcerias.png"
-        />
+        alignItems="center"
+        justifyContent="center"
+        gap="3"
+        wrap="wrap"
+        style={{
+          background: 'white',
+          padding: 0,
+        }}>
+        <a href="https://orioro.design/" target="_blank">
+          <img
+            src={`/georedus/assets/logos/logo_orioro.png`}
+            alt="ORI:ORO"
+            style={{ height: '10px' }}
+          />
+        </a>
+        <a href="https://centrodametropole.fflch.usp.br/pt-br" target="_blank">
+          <img
+            src={`/georedus/assets/logos/logo_cem.png`}
+            alt="Centro de Estudos da Metrópole"
+            style={{ height: '32px' }}
+          />
+        </a>
+        <a href="https://www.giz.de/en/pt-br/brasil" target="_blank">
+          <img
+            src={`/georedus/assets/logos/logo_cooperacao_alema.png`}
+            alt="Cooperação Alemã"
+            style={{ height: '60px' }}
+          />
+        </a>
+        <a href="https://fnp.org.br/index.php" target="_blank">
+          <img
+            src={`/georedus/assets/logos/logo_fnp.png`}
+            alt="Frente Nacional de Prefeitos"
+            style={{ height: '12px' }}
+          />
+        </a>
       </Flex>
     )
 
@@ -264,8 +283,7 @@ function LeftPanelInner({
                 direction="column"
                 gap="3"
                 justifyContent="flex-end"
-                alignItems="center">
-              </Flex>
+                alignItems="center"></Flex>
             }
           />
         ) : (
