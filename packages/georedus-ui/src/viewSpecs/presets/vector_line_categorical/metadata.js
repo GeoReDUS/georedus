@@ -1,6 +1,7 @@
 import { resolveAsync } from '@orioro/resolve'
-import { interpolate, slugify } from '@orioro/util'
+import { slugify } from '@orioro/util'
 import { uniqBy } from 'lodash'
+import { parseUrl } from '../util'
 import { resolveCategoricalSchemeColor } from '../../util'
 import { humanize } from '../util'
 
@@ -16,11 +17,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
     const resolvedCategories =
       typeof style.categories === 'string'
         ? // style.categories is an URL
-          await fetch(
-            interpolate(style.categories, {
-              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-            }),
-          )
+          await fetch(parseUrl(style.categories, context))
             .then((res) => res.json())
             .then((categories) => uniqBy(categories, (cat) => cat.value))
         : Array.isArray(style.categories)

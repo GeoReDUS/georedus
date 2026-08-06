@@ -1,5 +1,5 @@
-import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
+import { parseUrl } from '../../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -13,14 +13,15 @@ export function metadata(viewSpec, allViewSpecs, context) {
           typeof style.radius.values === 'string'
             ? // style.radius.values is an URL
               await fetch(
-                interpolate(style.radius.values, {
-                  METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-                  municipioId: context.municipioId,
-
-                  //
-                  // TODO: remove these hotfixes
-                  //
-                  municipioId_SUS: context.municipioId.substr(0, 6),
+                parseUrl(style.radius.values, {
+                  ...context,
+                  app: {
+                    ...context.app,
+                    //
+                    // TODO: remove this hotfix
+                    //
+                    municipioId_SUS: context.app.municipioId.substr(0, 6),
+                  },
                 }),
               ).then((res) => res.json())
             : Array.isArray(style.radius.values)
