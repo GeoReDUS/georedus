@@ -164,7 +164,7 @@ export const ExportImage = forwardRef(function ExportImageInner(
                 height: 33,
                 width: 'auto',
               }}
-              src="/georedus/georedus/assets/parcerias.png"
+              src="/georedus/assets/parcerias.png"
             />
           </Flex>
         </Flex>
