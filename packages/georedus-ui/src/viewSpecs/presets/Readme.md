@@ -35,14 +35,43 @@ preset(viewSpecInput, allViewSpecs, context) => ViewSpec
 
 - **`viewSpecInput`**: objeto de configuração da view. Contém os campos base (descritos abaixo) mais o campo `style`, cujo formato é específico de cada preset (ver seções seguintes).
 - **`allViewSpecs`**: array com os demais `viewSpecInput` do mesmo lote (disponibilizado para os presets, mas não usado diretamente pelos 7 presets vetoriais).
-- **`context`**: `{ METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT, municipioId, ...outrosDadosDaAplicação }`, usado para resolver URLs de tiles e de dados de metadata/download.
+- **`context`**: `{ METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT, app: { municipioId, ... } }`, usado para resolver URLs de tiles e de dados de metadata/download. O namespace `app.*` reúne o estado de aplicação — valores que mudam durante a sessão do usuário —, em contraste com os endpoints acima, que são configuração estática do deployment.
 
 #### Placeholders em URLs
 
 Os campos que aceitam URLs como template (`tiles`, `download_url` e o `values` dos presets contínuos) podem conter os seguintes placeholders `${...}`, resolvidos a partir do `context`:
 
 - `${VECTOR_TILE_SERVER_ENDPOINT}` / `${METADATA_API_ENDPOINT}` — endpoints da aplicação (tile server e API de metadata/dados).
-- `${municipioId}` — código IBGE do **município atualmente selecionado** na interface (corresponde à coluna `cd_mun` das views PostgREST). Permite escopar os dados/quebras a uma cidade, ex.: `&cd_mun=eq.${municipioId}`. Como a view é reprocessada quando o município muda, as quebras (natural breaks/quantis) são recalculadas para cada cidade.
+- `${app.municipioId}` — código IBGE do **município atualmente selecionado** na interface. Permite escopar os dados/quebras a uma cidade, ex.: `&cd_mun=eq.${app.municipioId}`. Como a view é reprocessada quando o município muda, as quebras (natural breaks/quantis) são recalculadas para cada cidade.
+
+#### Filtro por município no cliente
+
+O placeholder `${app.municipioId}` é usado no campo `tiles` para restringir os dados retornados a um único município, ex.: `?cd_mun=eq.${app.municipioId}`. Esse filtro é aplicado no backend, via query string, mas não há garantia de que ele sempre restrinja de fato o conteúdo do tile:
+
+- Cada tabela/view do backend pode implementar esse filtro de forma diferente — uma pode filtrar corretamente, outra não.
+- Mesmo quando a função do backend filtra certo, camadas de cache (CDN, proxy, cache do próprio servidor de tiles) costumam usar `z/x/y` como chave, ignorando o restante da query string — nesse caso, o mesmo tile em cache pode ser servido para municípios diferentes, mesmo com a query correta.
+
+Por isso, todos os presets **vetoriais** aplicam **também** um filtro no cliente, como rede de segurança. Quando o backend já filtra certo, esse filtro vira um no-op (todas as features já batem); quando não filtra, ele evita o bug silencioso de features de outros municípios aparecendo no mapa.
+
+Esse filtro é montado pela função `municipioFilter(tiles, context)` (`viewSpecs/presets/util/municipioFilter.ts`) e funciona assim:
+
+1. Extrai automaticamente o nome da coluna/propriedade a partir do próprio padrão `<coluna>=eq.${app.municipioId}` já presente em `tiles` — não é uma coluna fixa; cada dataset pode expor a informação de município sob um nome diferente (`cd_mun`, `municipio_ibge`, etc.), desde que seja o mesmo nome usado tanto na query string quanto como atributo da feature no tile.
+2. Se `tiles` não contiver esse padrão (indicador propositalmente nacional) ou nenhum município estiver selecionado, nenhum filtro é aplicado.
+3. Caso contrário, monta um filtro MapLibre tolerante: se a feature não tiver essa propriedade, ela não é excluída (evita esconder tudo por engano, caso o tile realmente não exponha esse atributo); caso tenha, compara os valores convertidos para string (evita falso-negativo por diferença de tipo, ex. número vs string).
+
+**Importante:** o nome da coluna usado em `tiles` precisa ser exatamente igual ao nome do atributo exposto pela feature no tile. Cada tabela pode usar seu próprio nome:
+
+```js
+tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_metricas.geom/{z}/{x}/{y}?cd_mun=eq.${app.municipioId}`,
+```
+
+```js
+tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj.geom/{z}/{x}/{y}?municipio_ibge=eq.${app.municipioId}`,
+```
+
+Se o nome usado na URL não bater com o nome real da propriedade na feature, o filtro cai no fallback "sem filtro".
+
+---
 
 Um preset é tipicamente selecionado dinamicamente através do campo `preset` (nome da função) em conjunto com `parseViewSpec`, que despacha o `viewSpecInput` para o preset correspondente — mas os presets também podem ser importados e chamados diretamente.
 
