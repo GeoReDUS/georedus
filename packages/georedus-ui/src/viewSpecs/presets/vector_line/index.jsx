@@ -37,7 +37,7 @@ export function vector_line(
     sources = {},
     layers = {},
     tooltip = {},
-    download_url = "",
+    download_url = '',
     ...props
   },
   allViewSpecs,
