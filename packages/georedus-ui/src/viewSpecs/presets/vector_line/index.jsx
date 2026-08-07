@@ -1,17 +1,31 @@
 import { schemeCategory10 } from 'd3-scale-chromatic'
 import { waves_1 } from '@orioro/react-maplibre-util'
 import { Z_OVERLAY_BASE_1000, Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
-import { slugify } from '@orioro/util'
+import { interpolate, slugify } from '@orioro/util'
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
 import { Flex } from '@orioro/react-ui-core'
 import { basicTooltip, colorSelector } from '../util'
-import { basicDownload, parseTiles, parseUrl } from '../util'
+import { basicDownload } from '../util'
 
 const LINE_PATTERN_OPTIONS = [
   { label: 'Continua', value: 'line' },
   { label: 'Tracejada', value: 'dashed' },
 ]
+
+function _parseTiles(tiles, context) {
+  tiles = Array.isArray(tiles)
+    ? tiles
+    : typeof tiles === 'string'
+      ? [tiles]
+      : null
+
+  if (!tiles) {
+    throw new Error(`tiles is required`)
+  }
+
+  return tiles.map((tileSrcUrl) => interpolate(tileSrcUrl, context))
+}
 
 export function vector_line(
   {
@@ -110,7 +124,7 @@ export function vector_line(
       main: {
         promoteId: 'id',
         type: 'vector',
-        tiles: parseTiles(tiles, context),
+        tiles: _parseTiles(tiles, context),
       },
       ...sources,
     },
@@ -129,7 +143,9 @@ export function vector_line(
     },
     download: basicDownload({
       fileName: slugify(label),
-      downloadUrl: parseUrl(download_url || '', context),
+      downloadUrl: interpolate(download_url || '', {
+        METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+      }),
     }),
   }
 }
