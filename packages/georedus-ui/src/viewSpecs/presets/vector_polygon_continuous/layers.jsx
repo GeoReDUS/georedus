@@ -7,6 +7,7 @@ import { MAIN_SOURCE_ID } from './sources'
 
 function _main_line(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
+  const { municipioFilter } = props
 
   //
   // Resolve color scale stops
@@ -19,6 +20,7 @@ function _main_line(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     type: 'line',
     interactive: true,
+    filter: municipioFilter,
     paint: {
       'line-color': colorScheme.scalesByK[3][2],
       'line-width': 2,
@@ -58,7 +60,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const { _maplibreColorExp } = props
+  const { _maplibreColorExp, municipioFilter } = props
   const { source_layer } = viewSpec
   return {
     zIndex: Z_OVERLAY_BASE_1000,
@@ -66,6 +68,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     interactive: true,
     type: 'fill',
+    filter: municipioFilter,
     paint: {
       'fill-color': _maplibreColorExp,
       'fill-opacity': DEFAULT_FILL_OPACITY,
@@ -78,11 +81,28 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
 export function layers(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
 
-  const { source_layer } = viewSpec
+  const { source_layer, tiles } = viewSpec
 
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
+
+  //
+  // The tiles URL may be scoped to a single município via the
+  // `${municipioId}` placeholder (e.g. `?cd_mun=eq.${municipioId}`).
+  // Some backends don't honor arbitrary query params on tile
+  // requests, so re-apply the same restriction client-side as a
+  // safeguard. Presets whose tiles are intentionally nationwide
+  // (no `${municipioId}` placeholder) are left unfiltered.
+  //
+  const tilesList = Array.isArray(tiles) ? tiles : [tiles]
+  const scopedToMunicipio = tilesList.some(
+    (t) => typeof t === 'string' && t.includes('${municipioId}'),
+  )
+  const municipioFilter =
+    scopedToMunicipio && context.municipioId
+      ? ['==', ['get', 'cd_mun'], context.municipioId]
+      : true
 
   const _maplibreColorExp = resolve.fn((ctx) => [
     'step',
@@ -103,13 +123,13 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreColorExp },
+      { _maplibreColorExp, municipioFilter },
       viewSpec,
       allViewSpecs,
       context,
     ),
     [`main_fill`]: _main_fill(
-      { _maplibreColorExp },
+      { _maplibreColorExp, municipioFilter },
       viewSpec,
       allViewSpecs,
       context,
