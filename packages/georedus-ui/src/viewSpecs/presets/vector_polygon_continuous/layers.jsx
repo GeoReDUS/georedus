@@ -1,14 +1,18 @@
 import { COLOR_SCHEMES } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, DEFAULT_FILL_OPACITY, applyOpacity } from '../util'
+import {
+  basicTooltip,
+  DEFAULT_FILL_OPACITY,
+  applyOpacity,
+  municipioFilter,
+} from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
-import { filter } from 'lodash'
 
 function _main_line(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
-  const { municipioFilter } = props
+  const { _municipioFilter } = props
 
   //
   // Resolve color scale stops
@@ -21,7 +25,7 @@ function _main_line(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     type: 'line',
     interactive: true,
-    filter: municipioFilter,
+    filter: _municipioFilter,
     paint: {
       'line-color': colorScheme.scalesByK[3][2],
       'line-width': 2,
@@ -74,7 +78,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const { _maplibreColorExp, municipioFilter } = props
+  const { _maplibreColorExp, _municipioFilter } = props
   const { source_layer } = viewSpec
   const _opacity = resolve.fn((ctx) =>
     typeof ctx.view?.conf?.style?.opacity === 'number'
@@ -87,7 +91,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     interactive: true,
     type: 'fill',
-    filter: municipioFilter,
+    filter: _municipioFilter,
     paint: {
       'fill-color': _maplibreColorExp,
       'fill-opacity': _opacity,
@@ -106,22 +110,7 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  //
-  // The tiles URL may be scoped to a single município via the
-  // `${app.municipioId}` placeholder (e.g. `?cd_mun=eq.${app.municipioId}`).
-  // Some backends don't honor arbitrary query params on tile
-  // requests, so re-apply the same restriction client-side as a
-  // safeguard. Presets whose tiles are intentionally nationwide
-  // (no `${app.municipioId}` placeholder) are left unfiltered.
-  //
-  const tilesList = Array.isArray(tiles) ? tiles : [tiles]
-  const scopedToMunicipio = tilesList.some(
-    (t) => typeof t === 'string' && t.includes('${app.municipioId}'),
-  )
-  const municipioFilter =
-    scopedToMunicipio && context.app?.municipioId
-      ? ['==', ['get', 'cd_mun'], context.app.municipioId]
-      : true
+  const _municipioFilter = municipioFilter(tiles, context)
 
   const _maplibreColorExp = resolve.fn((ctx) => [
     'step',
@@ -142,13 +131,13 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreColorExp, municipioFilter },
+      { _maplibreColorExp, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,
     ),
     [`main_fill`]: _main_fill(
-      { _maplibreColorExp, municipioFilter },
+      { _maplibreColorExp, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,

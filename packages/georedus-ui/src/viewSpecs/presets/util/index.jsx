@@ -1,6 +1,7 @@
 export * from './colorUtil'
 export * from './url'
 export * from './string'
+export * from './municipioFilter'
 export * from './components/basicTooltip'
 export * from './components/basicDownload'
 export * from './components/confInputs'

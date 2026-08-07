@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { applyOpacity } from '../util'
+import { applyOpacity, municipioFilter } from '../util'
 import { resolve } from '@orioro/resolve'
 import { MAIN_SOURCE_ID } from './sources'
 import { resolveColor } from '../../util'
@@ -24,7 +24,7 @@ function _main_heatmap_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_heatmap(props, viewSpec, allViewSpecs, context) {
-  const {} = props
+  const { _municipioFilter } = props
   const { source_layer } = viewSpec
 
   const heatmap = resolve.fn((ctx) => {
@@ -36,6 +36,7 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
       'source-layer': source_layer,
       interactive: true,
       type: 'heatmap',
+      filter: _municipioFilter,
       minzoom: viewSpec.style.minzoom || 7,
       ...(viewSpec.style.maxzoom ? { maxzoom: viewSpec.style.maxzoom } : {}),
       paint: {
@@ -78,6 +79,7 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_circle(props, viewSpec, allViewSpecs, context) {
+  const { _municipioFilter } = props
   const { source_layer } = viewSpec
 
   const circle = resolve.fn((ctx) => {
@@ -99,6 +101,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       'source-layer': source_layer,
       type: 'circle',
       interactive: true,
+      filter: _municipioFilter,
       minzoom: 14,
       paint: {
         'circle-color': resolveColor(
@@ -129,16 +132,23 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 }
 
 export function layers(viewSpec, allViewSpecs, context) {
-  const { source_layer } = viewSpec
+  const { source_layer, tiles } = viewSpec
 
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
 
+  const _municipioFilter = municipioFilter(tiles, context)
+
   return {
-    [`main_heatmap`]: _main_heatmap({}, viewSpec, allViewSpecs, context),
+    [`main_heatmap`]: _main_heatmap(
+      { _municipioFilter },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
     [`main_circle`]:
       viewSpec.style.circle &&
-      _main_circle({}, viewSpec, allViewSpecs, context),
+      _main_circle({ _municipioFilter }, viewSpec, allViewSpecs, context),
   }
 }

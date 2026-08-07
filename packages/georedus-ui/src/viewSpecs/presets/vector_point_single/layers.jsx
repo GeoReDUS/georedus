@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip } from '../util'
+import { basicTooltip, municipioFilter } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -37,7 +37,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_circle(props, viewSpec, allViewSpecs, context) {
-  const {} = props
+  const { _municipioFilter } = props
   const { source_layer } = viewSpec
   return {
     zIndex: Z_OVERLAY_BASE_1000,
@@ -45,6 +45,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     interactive: true,
     type: 'circle',
+    filter: _municipioFilter,
 
     paint: {
       'circle-color': resolve.fn((ctx) => {
@@ -65,13 +66,20 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 }
 
 export function layers(viewSpec, allViewSpecs, context) {
-  const { source_layer } = viewSpec
+  const { source_layer, tiles } = viewSpec
 
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
 
+  const _municipioFilter = municipioFilter(tiles, context)
+
   return {
-    [`main_circle`]: _main_circle({}, viewSpec, allViewSpecs, context),
+    [`main_circle`]: _main_circle(
+      { _municipioFilter },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
   }
 }
