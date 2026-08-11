@@ -1,0 +1,704 @@
+# Presets
+
+Presets são funções prontas que geram uma **view** completa (fontes e camadas MapLibre GL, legendas, tooltip e download) a partir de uma configuração declarativa (`style`), sem que seja necessário escrever manualmente `sources`/`layers`/`tooltip` como descrito no tutorial ["Criando uma view"](../../../../../README.md#-exemplo-prático) do monorepo.
+
+Este documento cobre os 10 presets disponíveis (9 vetoriais + 1 raster):
+
+### Vector Presets
+| Geometria | Estilo único | Estilo categórico | Estilo contínuo | Densidade |
+|---|---|---|---|---|
+| Ponto | [`vector_point_single`](#vector_point_single) | [`vector_point_categorical`](#vector_point_categorical) | [`vector_point_continuous`](#vector_point_continuous) | [`vector_heatmap`](#vector_heatmap) |
+| Linha | [`vector_line_single`](#vector_line_single) | [`vector_line_categorical`](#vector_line_categorical) | — | — |
+| Polígono | [`vector_polygon_single`](#vector_polygon_single) | [`vector_polygon_categorical`](#vector_polygon_categorical) | [`vector_polygon_continuous`](#vector_polygon_continuous) | — |
+
+### Raster Presets
+| Geometria | Estilo único | Estilo categórico | Estilo contínuo | Densidade |
+|---|---|---|---|---|
+| Raster | — | [`raster_categorical`](#raster_categorical) | — | — |
+
+
+### Sobre os estilos
+- **Estilo único**: toda a camada é renderizada com uma única cor/estilo fixo.
+- **Estilo categórico**: a cor/padrão varia de acordo com o valor de uma propriedade categórica (`categoryKey` nos presets vetoriais; classes pré-definidas no raster), com uma cor por categoria.
+- **Estilo contínuo**: a cor (ou o raio, no caso de pontos) varia de acordo com uma propriedade numérica (`valueKey`), usando uma escala de cores e um método de classificação.
+- **Densidade**: a intensidade da cor reflete a concentração de pontos em uma área (mapa de calor).
+
+
+
+## Uso geral
+
+Todos os presets têm a mesma assinatura:
+
+```ts
+preset(viewSpecInput, allViewSpecs, context) => ViewSpec
+```
+
+- **`viewSpecInput`**: objeto de configuração da view. Contém os campos base (descritos abaixo) mais o campo `style`, cujo formato é específico de cada preset (ver seções seguintes).
+- **`allViewSpecs`**: array com os demais `viewSpecInput` do mesmo lote (disponibilizado para os presets, mas não usado diretamente pelos 7 presets vetoriais).
+- **`context`**: `{ METADATA_API_ENDPOINT, VECTOR_TILE_SERVER_ENDPOINT, app: { municipioId, ... } }`, usado para resolver URLs de tiles e de dados de metadata/download. O namespace `app.*` reúne o estado de aplicação — valores que mudam durante a sessão do usuário —, em contraste com os endpoints acima, que são configuração estática do deployment.
+
+#### Placeholders em URLs
+
+Os campos que aceitam URLs como template (`tiles`, `download_url` e o `values` dos presets contínuos) podem conter os seguintes placeholders `${...}`, resolvidos a partir do `context`:
+
+- `${VECTOR_TILE_SERVER_ENDPOINT}` / `${METADATA_API_ENDPOINT}` — endpoints da aplicação (tile server e API de metadata/dados).
+- `${app.municipioId}` — código IBGE do **município atualmente selecionado** na interface. Permite escopar os dados/quebras a uma cidade, ex.: `&cd_mun=eq.${app.municipioId}`. Como a view é reprocessada quando o município muda, as quebras (natural breaks/quantis) são recalculadas para cada cidade.
+
+#### Filtro por município no cliente
+
+O placeholder `${app.municipioId}` é usado no campo `tiles` para restringir os dados retornados a um único município, ex.: `?cd_mun=eq.${app.municipioId}`. Esse filtro é aplicado no backend, via query string, mas não há garantia de que ele sempre restrinja de fato o conteúdo do tile:
+
+- Cada tabela/view do backend pode implementar esse filtro de forma diferente — uma pode filtrar corretamente, outra não.
+- Mesmo quando a função do backend filtra certo, camadas de cache (CDN, proxy, cache do próprio servidor de tiles) costumam usar `z/x/y` como chave, ignorando o restante da query string — nesse caso, o mesmo tile em cache pode ser servido para municípios diferentes, mesmo com a query correta.
+
+Por isso, todos os presets **vetoriais** aplicam **também** um filtro no cliente, como rede de segurança. Quando o backend já filtra certo, esse filtro vira um no-op (todas as features já batem); quando não filtra, ele evita o bug silencioso de features de outros municípios aparecendo no mapa.
+
+Esse filtro é montado pela função `municipioFilter(tiles, context)` (`viewSpecs/presets/util/municipioFilter.ts`) e funciona assim:
+
+1. Extrai automaticamente o nome da coluna/propriedade a partir do próprio padrão `<coluna>=eq.${app.municipioId}` já presente em `tiles` — não é uma coluna fixa; cada dataset pode expor a informação de município sob um nome diferente (`cd_mun`, `municipio_ibge`, etc.), desde que seja o mesmo nome usado tanto na query string quanto como atributo da feature no tile.
+2. Se `tiles` não contiver esse padrão (indicador propositalmente nacional) ou nenhum município estiver selecionado, nenhum filtro é aplicado.
+3. Caso contrário, monta um filtro MapLibre tolerante: se a feature não tiver essa propriedade, ela não é excluída (evita esconder tudo por engano, caso o tile realmente não exponha esse atributo); caso tenha, compara os valores convertidos para string (evita falso-negativo por diferença de tipo, ex. número vs string).
+
+**Importante:** o nome da coluna usado em `tiles` precisa ser exatamente igual ao nome do atributo exposto pela feature no tile. Cada tabela pode usar seu próprio nome:
+
+```js
+tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_metricas.geom/{z}/{x}/{y}?cd_mun=eq.${app.municipioId}`,
+```
+
+```js
+tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_estabelecimentos_cnpj.geom/{z}/{x}/{y}?municipio_ibge=eq.${app.municipioId}`,
+```
+
+Se o nome usado na URL não bater com o nome real da propriedade na feature, o filtro cai no fallback "sem filtro".
+
+---
+
+Um preset é tipicamente selecionado dinamicamente através do campo `preset` (nome da função) em conjunto com `parseViewSpec`, que despacha o `viewSpecInput` para o preset correspondente — mas os presets também podem ser importados e chamados diretamente.
+
+### Campos base do `viewSpecInput`
+
+Além de `style`, todo preset aceita:
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `id` | `string` | recomendado* | Identificador único da view. |
+| `path` | `string` | não | Caminho de navegação (níveis separados por `/`) usado para organizar a view no menu lateral, seguindo a ordem `Menu Principal / Ano / Submenu / ...`, com quantos níveis forem necessários; ex.: `Censo / 2022 / Domicílios`. Quando não há um ano associado ao dado, usa-se `_` no lugar, ex.: `Emergências Climáticas / _ / Inundação`. |
+| `label` | `string` | não | Nome legível exibido na interface. |
+| `sourceLabel` | `string` | não | Atribuição da fonte de dados, ex.: `'IBGE'`. |
+| `shortDescription` | `string` | não | Descrição curta do indicador. |
+| `metodology` | `ReactNode` | não | Conteúdo para nota metodológica do indicador. |
+| `tiles` | `string \| string[]` | **sim** | URL do tile, podendo conter `{z}/{x}/{y}` e placeholders como `${VECTOR_TILE_SERVER_ENDPOINT}`. Lança erro se ausente. |
+| `source_layer` | `string` | **sim**, exceto em `raster_categorical` | Nome do layer dentro do vector tile a ser renderizado (um mesmo tile pode conter várias camadas de dados). Lança erro se ausente. Não se aplica a `raster_categorical`, cuja fonte é raster (não vetorial). |
+| `tooltip` | `{ title?, entries? }` | não | Configuração do tooltip exibido ao passar o mouse sobre uma feature. Ver [Tooltip](#tooltip). |
+| `download_url` | `string` | não | URL dos dados brutos para exportação (aceita o placeholder `${METADATA_API_ENDPOINT}`). Ver [Download](#download). |
+| `style` | específico do preset | depende do preset | Configuração de estilo. Ver cada preset abaixo. |
+
+### O que cada preset retorna
+
+```ts
+{
+  id, path, label, sourceLabel, metodology, shortDescription, // repassados do input
+  confSchema, // schema dos controles de estilo editáveis pelo usuário em tempo real (quando aplicável)
+  metadata,   // dados assíncronos necessários para montar a camada (categorias, escalas de cor, valores min/max...)
+  sources,    // { main: MapViewSource } — fonte vetorial MapLibre GL montada a partir de `tiles`
+  layers,     // um ou mais MapViewLayer (`main_circle` | `main_line` | `main_fill` | `main_heatmap` | `main_raster`) prontos para o MapLibre GL
+  download,   // handler de download dos dados brutos
+}
+```
+
+> `raster_categorical` é uma exceção: retorna apenas `{ id, path, label, sourceLabel, metodology, shortDescription, sources, layers }` — não expõe `confSchema`, `metadata` nem `download`.
+
+---
+
+## `vector_point_single`
+
+Renderiza pontos com cor, raio e opacidade definidos.
+
+**`style`** pode receber um objeto ou uma string, que é tratada como `color`:
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `color` | `string` | não | laranja GeoReDUS (`#FF7F00`) | Cor de preenchimento do ponto. Aceita hex (`'#1f78b4'`) ou path de um esquema de cores (`'schemeGeoReDUS.laranja'`). |
+| `radius` | `number` | não | `10` | Raio do círculo, em pixels. |
+| `opacity` | `number` | não | `1` | Opacidade do preenchimento (0 a 1). |
+| `border` | `boolean` | não | `true` | Se `true`, desenha uma borda branca de 2px ao redor do círculo. |
+<!-- | `tooltip` | objeto | não | — | Alternativa a definir `tooltip` no nível raiz do `viewSpecInput`. | -->
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `color` | select (cores nomeadas) | valor atual de `style.color` | Cor de preenchimento do ponto. |
+
+```js
+{
+  preset: 'vector_point_single',
+  id: 'escolas_municipais',
+  label: 'Escolas municipais',
+  path: 'Educação / _ / Infraestrutura',
+  sourceLabel: 'INEP',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/escolas_municipais/{z}/{x}/{y}`,
+  source_layer: 'escolas_municipais',
+  style: {
+    color: '#1f78b4',
+    radius: 6,
+    opacity: 0.9,
+    border: true,
+  },
+  tooltip: {
+    title: 'nome',
+    entries: ['endereco', 'matriculas'],
+  },
+}
+```
+
+Atalho com string (usa os `defaults` de raio/opacidade/borda):
+
+```js
+{
+  preset: 'vector_point_single',
+  // ...
+  style: 'schemeGeoReDUS.verde_agua',
+}
+```
+
+---
+
+## `vector_point_categorical`
+
+Renderiza pontos com uma cor por categoria, de acordo com o valor de uma propriedade da feature.
+
+**`style`** (obrigatório — lança erro se `style` não for informado):
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `categoryKey` | `string` | **sim** | - | Nome da propriedade da feature usada para determinar a categoria. |
+| `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | - | URL (retornando JSON) ou array de categorias. Itens que forem strings viram `{ value }`; `label`, se omitido, é criado com `humanize(value)`; `color`, se omitido, vem do `colorScheme`. |
+| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
+| `radius` | `number` | não | `10` | Raio do círculo, em pixels (compartilhado entre todas as categorias). |
+| `border` | `boolean` | não | `true` | Se `true`, desenha uma borda branca de 2px ao redor do círculo. |
+
+Pontos cuja feature não possua valor correspondente em `categoryKey` são renderizados em cinza claro (`#CCCCCC`).
+
+**Controles editáveis (`confSchema`)**
+
+Este preset não expõe `confSchema` — não há controles de estilo editáveis pelo usuário em tempo real.
+
+```js
+{
+  preset: 'vector_point_categorical',
+  id: 'unidades_saude_tipo',
+  label: 'Unidades de saúde por tipo',
+  path: 'Saúde / _ / Infraestrutura',
+  sourceLabel: 'DataSUS',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/unidades_saude/{z}/{x}/{y}`,
+  source_layer: 'unidades_saude',
+  style: {
+    categoryKey: 'tipo',
+    colorScheme: 'schemeSet2',
+    categories: [
+      { value: 'ubs', label: 'UBS' },
+      { value: 'hospital', label: 'Hospital' },
+      { value: 'upa', label: 'UPA' },
+    ],
+    radius: 6,
+  },
+  tooltip: {
+    title: 'nome',
+    entries: ['tipo', 'endereco'],
+  },
+}
+```
+
+---
+
+## `vector_point_continuous`
+
+Renderiza pontos cujo **raio** varia proporcionalmente a um valor numérico (símbolos proporcionais). A cor é fixa.
+
+**`style`**:
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `color` | `string` | não | laranja GeoReDUS (`#FF7F00`) | Cor fixa dos pontos. |
+| `radius` | objeto | não | {} |  Propriedades para calcular o raio. |
+<!-- | `tooltip` | objeto | não | - | Ver [Tooltip](#tooltip). | -->
+
+objeto `radius`:
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `valueKey` | `string` | **sim** (se `radius` definido) | Nome da propriedade da feature usada para calcular o raio. |
+| `values` | `string \| number[] \| { value: number }[]` | **sim** (se `radius` definido) | URL (retornando JSON) ou array com os valores usados para calcular a escala min/max do raio. Aceita o placeholder `${municipioId}` para escopar os valores ao município selecionado (ex.: `&cd_mun=eq.${municipioId}`). |
+| `numberFormat` | `any` | não | Formato numérico usado na legenda. |
+<!-- | `classificationMethod` | objeto | não | Método de distribuição de valores a ser usado | -->
+<!-- | `legend.format` | objeto | não | Formatação adicional da legenda de símbolo proporcional. | -->
+
+Pontos cuja feature não possua valor numérico em `radius.valueKey` são renderizados em cinza claro (`#CCCCCC`), sinalizando "sem dados".
+
+**Controles editáveis (`confSchema`)**
+
+Este preset não expõe `confSchema` no momento — há um import comentado em `index.jsx` (`// import { confSchema } from './confSchema'`) sugerindo que é um recurso planejado e ainda não implementado.
+
+```js
+{
+  preset: 'vector_point_continuous',
+  id: 'ubs_atendimentos',
+  label: 'Unidades básicas de saúde — atendimentos/mês',
+  path: 'Saúde / _ / Infraestrutura',
+  sourceLabel: 'DataSUS',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ubs/{z}/{x}/{y}`,
+  source_layer: 'ubs',
+  style: {
+    color: 'schemeGeoReDUS.laranja',
+    radius: {
+      valueKey: 'atendimentos_mes',
+      // `&cd_mun=eq.${municipioId}` restringe a escala do raio ao município selecionado
+      values: `${METADATA_API_ENDPOINT}/ubs_atendimentos?select=value&cd_mun=eq.${municipioId}`,
+      numberFormat: ['pt-BR'],
+    },
+  },
+}
+```
+
+---
+
+## `vector_line_single`
+
+Renderiza linhas com cor, espessura e padrão definidos.
+
+**`style`** (aceita também uma string, tratada como `color`):
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `color` | `string` | não | laranja GeoReDUS | Cor da linha. |
+| `linePattern` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não | `'solid'` | Padrão do traçado. `'none'` oculta a camada. |
+| `lineWidth` | `number` | não | `1` | Espessura da linha em pixels. |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `color` | select (cores nomeadas) | valor atual de `style.color` | Cor da linha. |
+| `linePattern` | select (solid/dashed/dotted) | valor atual de `style.linePattern` | Padrão do traçado. |
+| `lineWidth` | select (1–5px) | valor atual de `style.lineWidth` | Espessura da linha. |
+
+```js
+{
+  preset: 'vector_line_single',
+  id: 'malha_ciclovia',
+  label: 'Ciclovias',
+  path: 'Mobilidade / Infraestrutura cicloviária',
+  sourceLabel: 'Prefeitura',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ciclovias/{z}/{x}/{y}`,
+  source_layer: 'ciclovias',
+  style: {
+    color: '#33a02c',
+    linePattern: 'dashed',
+    lineWidth: 3,
+  },
+}
+```
+
+Atalho com string (usa os `defaults` de linePattern/lineWidth):
+
+```js
+{
+  preset: 'vector_line_single',
+  // ...
+  style: 'schemeSet1.colors.2',
+}
+```
+
+---
+
+## `vector_line_categorical`
+
+Renderiza linhas com uma cor por categoria, de acordo com o valor de uma propriedade da feature.
+
+**`style`** (obrigatório — lança erro se `style` não for informado):
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `categoryKey` | `string` | **sim** | - | Nome da propriedade da feature usada para determinar a categoria. |
+| `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | - | URL (retornando JSON) ou array de categorias. Itens que forem strings viram `{ value }`; `label`, se omitido, é criado com `humanize(value)`; `color`, se omitido, vem do `colorScheme`. |
+| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
+| `linePattern` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não | `'solid'` | Padrão do traçado (compartilhado entre todas as categorias). |
+| `lineWidth` | `number` | não | `1` | Espessura da linha em pixels (compartilhado entre todas as categorias). |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `linePattern` | select (solid/dashed/dotted) | valor atual de `style.linePattern` | Padrão do traçado (todas as categorias). |
+| `lineWidth` | select (1–5px) | valor atual de `style.lineWidth` | Espessura da linha (todas as categorias). |
+
+> Diferente de `vector_polygon_categorical`, aqui `colorScheme` **não** é editável ao vivo.
+
+```js
+{
+  preset: 'vector_line_categorical',
+  id: 'malha_viaria_hierarquia',
+  label: 'Hierarquia viária',
+  path: 'Mobilidade / 2020 / Malha viária',
+  sourceLabel: 'IBGE',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/malha_viaria/{z}/{x}/{y}`,
+  source_layer: 'malha_viaria',
+  style: {
+    categoryKey: 'hierarquia',
+    colorScheme: 'schemeSet3',
+    categories: [
+      { value: 'arterial', label: 'Via arterial' },
+      { value: 'coletora', label: 'Via coletora' },
+      { value: 'local', label: 'Via local' },
+    ],
+    lineWidth: 2,
+  },
+}
+```
+
+---
+
+## `vector_polygon_single`
+
+Renderiza polígonos com preenchimento e borda de estilo definidos.
+
+**`style`** (aceita também uma string, tratada como `color`):
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `color` | `string` | não | laranja GeoReDUS | Cor de preenchimento (aplicada com opacidade de 0.5). |
+| `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | não | `'solid'` | Hachura aplicada sobre o preenchimento. |
+| `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não |  `'solid'` | Estilo da borda do polígono. `'none'` oculta a borda. |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `color` | select (cores nomeadas) | valor atual de `style.color` | Cor de preenchimento. |
+| `fillPattern` | select (10 hachuras) | valor atual de `style.fillPattern` | Hachura sobre o preenchimento. |
+| `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
+
+> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente. `borderStyle`, apesar de documentado acima, não é editável ao vivo.
+
+```js
+{
+  preset: 'vector_polygon_single',
+  id: 'area_protegida',
+  label: 'Área de proteção ambiental',
+  path: 'Meio ambiente / _ / Áreas protegidas',
+  sourceLabel: 'ICMBio',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/area_protegida/{z}/{x}/{y}`,
+  source_layer: 'area_protegida',
+  style: {
+    color: 'schemeGeoReDUS.verde_agua',
+    fillPattern: 'lines_1',
+    borderStyle: 'dashed',
+  },
+}
+```
+
+Atalho com string (usa os `defaults` de fillPattern/borderStyle):
+
+```js
+{
+  preset: 'vector_polygon_single',
+  // ...
+  style: 'schemeGeoReDUS.amarelo',
+}
+```
+
+---
+
+## `vector_polygon_categorical`
+
+Renderiza polígonos com preenchimento e borda coloridos por categoria.
+
+**`style`** (obrigatório — lança erro se `style` não for informado):
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `categoryKey` | `string` | **sim** | Nome da propriedade da feature usada para determinar a categoria. |
+| `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | URL ou array de categorias — mesmo formato de `vector_line_categorical`. Cada categoria pode definir sua própria `color`. |
+| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias. |
+| `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | `'solid'` | Hachura aplicada sobre o preenchimento (compartilhada entre categorias, cada uma usando sua própria cor). |
+| `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | `'solid'` | Estilo da borda (compartilhado entre categorias). |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `fillPattern` | select (10 hachuras) | `'solid'` | Hachura sobre o preenchimento (todas as categorias). |
+| `colorScheme` | select (paletas categóricas) | valor atual de `style.colorScheme` | Paleta usada para colorir as categorias. |
+| `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
+
+> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente. `borderStyle`, apesar de documentado acima, não é editável ao vivo.
+
+```js
+{
+  preset: 'vector_polygon_categorical',
+  id: 'uso_do_solo',
+  label: 'Uso do solo',
+  path: 'Território / _ / Uso e ocupação',
+  sourceLabel: 'IBGE',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/uso_do_solo/{z}/{x}/{y}`,
+  source_layer: 'uso_do_solo',
+  style: {
+    categoryKey: 'classe_uso',
+    categories: [
+      { value: 'urbano', label: 'Zona urbana', color: '#808080' },
+      { value: 'rural', label: 'Zona rural', color: '#8B4513' },
+      { value: 'preservacao', label: 'Área de preservação' },
+    ],
+    fillPattern: 'solid',
+  },
+}
+```
+
+Atalho com array de string (usa os `defaults` de fillPattern/borderStyle e aplica as cores das categorias de acordo com o coloscheme):
+
+```js
+{
+  preset: 'vector_line_single',
+  // ...
+  style: {
+    categoryKey: 'classe_uso',
+    colorScheme: 'schemeGeoReDUSSafe',
+    categories: ['urbano', 'rural'],
+  },
+}
+```
+
+---
+
+## `vector_polygon_continuous`
+
+Renderiza polígonos com preenchimento em cloroplético — a cor varia continuamente de acordo com uma propriedade numérica, usando uma escala de cores e um método de classificação.
+
+**`style`** (obrigatório — lança erro se style não for informado):
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `valueKey` | `string` | **sim** | Nome da propriedade numérica da feature. |
+| `values` | `string \| number[] \| { value: number }[]` | **sim** | URL (retornando JSON) ou array com os valores usados para calcular as classes/quebras da escala. Aceita o placeholder `${municipioId}` — sem o filtro `cd_mun=eq.${municipioId}` na URL, as quebras são calculadas sobre **todos** os municípios; com ele, apenas sobre a cidade selecionada. |
+| `colorScheme` | ver [Esquemas de cor contínuos](#esquemas-de-cor-contínuos) | `'schemeOrRd'` | Paleta sequencial/divergente ou array custom de cores. |
+| `classificationMethod` | `'naturalBreaks' \| 'quantile' \| { type: 'naturalBreaks' \| 'quantile', k: number } \| { type: 'custom', breaks: number[] }` | `{ type: 'naturalBreaks', k: 5 }` | Método de classificação dos valores em faixas de cor. `k` é o número de classes. |
+| `numberFormat` | `any` | não | Formato numérico usado na legenda. |
+| `legend.format` | `{ below?, above?, between?, number? }` | não | Sobrescreve a formatação da legenda sequencial. `below`/`above`/`between` são strings com placeholders `${0}`/`${1}` (ou funções); `number` é `Intl.NumberFormat` (instância ou tupla `[locale, options]`), com `numberFormat` como default. |
+
+Além dos campos de `style`, o [`tooltip`](#tooltip) no nível raiz do `viewSpecInput` também se aplica normalmente a este preset.
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `classificationMethodType` | select (`'Quebras naturais'` / `'Quantis'`) | valor atual de `style.classificationMethod.type` (ou `'naturalBreaks'`) | Sobrescreve apenas o `type` de `classificationMethod`; o `k` não é editável ao vivo (não há controle de UI para ele, embora o metadata aceite um `classificationMethodK` de conf). |
+| `colorScheme` | select (paletas sequenciais/divergentes) | valor atual de `style.colorScheme` ou `'schemeOrRd'` | Paleta de cores. |
+| `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
+
+> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente.
+
+```js
+{
+  preset: 'vector_polygon_continuous',
+  id: 'renda_media_setor',
+  label: 'Renda média domiciliar por setor censitário',
+  path: 'Censo 2022 / Renda',
+  sourceLabel: 'IBGE',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/setores_censitarios/{z}/{x}/{y}`,
+  source_layer: 'setores_censitarios',
+  style: {
+    valueKey: 'renda_media',
+    // `&cd_mun=eq.${municipioId}` restringe as quebras ao município selecionado
+    values: `${METADATA_API_ENDPOINT}/censo_2022_renda?select=value&cd_mun=eq.${municipioId}`,
+    colorScheme: 'schemeBlues',
+    classificationMethod: { type: 'quantile', k: 5 },
+    numberFormat: ['pt-BR', { style: 'currency', currency: 'BRL' }],
+    legend: {
+      format: {
+        below: 'Sem dados',
+        above: 'Acima de ${0}',
+        between: '${0} - ${1}',
+        number: ['pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }],
+      },
+    },
+  },
+  tooltip: {
+    title: 'nome_setor',
+    entries: {
+      renda_media: {
+        label: 'Renda média domiciliar',
+        format: { number: ['pt-BR', { style: 'currency', currency: 'BRL' }] },
+      },
+    },
+  },
+}
+```
+
+---
+
+## `vector_heatmap`
+
+Renderiza um mapa de calor (heatmap) a partir da densidade de pontos, com a opção de exibir os pontos individuais ao aproximar o zoom.
+
+**`style`**:
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `weight` | `number` | não | `1` | Peso de cada ponto no cálculo de densidade. |
+| `radius` | `number \| number[]` | não | raio de 2px (zoom 9) a 30px (zoom 17) | Raio de influência de cada ponto, em pixels. Se array, é interpretado como pares `[zoom, valor, zoom, valor, ...]`, variando o raio por nível de zoom. |
+| `opacity` | `number \| number[]` | não | `1` (ou esmaecendo a partir do zoom 14 se `circle: true`) | Opacidade do heatmap. Aceita o mesmo formato de pares `[zoom, valor, ...]` de `radius`. |
+| `steps` | `{ step: number, label: string, color?: string }[]` | não | 5 faixas: `Muito Baixa` (0.2), `Baixa` (0.4), `Média` (0.6), `Alta` (0.8), `Muito Alta` (1) | Faixas de densidade relativa (0 a 1) usadas tanto para colorir o heatmap quanto para montar a legenda. `color`, se omitido, é resolvido a partir de `colorScheme`. |
+| `colorScheme` | ver [Esquemas de cor contínuos](#esquemas-de-cor-contínuos) (inclui variantes invertidas, ex.: `'-schemeSpectral'`) | não | `'-schemeSpectral'` | Paleta usada para colorir os `steps` sem `color` explícito. |
+| `circle` | `boolean` | não | `false` | Se `true`, adiciona uma camada de pontos individuais (círculos), visível a partir do zoom 14, enquanto o heatmap permanece visível a partir do zoom 7. |
+
+**Controles editáveis (`confSchema`)**
+
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `colorScheme` | select (paletas sequenciais/divergentes, incl. invertidas) | valor atual de `style.colorScheme` ou `'-schemeSpectral'` | Paleta de cores do heatmap. |
+| `opacity` | slider (0–1) | `1` | Opacidade do heatmap. **Omitido do painel quando `style.circle: true`** (o preset já usa esmaecimento por zoom nesse caso). |
+
+```js
+{
+  preset: 'vector_heatmap',
+  id: 'ocorrencias_acidentes',
+  label: 'Concentração de acidentes de trânsito',
+  path: 'Mobilidade / Segurança viária',
+  sourceLabel: 'Prefeitura',
+  tiles: `${VECTOR_TILE_SERVER_ENDPOINT}/ocorrencias_acidentes/{z}/{x}/{y}`,
+  source_layer: 'ocorrencias_acidentes',
+  style: {
+    weight: 1,
+    colorScheme: '-schemeSpectral',
+    circle: true,
+  },
+}
+```
+
+---
+
+## `raster_categorical`
+
+Renderiza uma camada **raster** (não vetorial) cujas cores por pixel vêm de um mapa de cores (`colormap`) categórico aplicado pelo próprio tile server a partir de `style.categories`. Não usa `source_layer`.
+
+⚠️ **Atenção:** a fonte é do tipo `raster`, não `vector`.
+
+**`style`** (obrigatório — lança erro se style não for informado):
+
+| Campo | Tipo | Obrigatório | Default | Descrição |
+|---|---|---|---|---|
+| `categories` | `{ value: string, label: string, color?: string }[]` | **sim** | — | Lista das classes/valores representados no raster. `color`, se omitido, é resolvido a partir de `colorScheme` (por índice, ou usando `k` quando informado). |
+| `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos), mais `'schemeYlOrRd'` como caso especial (esquema sequencial usado como paleta categórica) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
+
+**Controles editáveis (`confSchema`)**
+
+Este preset não expõe `confSchema` — não há controles de estilo editáveis pelo usuário em tempo real.
+
+```js
+{
+  preset: 'raster_categorical',
+  id: 'uso_solo_satelite',
+  label: 'Uso do solo (classificação por satélite)',
+  path: 'Território / Sensoriamento remoto',
+  sourceLabel: 'MapBiomas',
+  tiles: `${RASTER_TILE_SERVER_ENDPOINT}/uso_solo/{z}/{x}/{y}`,
+  style: {
+    colorScheme: 'schemeGeoReDUSSafe',
+    categories: [
+      { value: '1', label: 'Floresta', color: '#1f7a1f' },
+      { value: '2', label: 'Agropecuária', color: '#c9a227' },
+      { value: '3', label: 'Área urbana', color: '#808080' },
+    ],
+  },
+}
+```
+
+---
+
+## Referência de valores compartilhados
+
+### Padrões de preenchimento
+
+`fillPattern` (presets de polígono) aceita: 
+  - `'solid'`
+  - `'circles_1'`
+  - `'cross_1'`
+  - `'diamonds_1'`
+  - `'lines_1'`
+  - `'mosaic_1'`
+  - `'mosaic_2'`
+  - `'squares_1'`
+  - `'triangles_1'`
+  - `'waves_1'`
+
+### Esquemas de cor categóricos
+
+`colorScheme` (presets `*_categorical`) aceita: 
+  - `'schemeGeoReDUSSafe'` (default, paleta própria da GeoReDUS)
+  - `'schemeCategory10'`
+  - `'schemeAccent'`
+  - `'schemeDark2'`
+  - `'schemeObservable10'`
+  - `'schemePaired'`
+  - `'schemePastel1'`
+  - `'schemePastel2'`
+  - `'schemeSet1'`
+  - `'schemeSet2'`
+  - `'schemeSet3'`
+  - `'schemeTableau10'`
+
+### Esquemas de cor contínuos
+
+`colorScheme` (presets `*_continuous`) aceita:
+
+- **Sequenciais**: 
+  - `'schemeBlues'`
+  - `'schemeGreens'`
+  - `'schemeGreys'`
+  - `'schemeOranges'`
+  - `'schemePurples'`
+  - `'schemeReds'`
+  - `'schemeBuGn'`
+  - `'schemeBuPu'`
+  - `'schemeGnBu'`
+  - `'schemeOrRd'` (default)
+  - `'schemePuBuGn'`
+  - `'schemePuBu'`
+  - `'schemePuRd'`
+  - `'schemeRdPu'`
+  - `'schemeYlGnBu'`
+  - `'schemeYlGn'`
+  - `'schemeYlOrBr'`
+  - `'schemeYlOrRd'`.
+- **Divergentes**:
+  - `'schemeBrBG'`
+  - `'schemePRGn'`
+  - `'schemePiYG'`
+  - `'schemePuOr'`
+  - `'schemeRdBu'`
+  - `'schemeRdGy'`
+  - `'schemeRdYlBu'`
+  - `'schemeRdYlGn'`
+  - `'schemeSpectral'`.
+- **Custom**: um array de cores (`string[]`).
+
+> Em [`vector_heatmap`](#vector_heatmap), qualquer um desses esquemas também aceita uma variante invertida, prefixada com `-` (ex.: `'-schemeSpectral'`, `'-schemeBlues'`).
+
+### Tooltip
+
+O campo `tooltip` (no nível raiz do `viewSpecInput`) controla o balão exibido ao passar o mouse sobre uma feature:
+
+```ts
+{
+  title?: string,   // nome da propriedade usada como título (default: 'name')
+  entries?:
+    | Array<string | { key: string, label?: string, format?: object }>
+    | { [key: string]: { label?: string, format?: object } },
+    // se omitido, exibe todas as propriedades da feature (exceto o título)
+}
+```
+
+### Download
+
+Quando `download_url` é informado, os presets expõem um botão de download que abre um diálogo para o usuário escolher o formato (GeoPackage, GeoJSON ou KML) e converte os dados buscados em `download_url` via `ogr2ogr`/GDAL antes de disparar o download.

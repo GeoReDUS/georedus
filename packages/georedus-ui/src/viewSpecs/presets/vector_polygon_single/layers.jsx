@@ -7,6 +7,7 @@ import {
   applyOpacity,
   basicTooltip,
   DEFAULT_FILL_OPACITY,
+  municipioFilter,
 } from '../util'
 import { resolve } from '@orioro/resolve'
 
@@ -71,7 +72,7 @@ function _main_fill_legends(
 }
 
 function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const { _color, _fillPattern } = props
+  const { _color, _fillPattern, _municipioFilter } = props
   const { source_layer } = viewSpec
 
   const _fillPaint = resolve.fn(
@@ -98,13 +99,19 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     source: 'main',
     'source-layer': source_layer,
     type: 'fill',
+    filter: _municipioFilter,
     paint: _fillPaint,
     legends: _main_fill_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
   }
 }
 
-function _main_line({ _color, _fillPattern }, viewSpec, allViewSpecs, context) {
+function _main_line(
+  { _color, _fillPattern, _municipioFilter },
+  viewSpec,
+  allViewSpecs,
+  context,
+) {
   const { source_layer } = viewSpec
 
   const borderStyle = viewSpec.style?.borderStyle || 'solid'
@@ -124,6 +131,7 @@ function _main_line({ _color, _fillPattern }, viewSpec, allViewSpecs, context) {
     source: 'main',
     'source-layer': source_layer,
     type: 'line',
+    filter: _municipioFilter,
     layout:
       borderStyle === 'dotted'
         ? {
@@ -140,11 +148,13 @@ function _main_line({ _color, _fillPattern }, viewSpec, allViewSpecs, context) {
 export function layers(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
 
-  const { source_layer } = viewSpec
+  const { source_layer, tiles } = viewSpec
 
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
+
+  const _municipioFilter = municipioFilter(tiles, context)
 
   const _color = resolve.fn((ctx) =>
     resolveColor(ctx.view?.conf?.style?.color || styleSpec.color),
@@ -156,13 +166,13 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _color, _fillPattern },
+      { _color, _fillPattern, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,
     ),
     [`main_fill`]: _main_fill(
-      { _color, _fillPattern },
+      { _color, _fillPattern, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,

@@ -7,12 +7,18 @@ import {
   basicTooltip,
   applyOpacity,
   DEFAULT_FILL_OPACITY,
+  municipioFilter,
 } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
 
-function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
+function _main_line(
+  { _maplibreColorExp, _municipioFilter },
+  viewSpec,
+  allViewSpecs,
+  context,
+) {
   const { source_layer } = viewSpec
 
   const borderStyle = viewSpec.style?.borderStyle || 'solid'
@@ -32,6 +38,7 @@ function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     type: 'line',
+    filter: _municipioFilter,
     layout:
       borderStyle === 'dotted'
         ? {
@@ -97,7 +104,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const { _maplibreColorExp, _fillPattern } = props
+  const { _maplibreColorExp, _fillPattern, _municipioFilter } = props
   const { source_layer } = viewSpec
 
   const _fillPaint = resolve.fn(
@@ -138,6 +145,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     type: 'fill',
+    filter: _municipioFilter,
     paint: _fillPaint,
     legends: _main_fill_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
@@ -147,11 +155,13 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
 export function layers(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
 
-  const { source_layer } = viewSpec
+  const { source_layer, tiles } = viewSpec
 
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
+
+  const _municipioFilter = municipioFilter(tiles, context)
 
   const _maplibreColorExp = resolve.fn((ctx) => [
     'match',
@@ -168,13 +178,13 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreColorExp },
+      { _maplibreColorExp, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,
     ),
     [`main_fill`]: _main_fill(
-      { _maplibreColorExp, _fillPattern },
+      { _maplibreColorExp, _fillPattern, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,

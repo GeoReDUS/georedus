@@ -124,4 +124,5 @@ export type PresetFn<InputT extends Record<string, any> = Record<string, any>> =
 export type ResolveViewSpecsContext = {
   METADATA_API_ENDPOINT: string
   VECTOR_TILE_SERVER_ENDPOINT: string
+  app: AppContext
 }

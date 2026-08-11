@@ -1,7 +1,12 @@
 import { resolve } from '@orioro/resolve'
 import { resolveColor } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, LINE_PATTERN_SOLID, LINE_WIDTH_1 } from '../util'
+import {
+  basicTooltip,
+  LINE_PATTERN_SOLID,
+  LINE_WIDTH_1,
+  municipioFilter,
+} from '../util'
 
 function _main_line_legends({ _color }, viewSpec, allViewSpecs, context) {
   const _legend = resolve.fn([_color], (resolvedColor, ctx) => {
@@ -30,7 +35,12 @@ function _main_line_legends({ _color }, viewSpec, allViewSpecs, context) {
   return [_legend]
 }
 
-function _main_line({ _color, _linePattern }, viewSpec, allViewSpecs, context) {
+function _main_line(
+  { _color, _linePattern, _municipioFilter },
+  viewSpec,
+  allViewSpecs,
+  context,
+) {
   const { source_layer } = viewSpec
 
   const line = resolve.fn([_color], (resolvedColor, ctx) => {
@@ -56,6 +66,7 @@ function _main_line({ _color, _linePattern }, viewSpec, allViewSpecs, context) {
       source: 'main',
       'source-layer': source_layer,
       type: 'line',
+      filter: _municipioFilter,
       layout:
         _linePattern === 'dotted'
           ? {
@@ -76,17 +87,24 @@ function _main_line({ _color, _linePattern }, viewSpec, allViewSpecs, context) {
 export function layers(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
 
-  const { source_layer } = viewSpec
+  const { source_layer, tiles } = viewSpec
 
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
+
+  const _municipioFilter = municipioFilter(tiles, context)
 
   const _color = resolve.fn((ctx) =>
     resolveColor(ctx.view?.conf?.style?.color || styleSpec.color),
   )
 
   return {
-    [`main_line`]: _main_line({ _color }, viewSpec, allViewSpecs, context),
+    [`main_line`]: _main_line(
+      { _color, _municipioFilter },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
   }
 }

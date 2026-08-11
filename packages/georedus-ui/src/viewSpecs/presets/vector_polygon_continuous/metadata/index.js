@@ -1,5 +1,5 @@
-import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
+import { parseUrl } from '../../util'
 import { COLOR_SCHEMES } from '../../../util'
 
 import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
@@ -14,11 +14,9 @@ export function metadata(viewSpec, allViewSpecs, context) {
     const resolvedValues = (
       typeof style.values === 'string'
         ? // style.values is an URL
-          await fetch(
-            interpolate(style.values, {
-              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-            }),
-          ).then((res) => res.json())
+          await fetch(parseUrl(style.values, context)).then((res) =>
+            res.json(),
+          )
         : Array.isArray(style.values)
           ? style.values
           : null
