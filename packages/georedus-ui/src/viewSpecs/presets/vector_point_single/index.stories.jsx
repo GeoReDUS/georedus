@@ -4,7 +4,7 @@ import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
 export default {
-  title: 'Presets / vector_line_single',
+  title: 'Presets / vector_point_single',
   parameters: {
     layout: 'fullscreen',
   },
@@ -46,61 +46,68 @@ const VIEW_SPECS = {
   all: [
     [
       {
-        id: 'mun_maceio_malha_hidrografia_2007.geom',
+        id: 'mun_maceio_malha_saude_2026.geom',
         collection_id: 'test',
         indicator_id: 'test',
-        preset: 'vector_line_single',
+        preset: 'vector_point_single',
         tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_hidrografia_2007.geom/{z}/{x}/{y}',
-        source_layer: 'mun_maceio_malha_hidrografia_2007.geom',
-        path: 'Line Single Test / _ ',
-        label: 'Hidrografia',
-        style: 'schemeGeoReDUS.azul',
-        tooltip: { title: 'nome' },
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_saude_2026.geom/{z}/{x}/{y}',
+        source_layer: 'mun_maceio_malha_saude_2026.geom',
+        path: 'Point Single Test / _ ',
+        label: 'Equipamentos de saúde',
+        style: 'schemeGeoReDUS.verde',
+        tooltip: {
+          title: 'name',
+          entries: ['classes'],
+        },
         sourceLabel: 'Test',
-        shortDescription: 'Vector Line Single Preset',
+        shortDescription: 'Vector Point Single Preset',
         metodology:
-          `Vector Line Single Preset: **style** em formato *string* contendo valor da cor (\`schemeGeoReDUS.azul\`)
+          `Vector Point Single Preset: **style** em formato *string* contendo valor da cor (\`schemeGeoReDUS.verde\`).
 
-Demais parâmetros: **linePattern** e **lineWidth** terão valores padrão.`,
+Demais parâmetros: **radius**, **opacity** e **border** terão valores padrão.`,
         download_url:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_hidrografia_2007.geom/{z}/{x}/{y}',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_saude_2026.geom/{z}/{x}/{y}',
       },
       {
-        id: 'mun_maceio_malha_ferrovia_2007.geom',
+        id: 'mun_maceio_malha_areas_de_emprego_2025.geom',
         collection_id: 'test',
         indicator_id: 'test',
-        preset: 'vector_line_single',
+        preset: 'vector_point_single',
         tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_ferrovia_2007.geom/{z}/{x}/{y}',
-        source_layer: 'mun_maceio_malha_ferrovia_2007.geom',
-        path: 'Line Single Test / _ ',
-        label: 'Ferrovia',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_areas_de_emprego_2025.geom/{z}/{x}/{y}',
+        source_layer: 'mun_maceio_malha_areas_de_emprego_2025.geom',
+        path: 'Point Single Test / _ ',
+        label: 'Áreas de Emprego',
         style: {
-          color: 'schemeGeoReDUS.marrom',
-          linePattern: 'dotted',
-          lineWidth: 4,
+          color: 'schemeGeoReDUS.vermelho_claro',
+          radius: 15,
+          opacity: 0.5,
+          border: false,
         },
         tooltip: {
-          entries: [],
+          title: 'nome_uc',
+          entries: ['categoria'],
         },
         sourceLabel: 'Test',
-        shortDescription: 'Vector Line Single Preset',
-        metodology: `Vector Line Single Preset: **style** em formato *json* com todos os parâmetros.
+        shortDescription: 'Vector Point Single Preset',
+        metodology: `Vector Point Single Preset: **style** em formato *json* com todos os parâmetros.
 
   - **color**: string com nome/valor da cor;
-  - **linePattern**: padrão da linha;
-  - **lineWidth**: espessura da linha:
+  - **radius**: raio em pixels;
+  - **opacity**: opacidade de 0 a 1;
+  - **border**: boolean;
 \`\`\`json
 {
-  "color": "schemeGeoReDUS.marrom",
-  "linePattern": "dotted",
-  "lineWidth": 4
+  "color": "schemeGeoReDUS.vermelho_claro",
+  "radius": 15,
+  "opacity": 0.5,
+  "border": false,
 }
 \`\`\`
 `,
         download_url:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_ferrovia_2007.geom/{z}/{x}/{y}',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_areas_de_emprego_2025.geom/{z}/{x}/{y}',
       },
     ],
   ],
@@ -109,10 +116,8 @@ Demais parâmetros: **linePattern** e **lineWidth** terão valores padrão.`,
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
     {
-      //
-      // Maceió (IBGE id)
-      //
-      municipioId: '2704302',
+      // Maceió (IGBE id)
+      municipioId: 2704302,
     },
     {
       schema: {

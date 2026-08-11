@@ -50,7 +50,7 @@ const VIEW_SPECS = {
         collection_id: 'test',
         indicator_id: 'test',
         preset: 'vector_point_categorical',
-        path: 'Test dir / _',
+        path: 'Pont Categorical Test / _',
         label: 'Estabelecimentos de Cultura',
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_pontos_culturais_2026.geom/{z}/{x}/{y}',
@@ -64,14 +64,29 @@ const VIEW_SPECS = {
         },
         tooltip: '',
         sourceLabel: 'TEst',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Point Categorical Preset',
+        metodology: `Vector Point Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **categories**: array de objetos com **value** e **color** explícitos para cada categoria;
+  - **colorScheme**: não está definido, portanto as cores vêm diretamente de cada categoria;
+\`\`\`json
+{
+  "categoryKey": "tipo",
+  "categories": [
+    { "value": "Pontos Culturais", "color": "schemeGeoReDUS.azul" },
+    { "value": "Atrativos Turísticos", "color": "schemeGeoReDUS.rosa" }
+  ]
+}
+\`\`\`
+`,
       },
       {
         id: 'test_item_2',
         collection_id: 'test',
         indicator_id: 'test',
         preset: 'vector_point_categorical',
-        path: 'Test dir / _',
+        path: 'Pont Categorical Test / _',
         label: 'Conselho Tutelar',
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025.geom/{z}/{x}/{y}',
@@ -83,7 +98,19 @@ const VIEW_SPECS = {
         },
         tooltip: '',
         sourceLabel: 'TEst',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Point Categorical Preset',
+        metodology: `Vector Point Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **categories**: endpoint de metadados;
+  - **colorScheme**: não está definido, portanto cores serão atribuídas automaticamente pelo **colorScheme** padrão:
+\`\`\`json
+{
+  "categoryKey": "nome",
+  "categories": "\${METADATA_API_ENDPOINT}/mun_maceio_malha_conselho_tutelar_2025?select=value:nome"
+}
+\`\`\`
+`,
       },
     ],
   ],

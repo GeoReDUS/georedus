@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_corredores_1992.geom/{z}/{x}/{y}',
         source_layer: 'mun_sao_luis_malha_corredores_1992.geom',
-        path: 'Test Dir / _ ',
+        path: 'Line Categorical Test / _ ',
         label: 'Zoneamento Corredores',
         style: {
           categoryKey: 'nome',
@@ -66,7 +66,21 @@ const VIEW_SPECS = {
           entries: ['corredor'],
         },
         sourceLabel: 'Test',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Line Categorical Preset',
+        metodology: `Vector Line Categorical Preset: **style** em formato *json*. 
+        
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **lineWidth**: espessura da linha;
+  - **categories**: endpoint de metadados;
+  - **colorScheme**: não está definido, portanto cores serão atribuídas automaticamente pelo **colorScheme** padrão:
+\`\`\`json
+{
+  "categoryKey": "nome",
+  "lineWidth": 2,
+  "categories": "\${METADATA_API_ENDPOINT}/mun_sao_luis_malha_corredores_1992?select=value:nome"
+}
+\`\`\`
+`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_corredores_1992.geom/{z}/{x}/{y}',
       },
@@ -79,7 +93,7 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom/{z}/{x}/{y}',
         source_layer:
           'mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom',
-        path: 'Test Dir / _ ',
+        path: 'Line Categorical Test / _ ',
         label: 'Parcelamento Corredores',
         style: {
           categoryKey: 'nome',
@@ -103,7 +117,30 @@ const VIEW_SPECS = {
           },
         },
         sourceLabel: 'Test',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Line Categorical Preset',
+        metodology: `Vector Line Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **categories**: array de objetos com **value** e **color** explícitos para cada categoria;
+  - **colorScheme**: não está definido, portanto as cores vêm diretamente de cada categoria:
+\`\`\`json
+{
+  "categoryKey": "nome",
+  "categories": [
+    { "value": "CP", "color": "#e88974" },
+    { "value": "CS1", "color": "#318fc6" },
+    { "value": "CS2", "color": "#d46eb3" },
+    { "value": "CS3", "color": "#e6d35e" },
+    { "value": "CS4", "color": "#758756" },
+    { "value": "CS5", "color": "#50e6be" },
+    { "value": "CS6", "color": "#9a8feb" },
+    { "value": "CS7", "color": "#8a374c" },
+    { "value": "CS8", "color": "#a957fa" },
+    { "value": "CS9", "color": "#388a87" }
+  ]
+}
+\`\`\`
+`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom/{z}/{x}/{y}',
       },
