@@ -110,9 +110,9 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
         'circle-stroke-width': 2,
         'circle-stroke-opacity': _opacity,
         'circle-radius':
-          viewSpec.style.radius && Array.isArray(viewSpec.style.radius)
-            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.radius]
-            : viewSpec.style.radius || [
+          viewSpec.style.circle_radius && Array.isArray(viewSpec.style.circle_radius)
+            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.circle_radius]
+            : viewSpec.style.circle_radius || [
                 'interpolate',
                 ['linear'],
                 ['zoom'],

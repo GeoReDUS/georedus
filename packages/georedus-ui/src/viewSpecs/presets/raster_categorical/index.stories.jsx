@@ -64,7 +64,23 @@ const VIEW_SPECS = {
           ],
         },
         sourceLabel: 'TEst',
-        metodology: 'test metodology',
+        shortDescription: 'Raster Categorical Preset',
+        metodology: `Raster Categorical Preset: **style** em formato *json*.
+
+  - **categories**: array de objetos com **value** e **color** explícitos para cada categoria;
+  - **colorScheme**: não está definido, portanto as cores vêm diretamente de cada categoria;
+\`\`\`json
+{
+  "categories": [
+    { "value": 1985, "color": "schemeYlOrRd.scalesByK.5.0" },
+    { "value": 1995, "color": "schemeYlOrRd.scalesByK.5.1" },
+    { "value": 2005, "color": "schemeYlOrRd.scalesByK.5.2" },
+    { "value": 2015, "color": "schemeYlOrRd.scalesByK.5.3" },
+    { "value": 2024, "color": "schemeYlOrRd.scalesByK.5.4" }
+  ]
+}
+\`\`\`
+`,
       },
       {
         id: 'mapbiomas_cobertura_vegetal',
@@ -102,7 +118,40 @@ const VIEW_SPECS = {
           ],
         },
         sourceLabel: 'TEst',
-        metodology: 'test metodology',
+        shortDescription: 'Raster Categorical Preset',
+        metodology: `Raster Categorical Preset: **style** em formato *json*.
+
+  - **colorScheme**: string com nome da paleta de cores;
+  - **categories**: array de objetos com **value** e **label**, sem **color** explícito, portanto as cores são atribuídas automaticamente pelo **colorScheme**:
+\`\`\`json
+{
+  "colorScheme": "schemeGeoReDUS",
+  "categories": [
+    { "value": 3, "label": "Formação Florestal" },
+    { "value": 4, "label": "Formação Savânica" },
+    { "value": 5, "label": "Mangue" },
+    { "value": 6, "label": "Floresta Alagável" },
+    { "value": 9, "label": "Silvicultura" },
+    { "value": 11, "label": "Campo Alagado e Área Pantanosa" },
+    { "value": 12, "label": "Formação Campestre" },
+    { "value": 15, "label": "Pastagem" },
+    { "value": 19, "label": "Lavoura Temporária" },
+    { "value": 21, "label": "Mosaico de Usos" },
+    { "value": 23, "label": "Praia, Duna e Arenal" },
+    { "value": 24, "label": "Área Urbanizada" },
+    { "value": 25, "label": "Outra Área não Vegetadas" },
+    { "value": 29, "label": "Afloramento Rochoso" },
+    { "value": 30, "label": "Mineração" },
+    { "value": 31, "label": "Aquicultura" },
+    { "value": 32, "label": "Apicum" },
+    { "value": 33, "label": "Rio, Lago e Oceano" },
+    { "value": 36, "label": "Lavoura Perene" },
+    { "value": 49, "label": "Restinga Arbórea" },
+    { "value": 50, "label": "Restinga Herbácea" }
+  ]
+}
+\`\`\`
+`,
       },
     ],
   ],
