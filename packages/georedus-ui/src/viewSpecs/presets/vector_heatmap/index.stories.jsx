@@ -78,7 +78,7 @@ export const Basic = () => {
               label: 'Hortifrutti',
               style: {
                 colorScheme: 'schemeGreens',
-                minzoom: 7,
+                minzoom: 9,
                 maxzoom: 16,
               },
               tooltip: '',
@@ -86,8 +86,9 @@ export const Basic = () => {
               shortDescription: 'Vector Heatmap Preset',
               metodology: `Vector Heatmap Preset: **style** em formato *json*. 
 
-  - **colorScheme** (string com nome da paleta de cores);
-  - **minzoom**/**maxzoom** (níveis de zoom em que o heatmap em gradiente é exibido);
+  - **colorScheme**: string com nome da paleta de cores;
+  - **minzoom**/**maxzoom**: níveis de zoom em que o heatmap em gradiente é exibido;
+  - Demais parâmetros não definidos serão renderizados com valores padrão: **weight, radius, opacity, steps, circle**.
 \`\`\`json
 {
   "colorScheme": "schemeGreens",
@@ -153,9 +154,10 @@ export const WithCircle = () => {
               shortDescription: 'Vector Heatmap Preset',
               metodology: `Vector Heatmap Preset: **style** em formato *json*. 
               
-  - **colorScheme** (string com nome da paleta de cores);
-  - **circle** (boolean; quando **true**, o heatmap é renderizado como círculos proporcionais ao invés de um gradiente contínuo);
-\`\`\`json
+  - **colorScheme**: string com nome da paleta de cores;
+  - **circle**: boolean; quando **true**, o heatmap é renderizado como círculos proporcionais ao invés de um gradiente contínuo;
+  - Demais parâmetros não definidos serão renderizados com valores padrão: **weight, radius, opacity, steps, circle_radius, minzoom, maxzoom**.
+\`\`\`jsonweight, radius, opacity, steps, circle_radius
 {
   "colorScheme": "schemeGreens",
   "circle": true
@@ -186,11 +188,11 @@ export const WithCircle = () => {
               shortDescription: 'Vector Heatmap Preset',
               metodology: `Vector Heatmap Preset: **style** em formato *json*. 
 
-  - **circle** (boolean; quando **true**, o heatmap é renderizado também como círculos proporcionais);
-  - **weight** (peso de cada ponto no cálculo do heatmap);
-  - **radius** (array de interpolação por zoom, no formato *[zoom1, raio1, zoom2, raio2, ...]*, definindo o raio do heatmap em gradiente);
-  - **circle_radius** (array de interpolação por zoom no mesmo formato, definindo o raio dos círculos quando **circle** é **true**);
-  - **colorScheme** não está definido, portanto será renderizado com uma paleta padrão;
+  - **circle**: boolean; quando **true**, o heatmap é renderizado também como círculos proporcionais;
+  - **weight**: peso de cada ponto no cálculo do heatmap;
+  - **radius**: array de interpolação por zoom, no formato *[zoom1, raio1, zoom2, raio2, ...]*, definindo o raio do heatmap em gradiente;
+  - **circle_radius**: array de interpolação por zoom no mesmo formato, definindo o raio dos círculos quando **circle** é **true**;
+  - Demais parâmetros não definidos serão renderizados com valores padrão: **colorScheme, minzoom, maxzoom**.
 \`\`\`json
 {
   "circle": true,

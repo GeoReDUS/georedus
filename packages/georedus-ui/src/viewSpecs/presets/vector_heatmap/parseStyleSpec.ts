@@ -7,6 +7,8 @@ type HeatmapSteps = {
 }
 
 export type StyleSpec = {
+  minzoom?: number
+  maxzoom?: number
   weight?: number
   radius?: number | number[]
   opacity?: number | number[]
