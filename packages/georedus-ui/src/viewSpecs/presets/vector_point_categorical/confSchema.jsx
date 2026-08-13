@@ -1,4 +1,4 @@
-import { categoricalColorSchemeSelector } from '../util'
+import { categoricalColorSchemeSelector, CUSTOM_COLOR_SCHEME } from '../util'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
@@ -7,7 +7,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
     style: {
       colorScheme: categoricalColorSchemeSelector({
         defaultValue: viewSpec.style?.colorScheme,
-        clearable: viewSpec.style.colorScheme === null,
+        customColor: viewSpec.style?.colorScheme === CUSTOM_COLOR_SCHEME
       }),
     },
   }

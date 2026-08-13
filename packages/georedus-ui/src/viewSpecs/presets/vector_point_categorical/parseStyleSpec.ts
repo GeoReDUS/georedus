@@ -1,3 +1,5 @@
+import { CUSTOM_COLOR_SCHEME } from '../util'
+
 type Category = {
   value: string
   label?: string
@@ -19,7 +21,7 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
-    | null
+    | typeof CUSTOM_COLOR_SCHEME
   categories: string | Category[]
   border?: boolean
 }
@@ -40,7 +42,7 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     styleInput.categories.every(
       (category) => typeof category !== 'string' && 'color' in category,
     )
-      ? null
+      ? CUSTOM_COLOR_SCHEME
       : DEFAULT_COLOR_SCHEME_ID
 
   return { colorScheme, border: true, ...styleInput }

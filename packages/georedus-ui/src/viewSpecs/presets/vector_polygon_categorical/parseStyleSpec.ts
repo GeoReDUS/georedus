@@ -1,3 +1,5 @@
+import { CUSTOM_COLOR_SCHEME } from '../util'
+
 export type CategoryStyleSpec = {
   color?: string
   fillPattern?:
@@ -34,7 +36,7 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
-    | null
+    | typeof CUSTOM_COLOR_SCHEME
   categories: string | (string | Category)[]
 } & Omit<CategoryStyleSpec, 'color'>
 
@@ -54,7 +56,7 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     styleInput.categories.every(
       (category) => typeof category !== 'string' && 'color' in category,
     )
-      ? null
+      ? CUSTOM_COLOR_SCHEME
       : DEFAULT_COLOR_SCHEME_ID
 
   return { colorScheme, ...styleInput }

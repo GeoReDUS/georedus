@@ -27,6 +27,7 @@ export function categoricalColorSchemeSelector({
   // idealmente deveríamos construir um schema com as cores originais e inserir na lista de schemas
   clearable = false,
   defaultValue = 'schemeGeoReDUSSafe',
+  customColor = false
 }) {
   return {
     label: 'Esquema de cores',
@@ -34,7 +35,9 @@ export function categoricalColorSchemeSelector({
     clearable,
     defaultValue,
     options: [
-      { value: CUSTOM_COLOR_SCHEME, label: 'Cores Customizadas' },
+      ...(customColor
+        ? [{ value: CUSTOM_COLOR_SCHEME, label: 'Cores Customizadas' }]
+        : []),
       ...Object.entries(CATEGORICAL_SCHEMES).map(([name, scheme]) => {
         return {
           value: name,
