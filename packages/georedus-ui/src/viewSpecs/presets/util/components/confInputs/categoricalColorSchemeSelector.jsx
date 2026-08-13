@@ -19,6 +19,8 @@ const CATEGORICAL_SCHEMES = {
   ...D3_CATEGORICAL,
 }
 
+export const CUSTOM_COLOR_SCHEME = 'customColor'
+
 export function categoricalColorSchemeSelector({
   //TODO: Existem camadas com cores customizadas que não se encaixam nos schemas pré-definidos
   // o clearable possibilita que  usuário limpe um schema selecionado e retorne para as cores origiais da camada
@@ -31,27 +33,30 @@ export function categoricalColorSchemeSelector({
     type: 'select',
     clearable,
     defaultValue,
-    options: Object.entries(CATEGORICAL_SCHEMES).map(([name, scheme]) => {
-      return {
-        value: name,
-        label: (
-          <Flex direction="row" gap="2" alignItems="center">
-            <div style={{ display: 'flex', gap: '2px' }}>
-              {scheme.map((color, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    width: 15,
-                    height: 15,
-                    backgroundColor: color,
-                    border: 'none',
-                  }}
-                />
-              ))}
-            </div>
-          </Flex>
-        ),
-      }
-    }),
+    options: [
+      { value: CUSTOM_COLOR_SCHEME, label: 'Cores Customizadas' },
+      ...Object.entries(CATEGORICAL_SCHEMES).map(([name, scheme]) => {
+        return {
+          value: name,
+          label: (
+            <Flex direction="row" gap="2" alignItems="center">
+              <div style={{ display: 'flex', gap: '2px' }}>
+                {scheme.map((color, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      width: 15,
+                      height: 15,
+                      backgroundColor: color,
+                      border: 'none',
+                    }}
+                  />
+                ))}
+              </div>
+            </Flex>
+          ),
+        }
+      }),
+    ],
   }
 }
