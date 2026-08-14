@@ -1,4 +1,3 @@
-import { confSchema } from './confSchema'
 import { metadata } from './metadata'
 import { layers } from './layers'
 import { sources } from './sources'
@@ -25,7 +24,6 @@ export function vector_point_categorical(
       'metodology',
       'shortDescription',
     ]),
-    confSchema: confSchema(viewSpec, allViewSpecs, context),
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
     layers: layers(viewSpec, allViewSpecs, context),

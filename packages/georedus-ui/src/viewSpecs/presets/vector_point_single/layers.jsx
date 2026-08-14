@@ -10,8 +10,6 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
     const _resolvedColor =
       resolveColor(ctx.view?.conf?.style?.color || viewSpec.style?.color) ||
       schemeGeoReDUS.laranja
-    const _confOpacity =
-      ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
     return [
       {
         type: 'CategoricalLegend',
@@ -23,7 +21,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
                 backgroundColor: _resolvedColor,
                 border: 'none',
                 borderRadius: '30px',
-                opacity: typeof _confOpacity === 'number' ? _confOpacity : 1,
+                opacity: viewSpec.style?.opacity || 1,
               },
             },
           },
@@ -52,11 +50,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 
         return _resolvedColor
       }),
-      'circle-opacity': resolve.fn((ctx) => {
-        const _confOpacity =
-          ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
-        return typeof _confOpacity === 'number' ? _confOpacity : 1
-      }),
+      'circle-opacity': viewSpec.style?.opacity || 1,
       'circle-radius': viewSpec.style?.radius || 10,
       'circle-stroke-color': '#ffffff',
       'circle-stroke-width': viewSpec.style?.border ? 2 : 0,

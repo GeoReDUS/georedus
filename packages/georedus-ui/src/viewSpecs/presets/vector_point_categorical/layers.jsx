@@ -8,10 +8,6 @@ import { resolveColor } from '../../util'
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     const categories = ctx.view.metadata.categories
-    const _confOpacity =
-      typeof ctx.view?.conf?.style?.opacity === 'number'
-        ? ctx.view?.conf?.style?.opacity
-        : viewSpec.style.opacity
     return [
       {
         type: 'CategoricalLegend',
@@ -25,7 +21,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
               backgroundColor: resolveColor(cat.color),
               border: 'none',
               borderRadius: '30px',
-              opacity: typeof _confOpacity === 'number' ? _confOpacity : 1,
+              opacity: viewSpec.style?.opacity || 1,
             },
           },
         })),
@@ -48,13 +44,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 
     paint: {
       'circle-color': _maplibreColorExp,
-      'circle-opacity': resolve.fn((ctx) => {
-        const _confOpacity =
-          typeof ctx.view?.conf?.style?.opacity === 'number'
-            ? ctx.view?.conf?.style?.opacity
-            : viewSpec.style.opacity
-        return typeof _confOpacity === 'number' ? _confOpacity : 1
-      }),
+      'circle-opacity': viewSpec.style?.opacity || 1,
       'circle-radius': viewSpec.style?.radius || 10,
       'circle-stroke-color': '#ffffff',
       'circle-stroke-width': viewSpec.style?.border ? 2 : 0,
