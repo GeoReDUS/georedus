@@ -10,6 +10,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
     const _resolvedColor =
       resolveColor(ctx.view?.conf?.style?.color || viewSpec.style?.color) ||
       schemeGeoReDUS.laranja
+
     return [
       {
         type: 'CategoricalLegend',
