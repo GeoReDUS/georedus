@@ -85,7 +85,6 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
       : DEFAULT_FILL_OPACITY,
   )
   return {
-    zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     interactive: true,
