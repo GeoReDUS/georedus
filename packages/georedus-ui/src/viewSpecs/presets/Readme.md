@@ -116,7 +116,7 @@ Renderiza pontos com cor, raio e opacidade definidos.
 }
 ```
 
-Atalho com string (usa os `defaults` de raio/opacidade/borda):
+É possível passar somente a cor como string, neste caso são usados valores padrão para os demais parâmetros:
 
 ```js
 {
@@ -130,7 +130,7 @@ Atalho com string (usa os `defaults` de raio/opacidade/borda):
 
 ## `vector_point_categorical`
 
-Renderiza pontos com uma cor por categoria, de acordo com o valor de uma propriedade da feature.
+Renderiza pontos com uma cor por categoria.
 
 **`style`** (obrigatório — lança erro se `style` não for informado):
 
@@ -140,13 +140,16 @@ Renderiza pontos com uma cor por categoria, de acordo com o valor de uma proprie
 | `categories` | `string \| Array<string \| { value, label?, color? }>` | **sim** | - | URL (retornando JSON) ou array de categorias. Itens que forem strings viram `{ value }`; `label`, se omitido, é criado com `humanize(value)`; `color`, se omitido, vem do `colorScheme`. |
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | não | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias sem `color` explícito. |
 | `radius` | `number` | não | `10` | Raio do círculo, em pixels (compartilhado entre todas as categorias). |
+| `opacity` | `number` | não | `1` | Opacidade do preenchimento (0 a 1). |
 | `border` | `boolean` | não | `true` | Se `true`, desenha uma borda branca de 2px ao redor do círculo. |
 
 Pontos cuja feature não possua valor correspondente em `categoryKey` são renderizados em cinza claro (`#CCCCCC`).
 
 **Controles editáveis (`confSchema`)**
 
-Este preset não expõe `confSchema` — não há controles de estilo editáveis pelo usuário em tempo real.
+| Campo | Controle | Default | Descrição |
+|---|---|---|---|
+| `colorScheme` | select (paletas categóricas) | valor atual de `style.colorScheme` | Paleta usada para colorir as categorias. |
 
 ```js
 {
@@ -202,7 +205,7 @@ Pontos cuja feature não possua valor numérico em `radius.valueKey` são render
 
 **Controles editáveis (`confSchema`)**
 
-Este preset não expõe `confSchema` no momento — há um import comentado em `index.jsx` (`// import { confSchema } from './confSchema'`) sugerindo que é um recurso planejado e ainda não implementado.
+Este preset não expõe `confSchema` no momento.
 
 ```js
 {
@@ -263,7 +266,7 @@ Renderiza linhas com cor, espessura e padrão definidos.
 }
 ```
 
-Atalho com string (usa os `defaults` de linePattern/lineWidth):
+É possível passar somente a cor como string, neste caso são usados valores padrão para os demais parâmetros:
 
 ```js
 {
@@ -293,6 +296,7 @@ Renderiza linhas com uma cor por categoria, de acordo com o valor de uma proprie
 
 | Campo | Controle | Default | Descrição |
 |---|---|---|---|
+| `colorScheme` | select (paletas categóricas) | valor atual de `style.colorScheme` | Paleta usada para colorir as categorias. |
 | `linePattern` | select (solid/dashed/dotted) | valor atual de `style.linePattern` | Padrão do traçado (todas as categorias). |
 | `lineWidth` | select (1–5px) | valor atual de `style.lineWidth` | Espessura da linha (todas as categorias). |
 
@@ -333,8 +337,9 @@ Renderiza polígonos com preenchimento e borda de estilo definidos.
 | `color` | `string` | não | laranja GeoReDUS | Cor de preenchimento (aplicada com opacidade de 0.5). |
 | `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | não | `'solid'` | Hachura aplicada sobre o preenchimento. |
 | `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | não |  `'solid'` | Estilo da borda do polígono. `'none'` oculta a borda. |
+| `opacity` | `number` | não | `1` | Opacidade do preenchimento (0 a 1). |
 
-**Controles editáveis (`confSchema`)**
+**Controles editáveis (`confSchema`)**:
 
 | Campo | Controle | Default | Descrição |
 |---|---|---|---|
@@ -342,7 +347,6 @@ Renderiza polígonos com preenchimento e borda de estilo definidos.
 | `fillPattern` | select (10 hachuras) | valor atual de `style.fillPattern` | Hachura sobre o preenchimento. |
 | `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
 
-> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente. `borderStyle`, apesar de documentado acima, não é editável ao vivo.
 
 ```js
 {
@@ -361,7 +365,7 @@ Renderiza polígonos com preenchimento e borda de estilo definidos.
 }
 ```
 
-Atalho com string (usa os `defaults` de fillPattern/borderStyle):
+É possível passar somente a cor como string, neste caso são usados valores padrão para os demais parâmetros:
 
 ```js
 {
@@ -386,6 +390,7 @@ Renderiza polígonos com preenchimento e borda coloridos por categoria.
 | `colorScheme` | ver [Esquemas de cor categóricos](#esquemas-de-cor-categóricos) | `'schemeGeoReDUSSafe'` | Paleta usada para colorir categorias. |
 | `fillPattern` | ver [Padrões de preenchimento](#padrões-de-preenchimento) | `'solid'` | Hachura aplicada sobre o preenchimento (compartilhada entre categorias, cada uma usando sua própria cor). |
 | `borderStyle` | `'solid' \| 'dashed' \| 'dotted' \| 'none'` | `'solid'` | Estilo da borda (compartilhado entre categorias). |
+| `opacity` | `number` | não | `1` | Opacidade do preenchimento (0 a 1). |
 
 **Controles editáveis (`confSchema`)**
 
@@ -448,8 +453,9 @@ Renderiza polígonos com preenchimento em cloroplético — a cor varia continua
 | `classificationMethod` | `'naturalBreaks' \| 'quantile' \| { type: 'naturalBreaks' \| 'quantile', k: number } \| { type: 'custom', breaks: number[] }` | `{ type: 'naturalBreaks', k: 5 }` | Método de classificação dos valores em faixas de cor. `k` é o número de classes. |
 | `numberFormat` | `any` | não | Formato numérico usado na legenda. |
 | `legend.format` | `{ below?, above?, between?, number? }` | não | Sobrescreve a formatação da legenda sequencial. `below`/`above`/`between` são strings com placeholders `${0}`/`${1}` (ou funções); `number` é `Intl.NumberFormat` (instância ou tupla `[locale, options]`), com `numberFormat` como default. |
+| `opacity` | `number` | não | `1` | Opacidade do preenchimento (0 a 1). |
 
-Além dos campos de `style`, o [`tooltip`](#tooltip) no nível raiz do `viewSpecInput` também se aplica normalmente a este preset.
+
 
 **Controles editáveis (`confSchema`)**
 
@@ -459,7 +465,6 @@ Além dos campos de `style`, o [`tooltip`](#tooltip) no nível raiz do `viewSpec
 | `colorScheme` | select (paletas sequenciais/divergentes) | valor atual de `style.colorScheme` ou `'schemeOrRd'` | Paleta de cores. |
 | `opacity` | slider (0–1) | `0.5` | Opacidade do preenchimento. |
 
-> `opacity` só existe como controle ao vivo — não há campo `style.opacity` estático equivalente.
 
 ```js
 {
