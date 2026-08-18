@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
         source_layer: 'mma_malha_unidades_conservacao_2026.geom',
-        path: 'Emergências Climáticas / _ / Cobertura e Uso da Terra',
+        path: 'Polygon Categorical Test / _',
         label: 'Unidades de Conservação',
         style: {
           categoryKey: 'categoria',
@@ -66,7 +66,20 @@ const VIEW_SPECS = {
           entries: ['categoria'],
         },
         sourceLabel: 'MMA',
-        metodology: 'test metodology',
+        shortDescription: 'Vector Polygon Categorical Preset',
+        metodology: `Vector Polygon Categorical Preset: **style** em formato *json*.
+
+  - **categoryKey**: nome da coluna a ser categorizada;
+  - **colorScheme**: string com nome da paleta de cores;
+  - **categories**: endpoint de metadados;
+\`\`\`json
+{
+  "categoryKey": "categoria",
+  "colorScheme": "schemeSet3",
+  "categories": "\${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria"
+}
+\`\`\`
+`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
       },

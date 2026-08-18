@@ -7,11 +7,14 @@ type HeatmapSteps = {
 }
 
 export type StyleSpec = {
+  minzoom?: number
+  maxzoom?: number
   weight?: number
   radius?: number | number[]
   opacity?: number | number[]
   steps?: HeatmapSteps[]
   circle?: Boolean
+  circle_radius?: number | number[] 
   colorScheme?: // sequential
   | 'schemeBlues'
     | 'schemeGreens'
