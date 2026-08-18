@@ -108,7 +108,7 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  const _municipioFilter = municipioFilter(context.municipioId)
+  const _municipioFilter = municipioFilter()
 
   const _maplibreColorExp = resolve.fn((ctx) => [
     'step',
