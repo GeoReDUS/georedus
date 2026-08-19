@@ -31,9 +31,9 @@ const CODE_BLOCK_STYLE = {
   fontSize: '0.85em',
 }
 
-function MarkdownCode({ className, children, style, ...props }) {
+function MarkdownCode({ children, style, ...props }) {
   return (
-    <code {...props} className={className} style={style ?? CODE_INLINE_STYLE}>
+    <code {...props} style={style ?? CODE_INLINE_STYLE}>
       {children}
     </code>
   )
