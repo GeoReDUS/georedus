@@ -68,8 +68,9 @@ function LeftPanelInner({
           flexGrow: 0,
         }}>
         <LogoContainer direction="row" gap="8px">
-          <GeoReDUSLogoSymbol />
-
+          <a href="https://www.redus.org.br/georedus/sobre" target='_blank'>
+            <GeoReDUSLogoSymbol />
+          </a>
           <div
             style={{
               transition: open
@@ -77,7 +78,9 @@ function LeftPanelInner({
                 : 'opacity .1s ease-out',
               opacity: open ? 1 : 0,
             }}>
-            <GeoReDUSLogoText />
+            <a href="https://www.redus.org.br/georedus/sobre" target='_blank'>
+              <GeoReDUSLogoText />
+            </a>
           </div>
         </LogoContainer>
         <div>
@@ -264,8 +267,7 @@ function LeftPanelInner({
                 direction="column"
                 gap="3"
                 justifyContent="flex-end"
-                alignItems="center">
-              </Flex>
+                alignItems="center"></Flex>
             }
           />
         ) : (
