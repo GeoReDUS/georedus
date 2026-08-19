@@ -60,7 +60,6 @@ const VIEW_SPECS = {
           colorScheme: 'schemeSet3',
           categories:
             '${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria',
-          opacity: 0,
         },
         tooltip: {
           title: 'nome_uc',
