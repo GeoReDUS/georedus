@@ -17,6 +17,8 @@ export type CategoryStyleSpec = {
 type Category = CategoryStyleSpec & {
   value: string
   label?: string
+  // fillPattern/borderStyle here are not currently read by layers.jsx —
+  // only the top-level style.fillPattern/style.borderStyle apply, shared by all categories
 }
 
 export type StyleSpec = {

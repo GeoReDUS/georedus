@@ -12,16 +12,16 @@ type ContinuousSpecBase = {
   valueKey: string
   values: string | number[] | { value: number }[]
   numberFormat?: any
-  legend?: {
-    format: { [key: string]: any }
-  }
-  classificationMethod?: ClassificationMethod
+  // to be implemented:
+  // classificationMethod?: ClassificationMethod
+  // legend?: {
+  //   format: { [key: string]: any }
+  // }
 }
 
 export type StyleSpec = {
-  tooltip?: { [key: string]: any }
-  radius?: ContinuousSpecBase & {}
   color?: string
+  radius?: ContinuousSpecBase & {}
 
   // color?: string | ContinuousSpecBase & {
   //   colorScheme?: // sequential
