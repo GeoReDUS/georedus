@@ -13,12 +13,22 @@ import 'katex/dist/katex.min.css' // Import KaTeX CSS for styling
 const REMARK_PLUGINS = [...MARKDOWN_DEFAULT_REMARK_PLUGINS, remarkMath]
 const REHYPE_PLUGINS = [...MARKDOWN_DEFAULT_REHYPE_PLUGINS, rehypeKatex]
 
-const CODE_FONT_FAMILY =
-  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+const MARKDOWN_PRE_STYLE = {
+  background: 'var(--gray-3)',
+  border: 'none',
+  borderRadius: '6px',
+  padding: '12px',
+  overflowX: 'auto',
+}
 
-const CODE_INLINE_STYLE = {
-  fontFamily: CODE_FONT_FAMILY,
+const MARKDOWN_CODE_BASE_STYLE = {
+  fontFamily:
+    'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
   fontSize: '0.85em',
+}
+
+const MARKDOWN_CODE_INLINE_STYLE = {
+  ...MARKDOWN_CODE_BASE_STYLE,
   background: 'var(--gray-a3)',
   border: 'none',
   borderRadius: '4px',
@@ -26,36 +36,22 @@ const CODE_INLINE_STYLE = {
   margin: '0.1em',
 }
 
-const CODE_BLOCK_STYLE = {
-  fontFamily: CODE_FONT_FAMILY,
-  fontSize: '0.85em',
-}
-
-function MarkdownCode({ children, style, ...props }) {
-  return (
-    <code {...props} style={style ?? CODE_INLINE_STYLE}>
-      {children}
-    </code>
-  )
-}
-
 const MARKDOWN_COMPONENTS = {
   pre: ({ children, ...props }) => (
-    <pre
-      {...props}
-      style={{
-        background: 'var(--gray-a3)',
-        border: 'none',
-        borderRadius: '6px',
-        padding: '12px',
-        overflowX: 'auto',
-      }}>
-      {React.isValidElement(children) && children.type === MarkdownCode
-        ? React.cloneElement(children, { style: CODE_BLOCK_STYLE })
-        : children}
+    <pre {...props} style={MARKDOWN_PRE_STYLE}>
+      {children}
     </pre>
   ),
-  code: MarkdownCode,
+  code: ({ className, children, ...props }) => (
+    <code
+      {...props}
+      className={className}
+      style={
+        className ? MARKDOWN_CODE_BASE_STYLE : MARKDOWN_CODE_INLINE_STYLE
+      }>
+      {children}
+    </code>
+  ),
 }
 
 export function Markdown({ components, ...props }) {
