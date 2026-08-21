@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_maceio_malha_dengue_por_bairro_2023.geom/{z}/{x}/{y}',
         source_layer: 'mun_maceio_malha_dengue_por_bairro_2023.geom',
-        path: 'Test Dir / _ ',
+        path: 'Polygon Continuous Test / _ ',
         label: 'Dengue 2023',
         style: {
           valueKey: 'dengue_2023',
@@ -67,7 +67,11 @@ const VIEW_SPECS = {
           },
         },
         sourceLabel: 'Test',
-        metodology: `Vector Polygon Single Preset: parâmetro *style* preenchido com string em *values*:
+        shortDescription: 'Vector Polygon Continuous Preset',
+        metodology: `Vector Polygon Continuous Preset: **style** em formato *json*.
+
+  - **valueKey**: nome da coluna a ser usada como valor;
+  - **values**: endpoint de metadados;
 \`\`\`json
 {
   "valueKey": "dengue_2023",

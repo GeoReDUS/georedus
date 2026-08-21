@@ -53,7 +53,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/incra_malha_quilombos_2024.geom/{z}/{x}/{y}',
         source_layer: 'incra_malha_quilombos_2024.geom',
-        path: 'Test Dir / _ ',
+        path: 'Polygon Single Test / _ ',
         label: 'Quilombos',
         style: 'schemeGeoReDUS.laranja',
         tooltip: {
@@ -63,7 +63,9 @@ const VIEW_SPECS = {
         sourceLabel: 'INCRA',
         shortDescription: 'Vector Polygon Single Preset',
         metodology:
-          'Vector Polygon Single Preset: parâmetro *style* preenchido somente com string contendo valor da cor (*schemeGeoReDUS.laranja*) ',
+          `Vector Polygon Single Preset: **style** em formato *string* contendo valor da cor (\`schemeGeoReDUS.laranja\`)
+
+Demais parâmetros: **fillPattern** e **borderStyle** terão valores padrão.`,
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/incra_malha_quilombos_2024.geom/{z}/{x}/{y}',
       },
@@ -75,7 +77,7 @@ const VIEW_SPECS = {
         tiles:
           '${VECTOR_TILE_SERVER_ENDPOINT}/sgb_malha_corrida_de_massa_2026.geom/{z}/{x}/{y}',
         source_layer: 'sgb_malha_corrida_de_massa_2026.geom',
-        path: 'Test Dir / _ ',
+        path: 'Polygon Single Test / _ ',
         label: 'Corrida de Massa',
         style: {
           color: 'schemeGeoReDUS.vermelho_claro',
@@ -89,7 +91,11 @@ const VIEW_SPECS = {
         },
         sourceLabel: 'SGB',
         shortDescription: 'Vector Polygon Single Preset',
-        metodology: `Vector Polygon Single Preset: parâmetro *style* preenchido com todos os parâmetros como um *json*:
+        metodology: `Vector Polygon Single Preset: **style** em formato *json* com todos os parâmetros.
+
+  - **color**: string com nome/valor da cor;
+  - **fillPattern**: padrão de preenchimento;
+  - **borderStyle**: estilo da borda;
 \`\`\`json
 {
   "color": "schemeGeoReDUS.vermelho_claro",
