@@ -36,7 +36,7 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
-    | typeof CUSTOM_COLOR_SCHEME
+    | 'customColorScheme'
   categories: string | (string | Category)[]
 } & Omit<CategoryStyleSpec, 'color'>
 
@@ -50,7 +50,7 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   }
 
   // if categories is array and have prop color,
-  // coloScheme is null, otherwise, is default
+  // coloScheme is CUSTOM_COLOR_SCHEME, otherwise, is default
   const colorScheme =
     Array.isArray(styleInput.categories) &&
     styleInput.categories.every(
