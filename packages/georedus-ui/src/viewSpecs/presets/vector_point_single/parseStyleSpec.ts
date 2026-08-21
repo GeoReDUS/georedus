@@ -1,8 +1,8 @@
 import { resolveColor, schemeGeoReDUS } from '../../util'
 
 export type StyleSpec = {
-  radius?: number
   color?: string
+  radius?: number
   opacity?: number
   border?: boolean
 }
