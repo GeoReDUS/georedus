@@ -33,7 +33,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
         }
       })
     : null
-  console.log("widthData", widthData)
+
   return {
     widthData,
   }

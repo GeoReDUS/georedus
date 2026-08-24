@@ -21,7 +21,7 @@ type ContinuousSpecBase = {
 
 export type StyleSpec = {
   color?: string
-  lineWidth?: ContinuousSpecBase & {}
+  lineWidth?: number | ContinuousSpecBase
 
   // color?: string | ContinuousSpecBase & {
   //   colorScheme?: // sequential
@@ -65,7 +65,6 @@ export type StyleSpecInput = StyleSpec
 export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
-  console.log("styleInput", styleInput)
   return {
     ...styleInput,
   }

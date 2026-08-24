@@ -22,42 +22,40 @@ type ContinuousSpecBase = {
 export type StyleSpec = {
   color?: string
   radius?: ContinuousSpecBase & {}
+  // colorScheme?: // sequential
+  // | 'schemeBlues'
+  //   | 'schemeGreens'
+  //   | 'schemeGreys'
+  //   | 'schemeOranges'
+  //   | 'schemePurples'
+  //   | 'schemeReds'
+  //   | 'schemeBuGn'
+  //   | 'schemeBuPu'
+  //   | 'schemeGnBu'
+  //   | 'schemeOrRd'
+  //   | 'schemePuBuGn'
+  //   | 'schemePuBu'
+  //   | 'schemePuRd'
+  //   | 'schemeRdPu'
+  //   | 'schemeYlGnBu'
+  //   | 'schemeYlGn'
+  //   | 'schemeYlOrBr'
+  //   | 'schemeYlOrRd'
 
-  // color?: string | ContinuousSpecBase & {
-  //   colorScheme?: // sequential
-  //   | 'schemeBlues'
-  //     | 'schemeGreens'
-  //     | 'schemeGreys'
-  //     | 'schemeOranges'
-  //     | 'schemePurples'
-  //     | 'schemeReds'
-  //     | 'schemeBuGn'
-  //     | 'schemeBuPu'
-  //     | 'schemeGnBu'
-  //     | 'schemeOrRd'
-  //     | 'schemePuBuGn'
-  //     | 'schemePuBu'
-  //     | 'schemePuRd'
-  //     | 'schemeRdPu'
-  //     | 'schemeYlGnBu'
-  //     | 'schemeYlGn'
-  //     | 'schemeYlOrBr'
-  //     | 'schemeYlOrRd'
+  //   // diverging:
+  //   | 'schemeBrBG'
+  //   | 'schemePRGn'
+  //   | 'schemePiYG'
+  //   | 'schemePuOr'
+  //   | 'schemeRdBu'
+  //   | 'schemeRdGy'
+  //   | 'schemeRdYlBu'
+  //   | 'schemeRdYlGn'
+  //   | 'schemeSpectral'
 
-  //     // diverging:
-  //     | 'schemeBrBG'
-  //     | 'schemePRGn'
-  //     | 'schemePiYG'
-  //     | 'schemePuOr'
-  //     | 'schemeRdBu'
-  //     | 'schemeRdGy'
-  //     | 'schemeRdYlBu'
-  //     | 'schemeRdYlGn'
-  //     | 'schemeSpectral'
+  //   // custom
+  //   | string[]
 
-  //     // custom
-  //     | string[]
-  // }
 }
 
 export type StyleSpecInput = StyleSpec

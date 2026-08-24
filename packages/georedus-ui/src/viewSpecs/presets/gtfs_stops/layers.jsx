@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip } from '../util'
+import { basicTooltip, municipioFilter } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -11,7 +11,7 @@ import {
 } from '../../util'
 
 const SIZE_MAX = 25
-const SIZE_MIN = 6
+const SIZE_MIN = 4
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -52,7 +52,7 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
         max: Math.max(..._values),
         sizeMin: SIZE_MIN * 2,
         sizeMax: SIZE_MAX * 2,
-        numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
+        numberFormat: ['pt-BR', { maximumFractionDigits: 1 }],
       },
     ]
   })
@@ -60,13 +60,14 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_circle(props, viewSpec, allViewSpecs, context) {
-  const {} = props
+  const { _municipioFilter } = props
   const { source_layer } = viewSpec
   return {
     zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     interactive: true,
+    filter: _municipioFilter,
     type: 'circle',
 
     // 'circle-sort-key': resolve.fn((ctx) => {
@@ -85,9 +86,13 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           return [
             'case',
             [
-              '==',
-              ['typeof', ['get', viewSpec.style?.radius?.valueKey]],
-              'number',
+              'all',
+              [
+                '==',
+                ['typeof', ['get', viewSpec.style?.radius?.valueKey]],
+                'number',
+              ],
+              ['>', ['get', viewSpec.style?.radius?.valueKey], 0],
             ],
             _resolvedColor,
             NO_DATA_COLOR,
@@ -96,7 +101,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           return _resolvedColor
         }
       }),
-      'circle-opacity': 1,
+      'circle-opacity': 0.7,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
           return 10
@@ -127,7 +132,14 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
+  const _municipioFilter = municipioFilter()
+
   return {
-    [`main_circle`]: _main_circle({}, viewSpec, allViewSpecs, context),
+    [`main_circle`]: _main_circle(
+      { _municipioFilter },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
   }
 }

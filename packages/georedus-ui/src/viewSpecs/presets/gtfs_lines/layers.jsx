@@ -2,6 +2,8 @@ import { resolve } from '@orioro/resolve'
 import {
   resolveColor,
   GEOREDUS_LABELED_RESTRICTED_USE_COLORS,
+  schemeGeoReDUS,
+  zoomSensitiveLinearSizes,
 } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { basicTooltip, LINE_PATTERN_SOLID, LINE_WIDTH_1 } from '../util'
@@ -19,43 +21,43 @@ const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
 function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   const _legend = resolve.fn((ctx) => {
-    // const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
     const _resolvedColor =
       resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
 
-    return {
-      type: 'CategoricalLegend',
-      title: viewSpec.label,
-      items: [
-        {
-          label: 'Com dados',
-          color: _resolvedColor,
-        },
-        {
-          label: 'Sem dados',
-          color: NO_DATA_COLOR,
-        },
-      ],
-      // items: categories.map((cat) => ({
-      //   id: cat.value,
-      //   label: cat.label,
-      //   box: {
-      //     style: {
-      //       height: 0,
-      //       borderColor: cat.color,
-      //       borderTopStyle:
-      //         ctx.view?.conf?.style?.linePattern ||
-      //         styleSpec.linePattern ||
-      //         LINE_PATTERN_SOLID,
-      //       borderBottomStyle: 'none',
-      //       borderWidth:
-      //         ctx.view?.conf?.style?.lineWidth ||
-      //         viewSpec.style?.lineWidth ||
-      //         LINE_WIDTH_1,
-      //     },
-      //   },
-      // })),
+    const legends = [
+      {
+        type: 'CategoricalLegend',
+        title: viewSpec.label,
+        items: [
+          {
+            label: 'Com dados',
+            color: _resolvedColor,
+          },
+          {
+            label: 'Sem dados',
+            color: NO_DATA_COLOR,
+          },
+        ],
+      },
+    ]
+
+    if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
+      const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
+      if (_values.length > 0) {
+        legends.push({
+          type: 'ProportionalSymbolLegend',
+          unit: viewSpec.measure_unit,
+          title: viewSpec.label,
+          min: Math.min(..._values),
+          max: Math.max(..._values),
+          sizeMin: WIDTH_MIN,
+          sizeMax: WIDTH_MAX,
+          numberFormat: viewSpec.style?.lineWidth?.numberFormat || ['pt-BR', { maximumFractionDigits: 0 }],
+        })
+      }
     }
+
+    return legends
   })
 
   return [_legend]
@@ -65,19 +67,35 @@ function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   const line = resolve.fn((ctx) => {
-    // const _linePattern =
-    //   ctx.view?.conf?.style?.linePattern ||
-    //   viewSpec.style?.linePattern ||
-    //   LINE_PATTERN_SOLID
+    const _linePattern =
+      ctx.view?.conf?.style?.linePattern ||
+      viewSpec.style?.linePattern ||
+      LINE_PATTERN_SOLID
 
-    // if (_linePattern === 'none') {
-    //   return null
-    // }
+    if (_linePattern === 'none') {
+      return null
+    }
 
-    const _lineWidth =
-      ctx.view?.conf?.style?.lineWidth ||
-      viewSpec.style?.lineWidth ||
-      LINE_WIDTH_1
+    let _lineWidth
+    if (viewSpec.style?.lineWidth && typeof viewSpec.style.lineWidth === 'object' && viewSpec.style.lineWidth.valueKey && ctx.view?.metadata?.widthData) {
+      const values = _validNumericalValues(ctx.view.metadata.widthData.values)
+      if (values.length > 0) {
+        _lineWidth = zoomSensitiveLinearSizes({
+          variable: ['get', viewSpec.style.lineWidth.valueKey],
+          minValue: Math.min(...values),
+          maxValue: Math.max(...values),
+          minSize: WIDTH_MIN,
+          maxSize: WIDTH_MAX,
+        })
+      } else {
+        _lineWidth = LINE_WIDTH_1
+      }
+    } else {
+      _lineWidth =
+        ctx.view?.conf?.style?.lineWidth ||
+        viewSpec.style?.lineWidth ||
+        LINE_WIDTH_1
+    }
 
     const paint = {
       dashed: { 'line-dasharray': [4, 2], 'line-width': _lineWidth },
