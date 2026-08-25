@@ -21,9 +21,9 @@ const LOWERCASE_WORDS = new Set([
 ])
 
 export function humanize(str: string) {
-  if (!str) return ''
+  if (typeof str === 'undefined' || str === null) return ''
 
-  return str
+  return (str + '')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/[-_]+/g, ' ')
     .replace(/\s+/g, ' ')

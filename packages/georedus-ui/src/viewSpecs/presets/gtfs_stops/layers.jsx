@@ -5,13 +5,15 @@ import { resolve } from '@orioro/resolve'
 import { MAIN_SOURCE_ID } from './sources'
 import {
   GEOREDUS_LABELED_RESTRICTED_USE_COLORS,
-  resolveColor,
-  schemeGeoReDUS,
   zoomSensitiveLinearSizes,
+  COLOR_SCHEMES,
 } from '../../util'
+import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
 
-const SIZE_MAX = 25
+const SIZE_MAX = 12
 const SIZE_MIN = 4
+
+const DEFAULT_CIRCLE_OPACITY = 0.7
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -23,36 +25,44 @@ const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
-    const _values = _validNumericalValues(ctx.view.metadata.radiusData.values)
+    if (!viewSpec.style?.radius?.valueKey || !ctx.view.metadata.radiusData) {
+      return []
+    }
 
-    const _resolvedColor =
-      resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
+    const _values = _validNumericalValues(ctx.view.metadata.radiusData.values)
+    const min = Math.min(..._values)
+    const max = Math.max(..._values)
+
+    const colorSchemeId =
+      ctx.view.conf?.style?.colorScheme || viewSpec.style?.radius?.colorScheme
+    const scheme =
+      COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES[DEFAULT_COLOR_SCHEME_ID]
+    const colors = scheme.scalesByK[scheme.maxK]
 
     return [
       {
-        type: 'CategoricalLegend',
+        type: 'ContinuousColorLegend',
         title: viewSpec.label,
-
-        items: [
-          {
-            label: 'Com dados',
-            color: _resolvedColor,
-          },
-          {
-            label: 'Sem dados',
-            color: NO_DATA_COLOR,
-          },
+        unit: viewSpec.measure_unit,
+        colors,
+        domain: [min, max],
+        numberFormat: viewSpec.style?.radius?.numberFormat || [
+          'pt-BR',
+          { maximumFractionDigits: 1 },
         ],
       },
       {
         type: 'ProportionalSymbolLegend',
         unit: viewSpec.measure_unit,
         title: viewSpec.label,
-        min: Math.min(..._values),
-        max: Math.max(..._values),
-        sizeMin: SIZE_MIN * 2,
-        sizeMax: SIZE_MAX * 2,
-        numberFormat: ['pt-BR', { maximumFractionDigits: 1 }],
+        min,
+        max,
+        sizeMin: SIZE_MIN * 7,
+        sizeMax: SIZE_MAX * 7,
+        numberFormat: viewSpec.style?.radius?.numberFormat || [
+          'pt-BR',
+          { maximumFractionDigits: 0 },
+        ],
       },
     ]
   })
@@ -60,8 +70,16 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_circle(props, viewSpec, allViewSpecs, context) {
-  const { _municipioFilter } = props
+  const { _municipioFilter, _maplibreColorExp } = props
   const { source_layer } = viewSpec
+
+  const _opacity = resolve.fn((ctx) =>
+    typeof ctx.view?.conf?.style?.opacity === 'number'
+      ? ctx.view.conf.style.opacity
+      : DEFAULT_CIRCLE_OPACITY,
+  )
+
+  console.log(_maplibreColorExp)
   return {
     zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
@@ -69,39 +87,9 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     interactive: true,
     filter: _municipioFilter,
     type: 'circle',
-
-    // 'circle-sort-key': resolve.fn((ctx) => {
-    //   if (!viewSpec.style.radius?.valueKey) {
-    //     return 0
-    //   }
-
-    //   return ['coalesce', ['get', viewSpec.style.radius.valueKey], 0]
-    // }),
     paint: {
-      'circle-color': resolve.fn((ctx) => {
-        const _resolvedColor =
-          resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
-
-        if (viewSpec.style?.radius?.valueKey) {
-          return [
-            'case',
-            [
-              'all',
-              [
-                '==',
-                ['typeof', ['get', viewSpec.style?.radius?.valueKey]],
-                'number',
-              ],
-              ['>', ['get', viewSpec.style?.radius?.valueKey], 0],
-            ],
-            _resolvedColor,
-            NO_DATA_COLOR,
-          ]
-        } else {
-          return _resolvedColor
-        }
-      }),
-      'circle-opacity': 0.7,
+      'circle-color': _maplibreColorExp,
+      'circle-opacity': _opacity,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
           return 10
@@ -119,6 +107,8 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           maxSize: SIZE_MAX,
         })
       }),
+      // 'circle-stroke-color': '#ffffff',
+      // 'circle-stroke-width': 1,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: basicTooltip(viewSpec.tooltip),
@@ -134,9 +124,19 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   const _municipioFilter = municipioFilter()
 
+  const _maplibreColorExp = resolve.fn((ctx) => [
+    'step',
+    [
+      'coalesce',
+      ['get', viewSpec.style.radius.valueKey],
+      Math.min(...ctx.view.metadata.radiusData.values) - 1,
+    ],
+    ...ctx.view.metadata.radiusData.colorScaleStops,
+  ])
+
   return {
     [`main_circle`]: _main_circle(
-      { _municipioFilter },
+      { _municipioFilter, _maplibreColorExp },
       viewSpec,
       allViewSpecs,
       context,

@@ -1,5 +1,7 @@
 import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
+import { COLOR_SCHEMES } from '../../../util'
+import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -26,10 +28,39 @@ export function metadata(viewSpec, allViewSpecs, context) {
             : Array.isArray(style.radius.values)
               ? style.radius.values
               : null
-        ).map((entry) => (typeof entry === 'number' ? entry : entry.value))
+        )
+          .map((entry) => (typeof entry === 'number' ? entry : entry.value))
+          .filter((entry) => entry < 60)
+
+        //
+        // Resolve color scale stops
+        //
+        const colorSchemeId =
+          ctx.view.conf?.style?.colorScheme || style.colorScheme
+        const colorScheme =
+          COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES.schemeBuOrRd
+
+        const _classificationMethod = {
+          ...(style.radius.classificationMethod || {}),
+          type:
+            ctx.view.conf.style?.classificationMethodType ||
+            style.radius.classificationMethod?.type,
+          k:
+            ctx.view.conf.style?.classificationMethodK ||
+            style.radius.classificationMethod?.k,
+        }
+
+        const colorScaleStops = COLOR_SCALE_STOPS_RESOLVERS[
+          _classificationMethod.type
+        ]({
+          values: resolvedValues,
+          colorScheme,
+          classificationMethod: _classificationMethod,
+        })
 
         return {
           values: resolvedValues,
+          colorScaleStops,
         }
       })
     : null
