@@ -8,8 +8,10 @@ import {
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { basicTooltip, LINE_PATTERN_SOLID, LINE_WIDTH_1 } from '../util'
 
-const WIDTH_MAX = 10
+const WIDTH_MAX = 15
 const WIDTH_MIN = 1
+
+const DEFAULT_LINE_OPACITY = 0.7
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -20,7 +22,7 @@ function _validNumericalValues(values) {
 const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
 function _main_line_legends(props, viewSpec, allViewSpecs, context) {
-  const _legend = resolve.fn((ctx) => {
+  return resolve.fn((ctx) => {
     const _resolvedColor =
       resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
 
@@ -31,7 +33,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
         items: [
           {
             label: 'Com dados',
-            color: _resolvedColor,
+            color: '#CCC',
           },
           {
             label: 'Sem dados',
@@ -41,43 +43,38 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
       },
     ]
 
-    if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
-      const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
-      if (_values.length > 0) {
-        legends.push({
-          type: 'ProportionalSymbolLegend',
-          unit: viewSpec.measure_unit,
-          title: viewSpec.label,
-          min: Math.min(..._values),
-          max: Math.max(..._values),
-          sizeMin: WIDTH_MIN,
-          sizeMax: WIDTH_MAX,
-          numberFormat: viewSpec.style?.lineWidth?.numberFormat || ['pt-BR', { maximumFractionDigits: 0 }],
-        })
-      }
-    }
+    // if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
+    //   const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
+    //   if (_values.length > 0) {
+    //     legends.push({
+    //       type: 'ProportionalSymbolLegend',
+    //       unit: viewSpec.measure_unit,
+    //       title: viewSpec.label,
+    //       min: Math.min(..._values),
+    //       max: Math.max(..._values),
+    //       sizeMin: WIDTH_MIN,
+    //       sizeMax: WIDTH_MAX,
+    //       numberFormat: viewSpec.style?.lineWidth?.numberFormat || ['pt-BR', { maximumFractionDigits: 0 }],
+    //     })
+    //   }
+    // }
 
     return legends
   })
-
-  return [_legend]
 }
 
 function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   const line = resolve.fn((ctx) => {
-    const _linePattern =
-      ctx.view?.conf?.style?.linePattern ||
-      viewSpec.style?.linePattern ||
-      LINE_PATTERN_SOLID
-
-    if (_linePattern === 'none') {
-      return null
-    }
 
     let _lineWidth
-    if (viewSpec.style?.lineWidth && typeof viewSpec.style.lineWidth === 'object' && viewSpec.style.lineWidth.valueKey && ctx.view?.metadata?.widthData) {
+    if (
+      viewSpec.style?.lineWidth &&
+      typeof viewSpec.style.lineWidth === 'object' &&
+      viewSpec.style.lineWidth.valueKey &&
+      ctx.view?.metadata?.widthData
+    ) {
       const values = _validNumericalValues(ctx.view.metadata.widthData.values)
       if (values.length > 0) {
         _lineWidth = zoomSensitiveLinearSizes({
@@ -97,26 +94,32 @@ function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
         LINE_WIDTH_1
     }
 
-    const paint = {
-      dashed: { 'line-dasharray': [4, 2], 'line-width': _lineWidth },
-      dotted: { 'line-dasharray': [0.5, 2], 'line-width': _lineWidth },
-      solid: { 'line-width': _lineWidth },
-    }[_linePattern]
-
     return {
       zIndex: Z_OVERLAY_BASE_1000,
       source: 'main',
       'source-layer': source_layer,
       type: 'line',
-      layout:
-        _linePattern === 'dotted'
-          ? {
-              'line-cap': 'round',
-            }
-          : {},
       paint: {
-        'line-color': _maplibreColorExp,
-        ...paint,
+        'line-color': '#AAAAEF',
+        'line-opacity': DEFAULT_LINE_OPACITY,
+        'line-width': resolve.fn((ctx) => {
+          if (!viewSpec.style.lineWidth?.valueKey) {
+            return WIDTH_MIN
+          }
+
+          const values = _validNumericalValues(
+            ctx.view.metadata.widthData.values,
+          )
+
+          return zoomSensitiveLinearSizes({
+            variable: ['get', viewSpec.style?.lineWidth?.valueKey],
+            minValue: Math.min(...values),
+            maxValue: Math.max(...values),
+            minSize: WIDTH_MIN,
+            maxSize: WIDTH_MAX,
+          })
+        }),
+        // ...paint,
       },
       legends: _main_line_legends({}, viewSpec, allViewSpecs, context),
       tooltip: basicTooltip(viewSpec.tooltip),
@@ -134,21 +137,26 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  const _maplibreColorExp = resolve.fn((ctx) => [
-    'match',
-    ['get', styleSpec.categoryKey],
-    ...ctx.view.metadata.categories
-      .map((cat) => [cat.value, resolveColor(cat.color)])
-      .flat(),
-    '#CCCCCC',
-  ])
+  // const _maplibreColorExp = resolve.fn((ctx) => [
+  //   'match',
+  //   ['get', styleSpec.lineWidth.valueKey],
+  //   ...ctx.view.metadata.widthData.values
+  //     .map((cat) => [cat.value, resolveColor(cat.color)])
+  //     .flat(),
+  //   '#CCCCCC',
+  // ])
+
+  // const _maplibreColorExp = resolve.fn((ctx) => [
+  //   'step',
+  //   [
+  //     'coalesce',
+  //     ['get', styleSpec.lineWidth.valueKey],
+  //     Math.min(...ctx.view.metadata.widthData.values) - 1,
+  //   ],
+  //   ...ctx.view.metadata.widthData.colorScaleStops,
+  // ])
 
   return {
-    [`main_line`]: _main_line(
-      { _maplibreColorExp },
-      viewSpec,
-      allViewSpecs,
-      context,
-    ),
+    [`main_line`]: _main_line({}, viewSpec, allViewSpecs, context),
   }
 }

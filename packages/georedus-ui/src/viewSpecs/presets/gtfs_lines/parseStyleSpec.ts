@@ -11,7 +11,7 @@ type ClassificationMethod =
 type ContinuousSpecBase = {
   valueKey: string
   values: string | number[] | { value: number }[]
-  numberFormat?: any
+  // numberFormat?: any
   // to be implemented:
   // classificationMethod?: ClassificationMethod
   // legend?: {
@@ -20,7 +20,7 @@ type ContinuousSpecBase = {
 }
 
 export type StyleSpec = {
-  color?: string
+  colorKey?: string
   lineWidth?: number | ContinuousSpecBase
 
   // color?: string | ContinuousSpecBase & {

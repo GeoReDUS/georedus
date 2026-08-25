@@ -22,6 +22,6 @@ export function gtfs_lines(
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
     layers: layers(viewSpec, allViewSpecs, context),
-    download: download(viewSpec, allViewSpecs, context),
+    // download: download(viewSpec, allViewSpecs, context),
   }
 }

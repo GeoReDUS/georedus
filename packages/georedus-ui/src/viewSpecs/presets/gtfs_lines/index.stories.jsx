@@ -4,7 +4,7 @@ import { versionedSearchParamsStateHook } from '@orioro/react-versioned-state'
 import { useSearchParams, BrowserRouter } from 'react-router-dom'
 
 export default {
-  title: 'Presets / gtfs_stops',
+  title: 'Presets / gtfs_lines',
   parameters: {
     layout: 'fullscreen',
   },
@@ -46,52 +46,24 @@ const VIEW_SPECS = {
   all: [
     [
       {
-        id: 'cem_gtfs_estacoes_departures_per_hour',
+        id: 'cem_gtfs_linhas',
         collection_id: 'test',
         indicator_id: 'test',
-        preset: 'gtfs_stops',
-        path: 'GTFS Stops Test / _',
-        label: 'Estações - Partidas por hora',
+        preset: 'gtfs_lines',
         tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_estacoes.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_estacoes.geom',
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas',
         style: {
-          color: 'schemeGeoReDUS.verde_agua',
-          filter: true,
-          radius: {
+          lineWidth: {
+            valueKey: 'avg_frequency',
             values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_estacoes?select=value:departures_per_hour&cd_mun=eq.${municipioId}',
-            valueKey: 'departures_per_hour',
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:avg_frequency',
           },
         },
-        tooltip: '',
-        sourceLabel: 'TEst',
-        shortDescription: 'GTFS Stops Preset',
-        metodology: `GTFS Stops metodologia`,
-      },
-      {
-        id: 'cem_gtfs_estacoes_n_linhas',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_stops',
-        path: 'GTFS Stops Test / _',
-        label: 'Estações - Num de linhas',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_estacoes.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_estacoes.geom',
-        style: {
-          color: 'schemeGeoReDUS.verde_agua',
-          filter: true,
-          radius: {
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_estacoes?select=value:n_linhas&cd_mun=eq.${municipioId}',
-            valueKey: 'n_linhas',
-          },
-        },
-        tooltip: '',
-        sourceLabel: 'TEst',
-        shortDescription: 'GTFS Stops Preset',
-        metodology: `GTFS Stops metodologia`,
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
       },
     ],
   ],

@@ -27,7 +27,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
               ? style.lineWidth.values
               : null
         ).map((entry) => (typeof entry === 'number' ? entry : entry.value))
-
         return {
           values: resolvedValues,
         }
