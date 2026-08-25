@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, municipioFilter } from '../util'
+import { basicTooltip, municipioFilter, applyOpacity } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -23,7 +23,7 @@ function _validNumericalValues(values) {
 
 const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
-function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
+function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
     if (!viewSpec.style?.radius?.valueKey || !ctx.view.metadata.radiusData) {
       return []
@@ -39,30 +39,42 @@ function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
       COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES[DEFAULT_COLOR_SCHEME_ID]
     const colors = scheme.scalesByK[scheme.maxK]
 
+    const stopsWithOpacity = ctx.view.metadata.radiusData.colorScaleStops.map(
+          (entry, index) =>
+            index % 2 === 0
+              ? applyOpacity(
+                  entry,
+                  typeof _confOpacity === 'number'
+                    ? _confOpacity
+                    : DEFAULT_CIRCLE_OPACITY,
+                )
+              : entry,
+        )
+
     return [
-      {
-        type: 'ContinuousColorLegend',
-        title: viewSpec.label,
-        unit: viewSpec.measure_unit,
-        colors,
-        domain: [min, max],
-        numberFormat: viewSpec.style?.radius?.numberFormat || [
-          'pt-BR',
-          { maximumFractionDigits: 1 },
-        ],
-      },
       {
         type: 'ProportionalSymbolLegend',
         unit: viewSpec.measure_unit,
         title: viewSpec.label,
         min,
         max,
-        sizeMin: SIZE_MIN * 7,
-        sizeMax: SIZE_MAX * 7,
+        sizeMin: SIZE_MIN * 6,
+        sizeMax: SIZE_MAX * 6,
         numberFormat: viewSpec.style?.radius?.numberFormat || [
           'pt-BR',
           { maximumFractionDigits: 0 },
         ],
+      },
+      {
+        type: 'SequentialColorLegend',
+        title: null,
+        unit: null,
+        steps: stopsWithOpacity,
+        format: {
+          below: 'Sem dados',
+          above: 'Acima de ${0}',
+          ...(viewSpec.style.legend?.format || {}),
+        },
       },
     ]
   })
@@ -79,7 +91,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       : DEFAULT_CIRCLE_OPACITY,
   )
 
-  console.log(_maplibreColorExp)
   return {
     zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
