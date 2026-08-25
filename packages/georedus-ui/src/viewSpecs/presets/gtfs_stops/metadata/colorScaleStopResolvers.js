@@ -4,9 +4,27 @@ const DEFAULT_COLOR = '#CCC'
 
 
 
-// function linear({values, colorScheme, classificationMethod}) {
-  
-// }
+function linear({ values, colorScheme, classificationMethod }) {
+  const k = classificationMethod.k
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const colorScale = colorScheme.scalesByK[k]
+
+  const breaks = new Array(k - 1)
+    .fill(null)
+    .map((_, index) => ((max - min) * (index + 1)) / k)
+
+  const colorScaleStops = breaks
+    .map((breakValue, index) => {
+      const color = colorScale[index + 1]
+      return index === 0
+        ? [DEFAULT_COLOR, min, colorScale[0], breakValue, color]
+        : [breakValue, color]
+    })
+    .flat(1)
+
+  return colorScaleStops
+}
 
 function quantile({ values, colorScheme, classificationMethod }) {
   const scale = scaleQuantile()
@@ -64,7 +82,7 @@ function naturalBreaks({ values, colorScheme, classificationMethod }) {
 }
 
 export const COLOR_SCALE_STOPS_RESOLVERS = {
-  // linear,
+  linear,
   quantile,
   naturalBreaks,
 }

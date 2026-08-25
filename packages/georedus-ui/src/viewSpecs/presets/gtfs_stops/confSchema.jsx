@@ -22,6 +22,10 @@ export function confSchema(viewSpec, allViewSpecs, context) {
             value: 'quantile',
             label: 'Quantis',
           },
+          {
+            value: 'linear',
+            label: 'Linear',
+          },
         ],
       },
       colorScheme: continuousColorSchemeSelector({
