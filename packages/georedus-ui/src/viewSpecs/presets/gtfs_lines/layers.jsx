@@ -6,12 +6,10 @@ import {
   zoomSensitiveLinearSizes,
 } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, LINE_PATTERN_SOLID, LINE_WIDTH_1 } from '../util'
+import { basicTooltip, LINE_WIDTH_1 } from '../util'
+import { WIDTH_MIN, WIDTH_MAX } from './consts'
 
-const WIDTH_MAX = 15
-const WIDTH_MIN = 1
-
-const DEFAULT_LINE_OPACITY = 0.7
+const DEFAULT_LINE_OPACITY = 0.1
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -43,83 +41,53 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
       },
     ]
 
-    // if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
-    //   const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
-    //   if (_values.length > 0) {
-    //     legends.push({
-    //       type: 'ProportionalSymbolLegend',
-    //       unit: viewSpec.measure_unit,
-    //       title: viewSpec.label,
-    //       min: Math.min(..._values),
-    //       max: Math.max(..._values),
-    //       sizeMin: WIDTH_MIN,
-    //       sizeMax: WIDTH_MAX,
-    //       numberFormat: viewSpec.style?.lineWidth?.numberFormat || ['pt-BR', { maximumFractionDigits: 0 }],
-    //     })
-    //   }
-    // }
+    if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
+      const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
+      if (_values.length > 0) {
+        legends.push({
+          type: 'ProportionalSymbolLegend',
+          unit: viewSpec.measure_unit,
+          title: viewSpec.label,
+          min: Math.min(..._values),
+          max: Math.max(..._values),
+          sizeMin: WIDTH_MIN * 4,
+          sizeMax: WIDTH_MAX * 4,
+          numberFormat: viewSpec.style?.lineWidth?.numberFormat || [
+            'pt-BR',
+            { maximumFractionDigits: 0 },
+          ],
+        })
+      }
+    }
 
     return legends
   })
 }
 
-function _main_line({ _maplibreColorExp }, viewSpec, allViewSpecs, context) {
+function _main_line(
+  { _maplibreLineWidthExp, _maplibreColorExp },
+  viewSpec,
+  allViewSpecs,
+  context,
+) {
   const { source_layer } = viewSpec
 
+  const _opacity = resolve.fn((ctx) =>
+    typeof ctx.view?.conf?.style?.opacity === 'number'
+      ? ctx.view.conf.style.opacity
+      : DEFAULT_LINE_OPACITY,
+  )
+
   const line = resolve.fn((ctx) => {
-
-    let _lineWidth
-    if (
-      viewSpec.style?.lineWidth &&
-      typeof viewSpec.style.lineWidth === 'object' &&
-      viewSpec.style.lineWidth.valueKey &&
-      ctx.view?.metadata?.widthData
-    ) {
-      const values = _validNumericalValues(ctx.view.metadata.widthData.values)
-      if (values.length > 0) {
-        _lineWidth = zoomSensitiveLinearSizes({
-          variable: ['get', viewSpec.style.lineWidth.valueKey],
-          minValue: Math.min(...values),
-          maxValue: Math.max(...values),
-          minSize: WIDTH_MIN,
-          maxSize: WIDTH_MAX,
-        })
-      } else {
-        _lineWidth = LINE_WIDTH_1
-      }
-    } else {
-      _lineWidth =
-        ctx.view?.conf?.style?.lineWidth ||
-        viewSpec.style?.lineWidth ||
-        LINE_WIDTH_1
-    }
-
     return {
       zIndex: Z_OVERLAY_BASE_1000,
       source: 'main',
       'source-layer': source_layer,
       type: 'line',
       paint: {
-        'line-color': '#AAAAEF',
-        'line-opacity': DEFAULT_LINE_OPACITY,
-        'line-width': resolve.fn((ctx) => {
-          if (!viewSpec.style.lineWidth?.valueKey) {
-            return WIDTH_MIN
-          }
-
-          const values = _validNumericalValues(
-            ctx.view.metadata.widthData.values,
-          )
-
-          return zoomSensitiveLinearSizes({
-            variable: ['get', viewSpec.style?.lineWidth?.valueKey],
-            minValue: Math.min(...values),
-            maxValue: Math.max(...values),
-            minSize: WIDTH_MIN,
-            maxSize: WIDTH_MAX,
-          })
-        }),
-        // ...paint,
+        'line-color': _maplibreColorExp,
+        'line-opacity': _opacity,
+        'line-width': _maplibreLineWidthExp,
       },
       legends: _main_line_legends({}, viewSpec, allViewSpecs, context),
       tooltip: basicTooltip(viewSpec.tooltip),
@@ -137,26 +105,43 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  // const _maplibreColorExp = resolve.fn((ctx) => [
-  //   'match',
-  //   ['get', styleSpec.lineWidth.valueKey],
-  //   ...ctx.view.metadata.widthData.values
-  //     .map((cat) => [cat.value, resolveColor(cat.color)])
-  //     .flat(),
-  //   '#CCCCCC',
-  // ])
+  const _maplibreLineWidthExp = resolve.fn((ctx) => {
+    if (
+      styleSpec?.lineWidth?.valueKey &&
+      ctx.view?.metadata?.widthData?.widthScaleStops
+    ) {
+      return [
+        'step',
+        ['coalesce', ['get', styleSpec.lineWidth.valueKey], WIDTH_MIN],
+        ...ctx.view.metadata.widthData.widthScaleStops,
+      ]
+    } else {
+      return (
+        ctx.view?.conf?.style?.lineWidth || styleSpec?.lineWidth || LINE_WIDTH_1
+      )
+    }
+  })
 
-  // const _maplibreColorExp = resolve.fn((ctx) => [
-  //   'step',
-  //   [
-  //     'coalesce',
-  //     ['get', styleSpec.lineWidth.valueKey],
-  //     Math.min(...ctx.view.metadata.widthData.values) - 1,
-  //   ],
-  //   ...ctx.view.metadata.widthData.colorScaleStops,
-  // ])
+  const _maplibreColorExp = resolve.fn((ctx) => {
+    const colors = ctx.view?.metadata?.widthData?.colors
+    if (!colors?.length) {
+      return NO_DATA_COLOR
+    }
+
+    return [
+      'match',
+      ['get', 'id'],
+      ...colors.flatMap((item) => [item.id, resolveColor(item.color)]),
+      NO_DATA_COLOR,
+    ]
+  })
 
   return {
-    [`main_line`]: _main_line({}, viewSpec, allViewSpecs, context),
+    [`main_line`]: _main_line(
+      { _maplibreLineWidthExp, _maplibreColorExp },
+      viewSpec,
+      allViewSpecs,
+      context,
+    ),
   }
 }

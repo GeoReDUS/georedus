@@ -46,7 +46,7 @@ const VIEW_SPECS = {
   all: [
     [
       {
-        id: 'cem_gtfs_linhas',
+        id: 'cem_gtfs_linhas_avg_frequency',
         collection_id: 'test',
         indicator_id: 'test',
         preset: 'gtfs_lines',
@@ -54,12 +54,32 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
         source_layer: 'cem_gtfs_linhas.geom',
         path: 'GTFS Lines Test / _ ',
-        label: 'Linhas',
+        label: 'Linhas - Frequencia',
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
             values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:avg_frequency',
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=id:id,value:avg_frequency,color:color',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_headway_min',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - Headway',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=id:id,value:headway_minimo,color:color',
           },
         },
         sourceLabel: 'Test',

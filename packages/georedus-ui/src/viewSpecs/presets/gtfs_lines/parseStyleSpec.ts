@@ -11,9 +11,9 @@ type ClassificationMethod =
 type ContinuousSpecBase = {
   valueKey: string
   values: string | number[] | { value: number }[]
+  classificationMethod?: ClassificationMethod
   // numberFormat?: any
   // to be implemented:
-  // classificationMethod?: ClassificationMethod
   // legend?: {
   //   format: { [key: string]: any }
   // }

@@ -101,6 +101,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     paint: {
       'circle-color': _maplibreColorExp,
       'circle-opacity': _opacity,
+      // 'circle-radius': 5,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
           return 10
