@@ -28,9 +28,14 @@ const CONF_TABS = {
     icon: <Icon path={mdiOpacity} size="16px" />,
     label: 'Visualização',
   },
+  local: {
+    id: 'local',
+    icon: <Icon path={mdiOpacity} size="16px" />,
+    label: 'Visualização',
+  },
 }
 
-const CONF_TAB_ORDER = ['data', 'style']
+const CONF_TAB_ORDER = ['data', 'style', 'local']
 
 function _isMarkdownUrl(str) {
   return (

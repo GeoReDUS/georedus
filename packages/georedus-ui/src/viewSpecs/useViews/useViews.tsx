@@ -20,7 +20,7 @@ import {
   resolveSources,
 } from '../resolveView'
 import { useMemo } from 'react'
-import { pick } from 'lodash'
+import { omit, pick } from 'lodash'
 
 const STAGE_LOADING = Symbol.for('STAGE_LOADING')
 const STAGE_ERROR = Symbol.for('STAGE_ERROR')
@@ -70,15 +70,17 @@ function _viewsFromStageQueries<
 
                 return viewQuery.status === 'success'
                   ? [stageKey, viewQuery.data]
-                  : [
-                      stageKey,
-                      //
-                      // TODO improve error handling
-                      //
-                      viewQuery.status === 'pending'
-                        ? STAGE_LOADING
-                        : STAGE_ERROR,
-                    ]
+                  : stageKey === 'layers' && viewQuery.data
+                    ? [stageKey, viewQuery.data]
+                    : [
+                        stageKey,
+                        //
+                        // TODO improve error handling
+                        //
+                        viewQuery.status === 'pending'
+                          ? STAGE_LOADING
+                          : STAGE_ERROR,
+                      ]
               }),
             ),
           )
@@ -130,6 +132,8 @@ function useViewStageQueries({
     queries: viewsToResolve.map((viewToResolve, viewIndex) => {
       const { viewId, viewSpec, viewConf } = viewToResolve
 
+      console.log('viewConf', viewConf)
+
       const partialView = partialViews[viewIndex]
 
       const enabled =
@@ -150,12 +154,25 @@ function useViewStageQueries({
         'ViewStage',
         viewId,
         stageKey,
-        viewConf,
+        typeof viewConf === 'object' && viewConf !== null
+          ? stageKey !== 'layers'
+            ? omit(viewConf, 'local')
+            : viewConf
+          : viewConf,
         viewResolutionContextBase.app,
         stageDependencies,
       ]
 
       return {
+        ...(stageKey === 'layers'
+          ? {
+              placeholderData: (d) => {
+                console.log('will return placeholderData', d)
+                return d
+              },
+            }
+          : {}),
+
         ...(viewSpec[stageKey]?._query
           ? pick(viewSpec[stageKey]?._query, ['gcTime'])
           : {}),
@@ -273,6 +290,13 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
     ...QUERIES_AT_SOURCES,
     sources: sourcesQueries,
   }
+  // console.log(
+  //   'QUERIES_AT_LAYERS',
+  //   Object.fromEntries(
+  //     Object.entries(QUERIES_AT_LAYERS).map(([k, q]) => [k, q[0]?.status]),
+  //   ),
+  // )
+
   const layersQueries = useViewStageQueries({
     enabled: VIEWS_ENABLED,
     stageKey: 'layers',
@@ -351,10 +375,12 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
         download: downloadQueries,
       },
     }).filter((partialView) => {
+      // console.log('resolved partialView', partialView)
+
       return _hasViewResolvedStages(partialView, [
         'metadata',
         'sources',
-        'layers',
+        // 'layers',
         // 'download',
       ])
     })

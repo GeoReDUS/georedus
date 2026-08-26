@@ -26,7 +26,7 @@ export function sources(viewSpec, allViewSpecs, context) {
                   tiles: baseTilesUrl,
                   data: [
                     [
-                      'id_hex:id',
+                      'id:id',
                       `${METADATA_API_ENDPOINT}/cem_gtfs_travel_time?` +
                         `hex_from=eq.${selectedHexFrom}&` +
                         `select=id:hex_to,time_min`,
