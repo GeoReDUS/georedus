@@ -19,6 +19,12 @@ export function sources(viewSpec, allViewSpecs, context) {
           const baseTilesUrl = `${VECTOR_TILE_SERVER_ENDPOINT}/cem_malha_hex_res9.geom/{z}/{x}/{y}`
           const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
 
+          console.log(
+            `${METADATA_API_ENDPOINT}/cem_gtfs_travel_time?` +
+              `hex_from=eq.${selectedHexFrom}&` +
+              `select=id:hex_to,time_min`,
+          )
+
           return selectedHexFrom
             ? [
                 '$vtxUrl',
@@ -29,7 +35,7 @@ export function sources(viewSpec, allViewSpecs, context) {
                       'id:id',
                       `${METADATA_API_ENDPOINT}/cem_gtfs_travel_time?` +
                         `hex_from=eq.${selectedHexFrom}&` +
-                        `select=id:hex_to,time_min`,
+                        `select=id:hex_to,time_min,time_min_local`,
                     ],
                   ],
                 },

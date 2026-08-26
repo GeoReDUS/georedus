@@ -34,26 +34,31 @@ export function layers(viewSpec, allViewSpecs, context) {
       type: 'fill',
       interactive: true,
       paint: {
-        'fill-color': [
-          'case',
-          ['!', ['has', 'time_min']],
-          'transparent', // color for features with NO value at all
-          [
-            'step',
-            ['get', 'time_min'],
-            // 0,
-            ...COLOR_STEPS,
-          ],
+        'fill-color': resolve.fn((ctx) => {
+          const variableId = ctx.app?.regional ? 'time_min' : 'time_min_local'
 
-          // [
-          //   'interpolate',
-          //   ['linear'],
-          //   // ['cubic-bezier', 0.85, 0, 0.15, 1], // steep S-curve
-          //   ['get', 'time_min'],
-          //   0,
-          //   ...COLOR_STEPS,
-          // ],
-        ],
+          return [
+            'case',
+            ['!', ['has', variableId]],
+            'transparent', // color for features with NO value at all
+            [
+              'step',
+              ['get', variableId],
+              // 0,
+              ...COLOR_STEPS,
+            ],
+
+            // [
+            //   'interpolate',
+            //   ['linear'],
+            //   // ['cubic-bezier', 0.85, 0, 0.15, 1], // steep S-curve
+            //   ['get', 'time_min'],
+            //   0,
+            //   ...COLOR_STEPS,
+            // ],
+          ]
+        }),
+
         'fill-opacity': 0.8,
         'fill-outline-color': 'transparent',
       },
@@ -66,7 +71,7 @@ export function layers(viewSpec, allViewSpecs, context) {
 
       onClick: resolve.fn((ctx) => (e) => {
         const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
-        const clickedHexFrom = e.properties.id_hex
+        const clickedHexFrom = e.properties.id
 
         ctx.app.viewConfDispatch({
           type: 'SET_VIEW',
@@ -89,18 +94,31 @@ export function layers(viewSpec, allViewSpecs, context) {
       source: 'main',
       'source-layer': source_layer,
       type: 'line',
-      hidden: ['$empty', ['$get', 'view.conf.data.selectedHexFrom']],
+      // hidden: ['$empty', ['$get', 'view.conf.data.selectedHexFrom']],
       filter: resolve.fn((ctx) => {
         const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
 
         return selectedHexFrom
           ? ['==', ['get', 'id'], selectedHexFrom]
-          : ['==', ['get', 'id'], '']
+          : ['!=', ['get', 'id'], '']
       }),
-      paint: {
-        'line-color': 'red',
-        'line-width': 2,
-      },
+      paint: resolve.fn((ctx) => {
+        const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
+
+        return selectedHexFrom
+          ? {
+              'line-color': 'red',
+              'line-width': 2,
+            }
+          : {
+              'line-color': '#cccccc',
+              'line-width': 1,
+            }
+      }),
+      // paint: {
+      //   'line-color': 'red',
+      //   'line-width': 2,
+      // },
       legends: [
         {
           type: 'SequentialColorLegend',

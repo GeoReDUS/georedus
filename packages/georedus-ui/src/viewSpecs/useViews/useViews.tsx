@@ -19,7 +19,7 @@ import {
   resolveMetadata,
   resolveSources,
 } from '../resolveView'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { omit, pick } from 'lodash'
 
 const STAGE_LOADING = Symbol.for('STAGE_LOADING')
@@ -128,11 +128,13 @@ function useViewStageQueries({
     partialView: Partial<ResolvedView>,
   ) => Promise<Partial<ResolvedView>>
 }) {
+  const cache = useRef({})
+
   return useQueries({
     queries: viewsToResolve.map((viewToResolve, viewIndex) => {
       const { viewId, viewSpec, viewConf } = viewToResolve
 
-      console.log('viewConf', viewConf)
+      console.log('viewConf', viewId, viewConf)
 
       const partialView = partialViews[viewIndex]
 
@@ -166,17 +168,21 @@ function useViewStageQueries({
       return {
         ...(stageKey === 'layers'
           ? {
-              placeholderData: (d) => {
-                console.log('will return placeholderData', d)
-                return d
+              placeholderData: () => {
+                console.log(
+                  'will return placeholderData',
+                  stageKey,
+                  cache.current[viewId],
+                )
+                return cache.current[viewId]
               },
             }
           : {}),
 
-        ...(viewSpec[stageKey]?._query
-          ? pick(viewSpec[stageKey]?._query, ['gcTime'])
-          : {}),
-        gcTime: 0,
+        // ...(viewSpec[stageKey]?._query
+        //   ? pick(viewSpec[stageKey]?._query, ['gcTime'])
+        //   : {}),
+        // gcTime: 0,
         enabled,
         queryKey,
         queryKeyHashFn: queryKeyHashFnWithFileSupport,
@@ -186,6 +192,9 @@ function useViewStageQueries({
           if (viewSpec.debug) {
             console.log(stageKey, viewSpec.id, result, partialView)
           }
+
+          // update cache
+          cache.current[viewId] = result
 
           return result
         },
