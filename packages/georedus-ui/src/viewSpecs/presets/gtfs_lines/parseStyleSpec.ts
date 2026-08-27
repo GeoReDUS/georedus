@@ -3,10 +3,9 @@ type ClassificationMethod =
   | 'naturalBreaks'
   | { type: 'quantile'; k: number }
   | 'quantile'
-  | { type: 'custom'; breaks: number[] }
-// to be implemented:
-// | { type: 'continuous' }
-// | 'continuous'
+  | { type: 'equalIntervals'; k: number }
+  | 'equalIntervals'
+  // | { type: 'custom'; breaks: number[] }
 
 type ContinuousSpecBase = {
   valueKey: string

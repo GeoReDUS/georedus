@@ -23,8 +23,8 @@ export function confSchema(viewSpec, allViewSpecs, context) {
             label: 'Quantis',
           },
           {
-            value: 'linear',
-            label: 'Linear',
+            value: 'equalIntervals',
+            label: 'Intervalos Iguais',
           },
         ],
       },

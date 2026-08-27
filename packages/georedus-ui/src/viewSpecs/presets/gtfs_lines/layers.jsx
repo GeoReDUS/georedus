@@ -1,12 +1,11 @@
 import { resolve } from '@orioro/resolve'
+import { parseStepsToItems } from '@orioro/react-chart-util'
 import {
-  resolveColor,
   GEOREDUS_LABELED_RESTRICTED_USE_COLORS,
-  schemeGeoReDUS,
-  zoomSensitiveLinearSizes,
+  resolveColor,
 } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, LINE_WIDTH_1 } from '../util'
+import { basicTooltip, LINE_WIDTH_1, municipioFilter } from '../util'
 import { WIDTH_MIN, WIDTH_MAX } from './consts'
 
 const DEFAULT_LINE_OPACITY = 0.1
@@ -21,41 +20,40 @@ const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
 function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   return resolve.fn((ctx) => {
-    const _resolvedColor =
-      resolveColor(viewSpec.style?.color) || schemeGeoReDUS.laranja
-
-    const legends = [
-      {
-        type: 'CategoricalLegend',
-        title: viewSpec.label,
-        items: [
-          {
-            label: 'Com dados',
-            color: '#CCC',
-          },
-          {
-            label: 'Sem dados',
-            color: NO_DATA_COLOR,
-          },
-        ],
-      },
-    ]
+    const overrideColor = ctx.view?.conf?.style?.color
+    const legends = []
 
     if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
       const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
-      if (_values.length > 0) {
+      if (_values.length > 0 && ctx.view.metadata.widthData.widthScaleStops) {
+        const parsedItems = parseStepsToItems(
+          ctx.view.metadata.widthData.widthScaleStops,
+          {
+            number: viewSpec.style?.lineWidth?.numberFormat || [
+              'pt-BR',
+              { maximumFractionDigits: 0 },
+            ],
+          },
+          {},
+        )
+        console.log("parsedItems", parsedItems)
         legends.push({
-          type: 'ProportionalSymbolLegend',
-          unit: viewSpec.measure_unit,
+          type: 'CategoricalLegend',
           title: viewSpec.label,
-          min: Math.min(..._values),
-          max: Math.max(..._values),
-          sizeMin: WIDTH_MIN * 4,
-          sizeMax: WIDTH_MAX * 4,
-          numberFormat: viewSpec.style?.lineWidth?.numberFormat || [
-            'pt-BR',
-            { maximumFractionDigits: 0 },
-          ],
+          items: parsedItems.map((item, index) => ({
+            id: index,
+            label: item.label,
+            box: {
+              style: {
+                height: 0,
+                width: 24,
+                borderTopStyle: 'solid',
+                borderTopWidth: `${item.color}px`,
+                borderColor:
+                  overrideColor === 'customColor' ? '#555555' : overrideColor,
+              },
+            },
+          })),
         })
       }
     }
@@ -65,7 +63,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_line(
-  { _maplibreLineWidthExp, _maplibreColorExp },
+  { _maplibreLineWidthExp, _maplibreColorExp, _municipioFilter },
   viewSpec,
   allViewSpecs,
   context,
@@ -83,6 +81,7 @@ function _main_line(
       zIndex: Z_OVERLAY_BASE_1000,
       source: 'main',
       'source-layer': source_layer,
+      filter: _municipioFilter,
       type: 'line',
       paint: {
         'line-color': _maplibreColorExp,
@@ -105,6 +104,8 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
+  const _municipioFilter = municipioFilter()
+
   const _maplibreLineWidthExp = resolve.fn((ctx) => {
     if (
       styleSpec?.lineWidth?.valueKey &&
@@ -123,22 +124,15 @@ export function layers(viewSpec, allViewSpecs, context) {
   })
 
   const _maplibreColorExp = resolve.fn((ctx) => {
-    const colors = ctx.view?.metadata?.widthData?.colors
-    if (!colors?.length) {
-      return NO_DATA_COLOR
-    }
-
-    return [
-      'match',
-      ['get', 'id'],
-      ...colors.flatMap((item) => [item.id, resolveColor(item.color)]),
-      NO_DATA_COLOR,
-    ]
+    const selectedColor = ctx.view?.conf?.style?.color
+    return selectedColor === 'customColor'
+      ? ['coalesce', ['get', 'color'], NO_DATA_COLOR]
+      : resolveColor(selectedColor)
   })
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreLineWidthExp, _maplibreColorExp },
+      { _maplibreLineWidthExp, _maplibreColorExp, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,

@@ -28,10 +28,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
           typeof entry === 'number' ? entry : entry.value,
         )
 
-        const resolvedColors = rawEntries.filter(
-          (entry) => typeof entry === 'object' && entry?.id != null && entry?.color,
-        )
-
         const _classificationMethod = {
           ...(style.lineWidth.classificationMethod || {}),
           type:
@@ -55,7 +51,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
 
         return {
           values: resolvedValues,
-          colors: resolvedColors,
           widthScaleStops,
         }
       })

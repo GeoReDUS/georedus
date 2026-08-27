@@ -3,8 +3,8 @@ type ClassificationMethod =
   | 'naturalBreaks'
   | { type: 'quantile'; k: number }
   | 'quantile'
-  | { type: 'linear'; k: number }
-  | 'linear'
+  | { type: 'equalIntervals'; k: number }
+  | 'equalIntervals'
   // | { type: 'custom'; breaks: number[] }
 
 type ContinuousSpecBase = {
@@ -57,7 +57,7 @@ export type StyleSpec = {
 
 export type StyleSpecInput = StyleSpec
 
-export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
+export const DEFAULT_COLOR_SCHEME_ID = 'schemeRdYlGn'
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   return {

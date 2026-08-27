@@ -14,7 +14,7 @@ function _sizeForIndex(index, count, sizeMin, sizeMax) {
   return count > 1 ? sizeMin + ((sizeMax - sizeMin) * index) / (count - 1) : sizeMax
 }
 
-function linear({ values, classificationMethod, sizeMin, sizeMax }) {
+function equalIntervals({ values, classificationMethod, sizeMin, sizeMax }) {
   const k = classificationMethod.k
   const validValues = _validNumericalValues(values)
   const min = Math.min(...validValues)
@@ -65,7 +65,7 @@ function naturalBreaks({ values, classificationMethod, sizeMin, sizeMax }) {
 }
 
 export const WIDTH_SCALE_STOPS_RESOLVERS = {
-  linear,
+  equalIntervals,
   quantile,
   naturalBreaks,
 }

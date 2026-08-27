@@ -4,7 +4,7 @@ const DEFAULT_COLOR = '#CCC'
 
 
 
-function linear({ values, colorScheme, classificationMethod }) {
+function equalIntervals({ values, colorScheme, classificationMethod }) {
   const k = classificationMethod.k
   const min = Math.min(...values)
   const max = Math.max(...values)
@@ -82,7 +82,7 @@ function naturalBreaks({ values, colorScheme, classificationMethod }) {
 }
 
 export const COLOR_SCALE_STOPS_RESOLVERS = {
-  linear,
+  equalIntervals,
   quantile,
   naturalBreaks,
 }

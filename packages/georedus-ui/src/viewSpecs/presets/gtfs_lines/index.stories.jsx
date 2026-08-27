@@ -54,12 +54,12 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
         source_layer: 'cem_gtfs_linhas.geom',
         path: 'GTFS Lines Test / _ ',
-        label: 'Linhas - Frequencia',
+        label: 'Linhas Todas - Frequencia',
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
             values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=id:id,value:avg_frequency,color:color',
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:avg_frequency&cd_mun=eq.${municipioId}',
           },
         },
         sourceLabel: 'Test',
@@ -74,12 +74,132 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
         source_layer: 'cem_gtfs_linhas.geom',
         path: 'GTFS Lines Test / _ ',
-        label: 'Linhas - Headway',
+        label: 'Linhas Todas - Headway',
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
             values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=id:id,value:headway_minimo,color:color',
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_balsa',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_balsa.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas_balsa.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - Balsa',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_balsa?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_bonde_vlt',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_bonde_vlt.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas_bonde_vlt.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - Bolde/VLT',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_bonde_vlt?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_brt',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_brt.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas_brt.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - BRT',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_brt?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_metro',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_metro.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas_metro.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - Metro',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_metro?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_onibus',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_onibus.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas_onibus.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - Ônibus',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_onibus?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+          },
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'GTFS Lines Preset',
+      },
+      {
+        id: 'cem_gtfs_linhas_trem',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'gtfs_lines',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_trem.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas_trem.geom',
+        path: 'GTFS Lines Test / _ ',
+        label: 'Linhas - Trem',
+        style: {
+          lineWidth: {
+            valueKey: 'headway_minimo',
+            values:
+              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_trem?select=value:headway_minimo&cd_mun=eq.${municipioId}',
           },
         },
         sourceLabel: 'Test',
@@ -88,6 +208,14 @@ const VIEW_SPECS = {
     ],
   ],
 }
+
+// cem_gtfs_linhas
+// cem_gtfs_linhas_balsa
+// cem_gtfs_linhas_bonde_vlt
+// cem_gtfs_linhas_brt
+// cem_gtfs_linhas_metro
+// cem_gtfs_linhas_onibus
+// cem_gtfs_linhas_trem
 
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
