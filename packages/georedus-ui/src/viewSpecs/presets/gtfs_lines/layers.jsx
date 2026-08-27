@@ -6,9 +6,7 @@ import {
 } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { basicTooltip, LINE_WIDTH_1, municipioFilter } from '../util'
-import { WIDTH_MIN, WIDTH_MAX } from './consts'
-
-const DEFAULT_LINE_OPACITY = 0.1
+import { WIDTH_MIN, WIDTH_MAX, DEFAULT_LINE_OPACITY } from './consts'
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -20,7 +18,6 @@ const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
 function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   return resolve.fn((ctx) => {
-    const overrideColor = ctx.view?.conf?.style?.color
     const legends = []
 
     if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
@@ -36,7 +33,6 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
           },
           {},
         )
-        console.log("parsedItems", parsedItems)
         legends.push({
           type: 'CategoricalLegend',
           title: viewSpec.label,
@@ -49,8 +45,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
                 width: 24,
                 borderTopStyle: 'solid',
                 borderTopWidth: `${item.color}px`,
-                borderColor:
-                  overrideColor === 'customColor' ? '#555555' : overrideColor,
+                borderColor:'#555555',
               },
             },
           })),

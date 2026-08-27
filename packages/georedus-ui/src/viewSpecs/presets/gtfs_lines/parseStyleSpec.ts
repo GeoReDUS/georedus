@@ -1,3 +1,5 @@
+import { DEFAULT_LINE_OPACITY } from "./consts"
+
 type ClassificationMethod =
   | { type: 'naturalBreaks'; k: number }
   | 'naturalBreaks'
@@ -9,7 +11,9 @@ type ClassificationMethod =
 
 type ContinuousSpecBase = {
   valueKey: string
-  values: string | number[] | { value: number }[]
+  viewKey: string
+  cd_mun: string
+  // values: string | number[] | { value: number }[]
   classificationMethod?: ClassificationMethod
   // numberFormat?: any
   // to be implemented:
@@ -20,6 +24,7 @@ type ContinuousSpecBase = {
 
 export type StyleSpec = {
   colorKey?: string
+  opacity?: number
   lineWidth?: number | ContinuousSpecBase
 
   // color?: string | ContinuousSpecBase & {
@@ -65,6 +70,7 @@ export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   return {
+    opacity: DEFAULT_LINE_OPACITY,
     ...styleInput,
   }
 }

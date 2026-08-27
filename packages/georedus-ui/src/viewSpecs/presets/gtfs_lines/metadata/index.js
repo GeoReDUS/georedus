@@ -6,27 +6,40 @@ import { WIDTH_MIN, WIDTH_MAX } from '../consts'
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
 
+  const urlLayerValues = `${context.METADATA_API_ENDPOINT}/${style.lineWidth.viewKey}?select=value:${style.lineWidth.valueKey}&cd_mun=eq.${style.lineWidth.cd_mun}`
+  const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:${style.lineWidth.valueKey}&cd_mun=eq.${style.lineWidth.cd_mun}`
+
   const widthData = style.lineWidth?.values
     ? resolveAsync.fn(async (ctx) => {
-        //
-        // resolve values
-        //
-        const rawEntries =
+        const resolvedLayerValues = (
           typeof style.lineWidth.values === 'string'
-            ? // style.lineWidth.values is an URL
-              await fetch(
-                interpolate(style.lineWidth.values, {
+            ? await fetch(
+                interpolate(urlLayerValues, {
                   METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
                   municipioId: context.municipioId,
                 }),
               ).then((res) => res.json())
             : Array.isArray(style.lineWidth.values)
-              ? style.lineWidth.values
+              ? style.lineWidth.values.map((entry) =>
+                  typeof entry === 'number' ? entry : entry.value,
+                )
               : null
+        ).map((entry) => (typeof entry === 'number' ? entry : entry.value))
 
-        const resolvedValues = rawEntries.map((entry) =>
-          typeof entry === 'number' ? entry : entry.value,
-        )
+        const resolvedAllValues = (
+          typeof style.lineWidth.values === 'string'
+            ? await fetch(
+                interpolate(urlAllValues, {
+                  METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+                  municipioId: context.municipioId,
+                }),
+              ).then((res) => res.json())
+            : Array.isArray(style.lineWidth.values)
+              ? style.lineWidth.values.map((entry) =>
+                  typeof entry === 'number' ? entry : entry.value,
+                )
+              : null
+        ).map((entry) => (typeof entry === 'number' ? entry : entry.value))
 
         const _classificationMethod = {
           ...(style.lineWidth.classificationMethod || {}),
@@ -43,14 +56,14 @@ export function metadata(viewSpec, allViewSpecs, context) {
         const widthScaleStops = WIDTH_SCALE_STOPS_RESOLVERS[
           _classificationMethod.type
         ]({
-          values: resolvedValues,
+          values: resolvedAllValues,
           classificationMethod: _classificationMethod,
           sizeMin: WIDTH_MIN,
           sizeMax: WIDTH_MAX,
         })
 
         return {
-          values: resolvedValues,
+          values: resolvedLayerValues,
           widthScaleStops,
         }
       })

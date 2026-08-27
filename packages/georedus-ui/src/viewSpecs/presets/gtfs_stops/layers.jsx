@@ -48,7 +48,7 @@ function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
                     ? _confOpacity
                     : DEFAULT_CIRCLE_OPACITY,
                 )
-              : entry,
+              : Math.round(entry),
         )
 
     return [

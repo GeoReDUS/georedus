@@ -43,9 +43,14 @@ function quantile({ values, classificationMethod, sizeMin, sizeMax }) {
   const breaks = scale.quantiles()
 
   const stops = [sizeMin]
+  let previousEdge = -Infinity
   breaks.forEach((breakValue, index) => {
+    if (breakValue <= previousEdge) {
+      return
+    }
     const size = _sizeForIndex(index + 1, k, sizeMin, sizeMax)
     stops.push(breakValue, size)
+    previousEdge = breakValue
   })
 
   return stops
@@ -56,9 +61,14 @@ function naturalBreaks({ values, classificationMethod, sizeMin, sizeMax }) {
   const bounds = _naturalBreakBounds(validValues, classificationMethod.k)
 
   const stops = [sizeMin]
+  let previousEdge = -Infinity
   bounds.forEach(([min], index) => {
+    if (min <= previousEdge) {
+      return
+    }
     const size = _sizeForIndex(index, bounds.length, sizeMin, sizeMax)
     stops.push(min, size)
+    previousEdge = min
   })
 
   return stops

@@ -1,6 +1,6 @@
-import { colorSelector, lineWidthSelector, opacitySlider } from '../util'
+import { colorSelector, opacitySlider } from '../util'
+import { DEFAULT_LINE_OPACITY } from './consts'
 
-const DEFAULT_LINE_OPACITY = 0.1
 export function confSchema(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
 
@@ -10,7 +10,8 @@ export function confSchema(viewSpec, allViewSpecs, context) {
       type: 'select',
       clearable: false,
       defaultValue:
-        viewSpec.style?.lineWidth?.classificationMethod?.type || 'naturalBreaks',
+        viewSpec.style?.lineWidth?.classificationMethod?.type ||
+        'naturalBreaks',
       options: [
         {
           value: 'naturalBreaks',
@@ -27,7 +28,9 @@ export function confSchema(viewSpec, allViewSpecs, context) {
       ],
     },
     color: colorSelector('customColor', true),
-    opacity: opacitySlider({ defaultValue: DEFAULT_LINE_OPACITY }),
+    opacity: opacitySlider({
+      defaultValue: styleSpec.opacity || DEFAULT_LINE_OPACITY,
+    }),
   }
 
   return {

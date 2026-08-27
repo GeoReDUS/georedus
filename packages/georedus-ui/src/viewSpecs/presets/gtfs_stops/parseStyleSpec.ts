@@ -46,7 +46,7 @@ type ContinuousSpecBase = {
     // custom
     | string[]
   legend?: {
-    format: { [key: string]: any }
+    format: { [key: string]: number }
   }
 }
 
