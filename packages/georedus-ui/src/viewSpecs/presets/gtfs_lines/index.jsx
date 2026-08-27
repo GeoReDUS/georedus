@@ -5,6 +5,7 @@ import { sources } from './sources'
 import { pick } from 'lodash'
 import { parseStyleSpec } from './parseStyleSpec'
 import { download } from './download'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
 
 export function gtfs_lines(
   { style, ...viewSpec },
@@ -18,6 +19,7 @@ export function gtfs_lines(
 
   return {
     ...pick(viewSpec, ['id', 'path', 'label', 'sourceLabel', 'metodology', 'shortDescription']),
+    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
     confSchema: confSchema(viewSpec, allViewSpecs, context),
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),

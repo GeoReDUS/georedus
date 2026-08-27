@@ -19,8 +19,21 @@ const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   return resolve.fn((ctx) => {
     const legends = []
+    const valueKey = viewSpec.style?.lineWidth?.valueKey
 
-    if (viewSpec.style?.lineWidth?.valueKey && ctx.view?.metadata?.widthData) {
+    if (valueKey && ctx.view?.metadata?.widthData) {
+      const classificationMethodType =
+        ctx.view.conf.style?.classificationMethodType ||
+        viewSpec.style.lineWidth.classificationMethod?.type ||
+        'naturalBreaks'
+
+      const classificationTypeLabel =
+        classificationMethodType === 'naturalBreaks'
+          ? 'Quebras naturais'
+          : classificationMethodType === 'quantile'
+            ? 'Quantis'
+            : 'Intervalos Iguais'
+
       const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
       if (_values.length > 0 && ctx.view.metadata.widthData.widthScaleStops) {
         const parsedItems = parseStepsToItems(
@@ -35,7 +48,8 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
         )
         legends.push({
           type: 'CategoricalLegend',
-          title: viewSpec.label,
+          dedupeKey: `gtfs_lines_lineWidth_${valueKey}_${classificationMethodType}`,
+          title: `${viewSpec.style.lineWidth.valueLabel} (${classificationTypeLabel})`,
           items: parsedItems.map((item, index) => ({
             id: index,
             label: item.label,
@@ -45,7 +59,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
                 width: 24,
                 borderTopStyle: 'solid',
                 borderTopWidth: `${item.color}px`,
-                borderColor:'#555555',
+                borderColor: '#555555',
               },
             },
           })),

@@ -58,8 +58,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:avg_frequency&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Frequência',
+            viewKey: 'cem_gtfs_linhas',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -79,8 +80,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_balsa?select=value:avg_frequency&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Frequência',
+            viewKey: 'cem_gtfs_linhas_balsa',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -100,8 +102,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_bonde_vlt?select=value:avg_frequency&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Frequência',
+            viewKey: 'cem_gtfs_linhas_bonde_vlt',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -121,8 +124,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_brt?select=value:avg_frequency&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Frequência',
+            viewKey: 'cem_gtfs_linhas_brt',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -142,10 +146,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
+            valueLabel: 'Linhas - Frequência',
             viewKey: 'cem_gtfs_linhas_metro',
             cd_mun: '${municipioId}',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_metro?select=value:avg_frequency&cd_mun=eq.${municipioId}',
           },
           opacity: 1
         },
@@ -165,10 +168,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
+            valueLabel: 'Linhas - Frequência',
             viewKey: 'cem_gtfs_linhas_onibus',
             cd_mun: '${municipioId}',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_onibus?select=value:avg_frequency&cd_mun=eq.${municipioId}',
           },
           opacity: 0.1
         },
@@ -188,10 +190,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'avg_frequency',
+            valueLabel: 'Linhas - Frequência',
             viewKey: 'cem_gtfs_linhas_trem',
             cd_mun: '${municipioId}',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_trem?select=value:avg_frequency&cd_mun=eq.${municipioId}',
           },
           opacity: 1
         },
@@ -211,8 +212,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -232,8 +234,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_balsa?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas_balsa',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -253,8 +256,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_bonde_vlt?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas_bonde_vlt',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -274,8 +278,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_brt?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas_brt',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -295,8 +300,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_metro?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas_metro',
+            cd_mun: '${municipioId}',
           },
           opacity: 1
         },
@@ -316,8 +322,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_onibus?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas_onibus',
+            cd_mun: '${municipioId}',
           },
           opacity: 0.1
         },
@@ -337,8 +344,9 @@ const VIEW_SPECS = {
         style: {
           lineWidth: {
             valueKey: 'headway_minimo',
-            values:
-              '${METADATA_API_ENDPOINT}/cem_gtfs_linhas_trem?select=value:headway_minimo&cd_mun=eq.${municipioId}',
+            valueLabel: 'Linhas - Headway',
+            viewKey: 'cem_gtfs_linhas_trem',
+            cd_mun: '${municipioId}',
           },
           opacity: 1
         },
