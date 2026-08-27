@@ -28,9 +28,14 @@ const CONF_TABS = {
     icon: <Icon path={mdiOpacity} size="16px" />,
     label: 'Visualização',
   },
+  local: {
+    id: 'local',
+    icon: <Icon path={mdiOpacity} size="16px" />,
+    label: 'Visualização',
+  },
 }
 
-const CONF_TAB_ORDER = ['data', 'style']
+const CONF_TAB_ORDER = ['data', 'style', 'local']
 
 function _isMarkdownUrl(str) {
   return (
@@ -45,8 +50,8 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
   // Debounce updating view conf. Prevent's fast changing controls
   // from accidentally triggering map view re-renders unnecessarily
   //
-  const [immediateViewConf, setImmediateViewConf] = useState(viewConf)
-  useDebounce(() => onSetView(immediateViewConf), 500, [immediateViewConf])
+  // const [immediateViewConf, setImmediateViewConf] = useState(viewConf)
+  // useDebounce(() => onSetView(immediateViewConf), 50, [immediateViewConf])
 
   const enabledTabs = useMemo(
     () =>
@@ -168,7 +173,7 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
               Boolean(value),
             ),
           )
-          const tabConfValue = immediateViewConf[tab.id]
+          const tabConfValue = viewConf[tab.id]
 
           return (
             <Tabs.Content key={tab.id} value={tab.id}>
@@ -181,7 +186,7 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
                     }}
                     value={tabConfValue}
                     onSetValue={(nextValue) =>
-                      setImmediateViewConf({
+                      onSetView({
                         ...viewConf,
                         [tab.id]: {
                           ...(viewConf[tab.id] || {}),

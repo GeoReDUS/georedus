@@ -15,5 +15,10 @@ export function confSchema(viewSpec, allViewSpecs, context) {
         ? null
         : opacitySlider({ defaultValue: 1 }),
     },
+    local: {
+      opacity: viewSpec.style.circle
+        ? null
+        : opacitySlider({ defaultValue: 1 }),
+    },
   }
 }

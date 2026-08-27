@@ -28,7 +28,8 @@ function _main_heatmap(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   const heatmap = resolve.fn((ctx) => {
-    const _confOpacity = ctx.view?.conf?.style?.opacity
+    // const _confOpacity = ctx.view?.conf?.style?.opacity
+    const _confOpacity = ctx.view?.conf?.local?.opacity
 
     return {
       zIndex: Z_OVERLAY_BASE_1000,
@@ -110,8 +111,14 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
         'circle-stroke-width': 2,
         'circle-stroke-opacity': _opacity,
         'circle-radius':
-          viewSpec.style.circle_radius && Array.isArray(viewSpec.style.circle_radius)
-            ? ['interpolate', ['linear'], ['zoom'], ...viewSpec.style.circle_radius]
+          viewSpec.style.circle_radius &&
+          Array.isArray(viewSpec.style.circle_radius)
+            ? [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                ...viewSpec.style.circle_radius,
+              ]
             : viewSpec.style.circle_radius || [
                 'interpolate',
                 ['linear'],
