@@ -2,17 +2,17 @@ import { scaleQuantile } from 'd3-scale'
 
 const DEFAULT_COLOR = '#CCC'
 
-
-
 function equalIntervals({ values, colorScheme, classificationMethod }) {
-  const k = classificationMethod.k
-  const min = Math.min(...values)
-  const max = Math.max(...values)
+  const hasLowerValues = Math.min(...values) < 1
+  const k = hasLowerValues ? classificationMethod.k - 1 : classificationMethod.k
+  const valuesAbove1 = values.filter((v) => v >= 1)
+  const min = Math.min(...valuesAbove1)
+  const max = Math.max(...valuesAbove1)
   const colorScale = colorScheme.scalesByK[k]
 
   const breaks = new Array(k - 1)
     .fill(null)
-    .map((_, index) => ((max - min) * (index + 1)) / k)
+    .map((_, index) => min + ((max - min) * (index + 1)) / k)
 
   const colorScaleStops = breaks
     .map((breakValue, index) => {
@@ -23,62 +23,56 @@ function equalIntervals({ values, colorScheme, classificationMethod }) {
     })
     .flat(1)
 
-  return colorScaleStops
+  return { colorScaleStops, hasLowerValues }
 }
 
 function quantile({ values, colorScheme, classificationMethod }) {
+  const hasLowerValues = Math.min(...values) < 1
+  const k = hasLowerValues ? classificationMethod.k : classificationMethod.k + 1
+  const valuesAbove1 = values.filter((v) => v >= 1)
+  const min = Math.min(...valuesAbove1)
+
   const scale = scaleQuantile()
-    .domain(values) // your data
-    .range(new Array(classificationMethod.k).fill(null).map((_, idx) => idx)) // number of bins
+    .domain(values)
+    .range(new Array(k).fill(null).map((_, idx) => idx))
 
-  const breaks = scale.quantiles() // → the cutoff values
+  const breaks = scale.quantiles()
 
-  //
-  // Will produce an array such as:
-  // [
-  //   "below_10",
-  //   10,
-  //   "between_10_20",
-  //   20,
-  //   "between_20_30",
-  //   30,
-  //   "above_30"
-  // ]
-  //
+  const colorScale = colorScheme.scalesByK[k]
+  const colorScaleStops = hasLowerValues
+    ? breaks
+        .map((breakValue, index) => {
+          const color = colorScale[index + 1]
 
-  const colorScale = colorScheme.scalesByK[classificationMethod.k]
-  const colorScaleStops = breaks
-    .map((breakValue, index) => {
-      const color = colorScale[index + 1]
-
-      return index === 0
-        ? [
-            // For below 0 values, will use defaultColor
-            DEFAULT_COLOR,
-            0,
-            // colorScale
-            colorScale[0],
-            breakValue,
-            color,
-          ]
-        : [breakValue, color]
-    })
-    .flat(1)
-
-  return colorScaleStops
+          return index === 0
+            ? [DEFAULT_COLOR, breakValue, color]
+            : [breakValue, color]
+        })
+        .flat(1)
+    : [
+        DEFAULT_COLOR,
+        ...breaks.flatMap((breakValue, index) => [
+          breakValue,
+          colorScale[index],
+        ]),
+      ]
+  return { colorScaleStops, hasLowerValues }
 }
 
 function naturalBreaks({ values, colorScheme, classificationMethod }) {
-  return [
+  const valuesAbove1 = values.filter((v) => v >= 1)
+  const hasLowerValues = Math.min(...values) < 1
+  const k = hasLowerValues ? classificationMethod.k - 1 : classificationMethod.k
+  const colorScaleStops = [
     '$naturalBreaks',
-    values,
+    valuesAbove1,
     {
       ...colorScheme,
       defaultColor: DEFAULT_COLOR,
-      k: classificationMethod.k,
-      minK: 5,
+      k,
     },
   ]
+  return { colorScaleStops, hasLowerValues }
 }
 
 export const COLOR_SCALE_STOPS_RESOLVERS = {

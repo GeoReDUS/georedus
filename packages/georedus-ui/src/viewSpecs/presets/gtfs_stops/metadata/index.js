@@ -50,7 +50,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
             style.radius.classificationMethod?.k,
         }
 
-        const colorScaleStops = COLOR_SCALE_STOPS_RESOLVERS[
+        const { colorScaleStops, hasLowerValues } = COLOR_SCALE_STOPS_RESOLVERS[
           _classificationMethod.type
         ]({
           values: resolvedValues,
@@ -61,6 +61,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
         return {
           values: resolvedValues,
           colorScaleStops,
+          hasLowerValues,
         }
       })
     : null

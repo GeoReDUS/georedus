@@ -10,7 +10,7 @@ import {
 } from '../../util'
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
 
-const SIZE_MAX = 12
+const SIZE_MAX = 10
 const SIZE_MIN = 4
 
 const DEFAULT_CIRCLE_OPACITY = 0.7
@@ -22,6 +22,29 @@ function _validNumericalValues(values) {
 }
 
 const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
+
+function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
+  if (!hasLowerValues) {
+    return colorScaleStops
+  }
+
+  const k = (colorScaleStops.length - 1) / 2
+  const colors = colorScheme.scalesByK[k + 1] || colorScheme.scalesByK[colorScheme.maxK]
+
+  const stops = []
+  stops.push(colorScaleStops[0]) // DEFAULT_COLOR base
+  stops.push(0) // boundary for [0, colors[0]) bucket
+  stops.push(colors[0]) // color for that bucket
+  stops.push(1) // boundary for [1, colors[1]) bucket (shifted one color up)
+  stops.push(colors[1])
+
+  for (let i = 3; i < colorScaleStops.length; i += 2) {
+    stops.push(colorScaleStops[i]) // original break boundary
+    stops.push(colors[Math.floor(i / 2) + 1]) // shifted color
+  }
+
+  return stops
+}
 
 function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
@@ -35,11 +58,15 @@ function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
 
     const colorSchemeId =
       ctx.view.conf?.style?.colorScheme || viewSpec.style?.radius?.colorScheme
-    const scheme =
+    const colorScheme =
       COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES[DEFAULT_COLOR_SCHEME_ID]
-    const colors = scheme.scalesByK[scheme.maxK]
+    const colors = colorScheme.scalesByK[colorScheme.maxK]
 
-    const stopsWithOpacity = ctx.view.metadata.radiusData.colorScaleStops.map(
+    const { colorScaleStops, hasLowerValues } = ctx.view.metadata.radiusData
+
+    const stopsToUse = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
+
+    const stopsWithOpacity = stopsToUse.map(
           (entry, index) =>
             index % 2 === 0
               ? applyOpacity(
@@ -136,15 +163,26 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   const _municipioFilter = municipioFilter()
 
-  const _maplibreColorExp = resolve.fn((ctx) => [
-    'step',
-    [
-      'coalesce',
-      ['get', viewSpec.style.radius.valueKey],
-      Math.min(...ctx.view.metadata.radiusData.values) - 1,
-    ],
-    ...ctx.view.metadata.radiusData.colorScaleStops,
-  ])
+  const _maplibreColorExp = resolve.fn((ctx) => {
+    const { colorScaleStops, hasLowerValues } = ctx.view.metadata.radiusData
+
+    const colorSchemeId =
+      ctx.view.conf?.style?.colorScheme || viewSpec.style?.radius?.colorScheme
+    const colorScheme =
+      COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES[DEFAULT_COLOR_SCHEME_ID]
+
+    const stops = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
+
+    return [
+      'step',
+      [
+        'coalesce',
+        ['get', viewSpec.style.radius.valueKey],
+        Math.min(...ctx.view.metadata.radiusData.values) - 1,
+      ],
+      ...stops,
+    ]
+  })
 
   return {
     [`main_circle`]: _main_circle(
