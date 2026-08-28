@@ -9,36 +9,24 @@ export function metadata(viewSpec, allViewSpecs, context) {
   const urlLayerValues = `${context.METADATA_API_ENDPOINT}/${style.lineWidth.viewKey}?select=value:${style.lineWidth.valueKey}&cd_mun=eq.${style.lineWidth.cd_mun}`
   const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:${style.lineWidth.valueKey}&cd_mun=eq.${style.lineWidth.cd_mun}`
 
-  const widthData = style.lineWidth?.values
+  const widthData = style.lineWidth
     ? resolveAsync.fn(async (ctx) => {
         const resolvedLayerValues = (
-          typeof style.lineWidth.values === 'string'
-            ? await fetch(
-                interpolate(urlLayerValues, {
-                  METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-                  municipioId: context.municipioId,
-                }),
-              ).then((res) => res.json())
-            : Array.isArray(style.lineWidth.values)
-              ? style.lineWidth.values.map((entry) =>
-                  typeof entry === 'number' ? entry : entry.value,
-                )
-              : null
+          await fetch(
+            interpolate(urlLayerValues, {
+              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+              municipioId: context.municipioId,
+            }),
+          ).then((res) => res.json())
         ).map((entry) => (typeof entry === 'number' ? entry : entry.value))
 
         const resolvedAllValues = (
-          typeof style.lineWidth.values === 'string'
-            ? await fetch(
-                interpolate(urlAllValues, {
-                  METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-                  municipioId: context.municipioId,
-                }),
-              ).then((res) => res.json())
-            : Array.isArray(style.lineWidth.values)
-              ? style.lineWidth.values.map((entry) =>
-                  typeof entry === 'number' ? entry : entry.value,
-                )
-              : null
+          await fetch(
+            interpolate(urlAllValues, {
+              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+              municipioId: context.municipioId,
+            }),
+          ).then((res) => res.json())
         ).map((entry) => (typeof entry === 'number' ? entry : entry.value))
 
         const _classificationMethod = {

@@ -126,9 +126,7 @@ export function layers(viewSpec, allViewSpecs, context) {
         ...ctx.view.metadata.widthData.widthScaleStops,
       ]
     } else {
-      return (
-        ctx.view?.conf?.style?.lineWidth || styleSpec?.lineWidth || LINE_WIDTH_1
-      )
+      return LINE_WIDTH_1
     }
   })
 
