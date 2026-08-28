@@ -87,7 +87,7 @@ export function declividade({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
     shortDescription:
       'Ângulo de inclinação da superfície do terreno com relação à horizontal',
     path: `Emergências climáticas / / Suscetibilidade a deslizamentos`,
-    metodology: <DocumentIframe src="/georedus/metodologia/declividade.pdf" />,
+    metodology: <DocumentIframe src="/georedus/georedus/metodologia/declividade.pdf" />,
     confSchema: {
       data: {
         declividadeActiveClasses: {

@@ -62,7 +62,7 @@ export function curvatura({ RASTER_TILE_SERVER_ENDPOINT, mosaicJsonUrl }) {
       'Refere-se às formas côncava, convexa e retilínea do terreno, analisada em perfil',
     path: `Emergências climáticas / / Suscetibilidade a deslizamentos`,
     metodology: (
-      <DocumentIframe src="/georedus/metodologia/perfil-de-curvatura.pdf" />
+      <DocumentIframe src="/georedus/georedus/metodologia/perfil-de-curvatura.pdf" />
     ),
     confSchema: {
       data: {

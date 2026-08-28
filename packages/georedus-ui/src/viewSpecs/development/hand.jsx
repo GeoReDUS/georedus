@@ -83,7 +83,7 @@ export function hand({
       'Áreas suscetíveis à inundação calculadas por meio da distância vertical em relação ao canal de drenagem mais próximo',
     path: `Emergências climáticas / / Suscetibilidade à inundação`,
     metodology: (
-      <DocumentIframe src="/georedus/metodologia/inundacao-hand.pdf" />
+      <DocumentIframe src="/georedus/georedus/metodologia/inundacao-hand.pdf" />
     ),
     confSchema: {
       data: {

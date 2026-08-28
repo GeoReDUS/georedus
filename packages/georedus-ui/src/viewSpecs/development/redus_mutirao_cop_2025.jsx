@@ -253,7 +253,7 @@ export function redus_mutirao_cop_2025(conf) {
                       height: 'auto',
                     }}
                     alt="Logo COP30 Belém"
-                    src="/georedus/mutirao-cop30/COP30_Official_Logo.svg"
+                    src="/georedus/georedus/mutirao-cop30/COP30_Official_Logo.svg"
                   />
                 </Box>
 

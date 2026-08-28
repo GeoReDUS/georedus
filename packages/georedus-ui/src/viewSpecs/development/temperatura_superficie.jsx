@@ -78,7 +78,7 @@ export function temperatura_superficie({
     sourceLabel: 'Landsat-8 e Landsat-9',
     shortDescription: 'Refere-se à',
     metodology: (
-      <DocumentIframe src="/georedus/metodologia/maximas-de-temperatura.pdf" />
+      <DocumentIframe src="/georedus/georedus/metodologia/maximas-de-temperatura.pdf" />
     ),
     label: 'Temperatura máxima de superfície (ºC)',
     shortDescription:

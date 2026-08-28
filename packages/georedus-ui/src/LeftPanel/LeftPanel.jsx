@@ -144,7 +144,7 @@ function LeftPanelInner({
             // height: 'auto',
             // width: '100%',
           }}
-          src="/georedus/assets/parcerias.png"
+          src="/georedus/georedus/assets/parcerias.png"
         />
       </Flex>
     )
