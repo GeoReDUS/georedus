@@ -144,6 +144,25 @@ const VIEW_SPECS = {
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mun_sao_luis_malha_parcelamento_solo_corredores_1992.geom/{z}/{x}/{y}',
       },
+      {
+        id: 'cem_gtfs_linhas',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'vector_line_categorical',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
+        source_layer: 'cem_gtfs_linhas.geom',
+        path: 'Line Categorical Test / _ ',
+        label: 'Linhas',
+        style: {
+          categoryKey: 'route_type',
+          lineWidth: 2,
+          categories:
+            '${METADATA_API_ENDPOINT}/cem_gtfs_linhas?select=value:route_type',
+        },
+        sourceLabel: 'Test',
+        shortDescription: 'Vector Line Categorical Preset',
+      }
     ],
   ],
 }
