@@ -42,6 +42,12 @@ type QueriesByStage = {
   download: UseQueryResult[]
 }
 
+/**
+ * Merges query results into partial views. For each stage in `queriesByStage`,
+ * assigns query data on success or a sentinel symbol (`STAGE_LOADING` /
+ * `STAGE_ERROR`) otherwise. When `queriesByStage` is `null`, returns base
+ * views with only `id` and `conf`.
+ */
 function _viewsFromStageQueries<
   QueriesByStagePartial extends Partial<QueriesByStage> = QueriesByStage,
 >({
@@ -87,10 +93,10 @@ function _viewsFromStageQueries<
   )
 }
 
-//
-// Utility that checks whether a partial view
-// has all stages from a list resolved
-//
+/**
+ * Utility that checks whether a partial view
+ * has all stages from a list resolved
+ */
 function _hasViewResolvedStages(
   partialView: Partial<ResolvedView>,
   stages: ViewStageKey[],
@@ -106,6 +112,18 @@ function _hasViewResolvedStages(
   })
 }
 
+/**
+ * Fans out one React Query query per view for a single pipeline stage via
+ * `useQueries`.
+ *
+ * Each query is enabled only when:
+ * 1. The global `enabled` flag is true.
+ * 2. All `dependsOnStages` are resolved on that view's partial view.
+ *
+ * The query key includes the result of `viewSpec[stageKey]._dependencies` (if
+ * defined), allowing stages to declare fine-grained cache invalidation based
+ * on prior stage data or app context.
+ */
 function useViewStageQueries({
   enabled: extEnabled,
   stageKey,
@@ -138,6 +156,13 @@ function useViewStageQueries({
           ? _hasViewResolvedStages(partialView, dependsOnStages)
           : true)
 
+      //
+      // `_dependencies` extracts what this stage cares about from prior stage
+      // output. Its return value is included in the query key, so the stage
+      // re-resolves only when the upstream data it declared interest in
+      // changes. If not defined, falls back to 'STABLE_DEPENDENCY' — the
+      // stage will not re-resolve due to upstream stage changes.
+      //
       const stageDependencies =
         enabled && typeof viewSpec[stageKey]?._dependencies === 'function'
           ? viewSpec[stageKey]._dependencies({
@@ -146,6 +171,16 @@ function useViewStageQueries({
             }) || 'STABLE_DEPENDENCY'
           : 'STABLE_DEPENDENCY'
 
+      //
+      // Query key composition:
+      //   'ViewStage'  — namespace, avoids collisions with other query keys
+      //   viewId       — scopes cache per view; views are independent
+      //   stageKey     — scopes within a view; each stage has its own entry
+      //   viewConf     — invalidates all stages for this view on conf change
+      //   app          — invalidates all stages for all views on app context change
+      //   stageDependencies — fine-grained cross-stage invalidation; only the
+      //                       upstream data this stage declared interest in
+      //
       const queryKey = [
         'ViewStage',
         viewId,
@@ -156,9 +191,6 @@ function useViewStageQueries({
       ]
 
       return {
-        ...(viewSpec[stageKey]?._query
-          ? pick(viewSpec[stageKey]?._query, ['gcTime'])
-          : {}),
         gcTime: 0,
         enabled,
         queryKey,
@@ -178,6 +210,24 @@ function useViewStageQueries({
   })
 }
 
+/**
+ * Orchestrates the full view resolution pipeline for all active views.
+ *
+ * Stages are resolved in sequence: `metadata → sources → layers →
+ * (controls, download)`. Each stage receives a snapshot of the preceding
+ * resolved queries as `partialViews` so downstream stages can read prior
+ * results.
+ *
+ * Each view × stage pair is an independent React Query query. This means a
+ * single view can update without triggering re-resolution of any other view.
+ *
+ * `resolvedViews` contains only views where `metadata`, `sources`, and
+ * `layers` are fully resolved — the minimum required for rendering.
+ * `download` is intentionally excluded from this gate.
+ *
+ * `resolvedViewSpecs` are resolved synchronously because schema changes must
+ * reflect immediately as the user edits conf values.
+ */
 export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
   const { viewSpecs, viewConfState } = viewResolutionContextBase
 
@@ -225,6 +275,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       .filter(Boolean) as ViewToResolve[]
   }, [viewSpecsById, viewConfState])
 
+  //
+  // 1. metadata
+  //
   const QUERIES_AT_METADATA = {}
   const metadataQueries = useViewStageQueries({
     enabled: VIEWS_ENABLED,
@@ -247,6 +300,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
     },
   })
 
+  //
+  // 2. sources
+  //
   const QUERIES_AT_SOURCES: Pick<QueriesByStage, 'metadata'> = {
     ...QUERIES_AT_METADATA,
     metadata: metadataQueries,
@@ -269,6 +325,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       )) || null,
   })
 
+  //
+  // 3. layers
+  //
   const QUERIES_AT_LAYERS: Pick<QueriesByStage, 'metadata' | 'sources'> = {
     ...QUERIES_AT_SOURCES,
     sources: sourcesQueries,
@@ -291,6 +350,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       )) || null,
   })
 
+  //
+  // 4.1. controls
+  //
   const QUERIES_AT_CONTROLS: Pick<
     QueriesByStage,
     'metadata' | 'sources' | 'layers'
@@ -319,6 +381,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       )) || null,
   })
 
+  //
+  // 4.2. download
+  //
   const downloadQueries = useViewStageQueries({
     enabled: VIEWS_ENABLED,
     stageKey: 'download',
@@ -351,10 +416,15 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
         download: downloadQueries,
       },
     }).filter((partialView) => {
+      //
+      // Views that have been resolved up to layers stage
+      // are considered to be resolved
+      //
       return _hasViewResolvedStages(partialView, [
         'metadata',
         'sources',
         'layers',
+        // 'controls',
         // 'download',
       ])
     })
@@ -367,6 +437,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
     downloadQueries,
   ])
 
+  //
+  // Takes into consideration if any query is still loading
+  //
   const isLoading = useMemo(() => {
     return [
       ...metadataQueries,
