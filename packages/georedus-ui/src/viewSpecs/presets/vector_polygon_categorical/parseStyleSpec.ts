@@ -1,4 +1,4 @@
-import { CUSTOM_COLOR_SCHEME } from '../util'
+import { CUSTOM_COLOR_SCHEME, DEFAULT_FILL_OPACITY } from '../util'
 
 export type CategoryStyleSpec = {
   color?: string
@@ -40,6 +40,7 @@ export type StyleSpec = {
     | 'schemeTableau10'
     | 'customColorScheme'
   categories: string | (string | Category)[]
+  opacity?: number
 } & Omit<CategoryStyleSpec, 'color'>
 
 export type StyleSpecInput = StyleSpec
@@ -50,9 +51,6 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   if (!styleInput) {
     throw new Error('expected existing styleInput')
   }
-
-  // if categories is array and have prop color,
-  // coloScheme is CUSTOM_COLOR_SCHEME, otherwise, is default
   const colorScheme =
     Array.isArray(styleInput.categories) &&
     styleInput.categories.every(
@@ -61,5 +59,9 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
       ? CUSTOM_COLOR_SCHEME
       : DEFAULT_COLOR_SCHEME_ID
 
-  return { colorScheme, ...styleInput }
+  return {
+    colorScheme,
+    opacity: DEFAULT_FILL_OPACITY,
+    ...styleInput,
+  }
 }

@@ -60,6 +60,7 @@ const VIEW_SPECS = {
           colorScheme: 'schemeSet3',
           categories:
             '${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria',
+          opacity: 0.2,
         },
         tooltip: {
           title: 'nome_uc',
@@ -72,11 +73,13 @@ const VIEW_SPECS = {
   - **categoryKey**: nome da coluna a ser categorizada;
   - **colorScheme**: string com nome da paleta de cores;
   - **categories**: endpoint de metadados;
+  - **opacity**: opacidade da camada;
 \`\`\`json
 {
   "categoryKey": "categoria",
   "colorScheme": "schemeSet3",
-  "categories": "\${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria"
+  "categories": "\${METADATA_API_ENDPOINT}/mma_malha_unidades_conservacao_2026?select=value:categoria",
+  "opacity": 0.2
 }
 \`\`\`
 `,

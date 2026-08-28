@@ -44,7 +44,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 
     paint: {
       'circle-color': _maplibreColorExp,
-      'circle-opacity': 1,
+      'circle-opacity': viewSpec.style?.opacity || 1,
       'circle-radius': viewSpec.style?.radius || 10,
       'circle-stroke-color': '#ffffff',
       'circle-stroke-width': viewSpec.style?.border ? 2 : 0,
