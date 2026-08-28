@@ -4,7 +4,7 @@ import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
 
 function _formatHour(fraction) {
   const h = Math.round(fraction)
-  return `${String(h).padStart(2, '0')}:${String(0).padStart(2, '0')}`
+  return `${String(h).padStart(2, '0')}:00`
 }
 
 export function confSchema(viewSpec, allViewSpecs, context) {

@@ -9,6 +9,7 @@ import {
   COLOR_SCHEMES,
 } from '../../util'
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
+import { buildPeriodValueExpression } from './hourlyFields.js'
 
 const SIZE_MAX = 10
 const SIZE_MIN = 4
@@ -138,8 +139,15 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           ctx.view.metadata.radiusData.values,
         )
 
+        const [periodFrom, periodTo] = ctx.view.conf?.style
+          ?.periodHourSlider || [0, 24]
+
         return zoomSensitiveLinearSizes({
-          variable: ['get', viewSpec.style?.radius?.valueKey],
+          variable: buildPeriodValueExpression(
+            viewSpec.style.radius.valueKey,
+            periodFrom,
+            periodTo,
+          ),
           minValue: Math.min(...values),
           maxValue: Math.max(...values),
           minSize: SIZE_MIN,
@@ -173,11 +181,18 @@ export function layers(viewSpec, allViewSpecs, context) {
 
     const stops = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
 
+    const [periodFrom, periodTo] = ctx.view.conf?.style
+      ?.periodHourSlider || [0, 24]
+
     return [
       'step',
       [
         'coalesce',
-        ['get', viewSpec.style.radius.valueKey],
+        buildPeriodValueExpression(
+          viewSpec.style.radius.valueKey,
+          periodFrom,
+          periodTo,
+        ),
         Math.min(...ctx.view.metadata.radiusData.values) - 1,
       ],
       ...stops,

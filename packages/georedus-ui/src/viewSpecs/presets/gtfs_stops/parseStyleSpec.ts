@@ -9,6 +9,7 @@ type ClassificationMethod =
 
 type ContinuousSpecBase = {
   valueKey: string
+  cd_mun: string
   values: string | number[] | { value: number }[]
   numberFormat?: any
   classificationMethod?: ClassificationMethod
@@ -60,6 +61,7 @@ export type StyleSpecInput = StyleSpec
 export const DEFAULT_COLOR_SCHEME_ID = 'schemeRdYlGn'
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
+  console.log(styleInput.radius)
   return {
     ...styleInput,
     radius: styleInput.radius

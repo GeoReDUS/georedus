@@ -2,39 +2,53 @@ import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
 import { COLOR_SCHEMES } from '../../../util'
 import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
+import { buildHourlyFieldNames } from './hourlyFields.js'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
 
-  const radiusData = style.radius?.values
+  const valuesArray = buildHourlyFieldNames(style.radius.valueKey)
+  let valuesParam = ''
+  for (let i = 0; i < 24; i++) {
+    const param = valuesArray[i]
+    valuesParam += i > 0 ? `,${param}:${param}` : `${param}:${param}`
+  }
+
+  const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_estacoes?cd_mun=eq.${style.radius.cd_mun}&select=${valuesParam}`
+
+  console.log('urlAllValues', urlAllValues)
+  const radiusData = style.radius
     ? resolveAsync.fn(async (ctx) => {
-        //
-        // resolve values
-        //
-        const resolvedValues = (
-          typeof style.radius.values === 'string'
-            ? // style.radius.values is an URL
-              await fetch(
-                interpolate(style.radius.values, {
-                  METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-                  municipioId: context.municipioId,
+        const resolvedAllValues = (
+          await fetch(
+            interpolate(urlAllValues, {
+              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+              municipioId: context.municipioId,
+            }),
+          ).then((res) => res.json())
+        ).map((entry) => {
+          const partidas = []
+          valuesArray.forEach((key) => {
+            partidas.push(entry[key])
+          })
+          return partidas
+        })
+        console.log('resolvedAllValues', resolvedAllValues)
 
-                  //
-                  // TODO: remove these hotfixes
-                  //
-                  municipioId_SUS: context.municipioId.substr(0, 6),
-                }),
-              ).then((res) => res.json())
-            : Array.isArray(style.radius.values)
-              ? style.radius.values
-              : null
-        )
-          .map((entry) => (typeof entry === 'number' ? entry : entry.value))
-          .filter((entry) => entry < 60)
+        const [periodFrom, periodTo] = ctx.view.conf?.style
+          ?.periodHourSlider || [0, 24]
 
-        //
-        // Resolve color scale stops
-        //
+        let resolvedValues = []
+        for (let i = 0; i < resolvedAllValues.length; i++) {
+          let sum = 0
+          for (let j = periodFrom; j < periodTo; j++) {
+            sum += resolvedAllValues[i][j]
+          }
+          resolvedValues.push(sum / (periodTo - periodFrom))
+        }
+
+        console.log('resolvedValues', resolvedValues)
+
         const colorSchemeId =
           ctx.view.conf?.style?.colorScheme || style.colorScheme
         const colorScheme =
