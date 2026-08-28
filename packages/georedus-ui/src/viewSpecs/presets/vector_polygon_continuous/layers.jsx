@@ -1,11 +1,16 @@
 import { COLOR_SCHEMES } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, DEFAULT_FILL_OPACITY, applyOpacity } from '../util'
+import {
+  basicTooltip,
+  DEFAULT_FILL_OPACITY,
+  applyOpacity,
+  municipioFilter,
+} from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
 
-function _main_line(props, viewSpec, allViewSpecs, context) {
+function _main_line({ _municipioFilter }, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   //
@@ -18,6 +23,7 @@ function _main_line(props, viewSpec, allViewSpecs, context) {
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     type: 'line',
+    filter: _municipioFilter,
     interactive: true,
     paint: {
       'line-color': colorScheme.scalesByK[3][2],
@@ -71,7 +77,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const { _maplibreColorExp } = props
+  const { _maplibreColorExp, _municipioFilter } = props
   const { source_layer } = viewSpec
   const _opacity = resolve.fn((ctx) =>
     typeof ctx.view?.conf?.style?.opacity === 'number'
@@ -79,11 +85,11 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
       : viewSpec.style.opacity,
   )
   return {
-    zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     interactive: true,
     type: 'fill',
+    filter: _municipioFilter,
     paint: {
       'fill-color': _maplibreColorExp,
       'fill-opacity': _opacity,
@@ -101,6 +107,8 @@ export function layers(viewSpec, allViewSpecs, context) {
   if (!source_layer) {
     throw new Error('source_layer must be defined')
   }
+
+  const _municipioFilter = municipioFilter()
 
   const _maplibreColorExp = resolve.fn((ctx) => [
     'step',
@@ -121,13 +129,13 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreColorExp },
+      { _maplibreColorExp, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,
     ),
     [`main_fill`]: _main_fill(
-      { _maplibreColorExp },
+      { _maplibreColorExp, _municipioFilter },
       viewSpec,
       allViewSpecs,
       context,

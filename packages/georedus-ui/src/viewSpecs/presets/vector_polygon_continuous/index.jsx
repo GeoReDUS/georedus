@@ -5,6 +5,7 @@ import { sources } from './sources'
 import { download } from './download'
 import { pick } from 'lodash'
 import { parseStyleSpec } from './parseStyleSpec'
+import { VIEW_TYPE_SURFACE_CHOROPLETH } from '../../constants'
 
 export function vector_polygon_continuous(
   { style, ...viewSpec },
@@ -18,6 +19,7 @@ export function vector_polygon_continuous(
 
   return {
     ...pick(viewSpec, ['id', 'path', 'label', 'sourceLabel', 'metodology', 'shortDescription']),
+    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
     confSchema: confSchema(viewSpec, allViewSpecs, context),
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
