@@ -43,7 +43,8 @@
     "react-map-gl": "^8.0.0",
     "react-router-dom": "^7.4.1",
     "rollup": "^4.13.0",
-    "storybook": "^8.0.0"
+    "storybook": "^8.0.0",
+    "type-fest": "^5.8.0"
   },
   "dependencies": {
     "@mapbox/tilebelt": "2.0.0",
