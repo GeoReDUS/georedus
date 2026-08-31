@@ -21,6 +21,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   return resolve.fn((ctx) => {
     const legends = []
     const valueKey = viewSpec.style?.lineWidth?.valueKey
+    const selectedColor = ctx.view?.conf?.style?.color
 
     if (valueKey && ctx.view?.metadata?.widthData) {
       const classificationMethodType =
@@ -53,7 +54,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
           title: `${viewSpec.style.lineWidth.valueLabel} (${classificationTypeLabel})`,
           items: parsedItems.map((item, index) => ({
             id: index,
-            label: item.label === "Abaixo de 0" ? "Sem dados" : item.label,
+            label: item.label === 'Abaixo de 0' ? 'Sem dados' : item.label,
             box: {
               style: {
                 height: 0,
@@ -66,6 +67,48 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
           })),
         })
       }
+    }
+
+    // Color legend
+    if (selectedColor === 'customColor') {
+      const colors = ctx.view?.metadata?.widthData?.colors || []
+      if (colors.length > 0) {
+        legends.push({
+          type: 'CategoricalLegend',
+          title: viewSpec.label,
+          items: [
+            {
+              id: 'colors',
+              label: null,
+              box: () => (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                  {colors.map((color) => (
+                    <span
+                      key={color}
+                      style={{
+                        display: 'inline-block',
+                        width: 20,
+                        height: 20,
+                        backgroundColor: color,
+                      }}
+                    />
+                  ))}
+                </div>
+              ),
+            },
+          ],
+        })
+      }
+    } else if (selectedColor) {
+      legends.push({
+        type: 'CategoricalLegend',
+        items: [
+          {
+            label: viewSpec.label,
+            color: resolveColor(selectedColor),
+          },
+        ],
+      })
     }
 
     return legends
@@ -121,8 +164,9 @@ export function layers(viewSpec, allViewSpecs, context) {
       styleSpec?.lineWidth?.valueKey &&
       ctx.view?.metadata?.widthData?.widthScaleStops
     ) {
-      const [periodFrom, periodTo] = ctx.view.conf?.style
-        ?.periodHourSlider || [0, 24]
+      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [
+        0, 24,
+      ]
 
       return [
         'step',

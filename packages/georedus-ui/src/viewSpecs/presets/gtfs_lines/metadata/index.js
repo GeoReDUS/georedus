@@ -14,19 +14,19 @@ export function metadata(viewSpec, allViewSpecs, context) {
     valuesParam += i > 0 ? `,${param}:${param}` : `${param}:${param}`
   }
 
-  const urlLayerValues = `${context.METADATA_API_ENDPOINT}/${style.lineWidth.viewKey}?cd_mun=eq.${style.lineWidth.cd_mun}&select=${valuesParam}`
+  const urlLayerValues = `${context.METADATA_API_ENDPOINT}/${style.lineWidth.viewKey}?cd_mun=eq.${style.lineWidth.cd_mun}&select=${valuesParam},color`
   const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_linhas?cd_mun=eq.${style.lineWidth.cd_mun}&select=${valuesParam}`
 
   const widthData = style.lineWidth
     ? resolveAsync.fn(async (ctx) => {
-        const resolvedLayerValues = (
-          await fetch(
-            interpolate(urlLayerValues, {
-              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-              municipioId: context.municipioId,
-            }),
-          ).then((res) => res.json())
-        ).map((entry) => {
+        const layerRawData = await fetch(
+          interpolate(urlLayerValues, {
+            METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+            municipioId: context.municipioId,
+          }),
+        ).then((res) => res.json())
+
+        const resolvedLayerValues = layerRawData.map((entry) => {
           const headways = []
           valuesArray.forEach((key) => {
             headways.push(entry[key])
@@ -34,6 +34,12 @@ export function metadata(viewSpec, allViewSpecs, context) {
           const frequencias = headways.map((h) => (h ? 60 / h : 0))
           return frequencias
         })
+
+        const colors = [...new Set(
+          layerRawData
+            .map((entry) => entry.color)
+            .filter(Boolean)
+        )]
 
         const resolvedAllValues = (
           await fetch(
@@ -96,6 +102,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
         return {
           values: layerValues,
           widthScaleStops,
+          colors,
         }
       })
     : null
