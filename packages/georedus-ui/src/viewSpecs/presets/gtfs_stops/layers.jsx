@@ -61,7 +61,6 @@ function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
       ctx.view.conf?.style?.colorScheme || viewSpec.style?.radius?.colorScheme
     const colorScheme =
       COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES[DEFAULT_COLOR_SCHEME_ID]
-    const colors = colorScheme.scalesByK[colorScheme.maxK]
 
     const { colorScaleStops, hasLowerValues } = ctx.view.metadata.radiusData
 

@@ -2,7 +2,7 @@ import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
 import { COLOR_SCHEMES } from '../../../util'
 import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
-import { buildHourlyFieldNames } from './hourlyFields.js'
+import { buildHourlyFieldNames } from '../hourlyFields.js'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
