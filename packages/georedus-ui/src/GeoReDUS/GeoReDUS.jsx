@@ -499,10 +499,7 @@ function GeoReDUSInner({
       return {
         id: list.id,
         views,
-        legends: uniqBy(
-          views.flatMap((view) => view?.controls?.legends || []),
-          (legend) => legend.dedupeKey || legend.id,
-        ),
+        legends: views.flatMap((view) => view?.controls?.legends || []),
       }
     })
   }, [viewConfState.layout, viewConfState.byId, resolvedViews])
@@ -694,14 +691,12 @@ function GeoReDUSInner({
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         resolvedLayout={resolvedLayout}
-        
         // props required for export image
         commitedViewState={commitedViewState}
         municipioId={municipioId}
         METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
         baseMapStyle={BASE_MAP_STYLE[baseMapStyle]}
         topViews={TOP_VIEWS}
-        
         {...leftPanelProps}
       />
 
@@ -772,7 +767,6 @@ function GeoReDUSInner({
         // TODO: review mapBounds calculation
         //
         onMoveEnd={(e) => {
-  
           setCommitedViewState(e.viewState)
           const { latitude, longitude } = e.viewState
           const bounds = e.target.getBounds()

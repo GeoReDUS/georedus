@@ -44,7 +44,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
         label: resolve.literal(
           resolve.fn((context) => {
             const [from, to] = context.value?.periodHourSlider || [0, 24]
-            return `Período de tempo (${formatHour(from)} - ${formatHour(to)})`
+            return `Horário (${formatHour(from)} - ${formatHour(to)})`
           }),
         ),
       },

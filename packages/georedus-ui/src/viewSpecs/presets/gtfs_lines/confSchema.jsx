@@ -35,7 +35,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
     }),
     periodHourSlider: {
       type: 'range',
-      size: '24',
+      size: '1',
       min: 0,
       max: 24,
       step: 1,
@@ -43,7 +43,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
       label: resolve.literal(
         resolve.fn((context) => {
           const [from, to] = context.value?.periodHourSlider || [0, 24]
-          return `Frequência (${formatHour(from)} - ${formatHour(to)})`
+          return `Horário (${formatHour(from)} - ${formatHour(to)})`
         }),
       ),
     },
