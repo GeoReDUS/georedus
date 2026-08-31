@@ -61,7 +61,6 @@ export type StyleSpecInput = StyleSpec
 export const DEFAULT_COLOR_SCHEME_ID = 'schemeRdYlGn'
 
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
-  console.log(styleInput.radius)
   return {
     ...styleInput,
     radius: styleInput.radius

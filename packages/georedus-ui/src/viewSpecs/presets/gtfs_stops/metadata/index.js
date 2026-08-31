@@ -45,8 +45,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
           resolvedValues.push(sum / (periodTo - periodFrom))
         }
 
-        console.log('resolvedValues', resolvedValues)
-
         const colorSchemeId =
           ctx.view.conf?.style?.colorScheme || style.colorScheme
         const colorScheme =
