@@ -29,9 +29,13 @@ export function viewsFromStageQueries<
             viewBase,
             Object.fromEntries(
               Object.entries(queriesByStage).map(([stageKey, stageQueries]) => {
-                //
-                // All queries by stage must share the same viewsToResolve
-                //
+                if (process.env.NODE_ENV !== 'production') {
+                  if (stageQueries.length !== viewsToResolve.length) {
+                    throw new Error(
+                      `viewsFromStageQueries: stageQueries["${stageKey}"].length (${stageQueries.length}) !== viewsToResolve.length (${viewsToResolve.length}). All stages must share the same viewsToResolve array.`,
+                    )
+                  }
+                }
                 const viewQuery = stageQueries[viewQueryIndex]
 
                 return viewQuery.status === 'success'

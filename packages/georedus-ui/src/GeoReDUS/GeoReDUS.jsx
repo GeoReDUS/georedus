@@ -459,22 +459,24 @@ function GeoReDUSInner({
     ],
   )
 
-  const {
-    resolvedViews,
-    resolvedViewSpecs,
-    isLoading: viewsLoading,
-  } = useViews({
-    viewSpecs: viewSpecsQuery.data,
-    viewConfState: viewConfState,
-    app: APP_CONTEXT,
-  })
+  const { viewsReadyAtStage, resolvedViewSpecs, currentLoadingStage } =
+    useViews({
+      viewSpecs: viewSpecsQuery.data,
+      viewConfState: viewConfState,
+      app: APP_CONTEXT,
+    })
+
+  //
+  // Only show views in which layers are ready
+  //
+  const viewsWithLayersReady = viewsReadyAtStage('layers')
 
   //
   // Prepares layout for rendering
   //
   const resolvedLayout = useMemo(() => {
-    const resolvedViewsById = Object.fromEntries(
-      resolvedViews.map((view) => [view.id, view]),
+    const viewsWithLayersReadyById = Object.fromEntries(
+      viewsWithLayersReady.map((view) => [view.id, view]),
     )
 
     const hasActiveViews = Object.keys(viewConfState.byId).length > 0
@@ -493,7 +495,7 @@ function GeoReDUSInner({
           [viewConfState.layout[0]]
     ).map((list, index) => {
       const views = list.items
-        .map((item) => resolvedViewsById[item.id])
+        .map((item) => viewsWithLayersReadyById[item.id])
         .filter(Boolean)
 
       return {
@@ -502,7 +504,7 @@ function GeoReDUSInner({
         legends: views.flatMap((view) => view?.controls?.legends || []),
       }
     })
-  }, [viewConfState.layout, viewConfState.byId, resolvedViews])
+  }, [viewConfState.layout, viewConfState.byId, viewsWithLayersReady])
 
   useEffect(() => {
     if (resolvedLayout.length > 1) {
@@ -689,7 +691,7 @@ function GeoReDUSInner({
         viewSpecs={resolvedViewSpecs}
         viewConfState={viewConfState}
         viewConfDispatch={viewConfDispatch}
-        resolvedViews={resolvedViews}
+        resolvedViews={viewsWithLayersReady}
         resolvedLayout={resolvedLayout}
         // props required for export image
         commitedViewState={commitedViewState}
@@ -952,7 +954,7 @@ function GeoReDUSInner({
           ),
         }))}
       >
-        {(viewsLoading || tilesLoading) && (
+        {(currentLoadingStage() !== null || tilesLoading) && (
           <LoadingIndicator
             style={{
               position: 'fixed',

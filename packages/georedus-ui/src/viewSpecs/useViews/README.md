@@ -4,14 +4,13 @@ Hook that resolves all active views through a staged async pipeline and returns 
 
 ## Overview
 
-Each view is resolved in five sequential stages:
+Each view is resolved through four stage groups:
 
 ```
-metadata → sources → layers → controls
-                            ↘ download
+[metadata] → [sources] → [layers] → [controls, download]
 ```
 
-Each stage depends on the output of the previous ones. A stage query is only enabled once its dependencies are resolved for that specific view.
+Stages within a group are parallel — they share the same upstream dependencies and neither depends on the other. Stages in different groups are sequential — a group only runs once all preceding groups are resolved for that view.
 
 ## Why `useQueries` instead of a single `useQuery`
 
@@ -34,44 +33,80 @@ Downstream stages use these partial views to:
 - determine whether their own query should be enabled (all required prior stages resolved)
 - compute dynamic cache keys via `_dependencies`, which can read from prior stage data
 
+`PIPELINE_STAGES` is a 2D array — each element is a group of parallel stages. The outer loop iterates over groups; the inner loop iterates over stages within each group, appending to the accumulator as it goes:
+
 ```ts
-// Conceptual accumulator progression
-QUERIES_AT_METADATA  = {}
-QUERIES_AT_SOURCES   = { metadata }
-QUERIES_AT_LAYERS    = { metadata, sources }
-QUERIES_AT_CONTROLS  = { metadata, sources, layers }
+// Accumulator progression (group → stage → result)
+group 0: [metadata]
+  metadata:  {} → { metadata }
+
+group 1: [sources]
+  sources:   { metadata } → { metadata, sources }
+
+group 2: [layers]
+  layers:    { metadata, sources } → { metadata, sources, layers }
+
+group 3: [controls, download]  — parallel
+  controls:  { metadata, sources, layers } → { metadata, sources, layers, controls }
+  download:  { metadata, sources, layers, controls } → { metadata, sources, layers, controls, download }
+  // 'all_previous_stages' for both resolves to group indices 0–2: [metadata, sources, layers]
+  // controls does NOT appear in download's dependencies even though it was added first
 ```
 
 ## Cache invalidation
 
 Each stage query key is composed of:
 
-| Element | Invalidates |
+Each stage query key has seven segments:
+
+| Segment | Value | Invalidates |
+|---|---|---|
+| 0 | `'GeoReDUS:ViewStage'` | Namespace only — avoids collisions with other query keys. |
+| 1 | `viewId` | Scopes cache per view. Views are fully independent. |
+| 2 | `stageKey` | Scopes within a view. Each stage has its own cache entry. |
+| 3 | `app` | All stages for all views, on app context change (e.g. auth, locale). |
+| 4 | `viewConf` (filtered) | See conf-scoped invalidation below. |
+| 5 | upstream stage versions | This stage, when an upstream stage refetches or errors. |
+| 6 | `stageDependencies` | This stage only, scoped to upstream data it declared interest in. |
+
+### Conf-scoped invalidation (segment 4)
+
+`viewConf` is filtered through `confSchema[scope][prop].notify` before being included in the key. A prop is included in a stage's key only when its `notify` targets that stage (or is absent, meaning it targets all stages). This prevents unrelated conf changes from invalidating stages that don't care about them.
+
+| `notify` value | Directly invalidates |
 |---|---|
-| `'ViewStage'` | —  namespace only, avoids collisions with other query keys |
-| `viewId` | Scopes cache per view. Views are fully independent. |
-| `stageKey` | Scopes within a view. Each stage has its own cache entry. |
-| `viewConf` | All stages for this view, on any conf change. |
-| `app` | All stages for all views, on app context change (e.g. auth, locale). |
-| `stageDependencies` | This stage only, based on what it declared via `_dependencies`. |
+| absent / falsy | all stages |
+| `'sources'` (string) | `sources` only |
+| `['sources', 'layers']` (array) | `sources` and `layers` only |
 
-`stageDependencies` is the return value of `viewSpec[stageKey]._dependencies({ view: partialView })`. The stage extracts only the upstream data it cares about; React Query re-fetches only when that extracted value changes. If `_dependencies` is not defined, the value is `'STABLE_DEPENDENCY'` and the stage is immune to upstream stage changes.
+**Cascading note:** even when `notify` scopes a conf change to a single stage (e.g. `'metadata'`), downstream stages are still invalidated indirectly. Once `metadata` re-resolves, its `dataUpdatedAt` advances and changes segment 5 for every stage that lists `metadata` in `dependsOnStages`. The `notify` filter controls which stage triggers first, not whether the cascade happens.
 
-Invalidation scope summary: `app` → all views, all stages. `viewConf` → all stages for one view. `stageDependencies` → one stage for one view, scoped to declared upstream data.
+### Upstream stage versions (segment 5)
+
+For each entry in `dependsOnStages`, the key encodes the upstream query's current state using React Query's own timestamps. The token changes exactly when the upstream stage transitions state or produces new data — on a successful refetch, on a new error, or when stale data is being served during a transition. This ensures the downstream stage re-resolves in lockstep with any meaningful upstream change, and is stable when nothing has changed.
+
+### Stage dependencies (segment 6)
+
+`viewSpec[stageKey]._dependencies({ ...viewResolutionContextBase, view: partialView })` lets a stage declare exactly which slice of upstream data it cares about. React Query re-fetches only when that extracted value changes. If `_dependencies` is not defined, segment 6 is `'STABLE_DEPENDENCY'` and the stage is immune to upstream data changes (segment 5 still applies).
+
+### Invalidation scope summary
+
+| Trigger | Scope |
+|---|---|
+| `app` change | all stages, all views |
+| conf prop (`notify` absent) | all stages, one view |
+| conf prop (`notify: 'sources'`) | `sources` directly; downstream cascade via seg 5 |
+| upstream stage refetch | all stages that declare it in `dependsOnStages` |
+| upstream data slice unchanged | no re-resolution (guarded by `_dependencies`) |
 
 ## Output
 
 `useViews` returns:
 
-| Field | Description |
-|---|---|
-| `resolvedViews` | Views where `metadata`, `sources`, and `layers` are all resolved. Passed to the renderer. |
-| `resolvedViewSpecs` | View specs with `confSchema` resolved synchronously (schema can depend on other views' conf values). |
-| `isLoading` | True while any metadata/sources/layers/controls query is pending. |
-| `metadataQueries` | Raw React Query results for the metadata stage, one entry per view. |
-| `sourcesQueries` | Raw React Query results for the sources stage. |
-| `layersQueries` | Raw React Query results for the layers stage. |
-| `controlsQueries` | Raw React Query results for the controls stage. |
-| `downloadQueries` | Raw React Query results for the download stage. |
-
-Note: `download` is excluded from the `resolvedViews` filter — a view is considered renderable before its download capability is resolved.
+| Field | Type | Description |
+|---|---|---|
+| `resolvedViews` | `Partial<ResolvedView>[]` | All active views with stage data merged in. Unresolved stages carry `STAGE_LOADING` or `STAGE_ERROR` sentinels. Use `viewsReadyAtStage` to obtain a filtered subset. |
+| `viewsReadyAtStage` | `(stageKey: ViewStageKey) => Partial<ResolvedView>[]` | Returns views where all stages up to and including `stageKey` are resolved. Pass `'layers'` for the minimum renderable set (`controls` and `download` are excluded from that gate). |
+| `resolvedViewSpecs` | `ViewSpec[]` | View specs with `confSchema` resolved synchronously. Schema can depend on other views' conf values; async resolution would cause visible UI flicker on conf edits. |
+| `queriesByStage` | `QueriesByStage` | Raw React Query result arrays for all stages, keyed by stage name. One entry per view, in `viewsToResolve` order. |
+| `currentLoadingStage` | `(viewId?: string \| null) => ViewStageKey \| null` | Called with no argument or `null`: global bottleneck — the earliest pipeline stage still loading across any view. Called with a `viewId`: per-view bottleneck for that view. Returns `null` when fully resolved. |
