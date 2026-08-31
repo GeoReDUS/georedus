@@ -17,7 +17,7 @@ import {
   parseMapViews,
 } from './parseMapViews'
 import { syncLayerOrder } from './syncLayerOrder'
-// import { mergeRefs } from 'react-merge-refs'
+import { getLayerRemountKey, getSourceRemountKey } from '../util'
 
 //
 // Augment mouse events with info from original view
@@ -167,10 +167,30 @@ export const LayeredMap = forwardRef<
       <LayeredMapContext.Provider value={imperativeHandle}>
         {children}
         {parsed.sources.map(({ id, viewId, ...source }) => (
-          <Source key={id} id={id} {...source} />
+          <Source
+            //
+            // Use `getSourceRemountKey` to ensure that
+            // non-reactive props (props that react-map-gl as no
+            // way of updating on maplibre) force re-mount
+            // of component
+            //
+            key={getSourceRemountKey(id, source)}
+            id={id}
+            {...source}
+          />
         ))}
         {parsed.layers.map(({ id, ...layer }) => (
-          <Layer key={id} id={id} {...layer} />
+          <Layer
+            //
+            // Use `getLayerRemountKey` to ensure that
+            // non-reactive props (props that react-map-gl as no
+            // way of updating on maplibre) force re-mount
+            // of component
+            //
+            key={getLayerRemountKey(id, layer)}
+            id={id}
+            {...layer}
+          />
         ))}
       </LayeredMapContext.Provider>
     </Map>
