@@ -2,7 +2,7 @@ import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
 import { COLOR_SCHEMES } from '../../../util'
 import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
-import { buildHourlyFieldNames } from '../hourlyFields.js'
+import { buildHourlyFieldNames } from '../../util/hourUtil.js'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -16,7 +16,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
 
   const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_estacoes?cd_mun=eq.${style.radius.cd_mun}&select=${valuesParam}`
 
-  console.log('urlAllValues', urlAllValues)
   const radiusData = style.radius
     ? resolveAsync.fn(async (ctx) => {
         const resolvedAllValues = (
@@ -33,7 +32,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
           })
           return partidas
         })
-        console.log('resolvedAllValues', resolvedAllValues)
 
         const [periodFrom, periodTo] = ctx.view.conf?.style
           ?.periodHourSlider || [0, 24]

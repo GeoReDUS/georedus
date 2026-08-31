@@ -57,12 +57,12 @@ const VIEW_SPECS = {
         label: 'Linhas Todas - Frequencia',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas',
             cd_mun: '${municipioId}',
           },
-          opacity: 0.1
+          opacity: 0.1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',
@@ -79,12 +79,12 @@ const VIEW_SPECS = {
         label: 'Linhas - Balsa',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas_balsa',
             cd_mun: '${municipioId}',
           },
-          opacity: 0.1
+          opacity: 0.1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',
@@ -101,12 +101,12 @@ const VIEW_SPECS = {
         label: 'Linhas - Bolde/VLT',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas_bonde_vlt',
             cd_mun: '${municipioId}',
           },
-          opacity: 0.1
+          opacity: 0.1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',
@@ -123,12 +123,12 @@ const VIEW_SPECS = {
         label: 'Linhas - BRT',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas_brt',
             cd_mun: '${municipioId}',
           },
-          opacity: 0.1
+          opacity: 0.1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',
@@ -145,12 +145,12 @@ const VIEW_SPECS = {
         label: 'Linhas - Metro',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas_metro',
             cd_mun: '${municipioId}',
           },
-          opacity: 1
+          opacity: 1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',
@@ -167,12 +167,12 @@ const VIEW_SPECS = {
         label: 'Linhas - Ônibus',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas_onibus',
             cd_mun: '${municipioId}',
           },
-          opacity: 0.1
+          opacity: 0.1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',
@@ -189,166 +189,12 @@ const VIEW_SPECS = {
         label: 'Linhas - Trem',
         style: {
           lineWidth: {
-            valueKey: 'avg_frequency',
-            valueLabel: 'Linhas - Frequência',
+            valueKey: 'headway',
+            valueLabel: 'Linhas - Frequência por hora',
             viewKey: 'cem_gtfs_linhas_trem',
             cd_mun: '${municipioId}',
           },
-          opacity: 1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas Todas - Headway',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 0.1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_balsa_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_balsa.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas_balsa.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas - Balsa',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas_balsa',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 0.1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_bonde_vlt_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_bonde_vlt.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas_bonde_vlt.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas - Bolde/VLT',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas_bonde_vlt',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 0.1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_brt_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_brt.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas_brt.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas - BRT',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas_brt',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 0.1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_metro_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_metro.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas_metro.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas - Metro',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas_metro',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_onibus_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_onibus.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas_onibus.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas - Ônibus',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas_onibus',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 0.1
-        },
-        sourceLabel: 'Test',
-        shortDescription: 'GTFS Lines Preset',
-      },
-      {
-        id: 'cem_gtfs_linhas_trem_headway_min',
-        collection_id: 'test',
-        indicator_id: 'test',
-        preset: 'gtfs_lines',
-        tiles:
-          '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_linhas_trem.geom/{z}/{x}/{y}',
-        source_layer: 'cem_gtfs_linhas_trem.geom',
-        path: 'GTFS Lines Test / _ / Headway',
-        label: 'Linhas - Trem',
-        style: {
-          lineWidth: {
-            valueKey: 'headway_minimo',
-            valueLabel: 'Linhas - Headway',
-            viewKey: 'cem_gtfs_linhas_trem',
-            cd_mun: '${municipioId}',
-          },
-          opacity: 1
+          opacity: 1,
         },
         sourceLabel: 'Test',
         shortDescription: 'GTFS Lines Preset',

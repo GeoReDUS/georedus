@@ -1,11 +1,7 @@
 import { resolve } from '@orioro/resolve'
 import { continuousColorSchemeSelector } from '../util/components/confInputs'
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
-
-function _formatHour(fraction) {
-  const h = Math.round(fraction)
-  return `${String(h).padStart(2, '0')}:00`
-}
+import { formatHour } from '../util/hourUtil'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   const radiusStyle = viewSpec.style?.radius
@@ -48,7 +44,7 @@ export function confSchema(viewSpec, allViewSpecs, context) {
         label: resolve.literal(
           resolve.fn((context) => {
             const [from, to] = context.value?.periodHourSlider || [0, 24]
-            return `Período de tempo (${_formatHour(from)} - ${_formatHour(to)})`
+            return `Período de tempo (${formatHour(from)} - ${formatHour(to)})`
           }),
         ),
       },

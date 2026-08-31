@@ -9,7 +9,7 @@ import {
   COLOR_SCHEMES,
 } from '../../util'
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
-import { buildPeriodValueExpression } from './hourlyFields.js'
+import { buildPeriodValueExpression } from '../util/hourUtil.js'
 
 const SIZE_MAX = 10
 const SIZE_MIN = 4

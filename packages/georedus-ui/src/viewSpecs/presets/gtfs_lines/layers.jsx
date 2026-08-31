@@ -7,6 +7,7 @@ import {
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { basicTooltip, LINE_WIDTH_1, municipioFilter } from '../util'
 import { WIDTH_MIN, WIDTH_MAX, DEFAULT_LINE_OPACITY } from './consts'
+import { buildPeriodFrequencyExpression } from '../util/hourUtil'
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -52,7 +53,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
           title: `${viewSpec.style.lineWidth.valueLabel} (${classificationTypeLabel})`,
           items: parsedItems.map((item, index) => ({
             id: index,
-            label: item.label,
+            label: item.label === "Abaixo de 0" ? "Sem dados" : item.label,
             box: {
               style: {
                 height: 0,
@@ -120,9 +121,20 @@ export function layers(viewSpec, allViewSpecs, context) {
       styleSpec?.lineWidth?.valueKey &&
       ctx.view?.metadata?.widthData?.widthScaleStops
     ) {
+      const [periodFrom, periodTo] = ctx.view.conf?.style
+        ?.periodHourSlider || [0, 24]
+
       return [
         'step',
-        ['coalesce', ['get', styleSpec.lineWidth.valueKey], WIDTH_MIN],
+        [
+          'coalesce',
+          buildPeriodFrequencyExpression(
+            styleSpec.lineWidth.valueKey,
+            periodFrom,
+            periodTo,
+          ),
+          WIDTH_MIN,
+        ],
         ...ctx.view.metadata.widthData.widthScaleStops,
       ]
     } else {
