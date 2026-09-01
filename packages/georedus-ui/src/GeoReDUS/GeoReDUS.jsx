@@ -45,7 +45,7 @@ import {
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import styled from 'styled-components'
 import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
-import { get, uniqBy } from 'lodash'
+import { get } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import {

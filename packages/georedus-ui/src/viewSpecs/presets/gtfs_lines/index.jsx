@@ -19,7 +19,6 @@ export function gtfs_lines(
 
   return {
     ...pick(viewSpec, ['id', 'path', 'label', 'sourceLabel', 'metodology', 'shortDescription']),
-    viewType: VIEW_TYPE_SURFACE_CHOROPLETH,
     confSchema: confSchema(viewSpec, allViewSpecs, context),
     metadata: metadata(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),

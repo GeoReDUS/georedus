@@ -9,12 +9,13 @@ import { basicTooltip, LINE_WIDTH_1, municipioFilter } from '../util'
 import { WIDTH_MIN, WIDTH_MAX, DEFAULT_LINE_OPACITY } from './consts'
 import { buildPeriodFrequencyExpression } from '../util/hourUtil'
 
-
 // In Georedus.jsx unique legend implementation
 // legends: uniqBy(
 //   views.flatMap((view) => view?.controls?.legends || []),
 //   (legend) => legend.dedupeKey || legend.id,
 // ),
+// In layer legend add dedupeKey
+// dedupeKey: `gtfs_lines_lineWidth_${valueKey}_${classificationMethodType}`,
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -45,6 +46,8 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
 
       const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
       if (_values.length > 0 && ctx.view.metadata.widthData.widthScaleStops) {
+        const colors = ctx.view?.metadata?.widthData?.colors || []
+
         const parsedItems = parseStepsToItems(
           ctx.view.metadata.widthData.widthScaleStops,
           {
@@ -57,67 +60,51 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
         )
         legends.push({
           type: 'CategoricalLegend',
-          dedupeKey: `gtfs_lines_lineWidth_${valueKey}_${classificationMethodType}`,
           title: `${viewSpec.style.lineWidth.valueLabel} (${classificationTypeLabel})`,
-          items:[ 
-            // TODO CAROL: inserir aqui retânngulo de cores
-            ...parsedItems.map((item, index) => ({
-            id: index,
-            label: item.label === 'Abaixo de 0' ? 'Sem dados' : item.label,
-            box: {
-              style: {
-                height: 0,
-                width: 24,
-                borderTopStyle: 'solid',
-                borderTopWidth: `${item.color}px`,
-                borderColor: '#555555',
-              },
-            },
-          }))],
-        })
-      }
-    }
-
-    // Color legend
-    if (selectedColor === 'customColor') {
-      const colors = ctx.view?.metadata?.widthData?.colors || []
-      if (colors.length > 0) {
-        legends.push({
-          type: 'CategoricalLegend',
-          title: viewSpec.label,
           items: [
-            {
-              id: 'colors',
-              label: null,
-              box: () => (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {colors.map((color) => (
-                    <span
-                      key={color}
-                      style={{
-                        display: 'inline-block',
-                        width: 20,
-                        height: 20,
-                        backgroundColor: color,
-                      }}
-                    />
-                  ))}
-                </div>
-              ),
-            },
+            ...(selectedColor === 'customColor'
+              ? [
+                  {
+                    id: 'colors',
+                    label: null,
+                    box: () => (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'nowrap',
+                          width: '100%',
+                          height: '20px',
+                        }}>
+                        {colors.map((color) => (
+                          <span
+                            key={color}
+                            style={{ flex: '1 1 0', backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
+            ...parsedItems.map((item, index) => ({
+              id: index,
+              label: item.label === 'Abaixo de 0' ? 'Sem dados' : item.label,
+              box: {
+                style: {
+                  height: 0,
+                  width: 24,
+                  borderTopStyle: 'solid',
+                  borderTopWidth: `${item.color}px`,
+                  borderColor:
+                    selectedColor === 'customColor'
+                      ? '#555555'
+                      : resolveColor(selectedColor),
+                },
+              },
+            })),
           ],
         })
       }
-    } else if (selectedColor) {
-      legends.push({
-        type: 'CategoricalLegend',
-        items: [
-          {
-            label: viewSpec.label,
-            color: resolveColor(selectedColor),
-          },
-        ],
-      })
     }
 
     return legends
