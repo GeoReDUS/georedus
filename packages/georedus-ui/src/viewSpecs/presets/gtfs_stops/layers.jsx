@@ -109,7 +109,7 @@ function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
 }
 
 function _main_circle(props, viewSpec, allViewSpecs, context) {
-  const { _municipioFilter, _maplibreColorExp } = props
+  const { _filter, _maplibreColorExp } = props
   const { source_layer } = viewSpec
 
   const _opacity = resolve.fn((ctx) =>
@@ -123,7 +123,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     interactive: true,
-    filter: _municipioFilter,
+    filter: _filter,
     type: 'circle',
     paint: {
       'circle-color': _maplibreColorExp,
@@ -168,7 +168,24 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  const _municipioFilter = municipioFilter()
+  const _filter = resolve.fn((ctx) => {
+    const conditions = [municipioFilter()]
+
+    if (viewSpec.style?.radius?.valueKey) {
+      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [0, 24]
+      conditions.push([
+        '!=',
+        buildPeriodValueExpression(
+          viewSpec.style.radius.valueKey,
+          periodFrom,
+          periodTo,
+        ),
+        0,
+      ])
+    }
+
+    return ['all', ...conditions]
+  })
 
   const _maplibreColorExp = resolve.fn((ctx) => {
     const { colorScaleStops, hasLowerValues } = ctx.view.metadata.radiusData
@@ -200,7 +217,7 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_circle`]: _main_circle(
-      { _municipioFilter, _maplibreColorExp },
+      { _filter, _maplibreColorExp },
       viewSpec,
       allViewSpecs,
       context,
