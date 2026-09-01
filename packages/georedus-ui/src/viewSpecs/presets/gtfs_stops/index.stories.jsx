@@ -56,13 +56,9 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_estacoes.geom/{z}/{x}/{y}',
         source_layer: 'cem_gtfs_estacoes.geom',
         style: {
-          color: 'schemeGeoReDUS.verde_agua',
-          filter: true,
           radius: {
             valueKey: 'partidas',
             cd_mun: '${municipioId}',
-            // values:
-            //   '${METADATA_API_ENDPOINT}/cem_gtfs_estacoes?select=value:departures_per_hour&cd_mun=eq.${municipioId}',
           },
         },
         tooltip: '',
@@ -81,13 +77,9 @@ const VIEW_SPECS = {
           '${VECTOR_TILE_SERVER_ENDPOINT}/cem_gtfs_estacoes.geom/{z}/{x}/{y}',
         source_layer: 'cem_gtfs_estacoes.geom',
         style: {
-          color: 'schemeGeoReDUS.verde_agua',
-          filter: true,
           radius: {
             valueKey: 'linhas',
             cd_mun: '${municipioId}',
-            // values:
-            //   '${METADATA_API_ENDPOINT}/cem_gtfs_estacoes?select=value:n_linhas&cd_mun=eq.${municipioId}',
           },
         },
         tooltip: '',
