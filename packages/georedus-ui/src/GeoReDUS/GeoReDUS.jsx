@@ -691,7 +691,7 @@ function GeoReDUSInner({
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         resolvedLayout={resolvedLayout}
-
+        
         // props required for export image
         commitedViewState={commitedViewState}
         municipioId={municipioId}
