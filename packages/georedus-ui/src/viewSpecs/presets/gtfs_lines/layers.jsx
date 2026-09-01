@@ -7,6 +7,15 @@ import {
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { basicTooltip, LINE_WIDTH_1, municipioFilter } from '../util'
 import { WIDTH_MIN, WIDTH_MAX, DEFAULT_LINE_OPACITY } from './consts'
+import { buildPeriodFrequencyExpression } from '../util/hourUtil'
+
+// In Georedus.jsx unique legend implementation
+// legends: uniqBy(
+//   views.flatMap((view) => view?.controls?.legends || []),
+//   (legend) => legend.dedupeKey || legend.id,
+// ),
+// In layer legend add dedupeKey
+// dedupeKey: `gtfs_lines_lineWidth_${valueKey}_${classificationMethodType}`,
 
 function _validNumericalValues(values) {
   return values.filter(
@@ -20,6 +29,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
   return resolve.fn((ctx) => {
     const legends = []
     const valueKey = viewSpec.style?.lineWidth?.valueKey
+    const selectedColor = ctx.view?.conf?.style?.color
 
     if (valueKey && ctx.view?.metadata?.widthData) {
       const classificationMethodType =
@@ -36,6 +46,8 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
 
       const _values = _validNumericalValues(ctx.view.metadata.widthData.values)
       if (_values.length > 0 && ctx.view.metadata.widthData.widthScaleStops) {
+        const colors = ctx.view?.metadata?.widthData?.colors || []
+
         const parsedItems = parseStepsToItems(
           ctx.view.metadata.widthData.widthScaleStops,
           {
@@ -48,21 +60,49 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
         )
         legends.push({
           type: 'CategoricalLegend',
-          dedupeKey: `gtfs_lines_lineWidth_${valueKey}_${classificationMethodType}`,
           title: `${viewSpec.style.lineWidth.valueLabel} (${classificationTypeLabel})`,
-          items: parsedItems.map((item, index) => ({
-            id: index,
-            label: item.label,
-            box: {
-              style: {
-                height: 0,
-                width: 24,
-                borderTopStyle: 'solid',
-                borderTopWidth: `${item.color}px`,
-                borderColor: '#555555',
+          items: [
+            ...(selectedColor === 'customColor'
+              ? [
+                  {
+                    id: 'colors',
+                    label: null,
+                    box: () => (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'nowrap',
+                          width: '100%',
+                          height: '20px',
+                        }}>
+                        {colors.map((color) => (
+                          <span
+                            key={color}
+                            style={{ flex: '1 1 0', backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
+            ...parsedItems.map((item, index) => ({
+              id: index,
+              label: item.label === 'Abaixo de 0' ? 'Sem dados' : item.label,
+              box: {
+                style: {
+                  height: 0,
+                  width: 24,
+                  borderTopStyle: 'solid',
+                  borderTopWidth: `${item.color}px`,
+                  borderColor:
+                    selectedColor === 'customColor'
+                      ? '#555555'
+                      : resolveColor(selectedColor),
+                },
               },
-            },
-          })),
+            })),
+          ],
         })
       }
     }
@@ -120,9 +160,21 @@ export function layers(viewSpec, allViewSpecs, context) {
       styleSpec?.lineWidth?.valueKey &&
       ctx.view?.metadata?.widthData?.widthScaleStops
     ) {
+      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [
+        0, 24,
+      ]
+
       return [
         'step',
-        ['coalesce', ['get', styleSpec.lineWidth.valueKey], WIDTH_MIN],
+        [
+          'coalesce',
+          buildPeriodFrequencyExpression(
+            styleSpec.lineWidth.valueKey,
+            periodFrom,
+            periodTo,
+          ),
+          WIDTH_MIN,
+        ],
         ...ctx.view.metadata.widthData.widthScaleStops,
       ]
     } else {

@@ -9,6 +9,7 @@ type ClassificationMethod =
 
 type ContinuousSpecBase = {
   valueKey: string
+  cd_mun: string
   values: string | number[] | { value: number }[]
   numberFormat?: any
   classificationMethod?: ClassificationMethod

@@ -45,7 +45,7 @@ import {
 import { fetchViewSpecs, resolveViewSpecs } from '../viewSpecs'
 import styled from 'styled-components'
 import { viewConfReducer, viewConfReducerInitialState } from './viewConfReducer'
-import { get, uniqBy } from 'lodash'
+import { get } from 'lodash'
 import { IconButton, Tooltip } from '@radix-ui/themes'
 import { Icon } from '@mdi/react'
 import {
@@ -501,10 +501,7 @@ function GeoReDUSInner({
       return {
         id: list.id,
         views,
-        legends: uniqBy(
-          views.flatMap((view) => view?.controls?.legends || []),
-          (legend) => legend.dedupeKey || legend.id,
-        ),
+        legends: views.flatMap((view) => view?.controls?.legends || []),
       }
     })
   }, [viewConfState.layout, viewConfState.byId, viewsWithLayersReady])
