@@ -112,7 +112,7 @@ function _main_line_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_line(
-  { _maplibreLineWidthExp, _maplibreColorExp, _municipioFilter },
+  { _maplibreLineWidthExp, _maplibreColorExp, _filter },
   viewSpec,
   allViewSpecs,
   context,
@@ -130,7 +130,7 @@ function _main_line(
       zIndex: Z_OVERLAY_BASE_1000,
       source: 'main',
       'source-layer': source_layer,
-      filter: _municipioFilter,
+      filter: _filter,
       type: 'line',
       paint: {
         'line-color': _maplibreColorExp,
@@ -153,7 +153,24 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  const _municipioFilter = municipioFilter()
+  const _filter = resolve.fn((ctx) => {
+    const conditions = [municipioFilter()]
+
+    if (styleSpec?.lineWidth?.valueKey) {
+      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [0, 24]
+      conditions.push([
+        '!=',
+        buildPeriodFrequencyExpression(
+          styleSpec.lineWidth.valueKey,
+          periodFrom,
+          periodTo,
+        ),
+        0,
+      ])
+    }
+
+    return ['all', ...conditions]
+  })
 
   const _maplibreLineWidthExp = resolve.fn((ctx) => {
     if (
@@ -191,7 +208,7 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreLineWidthExp, _maplibreColorExp, _municipioFilter },
+      { _maplibreLineWidthExp, _maplibreColorExp, _filter },
       viewSpec,
       allViewSpecs,
       context,
