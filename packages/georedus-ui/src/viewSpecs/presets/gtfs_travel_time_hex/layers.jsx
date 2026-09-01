@@ -28,7 +28,7 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     main_fill: {
-      zIndex: Z_OVERLAY_BASE_1000,
+      // zIndex: Z_OVERLAY_BASE_1000,
       source: 'main',
       'source-layer': source_layer,
       type: 'fill',
