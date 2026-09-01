@@ -691,7 +691,7 @@ function GeoReDUSInner({
         viewConfDispatch={viewConfDispatch}
         resolvedViews={resolvedViews}
         resolvedLayout={resolvedLayout}
-        
+
         // props required for export image
         commitedViewState={commitedViewState}
         municipioId={municipioId}
@@ -769,7 +769,7 @@ function GeoReDUSInner({
         // TODO: review mapBounds calculation
         //
         onMoveEnd={(e) => {
-
+          
           setCommitedViewState(e.viewState)
           const { latitude, longitude } = e.viewState
           const bounds = e.target.getBounds()
