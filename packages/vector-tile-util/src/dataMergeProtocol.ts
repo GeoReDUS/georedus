@@ -1,6 +1,6 @@
 import { dataJoin, syntheticJson } from '@orioro/util'
 import { RequestParameters } from 'maplibre-gl'
-import memoize from 'memoizee'
+import memoize, { type Options as MemoizeeOptions } from 'memoizee'
 import stableHash from 'stable-hash'
 import { transformAllLayers, vtTransform } from './vtTransform'
 
@@ -31,6 +31,7 @@ function _extractUrlAndInit(
 export function makeMemoFetch<T = any>(
   fetchFn: typeof fetch = fetch,
   parser: (res: Response) => Promise<T> = (res) => res.json(),
+  memoizeeOptions: MemoizeeOptions<typeof fetch> = {},
 ) {
   return memoize(
     (...args: Parameters<typeof fetch>) =>
@@ -43,6 +44,7 @@ export function makeMemoFetch<T = any>(
         return parser(res)
       }),
     {
+      max: 200,
       promise: true,
       normalizer: ([arg0, arg1]) => {
         const [rawUrl, options] = _extractUrlAndInit(arg0, arg1)
@@ -69,6 +71,7 @@ export function makeMemoFetch<T = any>(
           },
         ])
       },
+      ...memoizeeOptions,
     },
   )
 }
