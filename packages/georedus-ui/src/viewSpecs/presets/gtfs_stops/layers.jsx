@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { basicTooltip, municipioFilter, applyOpacity } from '../util'
+import { municipioFilter, applyOpacity } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -9,7 +9,14 @@ import {
   COLOR_SCHEMES,
 } from '../../util'
 import { DEFAULT_COLOR_SCHEME_ID } from './parseStyleSpec'
-import { buildPeriodValueExpression } from '../util/hourUtil.js'
+import {
+  buildPeriodExpression,
+  buildHourlyFieldNames,
+  computePeriodValue,
+  isMaxAggregationKey,
+  formatHour,
+} from '../util/hourUtil.js'
+import { capitalize } from 'lodash'
 
 const SIZE_MAX = 10
 const SIZE_MIN = 4
@@ -22,8 +29,8 @@ function _validNumericalValues(values) {
   )
 }
 
-const NO_DATA_COLOR = GEOREDUS_LABELED_RESTRICTED_USE_COLORS.cinza_claro.value
 
+// Will create a 0-1 stop if there is any value below 1
 function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
   if (!hasLowerValues) {
     return colorScaleStops
@@ -118,6 +125,47 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       : DEFAULT_CIRCLE_OPACITY,
   )
 
+  const _tooltip = {
+    title: [
+      '$literal',
+      resolve.fn((ctx) => ctx?.feature?.properties?.stop_name),
+    ],
+    entries: [
+      '$literal',
+      resolve.fn((ctx) => {
+        if (!viewSpec.style?.radius?.valueKey) {
+          return []
+        }
+
+        const valueKey = viewSpec.style.radius.valueKey
+        const properties = ctx.feature?.properties || {}
+        const valuesArray = buildHourlyFieldNames(valueKey)
+
+        const hourlyEntries = valuesArray.map((field, i) => [
+          `${capitalize(valueKey)} ${formatHour(i)} - ${formatHour(i + 1)}`,
+          properties[field],
+        ])
+
+        const [periodFrom, periodTo] = ctx.view?.conf?.style
+          ?.periodHourSlider || [0, 24]
+        const periodValue = computePeriodValue(
+          (field) => properties[field],
+          valueKey,
+          periodFrom,
+          periodTo,
+        )
+
+        return [
+          ...hourlyEntries,
+          [
+            `${isMaxAggregationKey(valueKey) ? 'Máximo' : 'Média'} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
+            periodValue,
+          ],
+        ]
+      }),
+    ],
+  }
+
   return {
     zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
@@ -142,7 +190,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           ?.periodHourSlider || [0, 24]
 
         return zoomSensitiveLinearSizes({
-          variable: buildPeriodValueExpression(
+          variable: buildPeriodExpression(
             viewSpec.style.radius.valueKey,
             periodFrom,
             periodTo,
@@ -157,7 +205,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       // 'circle-stroke-width': 1,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
-    tooltip: basicTooltip(viewSpec.tooltip),
+    tooltip: _tooltip,
   }
 }
 
@@ -175,7 +223,7 @@ export function layers(viewSpec, allViewSpecs, context) {
       const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [0, 24]
       conditions.push([
         '!=',
-        buildPeriodValueExpression(
+        buildPeriodExpression(
           viewSpec.style.radius.valueKey,
           periodFrom,
           periodTo,
@@ -204,7 +252,7 @@ export function layers(viewSpec, allViewSpecs, context) {
       'step',
       [
         'coalesce',
-        buildPeriodValueExpression(
+        buildPeriodExpression(
           viewSpec.style.radius.valueKey,
           periodFrom,
           periodTo,

@@ -2,7 +2,7 @@ import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
 import { COLOR_SCHEMES } from '../../../util'
 import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
-import { buildHourlyFieldNames } from '../../util/hourUtil.js'
+import { buildHourlyFieldNames, isMaxAggregationKey } from '../../util/hourUtil.js'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -38,11 +38,13 @@ export function metadata(viewSpec, allViewSpecs, context) {
 
         let resolvedValues = []
         for (let i = 0; i < resolvedAllValues.length; i++) {
-          let sum = 0
-          for (let j = periodFrom; j < periodTo; j++) {
-            sum += resolvedAllValues[i][j]
+          const slice = resolvedAllValues[i].slice(periodFrom, periodTo)
+          if (isMaxAggregationKey(style.radius.valueKey)) {
+            resolvedValues.push(Math.max(...slice))
+          } else {
+            const sum = slice.reduce((acc, v) => acc + v, 0)
+            resolvedValues.push(sum / (periodTo - periodFrom))
           }
-          resolvedValues.push(sum / (periodTo - periodFrom))
         }
 
         const colorSchemeId =

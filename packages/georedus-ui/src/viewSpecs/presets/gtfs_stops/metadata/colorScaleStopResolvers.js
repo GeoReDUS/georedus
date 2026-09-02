@@ -2,6 +2,8 @@ import { scaleQuantile } from 'd3-scale'
 
 const DEFAULT_COLOR = '#CCC'
 
+// Will distribute only values above 1 in all resolvers types
+
 function equalIntervals({ values, colorScheme, classificationMethod }) {
   const hasLowerValues = Math.min(...values) < 1
   const k = hasLowerValues ? classificationMethod.k - 1 : classificationMethod.k
