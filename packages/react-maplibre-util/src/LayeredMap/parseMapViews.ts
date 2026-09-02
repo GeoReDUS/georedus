@@ -12,6 +12,7 @@ type ParsedLayer = MapViewLayer & {
   id: string
   viewId: string
   onClick?: (feature: GeoJSON.Feature, event: MapMouseEvent) => any
+  onMouseMove?: (feature: GeoJSON.Feature, event: MapMouseEvent) => any
 }
 
 export type MapViewsParseResult = {
