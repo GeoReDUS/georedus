@@ -28,18 +28,31 @@ export function metadata(viewSpec, allViewSpecs, context) {
     //
     // Resolve color scale stops
     //
-    const colorSchemeId = ctx.view.conf?.style?.colorScheme || style.colorScheme
+    // When the style hard-codes a `custom` classification (fixed breaks
+    // defined in the view spec, e.g. a percentage 0-1 scale), the whole
+    // color styling isn't meant to be switched via confSchema (which
+    // doesn't even offer `custom` as an option for classificationMethodType)
+    // — always honor `style.colorScheme`/`style.classificationMethod`
+    // as-is, ignoring any conf override.
+    //
+    const isCustomClassification = style.classificationMethod?.type === 'custom'
+
+    const colorSchemeId = isCustomClassification
+      ? style.colorScheme
+      : ctx.view.conf?.style?.colorScheme || style.colorScheme
     const colorScheme = COLOR_SCHEMES[colorSchemeId] || COLOR_SCHEMES.schemeOrRd
 
-    const _classificationMethod = {
-      ...(style.classificationMethod || {}),
-      type:
-        ctx.view.conf.style?.classificationMethodType ||
-        style.classificationMethod?.type,
-      k:
-        ctx.view.conf.style?.classificationMethodK ||
-        style.classificationMethod?.k,
-    }
+    const _classificationMethod = isCustomClassification
+      ? style.classificationMethod
+      : {
+            ...(style.classificationMethod || {}),
+            type:
+              ctx.view.conf.style?.classificationMethodType ||
+              style.classificationMethod?.type,
+            k:
+              ctx.view.conf.style?.classificationMethodK ||
+              style.classificationMethod?.k,
+          }
 
     const colorScaleStops = COLOR_SCALE_STOPS_RESOLVERS[
       _classificationMethod.type

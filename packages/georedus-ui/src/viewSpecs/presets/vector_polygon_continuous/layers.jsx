@@ -46,7 +46,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
         title: viewSpec.label,
         unit: viewSpec.unit,
 
-        steps: ctx.view.metadata.colorScaleStops,
+        steps: ctx.view.metadata.colorScaleStops || [],
         format: {
           number: viewSpec.style.numberFormat || DEFAULT_NUMBER_FORMAT,
           below: 'Sem dados',
@@ -114,7 +114,7 @@ export function layers(viewSpec, allViewSpecs, context) {
       //
       Math.min(...ctx.view.metadata.values) - 1,
     ],
-    ...ctx.view.metadata.colorScaleStops,
+    ...(ctx.view.metadata.colorScaleStops || []),
   ])
 
   // const _fillPattern = resolve.fn(

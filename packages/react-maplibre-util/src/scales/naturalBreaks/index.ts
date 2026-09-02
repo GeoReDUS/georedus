@@ -41,10 +41,16 @@ export function scaleNaturalBreaks({
   try {
     values = values.filter((v) => typeof v === 'number' && !Number.isNaN(v))
 
-    k =
+    if (values.length === 0) {
+      return null
+    }
+
+    k = Math.min(
       typeof k === 'number'
         ? within(k, [minK, maxK])
-        : autoK(values, [minK, maxK])
+        : autoK(values, [minK, maxK]),
+      values.length,
+    )
 
     const bounds = naturalBreakBounds(values, k)
 
