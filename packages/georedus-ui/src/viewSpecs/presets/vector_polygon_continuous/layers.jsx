@@ -23,7 +23,8 @@ function _main_line({ _municipioFilter }, viewSpec, allViewSpecs, context) {
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     type: 'line',
-    filter: _municipioFilter,
+    // municipioFilter is filtering by cd_mun, if layer doesn't have cd_mun, it doesn't render
+    // filter: _municipioFilter,
     interactive: true,
     paint: {
       'line-color': colorScheme.scalesByK[3][2],
@@ -89,7 +90,8 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     interactive: true,
     type: 'fill',
-    filter: _municipioFilter,
+    // municipioFilter is filtering by cd_mun, if layer doesn't have cd_mun, it doesn't render
+    // filter: _municipioFilter,
     paint: {
       'fill-color': _maplibreColorExp,
       'fill-opacity': _opacity,
