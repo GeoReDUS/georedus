@@ -7,7 +7,12 @@ import {
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
 import { basicTooltip, LINE_WIDTH_1, municipioFilter } from '../util'
 import { WIDTH_MIN, WIDTH_MAX, DEFAULT_LINE_OPACITY } from './consts'
-import { buildPeriodFrequencyExpression } from '../util/hourUtil'
+import {
+  buildPeriodFrequencyExpression,
+  computePeriodFrequency,
+  formatHour,
+} from '../util/hourUtil'
+import { cast } from '@orioro/cast'
 
 // In Georedus.jsx unique legend implementation
 // legends: uniqBy(
@@ -125,6 +130,39 @@ function _main_line(
       : DEFAULT_LINE_OPACITY,
   )
 
+  //
+  // Report the frequency for the period currently selected in the hour
+  // slider — the same value that drives the line width — instead of
+  // leaving the tooltip with the static full-day avg_frequency.
+  //
+  const _periodFrequencyEntry = (ctx) => {
+    const valueKey = viewSpec.style?.lineWidth?.valueKey
+
+    if (!valueKey) {
+      return []
+    }
+
+    const properties = ctx.feature?.properties || {}
+    const [periodFrom, periodTo] = ctx.view?.conf?.style?.periodHourSlider || [
+      0, 24,
+    ]
+
+    return [
+      [
+        `Frequência média (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
+        cast(
+          { type: 'string', number: ['pt-BR', { maximumFractionDigits: 1 }] },
+          computePeriodFrequency(
+            (field) => properties[field],
+            valueKey,
+            periodFrom,
+            periodTo,
+          ),
+        ),
+      ],
+    ]
+  }
+
   const line = resolve.fn((ctx) => {
     return {
       zIndex: Z_OVERLAY_BASE_1000,
@@ -138,7 +176,9 @@ function _main_line(
         'line-width': _maplibreLineWidthExp,
       },
       legends: _main_line_legends({}, viewSpec, allViewSpecs, context),
-      tooltip: basicTooltip(viewSpec.tooltip),
+      tooltip: basicTooltip(viewSpec.tooltip, {
+        extraEntries: _periodFrequencyEntry,
+      }),
     }
   })
   return line
