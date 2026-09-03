@@ -20,7 +20,14 @@ function quantile({ values, colorScheme, classificationMethod }) {
     .domain(values) // your data
     .range(new Array(classificationMethod.k).fill(null).map((_, idx) => idx)) // number of bins
 
-  const breaks = scale.quantiles() // → the cutoff values
+  const rawBreaks = scale.quantiles() // → the cutoff values
+
+  let previousEdge = -Infinity
+  const breaks = rawBreaks.filter((breakValue) => {
+    if (breakValue <= previousEdge) return false
+    previousEdge = breakValue
+    return true
+  })
 
   //
   // Will produce an array such as:

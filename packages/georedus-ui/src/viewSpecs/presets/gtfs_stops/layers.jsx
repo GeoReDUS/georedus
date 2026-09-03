@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { municipioFilter, applyOpacity } from '../util'
+import { municipioFilter, applyOpacity, basicTooltip } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -125,46 +125,46 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       : DEFAULT_CIRCLE_OPACITY,
   )
 
-  const _tooltip = {
-    title: [
-      '$literal',
-      resolve.fn((ctx) => ctx?.feature?.properties?.stop_name),
-    ],
-    entries: [
-      '$literal',
-      resolve.fn((ctx) => {
-        if (!viewSpec.style?.radius?.valueKey) {
-          return []
-        }
+  // const _tooltip = {
+  //   title: [
+  //     '$literal',
+  //     resolve.fn((ctx) => ctx?.feature?.properties?.stop_name),
+  //   ],
+  //   entries: [
+  //     '$literal',
+  //     resolve.fn((ctx) => {
+  //       if (!viewSpec.style?.radius?.valueKey) {
+  //         return []
+  //       }
 
-        const valueKey = viewSpec.style.radius.valueKey
-        const properties = ctx.feature?.properties || {}
-        const valuesArray = buildHourlyFieldNames(valueKey)
+  //       const valueKey = viewSpec.style.radius.valueKey
+  //       const properties = ctx.feature?.properties || {}
+  //       const valuesArray = buildHourlyFieldNames(valueKey)
 
-        const hourlyEntries = valuesArray.map((field, i) => [
-          `${capitalize(valueKey)} ${formatHour(i)} - ${formatHour(i + 1)}`,
-          properties[field],
-        ])
+  //       const hourlyEntries = valuesArray.map((field, i) => [
+  //         `${capitalize(valueKey)} ${formatHour(i)} - ${formatHour(i + 1)}`,
+  //         properties[field],
+  //       ])
 
-        const [periodFrom, periodTo] = ctx.view?.conf?.style
-          ?.periodHourSlider || [0, 24]
-        const periodValue = computePeriodValue(
-          (field) => properties[field],
-          valueKey,
-          periodFrom,
-          periodTo,
-        )
+  //       const [periodFrom, periodTo] = ctx.view?.conf?.style
+  //         ?.periodHourSlider || [0, 24]
+  //       const periodValue = computePeriodValue(
+  //         (field) => properties[field],
+  //         valueKey,
+  //         periodFrom,
+  //         periodTo,
+  //       )
 
-        return [
-          ...hourlyEntries,
-          [
-            `${isMaxAggregationKey(valueKey) ? 'Máximo' : 'Média'} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
-            periodValue,
-          ],
-        ]
-      }),
-    ],
-  }
+  //       return [
+  //         ...hourlyEntries,
+  //         [
+  //           `${isMaxAggregationKey(valueKey) ? 'Máximo' : 'Média'} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
+  //           periodValue,
+  //         ],
+  //       ]
+  //     }),
+  //   ],
+  // }
 
   return {
     zIndex: Z_OVERLAY_BASE_1000,
@@ -174,6 +174,8 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     filter: _filter,
     type: 'circle',
     paint: {
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-width': 2,
       'circle-color': _maplibreColorExp,
       'circle-opacity': _opacity,
       // 'circle-radius': 5,
@@ -205,7 +207,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       // 'circle-stroke-width': 1,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
-    tooltip: _tooltip,
+    tooltip: basicTooltip(viewSpec.tooltip),
   }
 }
 
