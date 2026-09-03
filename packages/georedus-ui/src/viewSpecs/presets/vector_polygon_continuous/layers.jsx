@@ -1,15 +1,11 @@
 import { COLOR_SCHEMES } from '../../util'
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import {
-  basicTooltip,
-  DEFAULT_FILL_OPACITY,
-  applyOpacity,
-} from '../util'
+import { basicTooltip, DEFAULT_FILL_OPACITY, applyOpacity } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
 
-function _main_line({ _municipioFilter }, viewSpec, allViewSpecs, context) {
+function _main_line(props, viewSpec, allViewSpecs, context) {
   const { source_layer } = viewSpec
 
   //
@@ -22,8 +18,6 @@ function _main_line({ _municipioFilter }, viewSpec, allViewSpecs, context) {
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     type: 'line',
-    // municipioFilter is filtering by cd_mun, if layer doesn't have cd_mun, it doesn't render
-    // filter: _municipioFilter,
     interactive: true,
     paint: {
       'line-color': colorScheme.scalesByK[3][2],
@@ -77,7 +71,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 }
 
 function _main_fill(props, viewSpec, allViewSpecs, context) {
-  const { _maplibreColorExp, _municipioFilter } = props
+  const { _maplibreColorExp } = props
   const { source_layer } = viewSpec
   const _opacity = resolve.fn((ctx) =>
     typeof ctx.view?.conf?.style?.opacity === 'number'
@@ -89,8 +83,6 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
     'source-layer': source_layer,
     interactive: true,
     type: 'fill',
-    // municipioFilter is filtering by cd_mun, if layer doesn't have cd_mun, it doesn't render
-    // filter: _municipioFilter,
     paint: {
       'fill-color': _maplibreColorExp,
       'fill-opacity': _opacity,
@@ -109,9 +101,6 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  // It is possible in the future to implement municipioFilter, need to study better
-  // const _municipioFilter = municipioFilter()
-
   const _maplibreColorExp = resolve.fn((ctx) => [
     'step',
     [
@@ -124,10 +113,6 @@ export function layers(viewSpec, allViewSpecs, context) {
     ],
     ...ctx.view.metadata.colorScaleStops,
   ])
-
-  // const _fillPattern = resolve.fn(
-  //   (ctx) => ctx.view?.conf?.style?.fillPattern || styleSpec.fillPattern,
-  // )
 
   return {
     [`main_line`]: _main_line(
