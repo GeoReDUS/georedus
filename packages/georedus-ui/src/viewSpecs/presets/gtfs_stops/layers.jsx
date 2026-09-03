@@ -16,10 +16,17 @@ import {
   isMaxAggregationKey,
   formatHour,
 } from '../util/hourUtil.js'
-import { capitalize } from 'lodash'
+import { uniq } from 'lodash'
+import { cast } from '@orioro/cast'
 
 const SIZE_MAX = 10
 const SIZE_MIN = 4
+
+//
+// Hourly families present in cem.gtfs_estacoes. The period aggregate is
+// reported for all of them, regardless of which one styles the layer.
+//
+const PERIOD_AGGREGATION_KEYS = ['linhas', 'partidas']
 
 const DEFAULT_CIRCLE_OPACITY = 0.7
 
@@ -126,6 +133,55 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     typeof ctx.view?.conf?.style?.opacity === 'number'
       ? ctx.view.conf.style.opacity
       : DEFAULT_CIRCLE_OPACITY,
+  )
+
+  //
+  // Aggregate for the period currently selected in the hour slider. It
+  // depends on the view conf and therefore cannot be declared in the
+  // spreadsheet — it is appended after whatever `viewSpec.tooltip`
+  // configures. The raw hourly columns themselves are never listed.
+  //
+  const _periodEntries = (ctx) => {
+    const valueKey = viewSpec.style?.radius?.valueKey
+    const properties = ctx.feature?.properties || {}
+
+    const [periodFrom, periodTo] = ctx.view?.conf?.style?.periodHourSlider || [
+      0, 24,
+    ]
+
+    //
+    // Reported for every hourly family present in the tile, so a layer
+    // styled by `linhas` still shows the average number of departures
+    // for the selected period.
+    //
+    return uniq([valueKey, ...PERIOD_AGGREGATION_KEYS].filter(Boolean))
+      .filter((key) =>
+        buildHourlyFieldNames(key).some(
+          (field) => properties[field] !== undefined,
+        ),
+      )
+      .map((key) => [
+        `${isMaxAggregationKey(key) ? 'Máximo' : 'Média'} de ${key} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
+        cast(
+          { type: 'string', number: ['pt-BR', { maximumFractionDigits: 1 }] },
+          computePeriodValue(
+            (field) => properties[field],
+            key,
+            periodFrom,
+            periodTo,
+          ),
+        ),
+      ])
+  }
+
+  //
+  // `entries: []` guards against the spreadsheet having no `tooltip` cell —
+  // without it basicTooltip would dump every feature property, including
+  // the 48 hourly columns.
+  //
+  const _tooltip = basicTooltip(
+    { title: 'stop_name', entries: [], ...viewSpec.tooltip },
+    { extraEntries: _periodEntries },
   )
 
   return {

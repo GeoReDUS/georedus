@@ -17,6 +17,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
           await fetch(
             interpolate(style.values, {
               METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
+              municipioId: context.municipioId,
             }),
           ).then((res) => res.json())
         : Array.isArray(style.values)
