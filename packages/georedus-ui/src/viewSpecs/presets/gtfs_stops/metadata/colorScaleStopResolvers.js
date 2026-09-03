@@ -1,4 +1,5 @@
-import { scaleQuantile } from 'd3-scale'
+import { scaleQuantile, scaleThreshold } from 'd3-scale'
+import { range } from 'd3-array'
 
 const DEFAULT_COLOR = '#CCC'
 
@@ -32,13 +33,10 @@ function quantile({ values, colorScheme, classificationMethod }) {
   const hasLowerValues = Math.min(...values) < 1
   const k = hasLowerValues ? classificationMethod.k : classificationMethod.k + 1
   const valuesAbove1 = values.filter((v) => v >= 1)
-  const min = Math.min(...valuesAbove1)
 
-  const scale = scaleQuantile()
-    .domain(values)
-    .range(new Array(k).fill(null).map((_, idx) => idx))
+  let raw = scaleQuantile().domain(valuesAbove1).range(range(k)).quantiles()
 
-  const breaks = scale.quantiles()
+  const breaks = [...new Set(raw)]
 
   const colorScale = colorScheme.scalesByK[k]
   const colorScaleStops = hasLowerValues

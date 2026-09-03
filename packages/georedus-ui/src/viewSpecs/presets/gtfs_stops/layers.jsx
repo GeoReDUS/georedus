@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { municipioFilter, applyOpacity } from '../util'
+import { municipioFilter, applyOpacity, basicTooltip } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -16,10 +16,17 @@ import {
   isMaxAggregationKey,
   formatHour,
 } from '../util/hourUtil.js'
-import { capitalize } from 'lodash'
+import { uniq } from 'lodash'
+import { cast } from '@orioro/cast'
 
 const SIZE_MAX = 10
 const SIZE_MIN = 4
+
+//
+// Hourly families present in cem.gtfs_estacoes. The period aggregate is
+// reported for all of them, regardless of which one styles the layer.
+//
+const PERIOD_AGGREGATION_KEYS = ['linhas', 'partidas']
 
 const DEFAULT_CIRCLE_OPACITY = 0.7
 
@@ -29,7 +36,6 @@ function _validNumericalValues(values) {
   )
 }
 
-
 // Will create a 0-1 stop if there is any value below 1
 function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
   if (!hasLowerValues) {
@@ -37,7 +43,8 @@ function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
   }
 
   const k = (colorScaleStops.length - 1) / 2
-  const colors = colorScheme.scalesByK[k + 1] || colorScheme.scalesByK[colorScheme.maxK]
+  const colors =
+    colorScheme.scalesByK[k + 1] || colorScheme.scalesByK[colorScheme.maxK]
 
   const stops = []
   stops.push(colorScaleStops[0]) // DEFAULT_COLOR base
@@ -71,19 +78,22 @@ function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
 
     const { colorScaleStops, hasLowerValues } = ctx.view.metadata.radiusData
 
-    const stopsToUse = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
+    const stopsToUse = _buildColorStops(
+      colorScaleStops,
+      hasLowerValues,
+      colorScheme,
+    )
 
-    const stopsWithOpacity = stopsToUse.map(
-          (entry, index) =>
-            index % 2 === 0
-              ? applyOpacity(
-                  entry,
-                  typeof _confOpacity === 'number'
-                    ? _confOpacity
-                    : DEFAULT_CIRCLE_OPACITY,
-                )
-              : Math.round(entry),
-        )
+    const stopsWithOpacity = stopsToUse.map((entry, index) =>
+      index % 2 === 0
+        ? applyOpacity(
+            entry,
+            typeof _confOpacity === 'number'
+              ? _confOpacity
+              : DEFAULT_CIRCLE_OPACITY,
+          )
+        : Math.round(entry),
+    )
 
     return [
       {
@@ -125,46 +135,54 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       : DEFAULT_CIRCLE_OPACITY,
   )
 
-  const _tooltip = {
-    title: [
-      '$literal',
-      resolve.fn((ctx) => ctx?.feature?.properties?.stop_name),
-    ],
-    entries: [
-      '$literal',
-      resolve.fn((ctx) => {
-        if (!viewSpec.style?.radius?.valueKey) {
-          return []
-        }
+  //
+  // Aggregate for the period currently selected in the hour slider. It
+  // depends on the view conf and therefore cannot be declared in the
+  // spreadsheet — it is appended after whatever `viewSpec.tooltip`
+  // configures. The raw hourly columns themselves are never listed.
+  //
+  const _periodEntries = (ctx) => {
+    const valueKey = viewSpec.style?.radius?.valueKey
+    const properties = ctx.feature?.properties || {}
 
-        const valueKey = viewSpec.style.radius.valueKey
-        const properties = ctx.feature?.properties || {}
-        const valuesArray = buildHourlyFieldNames(valueKey)
+    const [periodFrom, periodTo] = ctx.view?.conf?.style?.periodHourSlider || [
+      0, 24,
+    ]
 
-        const hourlyEntries = valuesArray.map((field, i) => [
-          `${capitalize(valueKey)} ${formatHour(i)} - ${formatHour(i + 1)}`,
-          properties[field],
-        ])
-
-        const [periodFrom, periodTo] = ctx.view?.conf?.style
-          ?.periodHourSlider || [0, 24]
-        const periodValue = computePeriodValue(
-          (field) => properties[field],
-          valueKey,
-          periodFrom,
-          periodTo,
-        )
-
-        return [
-          ...hourlyEntries,
-          [
-            `${isMaxAggregationKey(valueKey) ? 'Máximo' : 'Média'} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
-            periodValue,
-          ],
-        ]
-      }),
-    ],
+    //
+    // Reported for every hourly family present in the tile, so a layer
+    // styled by `linhas` still shows the average number of departures
+    // for the selected period.
+    //
+    return uniq([valueKey, ...PERIOD_AGGREGATION_KEYS].filter(Boolean))
+      .filter((key) =>
+        buildHourlyFieldNames(key).some(
+          (field) => properties[field] !== undefined,
+        ),
+      )
+      .map((key) => [
+        `${isMaxAggregationKey(key) ? 'Máximo' : 'Média'} de ${key} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
+        cast(
+          { type: 'string', number: ['pt-BR', { maximumFractionDigits: 1 }] },
+          computePeriodValue(
+            (field) => properties[field],
+            key,
+            periodFrom,
+            periodTo,
+          ),
+        ),
+      ])
   }
+
+  //
+  // `entries: []` guards against the spreadsheet having no `tooltip` cell —
+  // without it basicTooltip would dump every feature property, including
+  // the 48 hourly columns.
+  //
+  const _tooltip = basicTooltip(
+    { title: 'stop_name', entries: [], ...viewSpec.tooltip },
+    { extraEntries: _periodEntries },
+  )
 
   return {
     zIndex: Z_OVERLAY_BASE_1000,
@@ -174,9 +192,10 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     filter: _filter,
     type: 'circle',
     paint: {
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-width': 1,
       'circle-color': _maplibreColorExp,
       'circle-opacity': _opacity,
-      // 'circle-radius': 5,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
           return 10
@@ -201,8 +220,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           maxSize: SIZE_MAX,
         })
       }),
-      // 'circle-stroke-color': '#ffffff',
-      // 'circle-stroke-width': 1,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
     tooltip: _tooltip,
@@ -220,7 +237,9 @@ export function layers(viewSpec, allViewSpecs, context) {
     const conditions = [municipioFilter()]
 
     if (viewSpec.style?.radius?.valueKey) {
-      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [0, 24]
+      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [
+        0, 24,
+      ]
       conditions.push([
         '!=',
         buildPeriodExpression(
@@ -245,8 +264,9 @@ export function layers(viewSpec, allViewSpecs, context) {
 
     const stops = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
 
-    const [periodFrom, periodTo] = ctx.view.conf?.style
-      ?.periodHourSlider || [0, 24]
+    const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [
+      0, 24,
+    ]
 
     return [
       'step',

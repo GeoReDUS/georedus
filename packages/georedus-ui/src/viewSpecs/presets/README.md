@@ -659,12 +659,18 @@ O campo `tooltip` (no nível raiz do `viewSpecInput`) controla o balão exibido 
 ```ts
 {
   title?: string,   // nome da propriedade usada como título (default: 'name')
+                    // ou template combinando várias, ex.:
+                    // '${route_short_name} - ${route_long_name}'
   entries?:
     | Array<string | { key: string, label?: string, format?: object }>
     | { [key: string]: { label?: string, format?: object } },
     // se omitido, exibe todas as propriedades da feature (exceto o título)
 }
 ```
+
+Quando `title` contém `${}`, ele é interpolado com as propriedades da feature —
+propriedades ausentes ou nulas viram string vazia. Sem `${}`, o valor continua
+sendo tratado como o nome de uma única propriedade.
 
 ### Download
 

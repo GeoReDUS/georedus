@@ -40,6 +40,26 @@ export function buildPeriodFrequencyExpression(valueKey, periodFrom, periodTo) {
   return ['/', sumExpr, fields.length]
 }
 
+//
+// JS counterpart of buildPeriodFrequencyExpression — keep both in sync so
+// that the tooltip reports the same number that defines the line width.
+//
+export function computePeriodFrequency(
+  getValue,
+  valueKey,
+  periodFrom,
+  periodTo,
+) {
+  const fields = buildHourlyFieldNames(valueKey).slice(periodFrom, periodTo)
+
+  const sum = fields.reduce((acc, field) => {
+    const headway = getValue(field) || 0
+    return acc + (headway === 0 ? 0 : 60 / headway)
+  }, 0)
+
+  return fields.length > 0 ? sum / fields.length : 0
+}
+
 export function computePeriodValue(getValue, valueKey, periodFrom, periodTo) {
   const slice = buildHourlyFieldNames(valueKey)
     .slice(periodFrom, periodTo)
