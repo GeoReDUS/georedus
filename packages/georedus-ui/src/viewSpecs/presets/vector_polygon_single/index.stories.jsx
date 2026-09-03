@@ -83,6 +83,7 @@ Demais parâmetros: **fillPattern** e **borderStyle** terão valores padrão.`,
           color: 'schemeGeoReDUS.vermelho_claro',
           fillPattern: 'triangles_1',
           borderStyle: 'dashed',
+          opacity: 1, //documentar opacidade no metodology e readme
         },
         tooltip: {
           title: 'nome_uc',

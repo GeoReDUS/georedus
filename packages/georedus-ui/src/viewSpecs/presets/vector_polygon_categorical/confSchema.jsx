@@ -9,7 +9,7 @@ import { DEFAULT_FILL_OPACITY } from '../util'
 export function confSchema(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style
   const categories = styleSpec?.categories
-  
+
   return {
     style: {
       colorScheme: categoricalColorSchemeSelector({
@@ -22,7 +22,12 @@ export function confSchema(viewSpec, allViewSpecs, context) {
             : false,
       }),
       fillPattern: fillPatternSelector(),
-      opacity: opacitySlider({ defaultValue: DEFAULT_FILL_OPACITY }),
+      opacity: opacitySlider({
+        defaultValue:
+          typeof viewSpec.style.opacity === 'number'
+            ? viewSpec.style.opacity
+            : DEFAULT_FILL_OPACITY,
+      }),
     },
   }
 }

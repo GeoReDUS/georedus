@@ -1,4 +1,4 @@
-import { CUSTOM_COLOR_SCHEME } from '../util'
+import { DEFAULT_FILL_OPACITY, CUSTOM_COLOR_SCHEME } from '../util'
 
 export type CategoryStyleSpec = {
   color?: string
@@ -40,6 +40,7 @@ export type StyleSpec = {
     | 'schemeTableau10'
     | 'customColorScheme'
   categories: string | (string | Category)[]
+  opacity?: number
 } & Omit<CategoryStyleSpec, 'color'>
 
 export type StyleSpecInput = StyleSpec
@@ -61,5 +62,5 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
       ? CUSTOM_COLOR_SCHEME
       : DEFAULT_COLOR_SCHEME_ID
 
-  return { colorScheme, ...styleInput }
+  return { colorScheme, opacity: DEFAULT_FILL_OPACITY, ...styleInput }
 }

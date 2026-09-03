@@ -24,6 +24,7 @@ export type StyleSpec = {
     | 'customColorScheme'
   categories: string | Category[]
   border?: boolean
+  opacity?: number
 }
 
 export type StyleSpecInput = StyleSpec

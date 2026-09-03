@@ -51,7 +51,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
 
   const _legends = resolve.fn([_fillPattern], ([resolvedFillPattern], ctx) => {
     const categories = ctx.view.metadata.categories
-    const _confOpacity = ctx.view?.conf?.style?.opacity
+    const _confOpacity = ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
 
     return [
       {
@@ -118,7 +118,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
             ]
           : null
 
-      const _confOpacity = ctx.view?.conf?.style?.opacity
+      const _confOpacity = ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
 
       return {
         'fill-color': _maplibreColorExp,

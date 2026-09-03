@@ -61,6 +61,10 @@ const VIEW_SPECS = {
             { value: 'Pontos Culturais', color: 'schemeGeoReDUS.azul' },
             { value: 'Atrativos Turísticos', color: 'schemeGeoReDUS.rosa' },
           ],
+          //adicionar em metodology do storybook e readme doc
+          opacity: 0.5,
+          border: false,
+          radius: 15,
         },
         tooltip: '',
         sourceLabel: 'TEst',
