@@ -159,7 +159,10 @@ const VIEW_SPECS = {
 
 export const Basic = () => {
   const [stateStorage, setStateStorage] = useVersionedSearchParamsState(
-    {},
+    {
+      //Belém (IBGE código)
+      municipioId: 1501402,
+    },
     {
       schema: {
         baseMapStyle: 'string',
