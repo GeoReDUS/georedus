@@ -4186,12 +4186,14 @@ __metadata:
     "@orioro/resolve": "npm:^0.1.12"
     "@orioro/scale-util": "npm:^0.0.12"
     "@orioro/util": "npm:^0.16.0"
+    "@orioro/vector-tile-util": "workspace:^"
     "@radix-ui/themes": "npm:^3.0.1"
     "@tanstack/react-query": "npm:^5.66.0"
     "@turf/turf": "npm:^7.2.0"
     d3: "npm:^7.9.0"
     d3-scale-chromatic: "npm:^3.1.0"
     greenlet: "npm:^1.1.0"
+    h3-js: "npm:^4.5.0"
     lodash-es: "npm:^4.17.21"
     maplibre-contour: "npm:^0.1.0"
     maplibre-gl: "npm:^5.1.0"
@@ -6253,6 +6255,7 @@ __metadata:
     file-saver: "npm:^2.0.5"
     gdal3.js: "npm:^2.8.1"
     gh-pages: "npm:^6.3.0"
+    h3-js: "npm:^4.5.0"
     html-to-image: "npm:^1.11.13"
     katex: "npm:^0.16.22"
     lodash: "npm:^4.17.21"
@@ -15225,6 +15228,13 @@ __metadata:
   version: 1.1.0
   resolution: "greenlet@npm:1.1.0"
   checksum: 25a969d9a40904445f76333e5e52fd40df39f21c9471b1d177a6f321e1bd0fe8856a269740f98b15af9114f924e9a5a4f33ac05a61a91edfd79b1b26a959bf5d
+  languageName: node
+  linkType: hard
+
+"h3-js@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "h3-js@npm:4.5.0"
+  checksum: 93138b438bc7b50578c6cd6d17e6486ecf3e21438f41d39bd54935591196d50096ae4028cb90e3ae81a3a54035106a189e0cdf9fe0b252f45fbe4f8b10e9fa5d
   languageName: node
   linkType: hard
 

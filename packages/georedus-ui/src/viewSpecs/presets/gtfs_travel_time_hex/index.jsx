@@ -1,14 +1,13 @@
 import { pick } from 'lodash'
 import { sources } from './sources'
 import { layers } from './layers'
-// import { parseStyleSpec } from './parseStyleSpec'
+import { confSchema } from './confSchema'
 
-export function gtfs_travel_time_hex({ style, ...viewSpec }, allViewSpecs, context) {
-  // viewSpec = {
-  //   ...viewSpec,
-  //   style: parseStyleSpec(style),
-  // }
-
+export function gtfs_travel_time_hex(
+  { style, ...viewSpec },
+  allViewSpecs,
+  context,
+) {
   return {
     ...pick(viewSpec, [
       'id',
@@ -18,6 +17,7 @@ export function gtfs_travel_time_hex({ style, ...viewSpec }, allViewSpecs, conte
       'metodology',
       'shortDescription',
     ]),
+    confSchema: confSchema(viewSpec, allViewSpecs, context),
     sources: sources(viewSpec, allViewSpecs, context),
     layers: layers(viewSpec, allViewSpecs, context),
   }

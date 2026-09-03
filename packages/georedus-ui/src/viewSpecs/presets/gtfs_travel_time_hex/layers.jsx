@@ -1,77 +1,89 @@
 import { get } from '@orioro/get'
 import { resolve } from '@orioro/resolve'
-import { Z_OVERLAY_BASE_1000, Z_OVERLAY_TOP_3000 } from '../../zIndexes'
-import { basicTooltip } from '../util'
+import { Z_OVERLAY_TOP_3000 } from '../../zIndexes'
+import { COLOR_SCHEMES, GEOREDUS_COLOR_SCHEMES } from '../../util'
+import { SOURCE_LAYER_ID } from './sources'
 
-const COLOR_STEPS = [
-  '#1a9850',
-  15,
-  '#66bd63',
-  30,
-  '#fee08b',
-  45,
-  '#fdae61',
-  60,
-  '#f46d43',
-  90,
-  '#d73027',
-  120,
-  '#a50026',
-]
+const COLORS = COLOR_SCHEMES['-schemeRdYlGn'].scalesByK[11]
+
+const GREEN_STEPS = [COLORS[1], 15, COLORS[2], 30]
+const YELLOW_ORANGE_STEPS = [COLORS[6], 45, COLORS[7], 60]
+const RED_STEPS = [COLORS[8], 90, COLORS[9], 120, COLORS[10]]
+const COLOR_STEPS = [...GREEN_STEPS, ...YELLOW_ORANGE_STEPS, ...RED_STEPS]
 
 export function layers(viewSpec, allViewSpecs, context) {
-  const { source_layer, label, style } = viewSpec
-
-  if (!source_layer) {
-    throw new Error('source_layer must be defined')
-  }
-
   return {
     main_fill: {
-      zIndex: Z_OVERLAY_BASE_1000,
       source: 'main',
-      'source-layer': source_layer,
+      'source-layer': SOURCE_LAYER_ID,
       type: 'fill',
       interactive: true,
       paint: {
         'fill-color': resolve.fn((ctx) => {
-          const variableId = ctx.app?.regional ? 'time_min' : 'time_min_local'
-
           return [
             'case',
-            ['!', ['has', variableId]],
+            ['==', ['feature-state', 't'], null],
             'transparent', // color for features with NO value at all
-            [
-              'step',
-              ['get', variableId],
-              // 0,
-              ...COLOR_STEPS,
-            ],
-
-            // [
-            //   'interpolate',
-            //   ['linear'],
-            //   // ['cubic-bezier', 0.85, 0, 0.15, 1], // steep S-curve
-            //   ['get', 'time_min'],
-            //   0,
-            //   ...COLOR_STEPS,
-            // ],
+            ['step', ['feature-state', 't'], ...COLOR_STEPS],
           ]
         }),
 
-        'fill-opacity': 0.8,
-        'fill-outline-color': 'transparent',
+        'fill-opacity': 1,
+        'fill-outline-color': [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false], // default: not hovered
+          GEOREDUS_COLOR_SCHEMES.schemeGeoReDUS.rosa,
+          'transparent',
+        ],
       },
-      tooltip: basicTooltip({}),
-      // filter: resolve.fn((ctx) => {
-      //   const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
 
-      //   return selectedHexFrom ? ['has', 'time_min'] : ['literal', true]
-      // }),
+      //
+      // Show tooltip only when a source hex is fixed
+      //
+      tooltip: resolve.fn((ctx) => {
+        const clickedHexFromId = get(ctx, 'view.conf.data.clickedHexFromId')
 
-      onClick: resolve.fn((ctx) => (e) => {
-        const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
-        const clickedHexFrom = e.properties.id
+        return clickedHexFromId
+          ? {
+              entries: [
+                [
+                  'Tempo de viagem',
+                  [
+                    '$literal',
+                    resolve.fn((hoverCtx) => {
+                      const featureId = hoverCtx.feature?.id
+
+                      if (!featureId) {
+                        return
+                      }
+
+                      return (
+                        get(
+                          ctx,
+                          `view.sources.main.featureState.stateById.${featureId}.t`,
+                        ) + ' min'
+                      )
+                    }),
+                  ],
+                ],
+              ],
+            }
+          : null
+      }),
+
+      onMouseMove: resolve.fn((ctx) => (e) => {
+        const clickedHexFromId = get(ctx, 'view.conf.data.clickedHexFromId')
+
+        if (clickedHexFromId) {
+          return
+        }
+
+        const hoveredHexFromId = get(ctx, 'view.conf.data.hoveredHexFromId') || null
+        const targetHexFrom = e.properties.id || null
+
+        if (hoveredHexFromId === targetHexFrom) {
+          return
+        }
 
         ctx.app.viewConfDispatch({
           type: 'SET_VIEW',
@@ -80,51 +92,66 @@ export function layers(viewSpec, allViewSpecs, context) {
               ...ctx.view.conf,
               data: {
                 ...ctx.view.conf.data,
-                selectedHexFrom:
-                  selectedHexFrom === clickedHexFrom ? null : clickedHexFrom,
+                hoveredHexFromId: targetHexFrom,
               },
             },
           },
         })
       }),
-    },
 
-    main_outline: {
-      zIndex: Z_OVERLAY_TOP_3000,
-      source: 'main',
-      'source-layer': source_layer,
-      type: 'line',
-      // hidden: ['$empty', ['$get', 'view.conf.data.selectedHexFrom']],
-      filter: resolve.fn((ctx) => {
-        const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
+      onClick: resolve.fn((ctx) => (e) => {
+        const clickedHexFromId = get(ctx, 'view.conf.data.clickedHexFromId') || null
+        const targetHexFrom = e.properties.id || null
 
-        return selectedHexFrom
-          ? ['==', ['get', 'id'], selectedHexFrom]
-          : ['!=', ['get', 'id'], '']
+        ctx.app.viewConfDispatch({
+          type: 'SET_VIEW',
+          payload: {
+            viewConf: {
+              ...ctx.view.conf,
+              data: {
+                ...ctx.view.conf.data,
+                ...(clickedHexFromId === targetHexFrom
+                  ? {
+                      hoveredHexFromId: clickedHexFromId,
+                      clickedHexFromId: null,
+                    }
+                  : {
+                      hoveredHexFromId: targetHexFrom,
+                      clickedHexFromId: targetHexFrom,
+                    }),
+              },
+            },
+          },
+        })
       }),
-      paint: resolve.fn((ctx) => {
-        const selectedHexFrom = get(ctx, 'view.conf.data.selectedHexFrom')
-
-        return selectedHexFrom
-          ? {
-              'line-color': 'red',
-              'line-width': 2,
-            }
-          : {
-              'line-color': '#cccccc',
-              'line-width': 1,
-            }
-      }),
-      // paint: {
-      //   'line-color': 'red',
-      //   'line-width': 2,
-      // },
       legends: [
         {
+          title: 'Tempo de viagem',
           type: 'SequentialColorLegend',
           steps: COLOR_STEPS,
         },
       ],
+    },
+
+    cursors_fill: {
+      zIndex: Z_OVERLAY_TOP_3000,
+      source: 'cursors',
+      type: 'fill',
+      filter: ['has', 'fill-color'],
+      paint: {
+        'fill-color': ['coalesce', ['get', 'fill-color'], 'transparent'],
+      },
+    },
+
+    cursors_line: {
+      zIndex: Z_OVERLAY_TOP_3000,
+      source: 'cursors',
+      type: 'line',
+      filter: ['has', 'line-color'],
+      paint: {
+        'line-color': ['coalesce', ['get', 'line-color'], 'transparent'],
+        'line-width': ['coalesce', ['get', 'line-width'], 2],
+      },
     },
   }
 }
