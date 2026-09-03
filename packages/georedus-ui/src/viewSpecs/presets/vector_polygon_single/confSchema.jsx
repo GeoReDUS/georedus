@@ -8,7 +8,12 @@ export function confSchema(viewSpec, allViewSpecs, context) {
     style: {
       color: colorSelector(styleSpec.color),
       fillPattern: fillPatternSelector(styleSpec.fillPattern),
-      opacity: opacitySlider({ defaultValue: DEFAULT_FILL_OPACITY }),
+      opacity: opacitySlider({
+        defaultValue:
+          typeof viewSpec.style.opacity === 'number'
+            ? viewSpec.style.opacity
+            : DEFAULT_FILL_OPACITY,
+      }),
     },
   }
 }

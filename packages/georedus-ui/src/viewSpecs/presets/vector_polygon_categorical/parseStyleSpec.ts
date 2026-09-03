@@ -1,3 +1,5 @@
+import { DEFAULT_FILL_OPACITY, CUSTOM_COLOR_SCHEME } from '../util'
+
 export type CategoryStyleSpec = {
   color?: string
   fillPattern?:
@@ -36,8 +38,9 @@ export type StyleSpec = {
     | 'schemeSet2'
     | 'schemeSet3'
     | 'schemeTableau10'
-    | null
+    | 'customColorScheme'
   categories: string | (string | Category)[]
+  opacity?: number
 } & Omit<CategoryStyleSpec, 'color'>
 
 export type StyleSpecInput = StyleSpec
@@ -49,5 +52,15 @@ export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
     throw new Error('expected existing styleInput')
   }
 
-  return { colorScheme: DEFAULT_COLOR_SCHEME_ID, ...styleInput }
+  // if categories is array and have prop color,
+  // coloScheme is CUSTOM_COLOR_SCHEME, otherwise, is default
+  const colorScheme =
+    Array.isArray(styleInput.categories) &&
+    styleInput.categories.every(
+      (category) => typeof category !== 'string' && 'color' in category,
+    )
+      ? CUSTOM_COLOR_SCHEME
+      : DEFAULT_COLOR_SCHEME_ID
+
+  return { colorScheme, opacity: DEFAULT_FILL_OPACITY, ...styleInput }
 }

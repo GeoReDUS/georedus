@@ -1,8 +1,8 @@
 import { resolveAsync } from '@orioro/resolve'
 import { interpolate } from '@orioro/util'
 import { uniqBy } from 'lodash'
-import { COLOR_SCHEMES, resolveCategoricalSchemeColor } from '../../util'
-import { humanize } from '../util'
+import { resolveCategoricalSchemeColor } from '../../util'
+import { humanize, CUSTOM_COLOR_SCHEME } from '../util'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -42,8 +42,11 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
+      // Will only use cat.color if there is not coloScheme defined
       const color =
-        cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
+        colorSchemeId === CUSTOM_COLOR_SCHEME
+          ? cat.color
+          : resolveCategoricalSchemeColor(colorSchemeId, index)
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)

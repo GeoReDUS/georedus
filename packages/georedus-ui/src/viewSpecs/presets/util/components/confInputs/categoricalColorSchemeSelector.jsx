@@ -1,4 +1,5 @@
 import { Flex } from '@orioro/react-ui-core'
+import { resolveColor } from '../../../../util'
 import {
   GEOREDUS_LABELED_COLORS,
   GEOREDUS_LABELED_SAFE_COLORS,
@@ -19,39 +20,54 @@ const CATEGORICAL_SCHEMES = {
   ...D3_CATEGORICAL,
 }
 
+function renderColorScheme(scheme) {
+  return (
+    <Flex direction="row" gap="2" alignItems="center">
+      <div style={{ display: 'flex', gap: '2px' }}>
+        {scheme.map((color, idx) => (
+          <div
+            key={idx}
+            style={{
+              width: 15,
+              height: 15,
+              backgroundColor: resolveColor(color),
+              border: 'none',
+            }}
+          />
+        ))}
+      </div>
+    </Flex>
+  )
+}
+
+export const CUSTOM_COLOR_SCHEME = 'customColorScheme'
+
 export function categoricalColorSchemeSelector({
-  //TODO: Existem camadas com cores customizadas que não se encaixam nos schemas pré-definidos
-  // o clearable possibilita que  usuário limpe um schema selecionado e retorne para as cores origiais da camada
-  // idealmente deveríamos construir um schema com as cores originais e inserir na lista de schemas
-  clearable = false,
   defaultValue = 'schemeGeoReDUSSafe',
+  customColor = false,
 }) {
   return {
     label: 'Esquema de cores',
     type: 'select',
-    clearable,
+    clearable: false,
     defaultValue,
-    options: Object.entries(CATEGORICAL_SCHEMES).map(([name, scheme]) => {
-      return {
-        value: name,
-        label: (
-          <Flex direction="row" gap="2" alignItems="center">
-            <div style={{ display: 'flex', gap: '2px' }}>
-              {scheme.map((color, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    width: 15,
-                    height: 15,
-                    backgroundColor: color,
-                    border: 'none',
-                  }}
-                />
-              ))}
-            </div>
-          </Flex>
-        ),
-      }
-    }),
+    options: [
+      ...(Array.isArray(customColor)
+        ? [
+            {
+              value: CUSTOM_COLOR_SCHEME,
+              label: renderColorScheme(customColor),
+            },
+          ]
+        : customColor === true
+          ? [{ value: CUSTOM_COLOR_SCHEME, label: 'Cores Customizadas' }]
+          : []),
+      ...Object.entries(CATEGORICAL_SCHEMES).map(([name, scheme]) => {
+        return {
+          value: name,
+          label: renderColorScheme(scheme),
+        }
+      }),
+    ],
   }
 }

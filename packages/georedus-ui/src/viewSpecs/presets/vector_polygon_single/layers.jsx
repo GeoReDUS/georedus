@@ -6,7 +6,6 @@ import {
   svgBgImage,
   applyOpacity,
   basicTooltip,
-  DEFAULT_FILL_OPACITY,
 } from '../util'
 import { resolve } from '@orioro/resolve'
 
@@ -19,7 +18,7 @@ function _main_fill_legends(
   const _legend = resolve.fn(
     [_color, _fillPattern],
     ([resolvedColor, resolvedFillPattern], ctx) => {
-      const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
+      const _opacity = ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
       const patternProps =
         resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
           ? {
@@ -81,7 +80,7 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
         resolvedFillPattern && resolvedFillPattern !== FILL_PATTERN_SOLID
           ? `${resolvedFillPattern}({ stroke: "${resolvedColor}", scale: 0.5 })`
           : null
-      const _opacity = ctx.view?.conf?.style?.opacity || DEFAULT_FILL_OPACITY
+      const _opacity = ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
 
       return {
         'fill-opacity': _opacity,
