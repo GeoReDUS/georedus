@@ -19,7 +19,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
           await fetch(
             interpolate(style.categories, {
               METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-              municipioId: context.municipioId,
             }),
           )
             .then((res) => res.json())
@@ -39,7 +38,8 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
-      const color = cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
+      const color =
+        cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)

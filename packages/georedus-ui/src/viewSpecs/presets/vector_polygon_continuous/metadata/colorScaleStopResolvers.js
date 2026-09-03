@@ -1,12 +1,11 @@
 import { scaleQuantile } from 'd3-scale'
 
-
 const DEFAULT_COLOR = '#CCC'
 
 function custom({ values, colorScheme, classificationMethod }) {
   const k = classificationMethod.breaks.length
   return [
-   DEFAULT_COLOR,
+    DEFAULT_COLOR,
     ...classificationMethod.breaks
       .map((breakValue, index) => {
         return [breakValue, colorScheme.scalesByK[k][index]]
@@ -16,19 +15,11 @@ function custom({ values, colorScheme, classificationMethod }) {
 }
 
 function quantile({ values, colorScheme, classificationMethod }) {
-  const uniqueValues = Array.from(new Set(values))
-  const scale = scaleQuantile()
-    .domain(uniqueValues) // compute over unique values to preserve bucket count with tied data
+  const scale = scaleQuantile(values)
+    .domain(values) // your data
     .range(new Array(classificationMethod.k).fill(null).map((_, idx) => idx)) // number of bins
 
-  const rawBreaks = scale.quantiles() // → the cutoff values
-
-  let previousEdge = -Infinity
-  const breaks = rawBreaks.filter((breakValue) => {
-    if (breakValue <= previousEdge) return false
-    previousEdge = breakValue
-    return true
-  })
+  const breaks = scale.quantiles() // → the cutoff values
 
   //
   // Will produce an array such as:
