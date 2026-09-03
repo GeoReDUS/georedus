@@ -31,7 +31,7 @@
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
-    "@orioro/react-select": "^3.1.1",
+    "@orioro/react-select": "patch:@orioro/react-select@npm%3A3.1.1#~/.yarn/patches/@orioro-react-select-npm-3.1.1-f9727de4d0.patch",
     "@orioro/react-tree": "^0.0.10",
     "@orioro/react-ui-core": "^0.0.20",
     "@orioro/tree-model": "^0.0.10",

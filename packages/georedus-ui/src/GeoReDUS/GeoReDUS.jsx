@@ -117,10 +117,20 @@ async function _flyToMunicipio(
   METADATA_API_ENDPOINT,
   municipioId,
   options,
+  isStale = () => false,
 ) {
   const [mun] = await fetch(
     `${METADATA_API_ENDPOINT}/ibge_malha_br_municipio_2024?select=area_urbana_bbox_geom&id=eq.${municipioId}`,
   ).then((res) => res.json())
+
+  //
+  // municipioId may have changed while the bbox request was in flight.
+  // Two requests racing would otherwise leave the camera on whichever
+  // one happened to resolve last, and not on the current municipio.
+  //
+  if (isStale()) {
+    return
+  }
 
   if (mun && mun.area_urbana_bbox_geom) {
     fitGeometry(map, mun.area_urbana_bbox_geom, options)
@@ -533,7 +543,7 @@ function GeoReDUSInner({
     [resolvedLayout, leftPanelOpen],
   )
 
-  const _refocus = (mapInstance) => {
+  const _refocus = (mapInstance, isStale) => {
     if (!municipioId) {
       fitGeometry(mapInstance, BR_BBOX, {
         ...FIT_GEOMETRY_OPTIONS,
@@ -546,6 +556,7 @@ function GeoReDUSInner({
         METADATA_API_ENDPOINT,
         municipioId,
         FIT_GEOMETRY_OPTIONS,
+        isStale,
       )
     }
   }
@@ -608,7 +619,13 @@ function GeoReDUSInner({
       return
     }
 
-    _refocus(mainMap)
+    let stale = false
+
+    _refocus(mainMap, () => stale)
+
+    return () => {
+      stale = true
+    }
   }, [municipioId, resolvedLayout.length])
 
   //

@@ -1,0 +1,25 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 7a8a98e548c64544d5387a22f4538a43864f688a..e526c71ab21864d783d4f33f98a835774b05928d 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -719,8 +719,18 @@ function Select(_a) {
+             var availableOptions = options.filter(function (option) {
+               return !option.disabled;
+             });
+-            if (availableOptions.length > 0) {
+-              onSelectOption(availableOptions[0]);
++            //
++            // Respect the highlighted item (set via arrow keys/hover)
++            // instead of always picking the first option in the list.
++            // Previously this ignored highlightedIndex entirely, so
++            // e.g. typing "Rio de" + ArrowDown x2 + Enter to highlight
++            // "Rio de Janeiro" would select "Rio de Contas" instead,
++            // since it sorts first alphabetically.
++            //
++            var highlighted = highlightedIndex !== -1 ? options[highlightedIndex] : null;
++            var toSelect = highlighted && !highlighted.disabled ? highlighted : availableOptions[0];
++            if (toSelect) {
++              onSelectOption(toSelect);
+               e.preventDefault();
+               e.stopPropagation();
+             }
