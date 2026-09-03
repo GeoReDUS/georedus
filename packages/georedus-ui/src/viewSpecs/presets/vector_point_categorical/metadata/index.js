@@ -1,6 +1,6 @@
 import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
-import { humanize } from '../../util'
+import { humanize, CUSTOM_COLOR_SCHEME } from '../../util'
 import { uniqBy } from 'lodash'
 import { resolveCategoricalSchemeColor } from '../../../util'
 
@@ -10,7 +10,7 @@ export function metadata(viewSpec, allViewSpecs, context) {
   const categories = resolveAsync.fn(async (ctx) => {
     // Resolve color scheme
     const colorSchemeId =
-      ctx.view?.conf?.style?.colorScheme || 'schemeGeoReDUSSafe'
+      ctx.view?.conf?.style?.colorScheme || style.colorScheme
 
     // resolve categories
     const resolvedCategories =
@@ -42,7 +42,11 @@ export function metadata(viewSpec, allViewSpecs, context) {
     }
 
     return resolvedCategories.map((cat, index) => {
-      const color = cat.color || resolveCategoricalSchemeColor(colorSchemeId, index)
+      // Will only use cat.color if there is not coloScheme defined
+      const color =
+        colorSchemeId === CUSTOM_COLOR_SCHEME
+          ? cat.color
+          : resolveCategoricalSchemeColor(colorSchemeId, index)
 
       if (!color) {
         throw new Error(`Could not resolve color for ${cat.value}`)

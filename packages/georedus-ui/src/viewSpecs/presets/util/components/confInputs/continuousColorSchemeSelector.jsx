@@ -20,6 +20,7 @@ export function continuousColorSchemeSelector({ defaultValue = 'schemeOrRd' }) {
   return {
     label: 'Esquema de cores',
     type: 'select',
+    clearable: false,
     defaultValue,
     options: Object.entries(CONTINUOUS_SCHEMES).map(([name, scheme]) => {
       const colors = scheme.scalesByK[scheme.maxK]

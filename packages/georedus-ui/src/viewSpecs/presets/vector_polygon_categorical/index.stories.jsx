@@ -86,6 +86,40 @@ const VIEW_SPECS = {
         download_url:
           '${VECTOR_TILE_SERVER_ENDPOINT}/mma_malha_unidades_conservacao_2026.geom/{z}/{x}/{y}',
       },
+      {
+        id: 'sgb_malha_risco_2026.geom',
+        collection_id: 'test',
+        indicator_id: 'test',
+        preset: 'vector_polygon_categorical',
+        tiles:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/sgb_malha_risco_2026.geom/{z}/{x}/{y}',
+        source_layer: 'sgb_malha_risco_2026.geom',
+        path: 'Test Dir / _',
+        label: 'Cartografia de Risco',
+        style: {
+          categoryKey: 'grau_de_risco',
+          categories: [
+            {
+              value: 'Muito alto',
+              label: 'Risco Muito Alto',
+              color: 'schemeGeoReDUS.vermelho',
+            },
+            {
+              value: 'Alto',
+              label: 'Risco Alto',
+              color: 'schemeGeoReDUS.laranja',
+            },
+          ],
+        },
+        tooltip: {
+          title: 'nome_uc',
+          entries: ['categoria'],
+        },
+        sourceLabel: 'Test',
+        metodology: 'test metodology',
+        download_url:
+          '${VECTOR_TILE_SERVER_ENDPOINT}/sgb_malha_risco_2026.geom/{z}/{x}/{y}',
+      },
     ],
   ],
 }
