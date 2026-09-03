@@ -79,7 +79,6 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
       : viewSpec.style.opacity,
   )
   return {
-    zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     interactive: true,
@@ -114,10 +113,6 @@ export function layers(viewSpec, allViewSpecs, context) {
     ],
     ...ctx.view.metadata.colorScaleStops,
   ])
-
-  // const _fillPattern = resolve.fn(
-  //   (ctx) => ctx.view?.conf?.style?.fillPattern || styleSpec.fillPattern,
-  // )
 
   return {
     [`main_line`]: _main_line(
