@@ -6,10 +6,18 @@ import { SOURCE_LAYER_ID } from './sources'
 
 const COLORS = COLOR_SCHEMES['-schemeRdYlGn'].scalesByK[11]
 
+const STEP_DIFF_NUDGE = 0.01
+
 const GREEN_STEPS = [COLORS[1], 15, COLORS[2], 30]
 const YELLOW_ORANGE_STEPS = [COLORS[6], 45, COLORS[7], 60]
 const RED_STEPS = [COLORS[8], 90, COLORS[9], 120, COLORS[10]]
 const COLOR_STEPS = [...GREEN_STEPS, ...YELLOW_ORANGE_STEPS, ...RED_STEPS]
+
+function _applyNudge(steps) {
+  return steps.map((value) =>
+    typeof value === 'number' ? value + STEP_DIFF_NUDGE : value,
+  )
+}
 
 export function layers(viewSpec, allViewSpecs, context) {
   return {
@@ -24,7 +32,7 @@ export function layers(viewSpec, allViewSpecs, context) {
             'case',
             ['==', ['feature-state', 't'], null],
             'transparent', // color for features with NO value at all
-            ['step', ['feature-state', 't'], ...COLOR_STEPS],
+            ['step', ['feature-state', 't'], ..._applyNudge(COLOR_STEPS)],
           ]
         }),
 
@@ -78,7 +86,8 @@ export function layers(viewSpec, allViewSpecs, context) {
           return
         }
 
-        const hoveredHexFromId = get(ctx, 'view.conf.data.hoveredHexFromId') || null
+        const hoveredHexFromId =
+          get(ctx, 'view.conf.data.hoveredHexFromId') || null
         const targetHexFrom = e.properties.id || null
 
         if (hoveredHexFromId === targetHexFrom) {
@@ -100,7 +109,8 @@ export function layers(viewSpec, allViewSpecs, context) {
       }),
 
       onClick: resolve.fn((ctx) => (e) => {
-        const clickedHexFromId = get(ctx, 'view.conf.data.clickedHexFromId') || null
+        const clickedHexFromId =
+          get(ctx, 'view.conf.data.clickedHexFromId') || null
         const targetHexFrom = e.properties.id || null
 
         ctx.app.viewConfDispatch({
