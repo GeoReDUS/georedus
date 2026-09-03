@@ -7,7 +7,7 @@ export function sources(viewSpec, allViewSpecs, context) {
 
   return {
     [MAIN_SOURCE_ID]: {
-      promoteId: 'id',
+      promoteId: 'ogc_fid',
       type: 'vector',
       tiles: parseTiles(tiles, context),
     },

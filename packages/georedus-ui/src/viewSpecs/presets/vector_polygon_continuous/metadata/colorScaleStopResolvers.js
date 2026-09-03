@@ -16,8 +16,9 @@ function custom({ values, colorScheme, classificationMethod }) {
 }
 
 function quantile({ values, colorScheme, classificationMethod }) {
+  const uniqueValues = Array.from(new Set(values))
   const scale = scaleQuantile()
-    .domain(values) // your data
+    .domain(uniqueValues) // compute over unique values to preserve bucket count with tied data
     .range(new Array(classificationMethod.k).fill(null).map((_, idx) => idx)) // number of bins
 
   const rawBreaks = scale.quantiles() // → the cutoff values

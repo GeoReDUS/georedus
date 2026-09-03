@@ -193,10 +193,9 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
     type: 'circle',
     paint: {
       'circle-stroke-color': '#ffffff',
-      'circle-stroke-width': 2,
+      'circle-stroke-width': 1,
       'circle-color': _maplibreColorExp,
       'circle-opacity': _opacity,
-      // 'circle-radius': 5,
       'circle-radius': resolve.fn((ctx) => {
         if (!viewSpec.style.radius?.valueKey) {
           return 10
@@ -221,11 +220,9 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
           maxSize: SIZE_MAX,
         })
       }),
-      // 'circle-stroke-color': '#ffffff',
-      // 'circle-stroke-width': 1,
     },
     legends: _main_circle_legends(props, viewSpec, allViewSpecs, context),
-    tooltip: basicTooltip(viewSpec.tooltip),
+    tooltip: _tooltip,
   }
 }
 
