@@ -4,7 +4,6 @@ import {
   basicTooltip,
   DEFAULT_FILL_OPACITY,
   applyOpacity,
-  municipioFilter,
 } from '../util'
 import { resolve } from '@orioro/resolve'
 
@@ -110,7 +109,8 @@ export function layers(viewSpec, allViewSpecs, context) {
     throw new Error('source_layer must be defined')
   }
 
-  const _municipioFilter = municipioFilter()
+  // It is possible in the future to implement municipioFilter, need to study better
+  // const _municipioFilter = municipioFilter()
 
   const _maplibreColorExp = resolve.fn((ctx) => [
     'step',
@@ -131,13 +131,13 @@ export function layers(viewSpec, allViewSpecs, context) {
 
   return {
     [`main_line`]: _main_line(
-      { _maplibreColorExp, _municipioFilter },
+      { _maplibreColorExp },
       viewSpec,
       allViewSpecs,
       context,
     ),
     [`main_fill`]: _main_fill(
-      { _maplibreColorExp, _municipioFilter },
+      { _maplibreColorExp },
       viewSpec,
       allViewSpecs,
       context,
