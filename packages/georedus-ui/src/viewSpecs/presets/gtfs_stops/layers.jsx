@@ -29,7 +29,6 @@ function _validNumericalValues(values) {
   )
 }
 
-
 // Will create a 0-1 stop if there is any value below 1
 function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
   if (!hasLowerValues) {
@@ -37,7 +36,8 @@ function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
   }
 
   const k = (colorScaleStops.length - 1) / 2
-  const colors = colorScheme.scalesByK[k + 1] || colorScheme.scalesByK[colorScheme.maxK]
+  const colors =
+    colorScheme.scalesByK[k + 1] || colorScheme.scalesByK[colorScheme.maxK]
 
   const stops = []
   stops.push(colorScaleStops[0]) // DEFAULT_COLOR base
@@ -71,19 +71,22 @@ function _main_circle_legends(pros, viewSpec, allViewSpecs, context) {
 
     const { colorScaleStops, hasLowerValues } = ctx.view.metadata.radiusData
 
-    const stopsToUse = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
+    const stopsToUse = _buildColorStops(
+      colorScaleStops,
+      hasLowerValues,
+      colorScheme,
+    )
 
-    const stopsWithOpacity = stopsToUse.map(
-          (entry, index) =>
-            index % 2 === 0
-              ? applyOpacity(
-                  entry,
-                  typeof _confOpacity === 'number'
-                    ? _confOpacity
-                    : DEFAULT_CIRCLE_OPACITY,
-                )
-              : Math.round(entry),
-        )
+    const stopsWithOpacity = stopsToUse.map((entry, index) =>
+      index % 2 === 0
+        ? applyOpacity(
+            entry,
+            typeof _confOpacity === 'number'
+              ? _confOpacity
+              : DEFAULT_CIRCLE_OPACITY,
+          )
+        : Math.round(entry),
+    )
 
     return [
       {
@@ -124,47 +127,6 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
       ? ctx.view.conf.style.opacity
       : DEFAULT_CIRCLE_OPACITY,
   )
-
-  // const _tooltip = {
-  //   title: [
-  //     '$literal',
-  //     resolve.fn((ctx) => ctx?.feature?.properties?.stop_name),
-  //   ],
-  //   entries: [
-  //     '$literal',
-  //     resolve.fn((ctx) => {
-  //       if (!viewSpec.style?.radius?.valueKey) {
-  //         return []
-  //       }
-
-  //       const valueKey = viewSpec.style.radius.valueKey
-  //       const properties = ctx.feature?.properties || {}
-  //       const valuesArray = buildHourlyFieldNames(valueKey)
-
-  //       const hourlyEntries = valuesArray.map((field, i) => [
-  //         `${capitalize(valueKey)} ${formatHour(i)} - ${formatHour(i + 1)}`,
-  //         properties[field],
-  //       ])
-
-  //       const [periodFrom, periodTo] = ctx.view?.conf?.style
-  //         ?.periodHourSlider || [0, 24]
-  //       const periodValue = computePeriodValue(
-  //         (field) => properties[field],
-  //         valueKey,
-  //         periodFrom,
-  //         periodTo,
-  //       )
-
-  //       return [
-  //         ...hourlyEntries,
-  //         [
-  //           `${isMaxAggregationKey(valueKey) ? 'Máximo' : 'Média'} no período (${formatHour(periodFrom)} - ${formatHour(periodTo)})`,
-  //           periodValue,
-  //         ],
-  //       ]
-  //     }),
-  //   ],
-  // }
 
   return {
     zIndex: Z_OVERLAY_BASE_1000,
@@ -222,7 +184,9 @@ export function layers(viewSpec, allViewSpecs, context) {
     const conditions = [municipioFilter()]
 
     if (viewSpec.style?.radius?.valueKey) {
-      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [0, 24]
+      const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [
+        0, 24,
+      ]
       conditions.push([
         '!=',
         buildPeriodExpression(
@@ -247,8 +211,9 @@ export function layers(viewSpec, allViewSpecs, context) {
 
     const stops = _buildColorStops(colorScaleStops, hasLowerValues, colorScheme)
 
-    const [periodFrom, periodTo] = ctx.view.conf?.style
-      ?.periodHourSlider || [0, 24]
+    const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [
+      0, 24,
+    ]
 
     return [
       'step',
