@@ -40,6 +40,7 @@ export type MapViewLayer = Omit<AnyLayer, 'id'> & {
   // An optional layer click handler
   //
   onClick?: (feature: MapGeoJSONFeature, event: MapMouseEvent) => any
+  onMouseMove?: (feature: MapGeoJSONFeature, event: MapMouseEvent) => any
 }
 
 type MapViewLegend = {

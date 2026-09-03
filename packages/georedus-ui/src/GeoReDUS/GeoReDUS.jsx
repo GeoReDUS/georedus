@@ -25,7 +25,7 @@ import {
   InspectControl,
   useMapRegistry,
   useTilesLoading,
-  layeredMapOnClickHandler,
+  layeredMapMouseEventHandler,
 } from '@orioro/react-maplibre-util'
 import '@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css'
 import { Legend } from '@orioro/react-chart-util'
@@ -671,9 +671,9 @@ function GeoReDUSInner({
     [baseMapStyle, api, APP_CONTEXT],
   )
 
-  const onClick = useMemo(
+  const layeredMapHandlers = useMemo(
     () =>
-      layeredMapOnClickHandler({
+      layeredMapMouseEventHandler(['onClick', 'onMouseMove'], {
         context: {
           dialogs,
         },
@@ -807,7 +807,8 @@ function GeoReDUSInner({
         onRemove={(evt) => {
           mapRegistry.onRemove(evt)
         }}
-        onClick={onClick}
+        onClick={layeredMapHandlers.onClick}
+        onMouseMove={layeredMapHandlers.onMouseMove}
         attributionControl={false}
         initialViewState={DEFAULT_INITIAL_VIEW_STATE}
         style={{
