@@ -5,7 +5,7 @@ export function opacitySlider({ ...props } = {}) {
     type: 'slider',
     label: 'Opacidade da camada',
     size: '1',
-    min: 0,
+    min: 0.1,
     max: 1,
     step: 0.05,
     defaultValue: DEFAULT_FILL_OPACITY,

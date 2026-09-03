@@ -3,9 +3,7 @@ import { basicTooltip } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
-import {
-  resolveColor,
-} from '../../util'
+import { resolveColor } from '../../util'
 
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
@@ -46,7 +44,7 @@ function _main_circle(props, viewSpec, allViewSpecs, context) {
 
     paint: {
       'circle-color': _maplibreColorExp,
-      'circle-opacity': 1,
+      'circle-opacity': viewSpec.style?.opacity || 1,
       'circle-radius': viewSpec.style?.radius || 10,
       'circle-stroke-color': '#ffffff',
       'circle-stroke-width': viewSpec.style?.border ? 2 : 0,

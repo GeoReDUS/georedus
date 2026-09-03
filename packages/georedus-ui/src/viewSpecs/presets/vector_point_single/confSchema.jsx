@@ -1,4 +1,4 @@
-import { colorSelector, fillPatternSelector } from '../util'
+import { colorSelector } from '../util'
 
 export function confSchema(viewSpec, allViewSpecs, context) {
   const styleSpec = viewSpec.style

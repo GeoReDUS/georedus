@@ -3,10 +3,7 @@ import { basicTooltip } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
-import {
-  resolveColor,
-  schemeGeoReDUS,
-} from '../../util'
+import { resolveColor, schemeGeoReDUS } from '../../util'
 
 function _main_circle_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {

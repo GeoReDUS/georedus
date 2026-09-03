@@ -6,12 +6,19 @@ import { HoverTooltip } from '../HoverTooltip'
 import { ControlContainer } from '../Controls'
 import { useMapRegistry } from './useMapRegistry'
 import { useTilesLoading } from './useTilesLoading'
+import { SliderInput } from '@orioro/react-ui-core'
+import { Theme } from '@radix-ui/themes'
 
 export default {
   title: 'SyncedMaps',
   parameters: {
     layout: 'fullscreen',
   },
+  decorators: (Story) => (
+    <Theme>
+      <Story />
+    </Theme>
+  ),
 }
 
 const SyncedMaps = makeSyncedMaps({
@@ -67,8 +74,25 @@ export const Basic = () => {
 
   const tilesLoading = useTilesLoading(registry.maps)
 
+  const [opacity, setOpacity] = useState(0.5)
+
   return (
     <>
+      <div
+        style={{
+          padding: 30,
+          background: 'white',
+        }}
+      >
+        <div>Opacidade:</div>
+        <SliderInput
+          value={opacity}
+          onSetValue={setOpacity}
+          min={0.1}
+          max={1}
+          step={0.1}
+        />
+      </div>
       {tilesLoading && (
         <div
           style={{
@@ -126,7 +150,7 @@ export const Basic = () => {
                           'case',
                           ['boolean', ['feature-state', 'hover'], false],
                           1,
-                          0.3,
+                          opacity,
                         ],
                       },
                     },
@@ -135,7 +159,7 @@ export const Basic = () => {
                       source: 'municipios',
                       paint: {
                         'line-color': 'red',
-                        'line-opacity': 1,
+                        'line-opacity': opacity,
                         'line-width': 2,
                       },
                     },
@@ -173,7 +197,7 @@ export const Basic = () => {
                       source: 'municipios',
                       paint: {
                         'fill-color': 'red',
-                        'fill-opacity': 0.6,
+                        'fill-opacity': opacity,
                       },
                     },
                   },
@@ -197,7 +221,7 @@ export const Basic = () => {
             //   id: 'other',
             // },
           ],
-          [],
+          [opacity],
         )}
       />
     </>

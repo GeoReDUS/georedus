@@ -36,7 +36,7 @@ const DEFAULT_NUMBER_FORMAT = ['pt-BR', {}]
 
 function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
   const _legends = resolve.fn((ctx) => {
-    const _confOpacity = ctx.view?.conf?.style?.opacity
+    const _confOpacity = ctx.view?.conf?.style?.opacity || viewSpec.style.opacity
     // OBS: stopsWithOpacity foi feito para aplicar na legenda a opacidade que também é aplicada no mapa
     // colorScaleStops retorna um array cuja estrutura é [cor, valor, cor, valor, ..., valor, cor]
     // por isso a opacidade está sendo aplicada somente nos indexes pares
@@ -47,7 +47,7 @@ function _main_fill_legends(props, viewSpec, allViewSpecs, context) {
               entry,
               typeof _confOpacity === 'number'
                 ? _confOpacity
-                : DEFAULT_FILL_OPACITY,
+                : viewSpec.style.opacity,
             )
           : entry,
     )
@@ -76,10 +76,9 @@ function _main_fill(props, viewSpec, allViewSpecs, context) {
   const _opacity = resolve.fn((ctx) =>
     typeof ctx.view?.conf?.style?.opacity === 'number'
       ? ctx.view.conf.style.opacity
-      : DEFAULT_FILL_OPACITY,
+      : viewSpec.style.opacity,
   )
   return {
-    zIndex: Z_OVERLAY_BASE_1000,
     source: MAIN_SOURCE_ID,
     'source-layer': source_layer,
     interactive: true,
@@ -114,10 +113,6 @@ export function layers(viewSpec, allViewSpecs, context) {
     ],
     ...ctx.view.metadata.colorScaleStops,
   ])
-
-  // const _fillPattern = resolve.fn(
-  //   (ctx) => ctx.view?.conf?.style?.fillPattern || styleSpec.fillPattern,
-  // )
 
   return {
     [`main_line`]: _main_line(

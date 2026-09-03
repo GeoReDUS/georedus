@@ -1,4 +1,5 @@
 import { resolveColor, schemeGeoReDUS } from '../../util'
+import { DEFAULT_FILL_OPACITY } from '../util'
 
 export type StyleSpec = {
   color?: string
@@ -14,6 +15,7 @@ export type StyleSpec = {
     | 'waves_1'
     | 'solid'
   borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none'
+  opacity?: number
 }
 
 export type StyleSpecInput = string | StyleSpec
@@ -32,6 +34,10 @@ export function parseStyleSpec(styleInput?: StyleSpecInput): StyleSpec {
       color: _defaultColor(styleInput),
     }
   } else {
-    return { ...styleInput, color: _defaultColor(styleInput.color) }
+    return {
+      opacity: DEFAULT_FILL_OPACITY,
+      ...styleInput,
+      color: _defaultColor(styleInput.color),
+    }
   }
 }

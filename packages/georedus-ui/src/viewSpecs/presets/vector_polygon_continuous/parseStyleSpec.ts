@@ -1,3 +1,5 @@
+import { DEFAULT_FILL_OPACITY } from "../util";
+
 type ClassificationMethod =
   | { type: 'naturalBreaks'; k: number }
   | 'naturalBreaks'
@@ -50,6 +52,7 @@ export type StyleSpec = {
     | string[]
 
   classificationMethod?: ClassificationMethod
+  opacity?: number
 }
 
 export type StyleSpecInput = StyleSpec
@@ -59,6 +62,7 @@ export const DEFAULT_COLOR_SCHEME_ID = 'schemeOrRd'
 export function parseStyleSpec(styleInput: StyleSpecInput): StyleSpec {
   return {
     colorScheme: DEFAULT_COLOR_SCHEME_ID,
+    opacity: DEFAULT_FILL_OPACITY,
     ...styleInput,
     classificationMethod: !styleInput.classificationMethod
       ? { type: 'naturalBreaks', k: 5 }
