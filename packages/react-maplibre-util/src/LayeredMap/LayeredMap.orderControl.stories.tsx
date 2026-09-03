@@ -3,7 +3,7 @@ import { LayeredMap } from './LayeredMap'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { LayeredMapProps } from '../types'
 import '@radix-ui/themes/styles.css'
-import { layeredMapOnClickHandler } from './layeredMapOnClickHandler'
+import { layeredMapMouseEventHandler } from './layeredMapMouseEventHandler'
 import { InputProvider, Input, INPUTS } from '@orioro/react-ui-core'
 import { Theme } from '@radix-ui/themes'
 
@@ -55,7 +55,7 @@ export const Basic = () => {
 
   const onMove = useCallback((evt) => setViewState(evt.viewState), [])
 
-  const onClick = useMemo(() => layeredMapOnClickHandler(), [])
+  const onClick = useMemo(() => layeredMapMouseEventHandler('onClick'), [])
 
   const [layerOrder, setLayerOrder] = useState([
     'paises',

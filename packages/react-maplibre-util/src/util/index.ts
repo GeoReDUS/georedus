@@ -1,3 +1,5 @@
 export * from './fitGeometry'
 export * from './applyReactStyle'
 export * from './misc'
+export * from './getSourceRemountKey'
+export * from './getLayerRemountKey'

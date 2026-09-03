@@ -43,7 +43,8 @@
     "react-map-gl": "^8.0.0",
     "react-router-dom": "^7.4.1",
     "rollup": "^4.13.0",
-    "storybook": "^8.0.0"
+    "storybook": "^8.0.0",
+    "type-fest": "^5.8.0"
   },
   "dependencies": {
     "@mapbox/tilebelt": "2.0.0",
@@ -75,6 +76,7 @@
     "d3-scale-chromatic": "^3.1.0",
     "file-saver": "^2.0.5",
     "gdal3.js": "^2.8.1",
+    "h3-js": "^4.5.0",
     "html-to-image": "^1.11.13",
     "katex": "^0.16.22",
     "lodash": "^4.17.21",
