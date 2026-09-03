@@ -1,12 +1,11 @@
 import { scaleQuantile } from 'd3-scale'
 
-
 const DEFAULT_COLOR = '#CCC'
 
 function custom({ values, colorScheme, classificationMethod }) {
   const k = classificationMethod.breaks.length
   return [
-   DEFAULT_COLOR,
+    DEFAULT_COLOR,
     ...classificationMethod.breaks
       .map((breakValue, index) => {
         return [breakValue, colorScheme.scalesByK[k][index]]
@@ -16,7 +15,7 @@ function custom({ values, colorScheme, classificationMethod }) {
 }
 
 function quantile({ values, colorScheme, classificationMethod }) {
-  const scale = scaleQuantile()
+  const scale = scaleQuantile(values)
     .domain(values) // your data
     .range(new Array(classificationMethod.k).fill(null).map((_, idx) => idx)) // number of bins
 
