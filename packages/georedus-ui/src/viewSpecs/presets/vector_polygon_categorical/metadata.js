@@ -19,7 +19,6 @@ export function metadata(viewSpec, allViewSpecs, context) {
           await fetch(
             interpolate(style.categories, {
               METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-              municipioId: context.municipioId,
             }),
           )
             .then((res) => res.json())
