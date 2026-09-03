@@ -38,7 +38,6 @@ function quantile({ values, colorScheme, classificationMethod }) {
 
   const breaks = [...new Set(raw)]
 
-  // console.log('breaks', breaks)
   const colorScale = colorScheme.scalesByK[k]
   const colorScaleStops = hasLowerValues
     ? breaks
