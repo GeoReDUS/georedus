@@ -1,6 +1,6 @@
 {
   "name": "@redus/georedus-ui",
-  "version": "0.21.0",
+  "version": "0.22.1",
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "main": "dist/main.js",

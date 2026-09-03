@@ -1,5 +1,28 @@
 # @orioro/template-react
 
+## 0.22.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/vector-tile-util@0.4.1
+  - @orioro/react-maplibre-util@0.9.1
+  - @orioro/react-chart-util@0.3.2
+
+## 0.22.0
+
+### Minor Changes
+
+- implement gtfs presets
+
+### Patch Changes
+
+- Updated dependencies [793bce0]
+- Updated dependencies [d8d6b68]
+  - @orioro/react-maplibre-util@0.9.0
+  - @orioro/vector-tile-util@0.4.0
+  - @orioro/react-chart-util@0.3.2
+
 ## 0.21.0
 
 ### Minor Changes

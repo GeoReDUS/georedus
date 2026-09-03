@@ -1,5 +1,24 @@
 # @orioro/react-maplibre-util
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @orioro/vector-tile-util@0.4.1
+
+## 0.9.0
+
+### Minor Changes
+
+- 793bce0: add support for non-reactive <Source /> and <Layer /> props through force-remount via `key` prop
+- d8d6b68: implement feature-state handling on <Source /> component and expose memoizee options on makeMemoFetch
+
+### Patch Changes
+
+- Updated dependencies [d8d6b68]
+  - @orioro/vector-tile-util@0.4.0
+
 ## 0.8.1
 
 ### Patch Changes
