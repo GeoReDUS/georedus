@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.23.1
+
+### Patch Changes
+
+- remove direct reference to window.fetch to enable usage in ssr
+
 ## 0.23.0
 
 ### Minor Changes
