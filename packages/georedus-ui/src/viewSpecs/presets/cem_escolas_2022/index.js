@@ -20,6 +20,7 @@ import { get, isPlainObject, omit, uniqBy } from 'lodash'
 import { resolve } from '@orioro/resolve'
 import { resolveExprAsync } from '../../resolveView/resolveExpr'
 import { Z_OVERLAY_MIDDLE_2000 } from '../../zIndexes'
+import { basicTooltip } from '../util'
 
 const BY_TYPE = {
   numerical_choropleth,
@@ -41,6 +42,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     number_format = ['pt-BR', {}],
     metodology,
     keywords,
+    tooltip,
   } = config
 
   if (Boolean(variant_of)) {
@@ -331,89 +333,98 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
       ]
     : SIZE_DEFAULT
 
-  const $tooltip = {
-    title: ['$literal', ['$get', 'feature.properties.no_escola']],
-    entries: [
-      [
-        indicator_label,
-        [
-          '$literal',
-          [
-            '$coalesce',
+  const $tooltip =
+    typeof tooltip === 'object' && tooltip !== null
+      ? basicTooltip({ title: 'no_escola', entries: [], ...tooltip })
+      : {
+          title: ['$literal', ['$get', 'feature.properties.no_escola']],
+          entries: [
             [
-              '$get',
-              `feature.properties.${VARIABLE_ID}::string({
+              indicator_label,
+              [
+                '$literal',
+                [
+                  '$coalesce',
+                  [
+                    '$get',
+                    `feature.properties.${VARIABLE_ID}::string({
                 number: ${JSON.stringify(number_format)},
                 boolean: {
                   true: 'Sim',
                   false: 'Não'
                 }
               })`,
+                  ],
+                  'Sem dados',
+                ],
+              ],
             ],
-            'Sem dados',
-          ],
-        ],
-      ],
-      sizing_variable_id
-        ? [
-            sizing_variable_label,
+            sizing_variable_id
+              ? [
+                  sizing_variable_label,
+                  [
+                    '$literal',
+                    [
+                      '$get',
+                      `feature.properties.${sizing_variable_id}::string`,
+                    ],
+                  ],
+                ]
+              : null,
             [
-              '$literal',
-              ['$get', `feature.properties.${sizing_variable_id}::string`],
+              'Etapas de ensino',
+              [
+                '$literal',
+                resolve.fn((context) => {
+                  const properties = context?.feature?.properties || {}
+
+                  // Mapeamos os rótulos aos possíveis finais de string (sufixos)
+                  // que essa coluna pode ter na base de 2022 ou nas bases >= 2023
+                  // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
+                  // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
+                  const ETAPAS = [
+                    {
+                      label: 'Infantil / Creche',
+                      sufixos: ['in_inf_cre', 'edu02_etp_cre_0'],
+                    },
+                    {
+                      label: 'Infantil / Pré-escola',
+                      sufixos: ['in_inf_pre', 'edu02_etp_pre_0'],
+                    },
+                    {
+                      label: 'Fundamental I',
+                      sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'],
+                    },
+                    {
+                      label: 'Fundamental II',
+                      sufixos: ['in_fund_af', 'edu02_etp_fn2_0'],
+                    },
+                    {
+                      label: 'Ensino Médio',
+                      sufixos: ['in_med', 'edu02_etp_em_0'],
+                    },
+                  ]
+
+                  return ETAPAS.filter(({ sufixos }) => {
+                    // Percorre todas as propriedades da feature atual
+                    return Object.entries(properties).some(
+                      ([key, value]) =>
+                        // Verifica se o nome da coluna termina com algum dos sufixos mapeados
+                        // E se o valor da coluna é "truthy" (maior que 0, true, etc)
+                        sufixos.some((sufixo) => key.endsWith(sufixo)) && value,
+                    )
+                  })
+                    .map(({ label }) => label)
+                    .join(', ')
+                }),
+              ],
             ],
-          ]
-        : null,
-      [
-        'Etapas de ensino',
-        [
-          '$literal',
-          resolve.fn((context) => {
-            const properties = context?.feature?.properties || {}
-
-            // Mapeamos os rótulos aos possíveis finais de string (sufixos)
-            // que essa coluna pode ter na base de 2022 ou nas bases >= 2023
-            // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
-            // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
-            const ETAPAS = [
-              {
-                label: 'Infantil / Creche',
-                sufixos: ['in_inf_cre', 'edu02_etp_cre_0'],
-              },
-              {
-                label: 'Infantil / Pré-escola',
-                sufixos: ['in_inf_pre', 'edu02_etp_pre_0'],
-              },
-              {
-                label: 'Fundamental I',
-                sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'],
-              },
-              {
-                label: 'Fundamental II',
-                sufixos: ['in_fund_af', 'edu02_etp_fn2_0'],
-              },
-              { label: 'Ensino Médio', sufixos: ['in_med', 'edu02_etp_em_0'] },
-            ]
-
-            return ETAPAS.filter(({ sufixos }) => {
-              // Percorre todas as propriedades da feature atual
-              return Object.entries(properties).some(
-                ([key, value]) =>
-                  // Verifica se o nome da coluna termina com algum dos sufixos mapeados
-                  // E se o valor da coluna é "truthy" (maior que 0, true, etc)
-                  sufixos.some((sufixo) => key.endsWith(sufixo)) && value,
-              )
-            })
-              .map(({ label }) => label)
-              .join(', ')
-          }),
-        ],
-      ],
-      [
-        'Rede de ensino',
-        ['$literal', ['$get', 'feature.properties.tp_dependencia']],
-      ],
-    ].filter(Boolean),
-  }
+            [
+              'Rede de ensino',
+              ['$literal', ['$get', 'feature.properties.tp_dependencia']],
+            ],
+          ].filter(Boolean),
+        }
 
   const $legends = sizing_variable_id
     ? [
