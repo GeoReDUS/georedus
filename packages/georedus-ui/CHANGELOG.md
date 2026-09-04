@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.23.0
+
+### Minor Changes
+
+- fix compilation issues and integrate custom tooltips for education preset
+
 ## 0.22.2
 
 ### Patch Changes
