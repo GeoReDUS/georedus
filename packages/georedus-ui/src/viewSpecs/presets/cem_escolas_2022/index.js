@@ -334,7 +334,7 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
     : SIZE_DEFAULT
 
   const $tooltip =
-    tooltip !== undefined && tooltip !== null && tooltip !== ''
+    typeof tooltip === 'object' && tooltip !== null
       ? basicTooltip({ title: 'no_escola', entries: [], ...tooltip })
       : {
           title: ['$literal', ['$get', 'feature.properties.no_escola']],
