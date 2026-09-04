@@ -134,11 +134,11 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
         showSize:
           sizing_variable_id && sizing_variable_id != variable_id
             ? {
-              label: 'Matrículas',
-              type: 'booleanCheckbox',
-              description: 'Tamanho proporcional à quantidade de matrículas',
-              defaultValue: true,
-            }
+                label: 'Matrículas',
+                type: 'booleanCheckbox',
+                description: 'Tamanho proporcional à quantidade de matrículas',
+                defaultValue: true,
+              }
             : null,
 
         ...influenceAreaConf({
@@ -175,38 +175,38 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
           ],
           sizingValues: sizing_variable_id
             ? [
-              '$if',
-              ['$get', 'view.conf.data.showSize'],
-              [
-                '$filter',
+                '$if',
+                ['$get', 'view.conf.data.showSize'],
                 [
-                  '$get',
-                  ['$template', '[].${0}', sizing_variable_id],
+                  '$filter',
                   [
-                    '$fetch',
-                    {
-                      href: METADATA_API_ENDPOINT,
-                      pathname: collection_id,
+                    '$get',
+                    ['$template', '[].${0}', sizing_variable_id],
+                    [
+                      '$fetch',
+                      {
+                        href: METADATA_API_ENDPOINT,
+                        pathname: collection_id,
 
-                      searchParams: [
-                        '$merge',
-                        {
-                          select: sizing_variable_id,
-                          id_municipio: _id_municipio_apiFilterExpr,
-                        },
-                        _fetchMetadataApiFilterExpResolver,
-                      ],
-                    },
+                        searchParams: [
+                          '$merge',
+                          {
+                            select: sizing_variable_id,
+                            id_municipio: _id_municipio_apiFilterExpr,
+                          },
+                          _fetchMetadataApiFilterExpResolver,
+                        ],
+                      },
+                    ],
+                  ],
+                  [
+                    '$and',
+                    ['$not', ['$empty', ['$iterator', 'item']]],
+                    ['$gt', ['$iterator', 'item'], 0],
                   ],
                 ],
-                [
-                  '$and',
-                  ['$not', ['$empty', ['$iterator', 'item']]],
-                  ['$gt', ['$iterator', 'item'], 0],
-                ],
-              ],
-              null,
-            ]
+                null,
+              ]
             : null,
 
           ...influenceAreaMetadata(),
@@ -310,136 +310,140 @@ export function cem_escolas_2022(config, allViewSpecs, context) {
 
   const $circleRadius = sizing_variable_id
     ? [
-      '$if',
-      [
-        '$and',
-        ['$get', 'view.conf.data.showSize'],
+        '$if',
         [
-          '$gt',
-          ['$get', 'length', ['$get', 'view.metadata.sizingValues']],
-          1,
+          '$and',
+          ['$get', 'view.conf.data.showSize'],
+          [
+            '$gt',
+            ['$get', 'length', ['$get', 'view.metadata.sizingValues']],
+            1,
+          ],
         ],
-      ],
 
-      zoomSensitiveLinearSizes({
-        variable: ['get', sizing_variable_id],
-        minValue: ['$min', ['$get', 'view.metadata.sizingValues']],
-        maxValue: ['$max', ['$get', 'view.metadata.sizingValues']],
-        minSize: SIZE_MIN,
-        maxSize: SIZE_MAX,
-      }),
+        zoomSensitiveLinearSizes({
+          variable: ['get', sizing_variable_id],
+          minValue: ['$min', ['$get', 'view.metadata.sizingValues']],
+          maxValue: ['$max', ['$get', 'view.metadata.sizingValues']],
+          minSize: SIZE_MIN,
+          maxSize: SIZE_MAX,
+        }),
 
-      SIZE_DEFAULT,
-    ]
+        SIZE_DEFAULT,
+      ]
     : SIZE_DEFAULT
 
-
-  const $tooltip = (tooltip !== undefined && tooltip !== null && tooltip !== '') ?
-    basicTooltip(
-      { title: 'no_escola', entries: [], ...tooltip }
-    )
-    : {
-      title: ['$literal', ['$get', 'feature.properties.no_escola']],
-      entries: [
-        [
-          indicator_label,
-          [
-            '$literal',
+  const $tooltip =
+    tooltip !== undefined && tooltip !== null && tooltip !== ''
+      ? basicTooltip({ title: 'no_escola', entries: [], ...tooltip })
+      : {
+          title: ['$literal', ['$get', 'feature.properties.no_escola']],
+          entries: [
             [
-              '$coalesce',
+              indicator_label,
               [
-                '$get',
-                `feature.properties.${VARIABLE_ID}::string({
+                '$literal',
+                [
+                  '$coalesce',
+                  [
+                    '$get',
+                    `feature.properties.${VARIABLE_ID}::string({
                 number: ${JSON.stringify(number_format)},
                 boolean: {
                   true: 'Sim',
                   false: 'Não'
                 }
               })`,
+                  ],
+                  'Sem dados',
+                ],
               ],
-              'Sem dados',
             ],
-          ],
-        ],
-        sizing_variable_id
-          ? [
-            sizing_variable_label,
+            sizing_variable_id
+              ? [
+                  sizing_variable_label,
+                  [
+                    '$literal',
+                    [
+                      '$get',
+                      `feature.properties.${sizing_variable_id}::string`,
+                    ],
+                  ],
+                ]
+              : null,
             [
-              '$literal',
-              ['$get', `feature.properties.${sizing_variable_id}::string`],
+              'Etapas de ensino',
+              [
+                '$literal',
+                resolve.fn((context) => {
+                  const properties = context?.feature?.properties || {}
+
+                  // Mapeamos os rótulos aos possíveis finais de string (sufixos)
+                  // que essa coluna pode ter na base de 2022 ou nas bases >= 2023
+                  // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
+                  // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
+                  const ETAPAS = [
+                    {
+                      label: 'Infantil / Creche',
+                      sufixos: ['in_inf_cre', 'edu02_etp_cre_0'],
+                    },
+                    {
+                      label: 'Infantil / Pré-escola',
+                      sufixos: ['in_inf_pre', 'edu02_etp_pre_0'],
+                    },
+                    {
+                      label: 'Fundamental I',
+                      sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'],
+                    },
+                    {
+                      label: 'Fundamental II',
+                      sufixos: ['in_fund_af', 'edu02_etp_fn2_0'],
+                    },
+                    {
+                      label: 'Ensino Médio',
+                      sufixos: ['in_med', 'edu02_etp_em_0'],
+                    },
+                  ]
+
+                  return ETAPAS.filter(({ sufixos }) => {
+                    // Percorre todas as propriedades da feature atual
+                    return Object.entries(properties).some(
+                      ([key, value]) =>
+                        // Verifica se o nome da coluna termina com algum dos sufixos mapeados
+                        // E se o valor da coluna é "truthy" (maior que 0, true, etc)
+                        sufixos.some((sufixo) => key.endsWith(sufixo)) && value,
+                    )
+                  })
+                    .map(({ label }) => label)
+                    .join(', ')
+                }),
+              ],
             ],
-          ]
-          : null,
-        [
-          'Etapas de ensino',
-          [
-            '$literal',
-            resolve.fn((context) => {
-              const properties = context?.feature?.properties || {}
-
-              // Mapeamos os rótulos aos possíveis finais de string (sufixos)
-              // que essa coluna pode ter na base de 2022 ou nas bases >= 2023
-              // 'in_inf_cre' é o sufixo para a etapa "Infantil / Creche" na base de 2022, enquanto 'edu02_etp_cre_0' é o sufixo para a mesma etapa nas bases de 2023 em diante
-              // Na tabela de 2023, a coluna se chama in23_edu02_etp_cre_0, por exemplo, mas como só nos importam os sufixos finais, conseguimos usar a mesma lógica para todos os anos
-              const ETAPAS = [
-                {
-                  label: 'Infantil / Creche',
-                  sufixos: ['in_inf_cre', 'edu02_etp_cre_0'],
-                },
-                {
-                  label: 'Infantil / Pré-escola',
-                  sufixos: ['in_inf_pre', 'edu02_etp_pre_0'],
-                },
-                {
-                  label: 'Fundamental I',
-                  sufixos: ['in_fund_ai', 'edu02_etp_fn1_0'],
-                },
-                {
-                  label: 'Fundamental II',
-                  sufixos: ['in_fund_af', 'edu02_etp_fn2_0'],
-                },
-                { label: 'Ensino Médio', sufixos: ['in_med', 'edu02_etp_em_0'] },
-              ]
-
-              return ETAPAS.filter(({ sufixos }) => {
-                // Percorre todas as propriedades da feature atual
-                return Object.entries(properties).some(
-                  ([key, value]) =>
-                    // Verifica se o nome da coluna termina com algum dos sufixos mapeados
-                    // E se o valor da coluna é "truthy" (maior que 0, true, etc)
-                    sufixos.some((sufixo) => key.endsWith(sufixo)) && value,
-                )
-              })
-                .map(({ label }) => label)
-                .join(', ')
-            }),
-          ],
-        ],
-        [
-          'Rede de ensino',
-          ['$literal', ['$get', 'feature.properties.tp_dependencia']],
-        ],
-      ].filter(Boolean),
-    }
+            [
+              'Rede de ensino',
+              ['$literal', ['$get', 'feature.properties.tp_dependencia']],
+            ],
+          ].filter(Boolean),
+        }
 
   const $legends = sizing_variable_id
     ? [
-      [
-        '$if',
-        ['$get', 'view.conf.data.showSize'],
-        {
-          type: 'ProportionalSymbolLegend',
-          unit: 'Matrículas',
-          title: sizing_variable_label,
-          min: ['$min', ['$get', 'view.metadata.sizingValues']],
-          max: ['$max', ['$get', 'view.metadata.sizingValues']],
-          sizeMin: SIZE_MIN * 2,
-          sizeMax: SIZE_MAX * 2,
-          numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
-        },
-        null,
-      ],
-    ]
+        [
+          '$if',
+          ['$get', 'view.conf.data.showSize'],
+          {
+            type: 'ProportionalSymbolLegend',
+            unit: 'Matrículas',
+            title: sizing_variable_label,
+            min: ['$min', ['$get', 'view.metadata.sizingValues']],
+            max: ['$max', ['$get', 'view.metadata.sizingValues']],
+            sizeMin: SIZE_MIN * 2,
+            sizeMax: SIZE_MAX * 2,
+            numberFormat: ['pt-BR', { maximumFractionDigits: 0 }],
+          },
+          null,
+        ],
+      ]
     : []
 
   const typeParser = BY_TYPE[indicator_type]
