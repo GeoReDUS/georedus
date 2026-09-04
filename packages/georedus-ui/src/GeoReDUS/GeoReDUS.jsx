@@ -25,7 +25,7 @@ import {
   InspectControl,
   useMapRegistry,
   useTilesLoading,
-  layeredMapOnClickHandler,
+  layeredMapMouseEventHandler,
 } from '@orioro/react-maplibre-util'
 import '@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css'
 import { Legend } from '@orioro/react-chart-util'
@@ -459,22 +459,24 @@ function GeoReDUSInner({
     ],
   )
 
-  const {
-    resolvedViews,
-    resolvedViewSpecs,
-    isLoading: viewsLoading,
-  } = useViews({
-    viewSpecs: viewSpecsQuery.data,
-    viewConfState: viewConfState,
-    app: APP_CONTEXT,
-  })
+  const { viewsReadyAtStage, resolvedViewSpecs, currentLoadingStage } =
+    useViews({
+      viewSpecs: viewSpecsQuery.data,
+      viewConfState: viewConfState,
+      app: APP_CONTEXT,
+    })
+
+  //
+  // Only show views in which layers are ready
+  //
+  const viewsWithLayersReady = viewsReadyAtStage('layers')
 
   //
   // Prepares layout for rendering
   //
   const resolvedLayout = useMemo(() => {
-    const resolvedViewsById = Object.fromEntries(
-      resolvedViews.map((view) => [view.id, view]),
+    const viewsWithLayersReadyById = Object.fromEntries(
+      viewsWithLayersReady.map((view) => [view.id, view]),
     )
 
     const hasActiveViews = Object.keys(viewConfState.byId).length > 0
@@ -493,7 +495,7 @@ function GeoReDUSInner({
           [viewConfState.layout[0]]
     ).map((list, index) => {
       const views = list.items
-        .map((item) => resolvedViewsById[item.id])
+        .map((item) => viewsWithLayersReadyById[item.id])
         .filter(Boolean)
 
       return {
@@ -502,7 +504,7 @@ function GeoReDUSInner({
         legends: views.flatMap((view) => view?.controls?.legends || []),
       }
     })
-  }, [viewConfState.layout, viewConfState.byId, resolvedViews])
+  }, [viewConfState.layout, viewConfState.byId, viewsWithLayersReady])
 
   useEffect(() => {
     if (resolvedLayout.length > 1) {
@@ -669,9 +671,9 @@ function GeoReDUSInner({
     [baseMapStyle, api, APP_CONTEXT],
   )
 
-  const onClick = useMemo(
+  const layeredMapHandlers = useMemo(
     () =>
-      layeredMapOnClickHandler({
+      layeredMapMouseEventHandler(['onClick', 'onMouseMove'], {
         context: {
           dialogs,
         },
@@ -689,16 +691,14 @@ function GeoReDUSInner({
         viewSpecs={resolvedViewSpecs}
         viewConfState={viewConfState}
         viewConfDispatch={viewConfDispatch}
-        resolvedViews={resolvedViews}
+        resolvedViews={viewsWithLayersReady}
         resolvedLayout={resolvedLayout}
-        
         // props required for export image
         commitedViewState={commitedViewState}
         municipioId={municipioId}
         METADATA_API_ENDPOINT={METADATA_API_ENDPOINT}
         baseMapStyle={BASE_MAP_STYLE[baseMapStyle]}
         topViews={TOP_VIEWS}
-        
         {...leftPanelProps}
       />
 
@@ -711,7 +711,8 @@ function GeoReDUSInner({
         }}
         direction="row"
         gap="4"
-        alignItems="center">
+        alignItems="center"
+      >
         <ViewLayoutPopover
           viewSpecs={viewSpecsQuery.data}
           viewConfState={viewConfState}
@@ -723,7 +724,8 @@ function GeoReDUSInner({
           width="400px"
           direction="column"
           maxWidth="30vw"
-          gap="3">
+          gap="3"
+        >
           <HotfixSelectLargeFont>
             <Input
               schema={MUNICIPIO_ID_SELECTOR_SCHEMA}
@@ -736,7 +738,8 @@ function GeoReDUSInner({
               alignSelf: 'flex-end',
               position: 'absolute',
               top: '100%',
-            }}>
+            }}
+          >
             <Input
               schema={{
                 type: 'booleanCheckbox',
@@ -769,7 +772,6 @@ function GeoReDUSInner({
         // TODO: review mapBounds calculation
         //
         onMoveEnd={(e) => {
-  
           setCommitedViewState(e.viewState)
           const { latitude, longitude } = e.viewState
           const bounds = e.target.getBounds()
@@ -805,7 +807,8 @@ function GeoReDUSInner({
         onRemove={(evt) => {
           mapRegistry.onRemove(evt)
         }}
-        onClick={onClick}
+        onClick={layeredMapHandlers.onClick}
+        onMouseMove={layeredMapHandlers.onMouseMove}
         attributionControl={false}
         initialViewState={DEFAULT_INITIAL_VIEW_STATE}
         style={{
@@ -843,12 +846,14 @@ function GeoReDUSInner({
                   boxShadow: 'none',
                   opacity: legends.length > 0 ? 1 : 0,
                 }}
-                position="bottom-right">
+                position="bottom-right"
+              >
                 {legends.length > 0 && (
                   <LegendContainer
                     direction="row"
                     gap="3"
-                    p={resolvedLayout.length > 1 ? '3' : '4'}>
+                    p={resolvedLayout.length > 1 ? '3' : '4'}
+                  >
                     {resolvedLayout.length > 1 && (
                       <Tooltip content="Fechar visualização">
                         <IconButton
@@ -859,7 +864,8 @@ function GeoReDUSInner({
                               type: 'DEACTIVATE_VIEW',
                               payload: views[0].id,
                             })
-                          }>
+                          }
+                        >
                           <Icon path={mdiClose} size="20px" />
                         </IconButton>
                       </Tooltip>
@@ -868,7 +874,8 @@ function GeoReDUSInner({
                     <EvenSpacedList
                       columns={legends.length > 1 ? 2 : 1}
                       gap="10px"
-                      style={{ maxWidth: '300px' }}>
+                      style={{ maxWidth: '300px' }}
+                    >
                       {legends.map((legend) => (
                         <HoverLegend
                           {...(resolvedLayout.length > 1
@@ -902,7 +909,8 @@ function GeoReDUSInner({
                       width: 100,
                       height: 100,
                       boxShadow: 'none',
-                    }}>
+                    }}
+                  >
                     <MapStyleToggleCtrl
                       style={{
                         position: 'relative',
@@ -914,7 +922,8 @@ function GeoReDUSInner({
                         setBaseMapStyle(
                           baseMapStyle === 'dataviz' ? 'satellite' : 'dataviz',
                         )
-                      }>
+                      }
+                    >
                       <MapWindow
                         style={{
                           pointerEvents: 'none',
@@ -944,8 +953,9 @@ function GeoReDUSInner({
               {mapProps.children || null}
             </>
           ),
-        }))}>
-        {(viewsLoading || tilesLoading) && (
+        }))}
+      >
+        {(currentLoadingStage() !== null || tilesLoading) && (
           <LoadingIndicator
             style={{
               position: 'fixed',

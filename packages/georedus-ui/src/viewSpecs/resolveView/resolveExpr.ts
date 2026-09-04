@@ -18,7 +18,7 @@ const HARD_CODED_ALLOW_FETCH_SOURCES: Parameters<
 >[0] = {
   ['https://dev-geoapi-metadata.orioro.design']: ['GET', 'POST'],
   ['http://localhost:8001']: ['GET', 'POST'],
-  ['https://staging-redus-geo-metadata-api-dfcce6e16f5f.herokuapp.com']: [
+  ['https://prod-redus-geo-metadata-api-34f7c99630ed.herokuapp.com']: [
     'GET',
     'POST',
   ],

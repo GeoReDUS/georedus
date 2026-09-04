@@ -115,8 +115,9 @@ export function confSchema(viewSpec, allViewSpecs, context, { PARSED_SCHEMA }) {
         size: '1',
         min: 0,
         max: 1,
-        step: 0.01,
-        defaultValue: 0.6,
+        step: 0.05,
+        defaultValue: 1,
+        notify: 'layers',
       },
     },
   }

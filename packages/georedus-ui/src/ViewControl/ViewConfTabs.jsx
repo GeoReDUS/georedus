@@ -42,11 +42,13 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
   const CONF_SCHEMA = viewSpec.confSchema
 
   //
+  // TODO: completely remove debouncing.
+  //
   // Debounce updating view conf. Prevent's fast changing controls
   // from accidentally triggering map view re-renders unnecessarily
   //
-  const [immediateViewConf, setImmediateViewConf] = useState(viewConf)
-  useDebounce(() => onSetView(immediateViewConf), 500, [immediateViewConf])
+  // const [immediateViewConf, setImmediateViewConf] = useState(viewConf)
+  // useDebounce(() => onSetView(immediateViewConf), 500, [immediateViewConf])
 
   const enabledTabs = useMemo(
     () =>
@@ -168,7 +170,8 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
               Boolean(value),
             ),
           )
-          const tabConfValue = immediateViewConf[tab.id]
+          // const tabConfValue = immediateViewConf[tab.id]
+          const tabConfValue = viewConf[tab.id]
 
           return (
             <Tabs.Content key={tab.id} value={tab.id}>
@@ -181,7 +184,8 @@ export function ViewConfTabs({ viewSpec, viewConf, resolvedView, onSetView }) {
                     }}
                     value={tabConfValue}
                     onSetValue={(nextValue) =>
-                      setImmediateViewConf({
+                      // setImmediateViewConf({
+                      onSetView({
                         ...viewConf,
                         [tab.id]: {
                           ...(viewConf[tab.id] || {}),

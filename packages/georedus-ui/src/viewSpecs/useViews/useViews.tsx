@@ -1,183 +1,37 @@
-import {
-  useQueries,
-  UseQueryOptions,
-  UseQueryResult,
-} from '@tanstack/react-query'
-import {
-  ResolvedView,
-  ViewResolutionContextBase,
-  ViewSpec,
-  ViewStageKey,
-} from '../types'
-import { ViewConf } from '../../GeoReDUS/viewConfReducer'
-import { queryKeyHashFnWithFileSupport } from './queryKeyHashFnWithFileSupport'
-import {
-  resolveConfSchema,
-  resolveControls,
-  resolveDownload,
-  resolveLayers,
-  resolveMetadata,
-  resolveSources,
-} from '../resolveView'
-import { useMemo } from 'react'
-import { pick } from 'lodash'
+import { ViewResolutionContextBase, ViewSpec, ViewStageKey } from '../types'
+import { resolveConfSchema } from '../resolveView'
+import { useCallback, useMemo } from 'react'
 
-const STAGE_LOADING = Symbol.for('STAGE_LOADING')
-const STAGE_ERROR = Symbol.for('STAGE_ERROR')
+import type { QueriesByStage, ViewToResolve } from './types'
+import { viewsFromStageQueries, viewHasResolvedStages } from './util'
+import { PIPELINE_STAGES } from './constants'
+import { useViewStageQueries } from './useViewStageQueries'
 
-type ViewToResolve = {
-  viewId: string
-  viewConf: ViewConf
-  viewSpec: ViewSpec
-}
+/**
+ * Flat ordered list of all stage keys, derived from `PIPELINE_STAGES`.
+ * Parallel stages within the same group appear consecutively.
+ */
+export const PIPELINE_STAGE_ORDER = PIPELINE_STAGES.flatMap((stageGroup) =>
+  stageGroup.map((stage) => stage.stageKey),
+)
 
-//
-// Object containing queries
-//
-type QueriesByStage = {
-  metadata: UseQueryResult[]
-  sources: UseQueryResult[]
-  layers: UseQueryResult[]
-  controls: UseQueryResult[]
-  download: UseQueryResult[]
-}
-
-function _viewsFromStageQueries<
-  QueriesByStagePartial extends Partial<QueriesByStage> = QueriesByStage,
->({
-  viewsToResolve,
-  queriesByStage = null,
-}: {
-  viewsToResolve: ViewToResolve[]
-  queriesByStage: QueriesByStagePartial | null
-}): Partial<ResolvedView>[] {
-  return viewsToResolve.map(
-    ({ viewId, viewConf, viewSpec }, viewQueryIndex) => {
-      const viewBase = {
-        id: viewId,
-        conf: viewConf,
-      }
-
-      return queriesByStage
-        ? Object.assign(
-            viewBase,
-            Object.fromEntries(
-              Object.entries(queriesByStage).map(([stageKey, stageQueries]) => {
-                //
-                // All queries by stage must share the same viewsToResolve
-                //
-                const viewQuery = stageQueries[viewQueryIndex]
-
-                return viewQuery.status === 'success'
-                  ? [stageKey, viewQuery.data]
-                  : [
-                      stageKey,
-                      //
-                      // TODO improve error handling
-                      //
-                      viewQuery.status === 'pending'
-                        ? STAGE_LOADING
-                        : STAGE_ERROR,
-                    ]
-              }),
-            ),
-          )
-        : viewBase
-    },
-  )
-}
-
-//
-// Utility that checks whether a partial view
-// has all stages from a list resolved
-//
-function _hasViewResolvedStages(
-  partialView: Partial<ResolvedView>,
-  stages: ViewStageKey[],
-): boolean {
-  return stages.every((stageKey) => {
-    const stageValue = partialView[stageKey] as unknown
-
-    return (
-      typeof stageValue !== 'undefined' &&
-      stageValue !== STAGE_LOADING &&
-      stageValue !== STAGE_ERROR
-    )
-  })
-}
-
-function useViewStageQueries({
-  enabled: extEnabled,
-  stageKey,
-  dependsOnStages = null,
-  viewResolutionContextBase,
-  viewsToResolve,
-  partialViews,
-  queryFn,
-}: {
-  enabled: boolean
-  stageKey: ViewStageKey
-  dependsOnStages?: ViewStageKey[] | null
-  viewResolutionContextBase: ViewResolutionContextBase
-  viewsToResolve: ViewToResolve[]
-  partialViews: Partial<ResolvedView>[]
-  queryFn: (
-    viewToResolve: ViewToResolve,
-    partialView: Partial<ResolvedView>,
-  ) => Promise<Partial<ResolvedView>>
-}) {
-  return useQueries({
-    queries: viewsToResolve.map((viewToResolve, viewIndex) => {
-      const { viewId, viewSpec, viewConf } = viewToResolve
-
-      const partialView = partialViews[viewIndex]
-
-      const enabled =
-        extEnabled &&
-        (Array.isArray(dependsOnStages)
-          ? _hasViewResolvedStages(partialView, dependsOnStages)
-          : true)
-
-      const stageDependencies =
-        enabled && typeof viewSpec[stageKey]?._dependencies === 'function'
-          ? viewSpec[stageKey]._dependencies({
-              ...viewResolutionContextBase,
-              view: partialView,
-            }) || 'STABLE_DEPENDENCY'
-          : 'STABLE_DEPENDENCY'
-
-      const queryKey = [
-        'ViewStage',
-        viewId,
-        stageKey,
-        viewConf,
-        viewResolutionContextBase.app,
-        stageDependencies,
-      ]
-
-      return {
-        ...(viewSpec[stageKey]?._query
-          ? pick(viewSpec[stageKey]?._query, ['gcTime'])
-          : {}),
-        gcTime: 0,
-        enabled,
-        queryKey,
-        queryKeyHashFn: queryKeyHashFnWithFileSupport,
-        queryFn: async () => {
-          const result = await queryFn(viewToResolve, partialView)
-
-          if (viewSpec.debug) {
-            console.log(stageKey, viewSpec.id, result, partialView)
-          }
-
-          return result
-        },
-        throwOnError: process.env.NODE_ENV !== 'production',
-      } as UseQueryOptions
-    }),
-  })
-}
-
+/**
+ * Orchestrates the full view resolution pipeline for all active views.
+ *
+ * Stages are resolved in groups: `[metadata] → [sources] → [layers] →
+ * [controls, download]`. Stages within a group are parallel — they share the
+ * same upstream dependencies. Each stage receives a snapshot of all preceding
+ * resolved queries so downstream stages can read prior results.
+ *
+ * Each view × stage pair is an independent React Query query. A single view
+ * can update without triggering re-resolution of any other view.
+ *
+ * `resolvedViews` carries all active views with raw stage data (sentinels for
+ * unresolved stages). Use `viewsReadyAtStage` to obtain a filtered subset.
+ *
+ * `resolvedViewSpecs` are resolved synchronously because schema changes must
+ * reflect immediately as the user edits conf values.
+ */
 export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
   const { viewSpecs, viewConfState } = viewResolutionContextBase
 
@@ -225,156 +79,111 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       .filter(Boolean) as ViewToResolve[]
   }, [viewSpecsById, viewConfState])
 
-  const QUERIES_AT_METADATA = {}
-  const metadataQueries = useViewStageQueries({
-    enabled: VIEWS_ENABLED,
-    stageKey: 'metadata',
-    dependsOnStages: null,
-    viewResolutionContextBase,
-    viewsToResolve,
-    partialViews: _viewsFromStageQueries({
-      viewsToResolve,
-      queriesByStage: null,
-    }),
-    queryFn: async ({ viewSpec }, partialView) => {
-      return (
-        (await resolveMetadata(
-          viewSpec,
-          partialView as Pick<ResolvedView, 'conf'>,
-          viewResolutionContextBase,
-        )) || null
+  let QUERIES_BY_STAGE_ACC: Partial<QueriesByStage> = {}
+
+  PIPELINE_STAGES.forEach((stageGroup, stageGroupIndex) => {
+    //
+    // stageGroup is a list of parallel stages
+    //
+    stageGroup.forEach(({ stageKey, dependsOnStages, resolveFn }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const queries = useViewStageQueries({
+        enabled: VIEWS_ENABLED,
+        stageKey,
+        dependsOnStages:
+          dependsOnStages === 'all_previous_stages'
+            ? PIPELINE_STAGES.slice(0, stageGroupIndex).flatMap((stageGroup) =>
+                stageGroup.map((stage) => stage.stageKey),
+              )
+            : dependsOnStages,
+        viewResolutionContextBase,
+        viewsToResolve,
+        queriesByStage: QUERIES_BY_STAGE_ACC,
+        queryFn: async ({ viewSpec }, partialView) =>
+          (await resolveFn(viewSpec, partialView, viewResolutionContextBase)) ||
+          null,
+      })
+      QUERIES_BY_STAGE_ACC = { ...QUERIES_BY_STAGE_ACC, [stageKey]: queries }
+    })
+  })
+
+  //
+  // Memoize the final accumulator so downstream memos and consumers
+  // receive a stable reference. Deps are the individual stage query arrays
+  // spread dynamically — safe because PIPELINE_STAGES length is constant.
+  //
+  const QUERIES_BY_STAGE_ALL = useMemo(
+    () => QUERIES_BY_STAGE_ACC as QueriesByStage,
+    Object.values(QUERIES_BY_STAGE_ACC),
+  )
+
+  const resolvedViews = useMemo(
+    () =>
+      viewsFromStageQueries({
+        viewsToResolve,
+        queriesByStage: QUERIES_BY_STAGE_ALL,
+      }),
+    [viewsToResolve, QUERIES_BY_STAGE_ALL],
+  )
+
+  const viewsReadyAtStage = useCallback(
+    (stageKey: ViewStageKey) => {
+      return resolvedViews.filter((partialView) =>
+        viewHasResolvedStages(
+          partialView,
+          PIPELINE_STAGE_ORDER.slice(
+            0,
+            PIPELINE_STAGE_ORDER.indexOf(stageKey) + 1,
+          ),
+        ),
       )
     },
-  })
+    [resolvedViews],
+  )
 
-  const QUERIES_AT_SOURCES: Pick<QueriesByStage, 'metadata'> = {
-    ...QUERIES_AT_METADATA,
-    metadata: metadataQueries,
-  }
-  const sourcesQueries = useViewStageQueries({
-    enabled: VIEWS_ENABLED,
-    stageKey: 'sources',
-    dependsOnStages: ['metadata'],
-    viewResolutionContextBase,
-    viewsToResolve,
-    partialViews: _viewsFromStageQueries({
-      viewsToResolve,
-      queriesByStage: QUERIES_AT_SOURCES,
-    }),
-    queryFn: async ({ viewSpec }, partialView) =>
-      (await resolveSources(
-        viewSpec,
-        partialView as Pick<ResolvedView, 'conf' | 'metadata'>,
-        viewResolutionContextBase,
-      )) || null,
-  })
+  //
+  // Per-view bottleneck stage: the first stage in pipeline order that is still
+  // loading for that view. null when all stages for that view are resolved.
+  //
+  const currentLoadingStageByViewId = useMemo(() => {
+    return Object.fromEntries(
+      viewsToResolve.map(({ viewId }, viewIndex) => [
+        viewId,
+        PIPELINE_STAGE_ORDER.find((stageKey) => {
+          const query = QUERIES_BY_STAGE_ALL[stageKey][viewIndex]
+          return (
+            query.status === 'pending' ||
+            (query.status === 'success' && query.isPlaceholderData)
+          )
+        }) ?? null,
+      ]),
+    )
+  }, [viewsToResolve, QUERIES_BY_STAGE_ALL])
 
-  const QUERIES_AT_LAYERS: Pick<QueriesByStage, 'metadata' | 'sources'> = {
-    ...QUERIES_AT_SOURCES,
-    sources: sourcesQueries,
-  }
-  const layersQueries = useViewStageQueries({
-    enabled: VIEWS_ENABLED,
-    stageKey: 'layers',
-    dependsOnStages: ['metadata', 'sources'],
-    viewResolutionContextBase,
-    viewsToResolve,
-    partialViews: _viewsFromStageQueries({
-      viewsToResolve,
-      queriesByStage: QUERIES_AT_LAYERS,
-    }),
-    queryFn: async ({ viewSpec }, partialView) =>
-      (await resolveLayers(
-        viewSpec,
-        partialView as Pick<ResolvedView, 'conf' | 'metadata' | 'sources'>,
-        viewResolutionContextBase,
-      )) || null,
-  })
-
-  const QUERIES_AT_CONTROLS: Pick<
-    QueriesByStage,
-    'metadata' | 'sources' | 'layers'
-  > = {
-    ...QUERIES_AT_LAYERS,
-    layers: layersQueries,
-  }
-  const controlsQueries = useViewStageQueries({
-    enabled: VIEWS_ENABLED,
-    stageKey: 'controls',
-    dependsOnStages: ['metadata', 'sources', 'layers'],
-    viewResolutionContextBase,
-    viewsToResolve,
-    partialViews: _viewsFromStageQueries({
-      viewsToResolve,
-      queriesByStage: QUERIES_AT_CONTROLS,
-    }),
-    queryFn: async ({ viewSpec }, partialView) =>
-      (await resolveControls(
-        viewSpec,
-        partialView as Pick<
-          ResolvedView,
-          'conf' | 'metadata' | 'sources' | 'layers'
-        >,
-        viewResolutionContextBase,
-      )) || null,
-  })
-
-  const downloadQueries = useViewStageQueries({
-    enabled: VIEWS_ENABLED,
-    stageKey: 'download',
-    dependsOnStages: ['metadata', 'sources', 'layers'],
-    viewResolutionContextBase,
-    viewsToResolve,
-    partialViews: _viewsFromStageQueries({
-      viewsToResolve,
-      queriesByStage: QUERIES_AT_CONTROLS,
-    }),
-    queryFn: async ({ viewSpec }, partialView) =>
-      (await resolveDownload(
-        viewSpec,
-        partialView as Pick<
-          ResolvedView,
-          'conf' | 'metadata' | 'sources' | 'layers'
-        >,
-        viewResolutionContextBase,
-      )) || null,
-  })
-
-  const resolvedViews = useMemo(() => {
-    return _viewsFromStageQueries({
-      viewsToResolve,
-      queriesByStage: {
-        metadata: metadataQueries,
-        sources: sourcesQueries,
-        layers: layersQueries,
-        controls: controlsQueries,
-        download: downloadQueries,
-      },
-    }).filter((partialView) => {
-      return _hasViewResolvedStages(partialView, [
-        'metadata',
-        'sources',
-        'layers',
-        // 'download',
-      ])
-    })
-  }, [
-    viewsToResolve,
-    metadataQueries,
-    sourcesQueries,
-    layersQueries,
-    controlsQueries,
-    downloadQueries,
-  ])
-
-  const isLoading = useMemo(() => {
-    return [
-      ...metadataQueries,
-      ...sourcesQueries,
-      ...layersQueries,
-      ...controlsQueries,
-    ].some((query) => query.status === 'pending')
-  }, [metadataQueries, sourcesQueries, layersQueries, controlsQueries])
+  const currentLoadingStage = useCallback(
+    (viewId: string | null = null) => {
+      if (viewId === null) {
+        //
+        // Global bottleneck stage: the earliest pipeline stage that is still loading
+        // across any view. null when all views are fully resolved.
+        //
+        const perViewStages = Object.values(currentLoadingStageByViewId).filter(
+          Boolean,
+        ) as (typeof PIPELINE_STAGE_ORDER)[number][]
+        return (
+          PIPELINE_STAGE_ORDER.find((stageKey) =>
+            perViewStages.includes(stageKey),
+          ) ?? null
+        )
+      } else {
+        //
+        // Return per view
+        //
+        return currentLoadingStageByViewId[viewId] || null
+      }
+    },
+    [currentLoadingStageByViewId],
+  )
 
   //
   // Resolve view specs so that they may take input
@@ -385,7 +194,7 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
   // results in buggy interface.
   //
   // TODO:
-  // Probably move this away from here, should go to useViewSpecs hook
+  // Possibly move this away from here, should go to useViewSpecs hook
   //
   const resolvedViewSpecs = useMemo(() => {
     if (!viewSpecs || !viewsToResolve || viewsToResolve.length === 0) {
@@ -417,12 +226,9 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
   }, [viewSpecs, viewsToResolve, viewResolutionContextBase])
 
   return {
-    isLoading,
-    metadataQueries,
-    sourcesQueries,
-    layersQueries,
-    controlsQueries,
-    downloadQueries,
+    currentLoadingStage,
+    queriesByStage: QUERIES_BY_STAGE_ALL,
+    viewsReadyAtStage,
     resolvedViews,
     resolvedViewSpecs,
   }

@@ -1,5 +1,17 @@
 # @orioro/template-react
 
+## 0.4.1
+
+### Patch Changes
+
+- patch publishing issue
+
+## 0.4.0
+
+### Minor Changes
+
+- d8d6b68: implement feature-state handling on <Source /> component and expose memoizee options on makeMemoFetch
+
 ## 0.3.2
 
 ### Patch Changes

@@ -4,7 +4,7 @@ export function applyOpacity(color: string, alpha = 1) {
   if (color.startsWith('#')) {
     let hex = color
     if (hex.length === 4) {
-      hex = '#' + [...hex.slice(1)].map((c) => c + c).join('')
+      hex = '#' + hex.slice(1).replace(/./g, (c) => c + c)
     }
     const r = parseInt(hex.slice(1, 3), 16)
     const g = parseInt(hex.slice(3, 5), 16)

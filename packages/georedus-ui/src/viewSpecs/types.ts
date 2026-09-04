@@ -6,6 +6,8 @@ import {
 import React from 'react'
 import { ViewConf, ViewConfState } from '../GeoReDUS/viewConfReducer'
 import { UseQueryOptions } from '@tanstack/react-query'
+import { InputSchema } from '@orioro/react-ui-core'
+import type { Merge } from 'type-fest'
 
 export type ExpressionOf<ResultT> = ResultT | [string, ...any[]]
 
@@ -89,6 +91,18 @@ export type ViewSpec = {
   id: string
   debug?: boolean
   keywords?: string | string[]
+  confSchema?: Record<
+    string,
+    Record<
+      string,
+      Merge<
+        InputSchema,
+        {
+          notify: ViewStageKey | ViewStageKey[]
+        }
+      >
+    >
+  >
   metadata: ViewMetadataSpec
   sources: ViewSourcesSpec
   layers: ViewLayersSpec

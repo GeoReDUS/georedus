@@ -7,7 +7,7 @@ import { LayeredMapProps } from '../types'
 import { TerrainControl } from '../Controls'
 import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import { layeredMapOnClickHandler } from './layeredMapOnClickHandler'
+import { layeredMapMouseEventHandler } from './layeredMapMouseEventHandler'
 
 export default {
   title: 'LayeredMap',
@@ -55,13 +55,20 @@ export const Basic = () => {
       [],
     )
 
-  const onClick = useMemo(() => layeredMapOnClickHandler(), [])
+  const layeredMapHandlers = layeredMapMouseEventHandler([
+    'onClick',
+    'onMouseMove',
+  ])
 
   return (
     <LayeredMap
       {...hoverProps}
       {...viewState}
-      onClick={onClick}
+      onClick={layeredMapHandlers.onClick}
+      onMouseMove={(...args) => {
+        layeredMapHandlers.onMouseMove(...args)
+        hoverProps.onMouseMove(...args)
+      }}
       onMove={onMove}
       style={{
         height: '100vh',
@@ -116,6 +123,9 @@ export const Basic = () => {
               },
               onClick: (feature, e) => {
                 alert('clicked: ' + feature.id)
+              },
+              onMouseMove: (feature, e) => {
+                console.log('estados layer level - onMouseMove', feature.id)
               },
             },
             municipios: {
