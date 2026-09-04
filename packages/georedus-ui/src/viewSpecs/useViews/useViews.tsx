@@ -81,7 +81,7 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
 
   let QUERIES_BY_STAGE_ACC: Partial<QueriesByStage> = {}
 
-  for (const [stageGroupIndex, stageGroup] of PIPELINE_STAGES.entries()) {
+  PIPELINE_STAGES.forEach((stageGroup, stageGroupIndex) => {
     //
     // stageGroup is a list of parallel stages
     //
@@ -105,7 +105,7 @@ export function useViews(viewResolutionContextBase: ViewResolutionContextBase) {
       })
       QUERIES_BY_STAGE_ACC = { ...QUERIES_BY_STAGE_ACC, [stageKey]: queries }
     })
-  }
+  })
 
   //
   // Memoize the final accumulator so downstream memos and consumers

@@ -32,13 +32,14 @@ const parseResponse = (
   // Avoids ever materializing an intermediate {i, t}[] per source.
   const result: TileData = new Map()
   const cursors = new Map<number, number>()
-  for (const [s, count] of counts) {
+
+  counts.forEach((count, s) => {
     result.set(s, {
       targets: new Uint32Array(count),
       times: new Float32Array(count),
     })
     cursors.set(s, 0)
-  }
+  })
 
   for (let k = 0; k < n; k++) {
     const s = sIdx[k]
