@@ -38,6 +38,10 @@ export function viewsFromStageQueries<
                 }
                 const viewQuery = stageQueries[viewQueryIndex]
 
+                if (viewQuery.status === 'error') {
+                  console.warn('viewQuery.error', viewQuery.error)
+                }
+
                 return viewQuery.status === 'success'
                   ? [stageKey, viewQuery.data]
                   : [
