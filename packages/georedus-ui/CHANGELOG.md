@@ -1,5 +1,11 @@
 # @orioro/template-react
 
+## 0.22.2
+
+### Patch Changes
+
+- fix compilation issue
+
 ## 0.22.1
 
 ### Patch Changes
