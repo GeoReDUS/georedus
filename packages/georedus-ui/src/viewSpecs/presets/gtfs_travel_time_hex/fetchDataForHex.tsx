@@ -106,7 +106,7 @@ const buildStateById = (
 }
 
 const memoFetch = makeMemoFetch(
-  window.fetch,
+  fetch,
   (res) =>
     res.text().then((text) => {
       return parseResponse(dsvFormat(',').parse(text))
