@@ -13,24 +13,12 @@ import { vtx } from '../../vtxProtocol'
 //
 // TODO: set dynamic values
 //
-const HARD_CODED_ALLOW_FETCH_SOURCES: Parameters<
-  typeof fetchExpr.allowOrigins
->[0] = {
+const ALLOW_FETCH_SOURCES: Parameters<typeof fetchExpr.allowOrigins>[0] = {
   ['https://dev-geoapi-metadata.orioro.design']: ['GET', 'POST'],
-  ['http://localhost:8001']: ['GET', 'POST'],
-  ['https://prod-redus-geo-metadata-api-34f7c99630ed.herokuapp.com']: [
-    'GET',
-    'POST',
-  ],
 }
 
-console.warn('TODO: remove HARD_CODED_ALLOW_FETCH_SOURCES')
-
 async function isFetchAllowed(resource, options) {
-  return fetchExpr.allowOrigins(HARD_CODED_ALLOW_FETCH_SOURCES)(
-    resource,
-    options,
-  )
+  return fetchExpr.allowOrigins(ALLOW_FETCH_SOURCES)(resource, options)
 }
 
 const { resolveAsync: resolveExprAsync, resolve: resolveExpr } = makeResolve({

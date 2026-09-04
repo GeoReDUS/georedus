@@ -2,35 +2,30 @@
 
 ## 📖 Sobre
 
-Este repositório representa a biblioteca de componentes frontend desenvolvida em React para visualização e análise de dados geoespaciais urbanos do projeto GeoReDUS (Plataforma de Dados Intraurbanos da ReDUS - Rede para Desenvolvimento Urbano Sustentável). O projeto está organizado em sistema de `monorepo` (clique [aqui](https://github.com/joelparkerhenderson/monorepo-vs-polyrepo?tab=readme-ov-file#introduction) para entender o que é um monorepo).
+Este repositório representa a biblioteca de componentes desenvolvida para visualização e análise de dados geoespaciais urbanos do projeto [GeoReDUS](https://www.redus.org.br/georedus).
+
+A GeoReDUS é uma plataforma gratuita  de dados e mapas nas escalas intramunicipal e regional que apoia a gestão pública local nos processos de formulação, implementação e monitoramento de políticas públicas informadas por evidências territoriais, para todos municípios brasileiros.
+
+![Instituições parceiras GeoReDUS](https://www.redus.org.br/georedus/assets/parcerias.png)
+
+## Estrutura do repositório
+
+O projeto está organizado em sistema de `monorepo` (clique [aqui](https://github.com/joelparkerhenderson/monorepo-vs-polyrepo?tab=readme-ov-file#introduction) para entender o que é um monorepo).
 
 ## ⚙️ Configuração de ambiente e Instalação do Projeto
 
 Este projeto utiliza Yarn Workspaces para gerenciar múltiplos pacotes em um único repositório.
 
-Siga o mesmo passo a passo de **configuração de ambiente** e **instalação do projeto** do repositório `redus-web-ui` neste [link](https://github.com/orioro/redus-web-ui). Após a instalação correta do projeto continue no passo a passo abaixo.
-
-**Obs:** No comando `yarn build` provavelmente vão aparecer alguns erros de chatbot e typescript, pode ignorar, o importante é o `dist` estar sendo criado no diretório de cada componente.
-
 ## 🚀 Desenvolvimento
 
-### Orientação Genérica:
+### Orientação Geral:
 
 No projeto, usamos o padrão:
 
 ```bash
 yarn workspace <name> <comando>
 ```
-
 **Obs:** Verifique o `name` e os comandos do `workspace` em `package.json` no diretório de cada um em `packages`.
-
-**Acesse: http://localhost:6006**
-
-O Storybook exibe todos os componentes da biblioteca com exemplos interativos. Você pode explorar os componentes através dos arquivos `.stories.jsx` localizados em:
-
-```
-packages/[workspace]/src/[componente]/*.stories.jsx
-```
 
 ### Aplicação para o pacote `georedus-ui`:
 
@@ -97,11 +92,7 @@ Componente principal da GeoReDUS:
 - Integração com Google Sheets para especificações de visualização
 - Exportação e compartilhamento de visualizações
 
-### **2 - `chatbot-poc`**
-
-Prova de conceito de chatbot assistente para navegação e análise de dados
-
-### **3 - `react-maplibre-util`**
+### **2 - `react-maplibre-util`**
 
 Componentes React para integração avançada com o **MapLibre GL** por meio do `react-map-gl`, que atua como camada de integração entre o **MapLibre GL** e o React.
 
@@ -173,9 +164,7 @@ Para entender melhor sobre essas duas bibliotecas consulte suas respectivas docu
 
 Cada componente pode ser explorado individualmente para compor visualizações avançadas e interativas com MapLibre GL.
 
-É possivel ver uma aplicação simples desta biblioteca em um estudo de caso feito na branch `tmp/studies` em `packages/react-maplibre-util/src/Studies/ReactMapGl.stories.jsx`.
-
-### **4 - `react-chart-util`**
+### **3 - `react-chart-util`**
 
 Biblioteca de componentes para visualização de dados e legendas.
 
@@ -186,7 +175,7 @@ Biblioteca de componentes para visualização de dados e legendas.
 - Layout flexível com suporte a múltiplas legendas
 - Integração com sistemas de cores e escalas
 
-### **5 - `react-dir-nav`**
+### **4 - `react-dir-nav`**
 
 Biblioteca que constrói o sistema de navegação hierárquica em árvore para organização de conteúdo:
 
@@ -197,7 +186,7 @@ Biblioteca que constrói o sistema de navegação hierárquica em árvore para o
 
 **Casos de uso:** Menu de visualizações, organização de camadas temáticas e catálogo de dados
 
-### **6 - `vector-tile-util`**
+### **5 - `vector-tile-util`**
 
 Utilitários para manipulação e renderização de Vector Tiles:
 
@@ -458,9 +447,6 @@ sources: {
 }
 ```
 
-> **Observação:**
-> O valor de `table_id` (neste exemplo, `cem_censo_2022_pessoas`) e as variáveis disponíveis para consulta dependem da fonte de dados utilizada. Para consultar as variáveis disponíveis em cada API, acesse [esta tabela de referência](https://docs.google.com/spreadsheets/d/1Y2Pt8fXzhGUA_Nhwz7vOyEZUKi6FEP71DChfYBSTa7U/edit?gid=1523585495#gid=1523585495).
-
 #### **4 - Layers**
 
 Define como os dados serão renderizados.
@@ -690,3 +676,24 @@ download: downloadResolver({
 Se quiser personalizar as variáveis disponíveis para download, basta preencher o campo `availableVariableIds`.
 
 Esse sistema permite exportar dados de forma prática, garantindo compatibilidade com diferentes ferramentas de análise geoespacial.
+
+## Agradecimentos
+
+<table>
+  <tr>
+    <td width="30%" align="center" valign="middle">
+      <a href="https://fapesp.br/">
+        <img src="images/fapesp-logo.svg" width="160">
+      </a>
+    </td>
+    <td width="70%" valign="middle">
+      Este estudo foi financiado, em parte, pela 
+      <strong>Fundação de Amparo à Pesquisa do Estado de São Paulo</strong> 
+      (<a href="https://fapesp.br/">FAPESP</a>), Brasil. 
+      Processo nº 
+      <a href="https://bv.fapesp.br/pt/bolsas/232814/analise-da-producao-de-evidencias-geoespaciais-para-politicas-publicas/">
+        2025/15643-1
+      </a>.
+    </td>
+  </tr>
+</table>
