@@ -4,6 +4,15 @@ import { WIDTH_SCALE_STOPS_RESOLVERS } from './widthScaleStopsResolvers'
 import { WIDTH_MIN, WIDTH_MAX } from '../consts'
 import { buildHourlyFieldNames } from '../../util/hourUtil'
 
+const rangeAverage = (allRows, from, to) =>
+  allRows.map((freqs) => {
+    let sum = 0
+    for (let j = from; j < to; j++) {
+      sum += freqs[j]
+    }
+    return sum / (to - from)
+  })
+
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
 
@@ -14,45 +23,32 @@ export function metadata(viewSpec, allViewSpecs, context) {
     valuesParam += i > 0 ? `,${param}:${param}` : `${param}:${param}`
   }
 
-  const urlLayerValues = `${context.METADATA_API_ENDPOINT}/${style.lineWidth.viewKey}?cd_mun=eq.${style.lineWidth.cd_mun}&select=${valuesParam},color`
-  const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_linhas?cd_mun=eq.${style.lineWidth.cd_mun}&select=${valuesParam}`
+  //urlLayerValues fetches only the rows for the currently selected layer, while urlAllValues fetches all rows for the municipality.
+  // The first one is used to compute the width of each line based on the current period,
+  // while the second one is used to compute the width scale stops, which should be consistent across all layers.
+  const urlLayerValues = `${context.METADATA_API_ENDPOINT}/${style.lineWidth.viewKey}?cd_mun=eq.${context.municipioId}&select=${valuesParam},color`
+  const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_linhas?cd_mun=eq.${context.municipioId}&select=${valuesParam}`
 
   const widthData = style.lineWidth
     ? resolveAsync.fn(async (ctx) => {
-        const layerRawData = await fetch(
-          interpolate(urlLayerValues, {
-            METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-            municipioId: context.municipioId,
-          }),
-        ).then((res) => res.json())
+        const layerRawData = await fetch(urlLayerValues).then((res) =>
+          res.json(),
+        )
 
         const resolvedLayerValues = layerRawData.map((entry) => {
-          const headways = []
-          valuesArray.forEach((key) => {
-            headways.push(entry[key])
-          })
+          const headways = valuesArray.map((key) => entry[key])
           const frequencias = headways.map((h) => (h ? 60 / h : 0))
           return frequencias
         })
 
-        const colors = [...new Set(
-          layerRawData
-            .map((entry) => entry.color)
-            .filter(Boolean)
-        )]
+        const colors = [
+          ...new Set(layerRawData.map((entry) => entry.color).filter(Boolean)),
+        ]
 
         const resolvedAllValues = (
-          await fetch(
-            interpolate(urlAllValues, {
-              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-              municipioId: context.municipioId,
-            }),
-          ).then((res) => res.json())
+          await fetch(urlAllValues).then((res) => res.json())
         ).map((entry) => {
-          const headways = []
-          valuesArray.forEach((key) => {
-            headways.push(entry[key])
-          })
+          const headways = valuesArray.map((key) => entry[key])
           const frequencias = headways.map((h) => (h ? 60 / h : 0))
           return frequencias
         })
@@ -60,18 +56,13 @@ export function metadata(viewSpec, allViewSpecs, context) {
         const [periodFrom, periodTo] = ctx.view.conf?.style
           ?.periodHourSlider || [0, 24]
 
-        const rangeAverage = (allRows, from, to) =>
-          allRows.map((freqs) => {
-            let sum = 0
-            for (let j = from; j < to; j++) {
-              sum += freqs[j]
-            }
-            return sum / (to - from)
-          })
-
         // layerValues reflects the currently selected period, so the
         // rendered line width changes as the user moves the slider.
-        const layerValues = rangeAverage(resolvedLayerValues, periodFrom, periodTo)
+        const layerValues = rangeAverage(
+          resolvedLayerValues,
+          periodFrom,
+          periodTo,
+        )
 
         // allValues (and therefore widthScaleStops) always spans the full
         // day, so the shared width scale/legend stays fixed regardless of

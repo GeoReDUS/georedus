@@ -1,5 +1,5 @@
 import { Z_OVERLAY_BASE_1000 } from '../../zIndexes'
-import { municipioFilter, applyOpacity, basicTooltip } from '../util'
+import { applyOpacity, basicTooltip } from '../util'
 import { resolve } from '@orioro/resolve'
 
 import { MAIN_SOURCE_ID } from './sources'
@@ -46,12 +46,13 @@ function _buildColorStops(colorScaleStops, hasLowerValues, colorScheme) {
   const colors =
     colorScheme.scalesByK[k + 1] || colorScheme.scalesByK[colorScheme.maxK]
 
-  const stops = []
-  stops.push(colorScaleStops[0]) // DEFAULT_COLOR base
-  stops.push(0) // boundary for [0, colors[0]) bucket
-  stops.push(colors[0]) // color for that bucket
-  stops.push(1) // boundary for [1, colors[1]) bucket (shifted one color up)
-  stops.push(colors[1])
+  const stops = [
+    colorScaleStops[0], // DEFAULT_COLOR base
+    0, // boundary for [0, colors[0]) bucket
+    colors[0], // color for that bucket
+    1, // boundary for [1, colors[1]) bucket (shifted one color up)
+    colors[1], // color for that bucket
+  ]
 
   for (let i = 3; i < colorScaleStops.length; i += 2) {
     stops.push(colorScaleStops[i]) // original break boundary
@@ -234,7 +235,14 @@ export function layers(viewSpec, allViewSpecs, context) {
   }
 
   const _filter = resolve.fn((ctx) => {
-    const conditions = [municipioFilter()]
+    const conditions = [
+      resolve.fn(({ app }) =>
+        [
+          'all',
+          app.regional ? null : ['==', ['get', 'cd_mun'], app.municipioId],
+        ].filter(Boolean),
+      ),
+    ]
 
     if (viewSpec.style?.radius?.valueKey) {
       const [periodFrom, periodTo] = ctx.view.conf?.style?.periodHourSlider || [

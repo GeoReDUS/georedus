@@ -2,7 +2,10 @@ import { interpolate } from '@orioro/util'
 import { resolveAsync } from '@orioro/resolve'
 import { COLOR_SCHEMES } from '../../../util'
 import { COLOR_SCALE_STOPS_RESOLVERS } from './colorScaleStopResolvers'
-import { buildHourlyFieldNames, isMaxAggregationKey } from '../../util/hourUtil.js'
+import {
+  buildHourlyFieldNames,
+  isMaxAggregationKey,
+} from '../../util/hourUtil.js'
 
 export function metadata(viewSpec, allViewSpecs, context) {
   const { style } = viewSpec
@@ -14,38 +17,29 @@ export function metadata(viewSpec, allViewSpecs, context) {
     valuesParam += i > 0 ? `,${param}:${param}` : `${param}:${param}`
   }
 
-  const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_estacoes?cd_mun=eq.${style.radius.cd_mun}&select=${valuesParam}`
+  const urlAllValues = `${context.METADATA_API_ENDPOINT}/cem_gtfs_estacoes?cd_mun=eq.${context.municipioId}&select=${valuesParam}`
 
   const radiusData = style.radius
     ? resolveAsync.fn(async (ctx) => {
         const resolvedAllValues = (
-          await fetch(
-            interpolate(urlAllValues, {
-              METADATA_API_ENDPOINT: context.METADATA_API_ENDPOINT,
-              municipioId: context.municipioId,
-            }),
-          ).then((res) => res.json())
+          await fetch(urlAllValues).then((res) => res.json())
         ).map((entry) => {
-          const partidas = []
-          valuesArray.forEach((key) => {
-            partidas.push(entry[key])
-          })
+          const partidas = valuesArray.map((key) => entry[key])
           return partidas
         })
 
         const [periodFrom, periodTo] = ctx.view.conf?.style
           ?.periodHourSlider || [0, 24]
 
-        let resolvedValues = []
-        for (let i = 0; i < resolvedAllValues.length; i++) {
-          const slice = resolvedAllValues[i].slice(periodFrom, periodTo)
+        let resolvedValues = resolvedAllValues.map((values) => {
+          const slice = values.slice(periodFrom, periodTo)
           if (isMaxAggregationKey(style.radius.valueKey)) {
-            resolvedValues.push(Math.max(...slice))
+            return Math.max(...slice)
           } else {
             const sum = slice.reduce((acc, v) => acc + v, 0)
-            resolvedValues.push(sum / (periodTo - periodFrom))
+            return sum / (periodTo - periodFrom)
           }
-        }
+        })
 
         const colorSchemeId =
           ctx.view.conf?.style?.colorScheme || style.colorScheme
