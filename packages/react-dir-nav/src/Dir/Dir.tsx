@@ -60,9 +60,9 @@ export function makeDir(config?: MakeDirNavProps) {
     // TODO: review API
     //
     const _byType = useMemo(() => {
-      return groupBy(node.childNodes, (node) =>
-        node.type === 'dir' ? 'dir' : 'item',
-      )
+      const items = node.childNodes.filter(n => n.type !== 'dir')
+      const dirs = node.childNodes.filter(n => n.type === 'dir')
+      return { item: items, dir: dirs }
     }, [node.childNodes])
 
     // const _byType = useSortedNodesByType(node.childNodes)
@@ -89,16 +89,16 @@ export function makeDir(config?: MakeDirNavProps) {
           </CollapsibleTrigger>
 
           <CollapsibleContent>
-            {_byType.dir?.length > 0 ? (
-              <DirContainer>
-                <NodeList nodes={_byType.dir} depth={depth + 1} />
-              </DirContainer>
-            ) : null}
-
             {_byType.item?.length > 0 ? (
               <ItemContainer>
                 <NodeList nodes={_byType.item} depth={depth + 1} />
               </ItemContainer>
+            ) : null}
+
+            {_byType.dir?.length > 0 ? (
+              <DirContainer>
+                <NodeList nodes={_byType.dir} depth={depth + 1} />
+              </DirContainer>
             ) : null}
 
             {Object.keys(_byType).length === 0 ? (
