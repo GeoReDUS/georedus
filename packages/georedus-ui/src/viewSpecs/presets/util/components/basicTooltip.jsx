@@ -67,8 +67,19 @@ export function basicTooltip({ title, entries } = {}, { extraEntries } = {}) {
                   ]),
               )
 
-        const configuredEntries = Object.entries(entrySpecs).map(
-          ([key, spec]) => {
+        //
+        // Entries whose property is missing in the feature are omitted
+        // instead of rendered with an empty value. The same layer may serve
+        // features with different attributes (e.g. aggregated by zoom level),
+        // and `false` and `0` are still valid values.
+        //
+        const configuredEntries = Object.entries(entrySpecs)
+          .filter(([key]) => {
+            const value = ctx.feature?.properties[key]
+
+            return value !== undefined && value !== null && value !== ''
+          })
+          .map(([key, spec]) => {
             spec = typeof spec === 'string' ? { label: spec } : spec
 
             const { label, format } = spec
@@ -83,8 +94,7 @@ export function basicTooltip({ title, entries } = {}, { extraEntries } = {}) {
                 ctx.feature?.properties[key],
               ),
             ]
-          },
-        )
+          })
 
         return typeof extraEntries === 'function'
           ? [...configuredEntries, ...extraEntries(ctx)]
